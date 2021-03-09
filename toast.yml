@@ -1,0 +1,191 @@
+image: ubuntu:20.04
+default: check
+tasks:
+  install_packages:
+    description: Install system packages.
+    command: |
+      set -euo pipefail
+      apt-get update
+      apt-get install --yes build-essential curl ripgrep shellcheck
+
+  install_tagref:
+    description: Install Tagref, a reference checking tool.
+    dependencies:
+      - install_packages
+    command: |
+      set -euo pipefail
+      curl https://raw.githubusercontent.com/stepchowfun/tagref/main/install.sh -LSfs | sh
+
+  create_user:
+    description: Create a user who doesn't have root privileges.
+    command: |
+      set -euo pipefail
+      adduser --disabled-password --gecos '' user
+
+  install_rust:
+    description: Install Rust, a systems programming language.
+    dependencies:
+      - install_packages
+      - create_user
+    user: user
+    command: |
+      set -euo pipefail
+      curl https://sh.rustup.rs -sSf |
+        sh -s -- -y --default-toolchain 1.50.0
+      . $HOME/.cargo/env
+      rustup component add clippy
+      rustup component add rustfmt
+      rm -rf "$(dirname "$(rustup which rustc)")/../share"
+
+  install_tools:
+    description: Install the tools needed to build and lint the program.
+    dependencies:
+      - install_rust
+      - install_tagref
+
+  fetch_crates:
+    description: Download and build Rust packages used by the program.
+    dependencies:
+      - install_tools
+    input_paths:
+      - Cargo.lock
+      - Cargo.toml
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      mv Cargo.lock Cargo.lock.og
+      mv Cargo.toml Cargo.toml.og
+      cargo init --vcs none
+      mv Cargo.lock.og Cargo.lock
+      mv Cargo.toml.og Cargo.toml
+      cargo build
+      cargo clean --package typical
+      cargo build --release
+      cargo clean --release --package typical
+      cargo clippy
+      rm -rf src
+
+  build:
+    description: Build the library and binary in non-release mode.
+    dependencies:
+      - fetch_crates
+    input_paths:
+      - src
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      cargo build
+
+  test:
+    description: Run the test suite.
+    dependencies:
+      - build
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      cargo test
+
+  lint:
+    description: Run the linters.
+    dependencies:
+      - build
+    input_paths:
+      - .ignore # Used by `tagref`
+      - install.sh # Linted by ShellCheck
+      - release.sh # Linted by ShellCheck
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+
+      # Lint Rust files.
+      cargo clippy --all-targets --all-features -- \
+        --deny warnings --deny clippy::all --deny clippy::pedantic
+
+      # Check code formatting.
+      if ! cargo fmt --all -- --check; then
+        echo 'ERROR: Please correct the formatting errors above.' 1>&2
+        exit 1
+      fi
+
+      # Check references.
+      tagref
+
+      # Lint shell files.
+      shellcheck install.sh release.sh
+
+      # Enforce that lines span no more than 100 columns.
+      if rg --line-number --type rust '.{101}'; then
+        echo "There are lines spanning more than 100 columns." >&2
+        exit 1
+      fi
+
+      # Enforce trailing commas in multi-line sequences.
+      if rg --line-number --multiline --type rust '[^,]\n(\s*)\)'; then
+        echo "There are multi-line sequences without trailing commas." >&2
+        exit 1
+      fi
+
+      # Forbid trailing commas in single-line sequences.
+      if rg --line-number --type rust '[^(],\s*\)'; then
+        echo "There are single-line sequences with trailing commas." >&2
+        exit 1
+      fi
+
+  run:
+    description: Run the program.
+    dependencies:
+      - build
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      cargo run --
+
+  check:
+    description: Type-check the program.
+    dependencies:
+      - fetch_crates
+    input_paths:
+      - src
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      find src -type f -name '*.rs' -exec touch {} +
+      cargo check --all --all-targets --all-features
+
+  format:
+    description: Format the source code.
+    dependencies:
+      - fetch_crates
+    input_paths:
+      - src
+    output_paths:
+      - src
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      cargo fmt --all
+
+  release:
+    description: >-
+      Build the program in release mode and export the binary to the `artifacts` directory.
+    dependencies:
+      - fetch_crates
+    input_paths:
+      - src
+    output_paths:
+      - artifacts
+    user: user
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      cargo build --release
+      mkdir artifacts
+      sha256sum --binary target/release/typical
+      cp target/release/typical artifacts/typical-x86_64-unknown-linux-gnu

@@ -1,0 +1,4 @@
+# Keep this file in sync with `.ignore`.
+/artifacts/
+/release/
+/target/
