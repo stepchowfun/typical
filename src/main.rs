@@ -46,11 +46,11 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         .setting(VersionlessSubcommands)
         .subcommand(
             SubCommand::with_name(CHECK_SUBCOMMAND)
-                .about("Checks a program")
+                .about("Checks a schema")
                 .arg(
                     Arg::with_name(CHECK_SUBCOMMAND_PATH_OPTION)
                         .value_name("PATH")
-                        .help("Sets the path of the program entrypoint")
+                        .help("Sets the path of the schema")
                         .required(true) // [tag:check_subcommand_shell_required]
                         .takes_value(true)
                         .number_of_values(1),
@@ -176,7 +176,7 @@ fn entry() -> Result<(), Error> {
                     .unwrap(),
             );
 
-            // Check the program.
+            // Check the schema.
             process_schema(schema_path)?;
         }
 
