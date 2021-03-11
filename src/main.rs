@@ -1,7 +1,14 @@
+mod assertions;
 mod error;
 mod format;
+mod token;
+mod tokenizer;
 
-use crate::{error::Error, format::CodeStr};
+use crate::{
+    error::{lift, Error},
+    format::CodeStr,
+    tokenizer::tokenize,
+};
 use atty::Stream;
 use clap::{
     App,
@@ -10,7 +17,7 @@ use clap::{
     },
     Arg, Shell, SubCommand,
 };
-use std::{io::stdout, path::Path, process::exit, thread};
+use std::{fs::read_to_string, io::stdout, path::Path, process::exit, thread};
 
 // The program version
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -69,6 +76,56 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
 }
 
+// Process a schema.
+fn process_schema(schema_path: &Path) -> Result<(), Error> {
+    // Read the schema file.
+    let schema_contents = read_to_string(schema_path).map_err(lift(format!(
+        "Error when reading file {}.",
+        schema_path.to_string_lossy().code_str(),
+    )))?;
+
+    // Here is a helper function for mapping a `Vec<Error>` to a single `Error`.
+    let collect_errors = |errors: Vec<Error>| Error {
+        message: errors
+            .iter()
+            .fold(String::new(), |acc, error| {
+                format!(
+                    "{}\n{}{}",
+                    acc,
+                    // Only render an empty line between errors here if the previous line
+                    // doesn't already visually look like an empty line. See
+                    // [ref:overline_u203e].
+                    if acc
+                        .split('\n')
+                        .last()
+                        .unwrap()
+                        .chars()
+                        .all(|c| c == ' ' || c == '\u{203e}')
+                    {
+                        ""
+                    } else {
+                        "\n"
+                    },
+                    error,
+                )
+            })
+            .trim()
+            .to_owned(),
+        reason: None,
+    };
+
+    // Tokenize the schema file.
+    let tokens = tokenize(Some(schema_path), &schema_contents).map_err(collect_errors)?;
+
+    // Print the tokens.
+    for token in tokens {
+        println!("{}", token.to_string().code_str());
+    }
+
+    // If we made it this far, nothing went wrong.
+    Ok(())
+}
+
 // Print a shell completion script to STDOUT.
 fn shell_completion(shell: &str) -> Result<(), Error> {
     // Determine which shell the user wants the shell completion for.
@@ -109,8 +166,8 @@ fn entry() -> Result<(), Error> {
     match matches.subcommand_name() {
         // [tag:check_subcommand]
         Some(subcommand) if subcommand == CHECK_SUBCOMMAND => {
-            // Determine the path to the source file.
-            let source_path = Path::new(
+            // Determine the path to the schema file.
+            let schema_path = Path::new(
                 matches
                     .subcommand_matches(CHECK_SUBCOMMAND)
                     .unwrap() // [ref:check_subcommand]
@@ -120,10 +177,7 @@ fn entry() -> Result<(), Error> {
             );
 
             // Check the program.
-            eprintln!(
-                "Checking {}\u{2026}",
-                source_path.to_string_lossy().code_str(),
-            );
+            process_schema(schema_path)?;
         }
 
         // [tag:shell_completion_subcommand]

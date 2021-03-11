@@ -140,10 +140,17 @@ tasks:
     dependencies:
       - build
     user: user
+    input_paths:
+      - examples
     command: |
       set -euo pipefail
       . $HOME/.cargo/env
-      cargo run -- help
+
+      # Check all the examples.
+      for file in examples/*.t; do
+        echo "Checking $file..."
+        cargo run -- check "$file"
+      done
 
   check:
     description: Type-check the program.

@@ -31,27 +31,26 @@ impl error::Error for Error {
     }
 }
 
-// This function constructs an `Error` that may occur at a specific location in a source file.
-#[allow(dead_code)]
+// This function constructs an `Error` that may occur at a specific location in a schema file.
 pub fn throw(
     message: &str,
-    source_path: Option<&Path>,
+    schema_path: Option<&Path>,
 
     // The range is inclusive on the left and exclusive on the right.
-    source: Option<(&str, (usize, usize))>,
+    schema: Option<(&str, (usize, usize))>,
 ) -> Error {
     {
-        // Render the relevant lines from the source if applicable.
-        let listing = source.map_or_else(
+        // Render the relevant lines from the schema if applicable.
+        let listing = schema.map_or_else(
             || "".to_owned(),
-            |(source_contents, source_range)| {
-                listing(source_contents, source_range.0, source_range.1)
+            |(schema_contents, schema_range)| {
+                listing(schema_contents, schema_range.0, schema_range.1)
             },
         );
 
         // Now we have everything we need to construct the error.
         Error {
-            message: if let Some(path) = source_path {
+            message: if let Some(path) = schema_path {
                 if listing.is_empty() {
                     format!(
                         "{} {} {}",
@@ -81,7 +80,6 @@ pub fn throw(
 // This function constructs an `Error` from a message and a reason. It's written in a curried style
 // so it can be used in a higher-order fashion, e.g.,
 // `foo.map_err(lift("Error doing foo."))`.
-#[allow(dead_code)]
 pub fn lift<T: Into<String>, U: error::Error + 'static>(message: T) -> impl FnOnce(U) -> Error {
     let message = message.into();
     move |error: U| Error {
@@ -90,16 +88,15 @@ pub fn lift<T: Into<String>, U: error::Error + 'static>(message: T) -> impl FnOn
     }
 }
 
-// This function renders the relevant lines of a source file given the source file contents and a
+// This function renders the relevant lines of a schema file given the schema file contents and a
 // range. The range is inclusive on the left and exclusive on the right.
-#[allow(dead_code)]
-pub fn listing(source_contents: &str, range_start: usize, range_end: usize) -> String {
+pub fn listing(schema_contents: &str, range_start: usize, range_end: usize) -> String {
     // Remember the relevant lines and the position of the start of the next line.
     let mut lines = vec![];
     let mut pos = 0_usize;
 
     // Find the relevant lines.
-    for (i, line) in source_contents.split('\n').enumerate() {
+    for (i, line) in schema_contents.split('\n').enumerate() {
         // Record the start of the line before we advance the cursor.
         let line_start = pos;
 
