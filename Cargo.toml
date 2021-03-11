@@ -11,3 +11,11 @@ repository = "https://github.com/stepchowfun/typical"
 readme = "README.md"
 
 [dependencies]
+atty = "0.2"
+colored = "1"
+pad = "0.1"
+unicode-segmentation = "1.6"
+
+[dependencies.clap]
+version = "2"
+features = ["wrap_help"]
