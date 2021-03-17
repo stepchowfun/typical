@@ -1,7 +1,7 @@
 use crate::{
     error::{throw, Error},
     format::CodeStr,
-    token::{Token, Variant, ENUM_KEYWORD, MIGRATING_KEYWORD, STRUCT_KEYWORD},
+    token::{Token, Variant, ENUM_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
 };
 use std::path::Path;
 use unicode_segmentation::GraphemeCursor;
@@ -61,7 +61,7 @@ pub fn tokenize<'a>(
                         | Variant::Equals
                         | Variant::Identifier(_)
                         | Variant::LeftCurly
-                        | Variant::Migrating
+                        | Variant::Restricted
                         | Variant::RightCurly
                         /* [tag:no_consecutive_separators] */
                         | Variant::Separator
@@ -96,10 +96,10 @@ pub fn tokenize<'a>(
                         source_range: (i, end),
                         variant: Variant::Enum,
                     });
-                } else if &schema_contents[i..end] == MIGRATING_KEYWORD {
+                } else if &schema_contents[i..end] == RESTRICTED_KEYWORD {
                     tokens.push(Token {
                         source_range: (i, end),
-                        variant: Variant::Migrating,
+                        variant: Variant::Restricted,
                     });
                 } else if &schema_contents[i..end] == STRUCT_KEYWORD {
                     tokens.push(Token {
@@ -206,7 +206,7 @@ pub fn tokenize<'a>(
                     | Variant::Equals
                     | Variant::IntegerLiteral(_)
                     | Variant::LeftCurly
-                    | Variant::Migrating
+                    | Variant::Restricted
                     | Variant::RightCurly
                     | Variant::Struct => false,
                     Variant::Identifier(_) => true,
@@ -231,7 +231,7 @@ pub fn tokenize<'a>(
 mod tests {
     use crate::{
         assert_fails, assert_same,
-        token::{Token, Variant, ENUM_KEYWORD, MIGRATING_KEYWORD, STRUCT_KEYWORD},
+        token::{Token, Variant, ENUM_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
         tokenizer::tokenize,
     };
 
@@ -317,12 +317,12 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_migrating() {
+    fn tokenize_restricted() {
         assert_same!(
-            tokenize(None, MIGRATING_KEYWORD).unwrap(),
+            tokenize(None, RESTRICTED_KEYWORD).unwrap(),
             vec![Token {
-                source_range: (0, MIGRATING_KEYWORD.len()),
-                variant: Variant::Migrating,
+                source_range: (0, RESTRICTED_KEYWORD.len()),
+                variant: Variant::Restricted,
             }],
         );
     }
