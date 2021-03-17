@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Result};
 
 // Keywords
 pub const ENUM_KEYWORD: &str = "enum";
-pub const MIGRATING_KEYWORD: &str = "migrating";
+pub const RESTRICTED_KEYWORD: &str = "restricted";
 pub const STRUCT_KEYWORD: &str = "struct";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
@@ -22,7 +22,7 @@ pub enum Variant<'a> {
     Identifier(&'a str),
     IntegerLiteral(u64),
     LeftCurly,
-    Migrating,
+    Restricted,
     RightCurly,
     Separator,
     Struct,
@@ -43,7 +43,7 @@ impl<'a> Display for Variant<'a> {
             Self::Identifier(name) => write!(f, "{}", name),
             Self::IntegerLiteral(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
-            Self::Migrating => write!(f, "{}", MIGRATING_KEYWORD),
+            Self::Restricted => write!(f, "{}", RESTRICTED_KEYWORD),
             Self::RightCurly => write!(f, "}}"),
             Self::Separator => write!(f, "\\n"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
