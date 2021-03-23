@@ -86,7 +86,7 @@ tasks:
     command: |
       set -euo pipefail
       . $HOME/.cargo/env
-      cargo test
+      cargo test -- --test-threads=1 # [ref:sequential_tests]
 
   lint:
     description: Run the linters.

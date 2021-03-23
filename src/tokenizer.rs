@@ -1,7 +1,7 @@
 use crate::{
     error::{throw, Error},
     format::CodeStr,
-    token::{Token, Variant, ENUM_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
+    token::{Token, Variant, CHOICE_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
 };
 use std::path::Path;
 use unicode_segmentation::GraphemeCursor;
@@ -10,7 +10,7 @@ use unicode_segmentation::GraphemeCursor;
 #[allow(clippy::cognitive_complexity)]
 #[allow(clippy::too_many_lines)]
 pub fn tokenize<'a>(
-    schema_path: Option<&'a Path>,
+    schema_path: &'a Path,
     schema_contents: &'a str,
 ) -> Result<Vec<Token<'a>>, Vec<Error>> {
     // We'll be building up this vector of tokens.
@@ -52,29 +52,6 @@ pub fn tokenize<'a>(
                     variant: Variant::RightCurly,
                 });
             }
-            '\n' => {
-                // [tag:line_break] [tag:tokens_nonempty]
-                if !tokens.is_empty()
-                    && match tokens.last().unwrap().variant /* [ref:tokens_nonempty] */ {
-                        Variant::Colon
-                        | Variant::Enum
-                        | Variant::Equals
-                        | Variant::Identifier(_)
-                        | Variant::LeftCurly
-                        | Variant::Restricted
-                        | Variant::RightCurly
-                        /* [tag:no_consecutive_separators] */
-                        | Variant::Separator
-                        | Variant::Struct => false,
-                        Variant::IntegerLiteral(_) => true,
-                    }
-                {
-                    tokens.push(Token {
-                        source_range: (i, i + 1),
-                        variant: Variant::Separator,
-                    });
-                }
-            }
 
             // If the first code point is alphabetic according to the Unicode derived property,
             // keep reading subsequent alphanumeric code points and underscores to build up an
@@ -91,10 +68,10 @@ pub fn tokenize<'a>(
                     }
                 }
 
-                if &schema_contents[i..end] == ENUM_KEYWORD {
+                if &schema_contents[i..end] == CHOICE_KEYWORD {
                     tokens.push(Token {
                         source_range: (i, end),
-                        variant: Variant::Enum,
+                        variant: Variant::Choice,
                     });
                 } else if &schema_contents[i..end] == RESTRICTED_KEYWORD {
                     tokens.push(Token {
@@ -129,7 +106,7 @@ pub fn tokenize<'a>(
                 }
 
                 // Try to parse the integer.
-                match schema_contents[i..end].parse::<u64>() {
+                match schema_contents[i..end].parse::<usize>() {
                     Ok(integer) => {
                         tokens.push(Token {
                             source_range: (i, end),
@@ -142,20 +119,20 @@ pub fn tokenize<'a>(
                                 "Integer {} must be less than 2^64.",
                                 &schema_contents[i..end].code_str(),
                             ),
-                            schema_path,
+                            Some(schema_path),
                             Some((schema_contents, (i, end))),
                         ));
                     }
                 }
             }
 
-            // Skip whitespace. Note that line breaks are handled above [ref:line_break].
+            // Skip whitespace.
             _ if c.is_whitespace() => continue,
 
-            // Skip comments. Don't skip the terminating line break, if it exists [ref:line_break].
+            // Skip comments.
             '#' => {
-                while let Some((j, _)) = iter.next() {
-                    if iter.peek() == Some(&(j + 1, '\n')) {
+                for (_, d) in &mut iter {
+                    if d == '\n' {
                         break;
                     }
                 }
@@ -182,7 +159,7 @@ pub fn tokenize<'a>(
                 // Now that we've computed the grapheme cluster, construct and report the error.
                 errors.push(throw(
                     &format!("Unexpected symbol {}.", &schema_contents[i..end].code_str()),
-                    schema_path,
+                    Some(schema_path),
                     Some((schema_contents, (i, end))),
                 ));
             }
@@ -194,66 +171,52 @@ pub fn tokenize<'a>(
         return Err(errors);
     }
 
-    // Remove trailing line break terminators and line break terminators before certain token types.
-    let mut filtered_tokens = vec![];
-    let mut tokens_iter = tokens.iter().peekable();
-    while let Some(token) = tokens_iter.next() {
-        if let Variant::Separator = token.variant {
-            if let Some(next_token) = tokens_iter.peek() {
-                if match next_token.variant {
-                    Variant::Colon
-                    | Variant::Enum
-                    | Variant::Equals
-                    | Variant::IntegerLiteral(_)
-                    | Variant::LeftCurly
-                    | Variant::Restricted
-                    | Variant::RightCurly
-                    | Variant::Struct => false,
-                    Variant::Identifier(_) => true,
-                    Variant::Separator => {
-                        // [ref:no_consecutive_separators]
-                        panic!("Two consecutive separators were found.");
-                    }
-                } {
-                    filtered_tokens.push(token.clone());
-                }
-            }
-        } else {
-            filtered_tokens.push(token.clone());
-        }
-    }
-
     // If we made it this far, we've successfully tokenized the input.
-    Ok(filtered_tokens)
+    Ok(tokens)
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
         assert_fails, assert_same,
-        token::{Token, Variant, ENUM_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
+        token::{Token, Variant, CHOICE_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
         tokenizer::tokenize,
     };
+    use std::path::Path;
 
     #[test]
     fn tokenize_empty() {
-        assert_same!(tokenize(None, "").unwrap(), vec![]);
+        assert_same!(tokenize(Path::new("foo.t"), "").unwrap(), vec![]);
     }
 
     #[test]
     fn tokenize_whitespace() {
-        assert_same!(tokenize(None, " \t\n").unwrap(), vec![]);
+        assert_same!(tokenize(Path::new("foo.t"), " \t\n").unwrap(), vec![]);
     }
 
     #[test]
     fn tokenize_comment() {
-        assert_same!(tokenize(None, "# Hello, World!").unwrap(), vec![]);
+        assert_same!(
+            tokenize(Path::new("foo.t"), "# Hello, World!").unwrap(),
+            vec![],
+        );
+    }
+
+    #[test]
+    fn tokenize_choice() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), CHOICE_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: (0, CHOICE_KEYWORD.len()),
+                variant: Variant::Choice,
+            }],
+        );
     }
 
     #[test]
     fn tokenize_colon() {
         assert_same!(
-            tokenize(None, ":").unwrap(),
+            tokenize(Path::new("foo.t"), ":").unwrap(),
             vec![Token {
                 source_range: (0, 1),
                 variant: Variant::Colon,
@@ -262,20 +225,9 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_enum() {
-        assert_same!(
-            tokenize(None, ENUM_KEYWORD).unwrap(),
-            vec![Token {
-                source_range: (0, ENUM_KEYWORD.len()),
-                variant: Variant::Enum,
-            }],
-        );
-    }
-
-    #[test]
     fn tokenize_equals() {
         assert_same!(
-            tokenize(None, "=").unwrap(),
+            tokenize(Path::new("foo.t"), "=").unwrap(),
             vec![Token {
                 source_range: (0, 1),
                 variant: Variant::Equals,
@@ -286,7 +238,7 @@ mod tests {
     #[test]
     fn tokenize_identifier() {
         assert_same!(
-            tokenize(None, "\u{5e78}\u{798f}").unwrap(),
+            tokenize(Path::new("foo.t"), "\u{5e78}\u{798f}").unwrap(),
             vec![Token {
                 source_range: (0, 6),
                 variant: Variant::Identifier("\u{5e78}\u{798f}"),
@@ -297,7 +249,7 @@ mod tests {
     #[test]
     fn tokenize_integer_literal() {
         assert_same!(
-            tokenize(None, "42").unwrap(),
+            tokenize(Path::new("foo.t"), "42").unwrap(),
             vec![Token {
                 source_range: (0, 2),
                 variant: Variant::IntegerLiteral(42),
@@ -308,7 +260,7 @@ mod tests {
     #[test]
     fn tokenize_left_curly() {
         assert_same!(
-            tokenize(None, "{").unwrap(),
+            tokenize(Path::new("foo.t"), "{").unwrap(),
             vec![Token {
                 source_range: (0, 1),
                 variant: Variant::LeftCurly,
@@ -319,7 +271,7 @@ mod tests {
     #[test]
     fn tokenize_restricted() {
         assert_same!(
-            tokenize(None, RESTRICTED_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), RESTRICTED_KEYWORD).unwrap(),
             vec![Token {
                 source_range: (0, RESTRICTED_KEYWORD.len()),
                 variant: Variant::Restricted,
@@ -330,7 +282,7 @@ mod tests {
     #[test]
     fn tokenize_right_curly() {
         assert_same!(
-            tokenize(None, "}").unwrap(),
+            tokenize(Path::new("foo.t"), "}").unwrap(),
             vec![Token {
                 source_range: (0, 1),
                 variant: Variant::RightCurly,
@@ -339,30 +291,9 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_separator() {
-        assert_same!(
-            tokenize(None, "\n\n42\n\nfoo\n\n").unwrap(),
-            vec![
-                Token {
-                    source_range: (2, 4),
-                    variant: Variant::IntegerLiteral(42),
-                },
-                Token {
-                    source_range: (4, 5),
-                    variant: Variant::Separator,
-                },
-                Token {
-                    source_range: (6, 9),
-                    variant: Variant::Identifier("foo"),
-                },
-            ],
-        );
-    }
-
-    #[test]
     fn tokenize_struct() {
         assert_same!(
-            tokenize(None, STRUCT_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), STRUCT_KEYWORD).unwrap(),
             vec![Token {
                 source_range: (0, STRUCT_KEYWORD.len()),
                 variant: Variant::Struct,
@@ -372,6 +303,6 @@ mod tests {
 
     #[test]
     fn tokenize_unexpected_code_point() {
-        assert_fails!(tokenize(None, "$"), "Unexpected symbol");
+        assert_fails!(tokenize(Path::new("foo.t"), "$"), "Unexpected symbol");
     }
 }

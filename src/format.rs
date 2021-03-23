@@ -19,3 +19,25 @@ impl CodeStr for str {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::format::CodeStr;
+
+    #[test]
+    fn code_str_colorize_off_display() {
+        colored::control::set_override(false);
+
+        assert_eq!(format!("{}", "foo".code_str()), "`foo`");
+    }
+
+    #[test]
+    fn code_str_colorize_on_display() {
+        // If tests are run in parallel, then this may be overridden by another test (or the other
+        // way around). That would cause the test to fail. So we are forced to run tests
+        // sequentially. [tag:sequential_tests]
+        colored::control::set_override(true);
+
+        assert_eq!(format!("{}", "foo".code_str()), "\u{1b}[35mfoo\u{1b}[0m");
+    }
+}
