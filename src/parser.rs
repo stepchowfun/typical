@@ -79,6 +79,86 @@ fn token_source_range<'a>(tokens: &'a [token::Token<'a>], position: usize) -> So
     }
 }
 
+// This macro consumes a single token (with no arguments). On a successful parse, this macro
+// evaluates to the next token position (i.e., `$next + 1`). If the parse fails, this macro returns
+// the given `$error_value`.
+macro_rules! consume_token_0 {
+    (
+        $tokens:expr,
+        $next:expr,
+        $errors:ident,
+        $variant:ident,
+        $error_value:expr $(,)? // This comma is needed to satisfy the trailing commas check: ,
+    ) => {{
+        // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
+        // accidentally evaluating arguments multiple times. Here we force eager evaluation.
+        let tokens = $tokens;
+        let next = $next;
+        let error_value = $error_value;
+
+        // Make sure we have a token to parse.
+        if next == tokens.len() {
+            $errors.push(error_factory(
+                tokens,
+                next,
+                &format!("{}", token::Variant::$variant.to_string().code_str()),
+            ));
+
+            return error_value;
+        }
+
+        // Check if the token matches what we expect.
+        if let token::Variant::$variant = tokens[next].variant {
+            next + 1
+        } else {
+            $errors.push(error_factory(
+                tokens,
+                next,
+                &format!("{}", token::Variant::$variant.to_string().code_str()),
+            ));
+
+            return error_value;
+        }
+    }};
+}
+
+// This macro consumes a single token (with one argument). On a successful parse, this macro
+// evaluates to the argument paired with the next token position (i.e., `$next + 1`). If the parse
+// fails, this macro returns the given `$error_value`.
+macro_rules! consume_token_1 {
+    (
+        $tokens:expr,
+        $next:expr,
+        $errors:ident,
+        $variant:ident,
+        $expectation:expr,
+        $error_value:expr $(,)? // This comma is needed to satisfy the trailing commas check: ,
+    ) => {{
+        // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
+        // accidentally evaluating arguments multiple times. Here we force eager evaluation.
+        let tokens = $tokens;
+        let next = $next;
+        let expectation = $expectation;
+        let error_value = $error_value;
+
+        // Make sure we have a token to parse.
+        if next == tokens.len() {
+            $errors.push(error_factory(tokens, next, expectation));
+
+            return error_value;
+        }
+
+        // Check if the token matches what we expect.
+        if let token::Variant::$variant(argument) = tokens[next].variant {
+            (argument.clone(), next + 1)
+        } else {
+            $errors.push(error_factory(tokens, next, expectation));
+
+            return error_value;
+        }
+    }};
+}
+
 // This is the top-level parsing function.
 pub fn parse<'a>(
     source_path: &'a Path,
@@ -196,17 +276,16 @@ fn parse_identifier<'a>(
     expectation: &str,
     errors: &mut Vec<ErrorFactory<'a>>,
 ) -> (Option<&'a str>, usize) {
-    if start == tokens.len() {
-        errors.push(error_factory(tokens, start, expectation));
-        return (None, start);
-    }
+    let (name, next) = consume_token_1!(
+        tokens,
+        start,
+        errors,
+        Identifier,
+        expectation,
+        (None, start),
+    );
 
-    if let token::Variant::Identifier(name) = tokens[start].variant {
-        (Some(name), start + 1)
-    } else {
-        errors.push(error_factory(tokens, start, expectation));
-        (None, start)
-    }
+    (Some(name), next)
 }
 
 // Parse a series of fields enclosed in curly braces.
@@ -218,24 +297,7 @@ fn parse_fields<'a>(
     let mut next = start;
 
     // Consume the `{`.
-    if next == tokens.len() {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::LeftCurly.to_string().code_str()),
-        ));
-        return (vec![], next);
-    }
-    if let token::Variant::LeftCurly = tokens[next].variant {
-        next += 1;
-    } else {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::LeftCurly.to_string().code_str()),
-        ));
-        return (vec![], next);
-    }
+    next = consume_token_0!(tokens, next, errors, LeftCurly, (vec![], next));
 
     // Parse the fields.
     let mut fields = vec![];
@@ -263,24 +325,7 @@ fn parse_fields<'a>(
     }
 
     // Consume the `}`.
-    if next == tokens.len() {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::RightCurly.to_string().code_str()),
-        ));
-        return (fields, next);
-    }
-    if let token::Variant::RightCurly = tokens[next].variant {
-        next += 1;
-    } else {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::RightCurly.to_string().code_str()),
-        ));
-        return (fields, next);
-    }
+    next = consume_token_0!(tokens, next, errors, RightCurly, (vec![], next));
 
     (fields, next)
 }
@@ -292,85 +337,50 @@ fn parse_field<'a>(
     errors: &mut Vec<ErrorFactory<'a>>,
 ) -> (Option<schema::Field<'a>>, usize) {
     // Parse the name.
-    let (name, next) = if let (Some(name), next) =
-        parse_identifier(tokens, start, "a name for the field", errors)
-    {
-        (name, next)
-    } else {
-        return (None, start);
-    };
+    let (name, next) = consume_token_1!(
+        tokens,
+        start,
+        errors,
+        Identifier,
+        "a name for the field",
+        (None, start),
+    );
 
     // Consume the colon.
-    if next == tokens.len() {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::Colon.to_string().code_str()),
-        ));
-        return (None, start);
-    }
-    let next = if let token::Variant::Colon = tokens[next].variant {
-        next + 1
-    } else {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::Colon.to_string().code_str()),
-        ));
-        return (None, start);
-    };
+    let next = consume_token_0!(tokens, next, errors, Colon, (None, start));
 
     // Determine if the field is restricted.
-    if next == tokens.len() {
-        errors.push(error_factory(tokens, next, "a type for the field"));
-        return (None, start);
-    }
-    let (restricted, next) = if let token::Variant::Restricted = tokens[next].variant {
+    let (restricted, next) = if next == tokens.len() {
+        (false, next)
+    } else if let token::Variant::Restricted = tokens[next].variant {
         (true, next + 1)
     } else {
         (false, next)
     };
 
     // Parse the type.
-    let (r#type, type_source_range, next) = if let (Some(r#type), new_next) =
-        parse_identifier(tokens, next, "a type for the field", errors)
-    {
-        (r#type, token_source_range(tokens, next), new_next)
-    } else {
-        return (None, start);
-    };
+    let type_pos = next;
+    let (r#type, next) = consume_token_1!(
+        tokens,
+        next,
+        errors,
+        Identifier,
+        "a type for the field",
+        (None, start),
+    );
 
     // Consume the equals sign.
-    if next == tokens.len() {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::Equals.to_string().code_str()),
-        ));
-        return (None, start);
-    }
-    let next = if let token::Variant::Equals = tokens[next].variant {
-        next + 1
-    } else {
-        errors.push(error_factory(
-            tokens,
-            next,
-            &format!("{}", token::Variant::Equals.to_string().code_str()),
-        ));
-        return (None, start);
-    };
+    let next = consume_token_0!(tokens, next, errors, Equals, (None, start));
 
     // Parse the index.
-    if next == tokens.len() {
-        errors.push(error_factory(tokens, next, "an index for the field"));
-        return (None, start);
-    }
-    let (index, next) = if let token::Variant::IntegerLiteral(index) = tokens[next].variant {
-        (index, next + 1)
-    } else {
-        errors.push(error_factory(tokens, next, "an index for the field"));
-        return (None, start);
-    };
+    let (index, next) = consume_token_1!(
+        tokens,
+        next,
+        errors,
+        IntegerLiteral,
+        "an index for the field",
+        (None, start),
+    );
 
     // Return the field.
     (
@@ -383,7 +393,7 @@ fn parse_field<'a>(
             name,
             restricted,
             r#type: schema::Type {
-                source_range: type_source_range.0,
+                source_range: token_source_range(tokens, type_pos).0,
                 name: r#type,
             },
             index,
