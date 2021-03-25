@@ -1,12 +1,17 @@
+#![deny(warnings)]
+
 mod assertions;
 mod error;
 mod format;
+mod parser;
+mod schema;
 mod token;
 mod tokenizer;
 
 use crate::{
     error::{lift, Error},
     format::CodeStr,
+    parser::parse,
     tokenizer::tokenize,
 };
 use atty::Stream;
@@ -76,8 +81,8 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
 }
 
-// Process a schema.
-fn process_schema(schema_path: &Path) -> Result<(), Error> {
+// Check a schema.
+fn check_schema(schema_path: &Path) -> Result<(), Error> {
     // Read the schema file.
     let schema_contents = read_to_string(schema_path).map_err(lift(format!(
         "Error when reading file {}.",
@@ -115,12 +120,13 @@ fn process_schema(schema_path: &Path) -> Result<(), Error> {
     };
 
     // Tokenize the schema file.
-    let tokens = tokenize(Some(schema_path), &schema_contents).map_err(collect_errors)?;
+    let tokens = tokenize(schema_path, &schema_contents).map_err(collect_errors)?;
 
-    // Print the tokens.
-    for token in tokens {
-        println!("{}", token.to_string().code_str());
-    }
+    // Parse the schema.
+    let schema = parse(schema_path, &schema_contents, &tokens).map_err(collect_errors)?;
+
+    // Print the schema.
+    println!("{}", schema.to_string().code_str());
 
     // If we made it this far, nothing went wrong.
     Ok(())
@@ -177,7 +183,7 @@ fn entry() -> Result<(), Error> {
             );
 
             // Check the schema.
-            process_schema(schema_path)?;
+            check_schema(schema_path)?;
         }
 
         // [tag:shell_completion_subcommand]
