@@ -94,7 +94,6 @@ macro_rules! consume_token_0 {
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
         let tokens = $tokens;
         let next = $next;
-        let error_value = $error_value;
 
         // Make sure we have a token to parse.
         if next == tokens.len() {
@@ -104,7 +103,7 @@ macro_rules! consume_token_0 {
                 &format!("{}", token::Variant::$variant.to_string().code_str()),
             ));
 
-            return error_value;
+            return $error_value;
         }
 
         // Check if the token matches what we expect.
@@ -117,7 +116,7 @@ macro_rules! consume_token_0 {
                 &format!("{}", token::Variant::$variant.to_string().code_str()),
             ));
 
-            return error_value;
+            return $error_value;
         }
     }};
 }
@@ -139,13 +138,12 @@ macro_rules! consume_token_1 {
         let tokens = $tokens;
         let next = $next;
         let expectation = $expectation;
-        let error_value = $error_value;
 
         // Make sure we have a token to parse.
         if next == tokens.len() {
             $errors.push(error_factory(tokens, next, expectation));
 
-            return error_value;
+            return $error_value;
         }
 
         // Check if the token matches what we expect.
@@ -154,7 +152,7 @@ macro_rules! consume_token_1 {
         } else {
             $errors.push(error_factory(tokens, next, expectation));
 
-            return error_value;
+            return $error_value;
         }
     }};
 }
@@ -202,19 +200,10 @@ fn parse_schema<'a>(
                 let declaration_start = next;
                 next += 1;
 
-                // Parse the name.
-                let (name, new_next_1) = if let (Some(name), new_next) =
-                    parse_identifier(tokens, next, "a name for the struct", errors)
-                {
-                    (name, new_next)
-                } else {
-                    break;
-                };
-                next = new_next_1;
-
-                // Parse the fields.
-                let (fields, new_next_2) = parse_fields(tokens, next, errors);
-                next = new_next_2;
+                // Parse the name and fields.
+                let (name, fields, new_next) =
+                    parse_fields(tokens, next, "a name for the struct", errors);
+                next = new_next;
 
                 // Create the declaration.
                 declarations.push(schema::Declaration {
@@ -230,19 +219,10 @@ fn parse_schema<'a>(
                 let declaration_start = next;
                 next += 1;
 
-                // Parse the name.
-                let (name, new_next_1) = if let (Some(name), new_next) =
-                    parse_identifier(tokens, next, "a name for the choice", errors)
-                {
-                    (name, new_next)
-                } else {
-                    break;
-                };
-                next = new_next_1;
-
-                // Parse the fields.
-                let (fields, new_next_2) = parse_fields(tokens, next, errors);
-                next = new_next_2;
+                // Parse the name and fields.
+                let (name, fields, new_next) =
+                    parse_fields(tokens, next, "a name for the choice", errors);
+                next = new_next;
 
                 // Create the declaration.
                 declarations.push(schema::Declaration {
@@ -269,35 +249,25 @@ fn parse_schema<'a>(
     )
 }
 
-// Parse an identifier.
-fn parse_identifier<'a>(
+// Parse a series of fields enclosed in curly braces and preceded by a name.
+fn parse_fields<'a>(
     tokens: &'a [token::Token<'a>],
     start: usize,
-    expectation: &str,
+    name_expectation: &str,
     errors: &mut Vec<ErrorFactory<'a>>,
-) -> (Option<&'a str>, usize) {
-    let (name, next) = consume_token_1!(
+) -> (&'a str, Vec<schema::Field<'a>>, usize) {
+    // Parse the name.
+    let (name, mut next) = consume_token_1!(
         tokens,
         start,
         errors,
         Identifier,
-        expectation,
-        (None, start),
+        name_expectation,
+        ("?", vec![], start),
     );
 
-    (Some(name), next)
-}
-
-// Parse a series of fields enclosed in curly braces.
-fn parse_fields<'a>(
-    tokens: &'a [token::Token<'a>],
-    start: usize,
-    errors: &mut Vec<ErrorFactory<'a>>,
-) -> (Vec<schema::Field<'a>>, usize) {
-    let mut next = start;
-
     // Consume the `{`.
-    next = consume_token_0!(tokens, next, errors, LeftCurly, (vec![], next));
+    next = consume_token_0!(tokens, next, errors, LeftCurly, (name, vec![], next));
 
     // Parse the fields.
     let mut fields = vec![];
@@ -320,14 +290,15 @@ fn parse_fields<'a>(
                 }
             }
 
-            return (fields, next);
+            return (name, fields, next);
         }
     }
 
     // Consume the `}`.
-    next = consume_token_0!(tokens, next, errors, RightCurly, (vec![], next));
+    next = consume_token_0!(tokens, next, errors, RightCurly, (name, fields, next));
 
-    (fields, next)
+    // Return the name, fields, and next token position.
+    (name, fields, next)
 }
 
 // Parse a field.
