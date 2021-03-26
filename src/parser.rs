@@ -348,7 +348,7 @@ fn parse_field<'a>(
         tokens,
         next,
         errors,
-        IntegerLiteral,
+        Integer,
         "an index for the field",
         (None, start),
     );
