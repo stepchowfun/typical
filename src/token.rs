@@ -20,7 +20,7 @@ pub enum Variant<'a> {
     Colon,
     Equals,
     Identifier(&'a str),
-    IntegerLiteral(usize),
+    Integer(usize),
     LeftCurly,
     Restricted,
     RightCurly,
@@ -40,7 +40,7 @@ impl<'a> Display for Variant<'a> {
             Self::Colon => write!(f, ":"),
             Self::Equals => write!(f, "="),
             Self::Identifier(name) => write!(f, "{}", name),
-            Self::IntegerLiteral(integer) => write!(f, "{}", integer),
+            Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
             Self::Restricted => write!(f, "{}", RESTRICTED_KEYWORD),
             Self::RightCurly => write!(f, "}}"),
@@ -101,7 +101,7 @@ mod tests {
     fn variant_integer_literal_display() {
         colored::control::set_override(false);
 
-        assert_eq!(format!("{}", Variant::IntegerLiteral(42)), "42");
+        assert_eq!(format!("{}", Variant::Integer(42)), "42");
     }
 
     #[test]

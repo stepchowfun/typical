@@ -110,7 +110,7 @@ pub fn tokenize<'a>(
                     Ok(integer) => {
                         tokens.push(Token {
                             source_range: (i, end),
-                            variant: Variant::IntegerLiteral(integer),
+                            variant: Variant::Integer(integer),
                         });
                     }
                     Err(_) => {
@@ -252,7 +252,7 @@ mod tests {
             tokenize(Path::new("foo.t"), "42").unwrap(),
             vec![Token {
                 source_range: (0, 2),
-                variant: Variant::IntegerLiteral(42),
+                variant: Variant::Integer(42),
             }],
         );
     }
