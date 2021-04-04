@@ -1,7 +1,9 @@
 use std::fmt::{Display, Formatter, Result};
 
 // Keywords
+pub const AS_KEYWORD: &str = "as";
 pub const CHOICE_KEYWORD: &str = "choice";
+pub const IMPORT_KEYWORD: &str = "import";
 pub const RESTRICTED_KEYWORD: &str = "restricted";
 pub const STRUCT_KEYWORD: &str = "struct";
 
@@ -16,10 +18,12 @@ pub struct Token<'a> {
 // We assign each token a "variant" describing what kind of token it is.
 #[derive(Clone, Debug)]
 pub enum Variant<'a> {
+    As,
     Choice,
     Colon,
     Equals,
     Identifier(&'a str),
+    Import,
     Integer(usize),
     LeftCurly,
     Restricted,
@@ -36,10 +40,12 @@ impl<'a> Display for Token<'a> {
 impl<'a> Display for Variant<'a> {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
+            Self::As => write!(f, "{}", AS_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Equals => write!(f, "="),
             Self::Identifier(name) => write!(f, "{}", name),
+            Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
             Self::Restricted => write!(f, "{}", RESTRICTED_KEYWORD),
@@ -51,7 +57,10 @@ impl<'a> Display for Variant<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::token::{Token, Variant, CHOICE_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD};
+    use crate::token::{
+        Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
+        STRUCT_KEYWORD,
+    };
 
     #[test]
     fn token_display() {
@@ -67,6 +76,13 @@ mod tests {
             ),
             CHOICE_KEYWORD,
         );
+    }
+
+    #[test]
+    fn variant_as_display() {
+        colored::control::set_override(false);
+
+        assert_eq!(format!("{}", Variant::As), AS_KEYWORD);
     }
 
     #[test]
@@ -95,6 +111,13 @@ mod tests {
         colored::control::set_override(false);
 
         assert_eq!(format!("{}", Variant::Identifier("foo")), "foo");
+    }
+
+    #[test]
+    fn variant_import_display() {
+        colored::control::set_override(false);
+
+        assert_eq!(format!("{}", Variant::Import), IMPORT_KEYWORD);
     }
 
     #[test]
