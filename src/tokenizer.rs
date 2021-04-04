@@ -139,6 +139,35 @@ pub fn tokenize<'a>(
                 }
             }
 
+            // If the first code point is a single quote, keep reading subsequent code points until
+            // a second single quote is reached to build up a path.
+            '\'' => {
+                let mut end = i;
+
+                while let Some((j, d)) = iter.next() {
+                    if d == '\'' {
+                        end = j;
+                        break;
+                    }
+                }
+
+                if end == i {
+                    errors.push(throw(
+                        &format!(
+                            "Path starting here must be terminated by a {}.",
+                            "'".code_str(),
+                        ),
+                        Some(schema_path),
+                        Some((schema_contents, (i, i + 1))),
+                    ));
+                } else {
+                    tokens.push(Token {
+                        source_range: (i, end + 1),
+                        variant: Variant::Path(Path::new(&schema_contents[i + 1..end])),
+                    });
+                }
+            }
+
             // Skip whitespace.
             _ if c.is_whitespace() => continue,
 
@@ -302,6 +331,17 @@ mod tests {
             vec![Token {
                 source_range: (0, 1),
                 variant: Variant::LeftCurly,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_path() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), "'bar.t'").unwrap(),
+            vec![Token {
+                source_range: (0, 7),
+                variant: Variant::Path(Path::new("bar.t")),
             }],
         );
     }
