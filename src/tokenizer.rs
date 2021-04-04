@@ -1,7 +1,10 @@
 use crate::{
     error::{throw, Error},
     format::CodeStr,
-    token::{Token, Variant, CHOICE_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
+    token::{
+        Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
+        STRUCT_KEYWORD,
+    },
 };
 use std::path::Path;
 use unicode_segmentation::GraphemeCursor;
@@ -68,10 +71,20 @@ pub fn tokenize<'a>(
                     }
                 }
 
-                if &schema_contents[i..end] == CHOICE_KEYWORD {
+                if &schema_contents[i..end] == AS_KEYWORD {
+                    tokens.push(Token {
+                        source_range: (i, end),
+                        variant: Variant::As,
+                    });
+                } else if &schema_contents[i..end] == CHOICE_KEYWORD {
                     tokens.push(Token {
                         source_range: (i, end),
                         variant: Variant::Choice,
+                    });
+                } else if &schema_contents[i..end] == IMPORT_KEYWORD {
+                    tokens.push(Token {
+                        source_range: (i, end),
+                        variant: Variant::Import,
                     });
                 } else if &schema_contents[i..end] == RESTRICTED_KEYWORD {
                     tokens.push(Token {
@@ -179,7 +192,10 @@ pub fn tokenize<'a>(
 mod tests {
     use crate::{
         assert_fails, assert_same,
-        token::{Token, Variant, CHOICE_KEYWORD, RESTRICTED_KEYWORD, STRUCT_KEYWORD},
+        token::{
+            Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
+            STRUCT_KEYWORD,
+        },
         tokenizer::tokenize,
     };
     use std::path::Path;
@@ -199,6 +215,17 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "# Hello, World!").unwrap(),
             vec![],
+        );
+    }
+
+    #[test]
+    fn tokenize_as() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), AS_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: (0, AS_KEYWORD.len()),
+                variant: Variant::As,
+            }],
         );
     }
 
@@ -242,6 +269,17 @@ mod tests {
             vec![Token {
                 source_range: (0, 6),
                 variant: Variant::Identifier("\u{5e78}\u{798f}"),
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_import() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), IMPORT_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: (0, IMPORT_KEYWORD.len()),
+                variant: Variant::Import,
             }],
         );
     }
