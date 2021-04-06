@@ -1,4 +1,7 @@
-use std::fmt::{Display, Formatter, Result};
+use std::{
+    fmt::{Display, Formatter, Result},
+    path::Path,
+};
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
@@ -26,6 +29,7 @@ pub enum Variant<'a> {
     Import,
     Integer(usize),
     LeftCurly,
+    Path(&'a Path),
     Restricted,
     RightCurly,
     Struct,
@@ -48,6 +52,7 @@ impl<'a> Display for Variant<'a> {
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
+            Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::Restricted => write!(f, "{}", RESTRICTED_KEYWORD),
             Self::RightCurly => write!(f, "}}"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
@@ -61,6 +66,7 @@ mod tests {
         Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
         STRUCT_KEYWORD,
     };
+    use std::path::Path;
 
     #[test]
     fn token_display() {
@@ -132,6 +138,13 @@ mod tests {
         colored::control::set_override(false);
 
         assert_eq!(format!("{}", Variant::LeftCurly), "{");
+    }
+
+    #[test]
+    fn variant_path_display() {
+        colored::control::set_override(false);
+
+        assert_eq!(format!("{}", Variant::Path(Path::new("foo"))), "'foo'");
     }
 
     #[test]
