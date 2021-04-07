@@ -314,13 +314,21 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_integer_literal() {
+    fn tokenize_integer_literal_valid() {
         assert_same!(
             tokenize(Path::new("foo.t"), "42").unwrap(),
             vec![Token {
                 source_range: (0, 2),
                 variant: Variant::Integer(42),
             }],
+        );
+    }
+
+    #[test]
+    fn tokenize_integer_literal_out_of_range() {
+        assert_fails!(
+            tokenize(Path::new("foo.t"), "18446744073709551616"),
+            "Integer `18446744073709551616` must be less than 2^64.",
         );
     }
 
@@ -336,13 +344,32 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_path() {
+    fn tokenize_path_non_empty() {
         assert_same!(
             tokenize(Path::new("foo.t"), "'bar.t'").unwrap(),
             vec![Token {
                 source_range: (0, 7),
                 variant: Variant::Path(Path::new("bar.t")),
             }],
+        );
+    }
+
+    #[test]
+    fn tokenize_path_empty() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), "''").unwrap(),
+            vec![Token {
+                source_range: (0, 2),
+                variant: Variant::Path(Path::new("")),
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_path_non_terminated() {
+        assert_fails!(
+            tokenize(Path::new("foo.t"), "'bar.t"),
+            "Path starting here must be terminated by a `\'`.",
         );
     }
 
@@ -381,6 +408,6 @@ mod tests {
 
     #[test]
     fn tokenize_unexpected_code_point() {
-        assert_fails!(tokenize(Path::new("foo.t"), "$"), "Unexpected symbol");
+        assert_fails!(tokenize(Path::new("foo.t"), "$"), "Unexpected symbol `$`.");
     }
 }
