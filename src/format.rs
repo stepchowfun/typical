@@ -26,8 +26,7 @@ mod tests {
 
     #[test]
     fn code_str_colorize_off_display() {
-        // This test, like many others, depends on tests being run with colors disabled
-        // [ref:colorless_tests].
+        // This test, like many others, depends on colors being disabled [ref:colorless_tests].
         assert_eq!(format!("{}", "foo".code_str()), "`foo`");
     }
 
