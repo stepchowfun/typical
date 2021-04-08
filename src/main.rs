@@ -14,7 +14,6 @@ use crate::{
     parser::parse,
     tokenizer::tokenize,
 };
-use atty::Stream;
 use clap::{
     App,
     AppSettings::{
@@ -158,10 +157,6 @@ fn shell_completion(shell: &str) -> Result<(), Error> {
 
 // Program entrypoint
 fn entry() -> Result<(), Error> {
-    // Determine whether to print colored output based on whether STDOUT is connected to a
-    // terminal.
-    colored::control::set_override(atty::is(Stream::Stdout));
-
     // Parse command-line arguments.
     let matches = cli().get_matches();
 

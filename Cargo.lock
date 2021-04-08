@@ -113,7 +113,6 @@ dependencies = [
 name = "typical"
 version = "0.0.0"
 dependencies = [
- "atty",
  "clap",
  "colored",
  "pad",

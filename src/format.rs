@@ -26,13 +26,15 @@ mod tests {
 
     #[test]
     fn code_str_colorize_off_display() {
+        // This test, like many others, depends on tests being run with colors disabled
+        // [ref:colorless_tests].
         assert_eq!(format!("{}", "foo".code_str()), "`foo`");
     }
 
     #[test]
     fn code_str_colorize_on_display() {
         // If tests are run in parallel, then this may interfere with other tests. So we are forced
-        // to run tests sequentially [tag:sequential_tests].
+        // to run tests sequentially [ref:sequential_tests].
         colored::control::set_override(true);
 
         assert_eq!(format!("{}", "foo".code_str()), "\u{1b}[35mfoo\u{1b}[0m");
