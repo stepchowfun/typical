@@ -64,17 +64,18 @@ impl<'a> Display for Variant<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::token::{
-        Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
-        STRUCT_KEYWORD,
+    use crate::{
+        assert_equal,
+        token::{
+            Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
+            STRUCT_KEYWORD,
+        },
     };
     use std::path::Path;
 
     #[test]
     fn token_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 Token {
@@ -88,92 +89,66 @@ mod tests {
 
     #[test]
     fn variant_as_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::As), AS_KEYWORD);
+        assert_equal!(format!("{}", Variant::As), AS_KEYWORD);
     }
 
     #[test]
     fn variant_choice_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Choice), CHOICE_KEYWORD);
+        assert_equal!(format!("{}", Variant::Choice), CHOICE_KEYWORD);
     }
 
     #[test]
     fn variant_colon_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Colon), ":");
+        assert_equal!(format!("{}", Variant::Colon), ":");
     }
 
     #[test]
     fn variant_dot_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Dot), ".");
+        assert_equal!(format!("{}", Variant::Dot), ".");
     }
 
     #[test]
     fn variant_equals_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Equals), "=");
+        assert_equal!(format!("{}", Variant::Equals), "=");
     }
 
     #[test]
     fn variant_identifier_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Identifier("foo")), "foo");
+        assert_equal!(format!("{}", Variant::Identifier("foo")), "foo");
     }
 
     #[test]
     fn variant_import_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Import), IMPORT_KEYWORD);
+        assert_equal!(format!("{}", Variant::Import), IMPORT_KEYWORD);
     }
 
     #[test]
     fn variant_integer_literal_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Integer(42)), "42");
+        assert_equal!(format!("{}", Variant::Integer(42)), "42");
     }
 
     #[test]
     fn variant_left_curly_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::LeftCurly), "{");
+        assert_equal!(format!("{}", Variant::LeftCurly), "{");
     }
 
     #[test]
     fn variant_path_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Path(Path::new("foo"))), "'foo'");
+        assert_equal!(format!("{}", Variant::Path(Path::new("foo"))), "'foo'");
     }
 
     #[test]
     fn variant_restricted_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Restricted), RESTRICTED_KEYWORD);
+        assert_equal!(format!("{}", Variant::Restricted), RESTRICTED_KEYWORD);
     }
 
     #[test]
     fn variant_right_curly_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::RightCurly), "}");
+        assert_equal!(format!("{}", Variant::RightCurly), "}");
     }
 
     #[test]
     fn variant_struct_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", Variant::Struct), STRUCT_KEYWORD);
+        assert_equal!(format!("{}", Variant::Struct), STRUCT_KEYWORD);
     }
 }
