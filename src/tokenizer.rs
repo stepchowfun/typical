@@ -37,6 +37,12 @@ pub fn tokenize<'a>(
                     variant: Variant::Colon,
                 });
             }
+            '.' => {
+                tokens.push(Token {
+                    source_range: (i, i + 1),
+                    variant: Variant::Dot,
+                });
+            }
             '=' => {
                 tokens.push(Token {
                     source_range: (i, i + 1),
@@ -276,6 +282,17 @@ mod tests {
             vec![Token {
                 source_range: (0, 1),
                 variant: Variant::Colon,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_dot() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), ".").unwrap(),
+            vec![Token {
+                source_range: (0, 1),
+                variant: Variant::Dot,
             }],
         );
     }

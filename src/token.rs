@@ -24,6 +24,7 @@ pub enum Variant<'a> {
     As,
     Choice,
     Colon,
+    Dot,
     Equals,
     Identifier(&'a str),
     Import,
@@ -47,6 +48,7 @@ impl<'a> Display for Variant<'a> {
             Self::As => write!(f, "{}", AS_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
+            Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
             Self::Identifier(name) => write!(f, "{}", name),
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
@@ -103,6 +105,13 @@ mod tests {
         colored::control::set_override(false);
 
         assert_eq!(format!("{}", Variant::Colon), ":");
+    }
+
+    #[test]
+    fn variant_dot_display() {
+        colored::control::set_override(false);
+
+        assert_eq!(format!("{}", Variant::Dot), ".");
     }
 
     #[test]
