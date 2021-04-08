@@ -106,14 +106,15 @@ impl<'a> Display for Type<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::schema::{Declaration, DeclarationVariant, Field, Schema, Type};
+    use crate::{
+        assert_equal,
+        schema::{Declaration, DeclarationVariant, Field, Schema, Type},
+    };
     use std::path::Path;
 
     #[test]
     fn schema_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 Schema {
@@ -194,9 +195,7 @@ mod tests {
 
     #[test]
     fn declaration_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 Declaration {
@@ -239,9 +238,7 @@ mod tests {
 
     #[test]
     fn declaration_variant_struct_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 DeclarationVariant::Struct(
@@ -281,9 +278,7 @@ mod tests {
 
     #[test]
     fn declaration_variant_choice_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 DeclarationVariant::Choice(
@@ -323,9 +318,7 @@ mod tests {
 
     #[test]
     fn field_display_non_restricted() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 Field {
@@ -345,9 +338,7 @@ mod tests {
 
     #[test]
     fn field_display_restricted() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 Field {
@@ -367,9 +358,7 @@ mod tests {
 
     #[test]
     fn type_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(
+        assert_equal!(
             format!(
                 "{}",
                 Type {

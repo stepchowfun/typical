@@ -22,13 +22,11 @@ impl CodeStr for str {
 
 #[cfg(test)]
 mod tests {
-    use crate::format::CodeStr;
+    use crate::{assert_equal, format::CodeStr};
 
     #[test]
     fn code_str_colorize_off_display() {
-        colored::control::set_override(false);
-
-        assert_eq!(format!("{}", "foo".code_str()), "`foo`");
+        assert_equal!(format!("{}", "foo".code_str()), "`foo`");
     }
 
     #[test]
