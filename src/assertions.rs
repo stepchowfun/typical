@@ -5,9 +5,6 @@
 #[macro_export]
 macro_rules! assert_fails {
     ($expr:expr, $search_str:expr $(,)?) => {{
-        // Before any strings are formatted, disable terminal colors.
-        colored::control::set_override(false);
-
         // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
         let expr = $expr;
@@ -37,32 +34,11 @@ macro_rules! assert_fails {
     }};
 }
 
-// This macro is a simple wrapper around `assert_eq!`, except that it disables terminal colors
-// before the arguments are evaluated.
-#[macro_export]
-macro_rules! assert_equal {
-    ($expr1:expr, $expr2:expr $(,)?) => {{
-        // Before any strings are formatted, disable terminal colors.
-        colored::control::set_override(false);
-
-        // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
-        // accidentally evaluating arguments multiple times. Here we force eager evaluation.
-        let expr1 = $expr1;
-        let expr2 = $expr2;
-
-        // Assert that the expressions have the same debug representation.
-        assert_eq!(expr1, expr2);
-    }};
-}
-
 // This macro is useful for writing equality tests for types that implement `Debug` but not `Eq`.
 // It asserts that the debug representations of the two given expressions match.
 #[macro_export]
 macro_rules! assert_same {
     ($expr1:expr, $expr2:expr $(,)?) => {{
-        // Before any strings are formatted, disable terminal colors.
-        colored::control::set_override(false);
-
         // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
         let expr1 = $expr1;
@@ -80,7 +56,7 @@ macro_rules! assert_same {
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_equal, assert_fails, assert_same, error::Error};
+    use crate::{assert_fails, assert_same, error::Error};
 
     #[test]
     #[should_panic(expected = "The expression was supposed to fail, but it succeeded.")]
@@ -133,17 +109,6 @@ mod tests {
         ]);
 
         assert_fails!(success, "search string");
-    }
-
-    #[test]
-    fn assert_equal_match() {
-        assert_equal!(42, 42);
-    }
-
-    #[test]
-    #[should_panic(expected = "42")]
-    fn assert_equal_mismatch() {
-        assert_equal!(42, 43);
     }
 
     #[test]

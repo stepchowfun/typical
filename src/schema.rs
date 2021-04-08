@@ -106,15 +106,12 @@ impl<'a> Display for Type<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_equal,
-        schema::{Declaration, DeclarationVariant, Field, Schema, Type},
-    };
+    use crate::schema::{Declaration, DeclarationVariant, Field, Schema, Type};
     use std::path::Path;
 
     #[test]
     fn schema_display() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 Schema {
@@ -195,7 +192,7 @@ mod tests {
 
     #[test]
     fn declaration_display() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 Declaration {
@@ -238,7 +235,7 @@ mod tests {
 
     #[test]
     fn declaration_variant_struct_display() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 DeclarationVariant::Struct(
@@ -278,7 +275,7 @@ mod tests {
 
     #[test]
     fn declaration_variant_choice_display() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 DeclarationVariant::Choice(
@@ -318,7 +315,7 @@ mod tests {
 
     #[test]
     fn field_display_non_restricted() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 Field {
@@ -338,7 +335,7 @@ mod tests {
 
     #[test]
     fn field_display_restricted() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 Field {
@@ -358,7 +355,7 @@ mod tests {
 
     #[test]
     fn type_display() {
-        assert_equal!(
+        assert_eq!(
             format!(
                 "{}",
                 Type {

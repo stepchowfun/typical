@@ -202,31 +202,28 @@ pub fn listing(schema_contents: &str, range_start: usize, range_end: usize) -> S
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_equal,
-        error::{lift, throw, Error},
-    };
+    use crate::error::{lift, throw, Error};
     use std::path::Path;
 
     #[test]
     fn throw_no_path_missing_range() {
         let error = throw("An error occurred.", None, None);
 
-        assert_equal!(error.message, "[Error] An error occurred.");
+        assert_eq!(error.message, "[Error] An error occurred.");
     }
 
     #[test]
     fn throw_no_path_empty_range() {
         let error = throw("An error occurred.", None, Some(("", (0, 0))));
 
-        assert_equal!(error.message, "[Error] An error occurred.");
+        assert_eq!(error.message, "[Error] An error occurred.");
     }
 
     #[test]
     fn throw_with_path_missing_range() {
         let error = throw("An error occurred.", Some(Path::new("foo.g")), None);
 
-        assert_equal!(error.message, "[Error] [`foo.g`] An error occurred.");
+        assert_eq!(error.message, "[Error] [`foo.g`] An error occurred.");
     }
 
     #[test]
@@ -237,14 +234,14 @@ mod tests {
             Some(("", (0, 0))),
         );
 
-        assert_equal!(error.message, "[Error] [`foo.g`] An error occurred.");
+        assert_eq!(error.message, "[Error] [`foo.g`] An error occurred.");
     }
 
     #[test]
     fn throw_no_path_single_line_full_range() {
         let error = throw("An error occurred.", None, Some(("foo", (0, 3))));
 
-        assert_equal!(
+        assert_eq!(
             error.message,
             "[Error] An error occurred.\n\n1 \u{2502} foo\n    \u{203e}\u{203e}\u{203e}",
         );
@@ -258,7 +255,7 @@ mod tests {
             Some(("foo", (0, 3))),
         );
 
-        assert_equal!(
+        assert_eq!(
             error.message,
             "[Error] [`foo.g`] An error occurred.\n\n1 \u{2502} foo\n    \u{203e}\u{203e}\u{203e}",
         );
@@ -268,7 +265,7 @@ mod tests {
     fn throw_no_path_multiple_lines_full_range() {
         let error = throw("An error occurred.", None, Some(("foo\nbar\nbaz", (0, 11))));
 
-        assert_equal!(
+        assert_eq!(
             error.message,
             "[Error] An error occurred.\n\n1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \
                 \u{2502} bar\n  \u{250a} \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n    \u{203e}\
@@ -284,7 +281,7 @@ mod tests {
             Some(("foo\nbar\nbaz\nqux", (5, 11))),
         );
 
-        assert_equal!(
+        assert_eq!(
             error.message,
             "[Error] An error occurred.\n\n2 \u{2502} bar\n  \u{250a}  \u{203e}\u{203e}\n3 \
                 \u{2502} baz\n    \u{203e}\u{203e}\u{203e}",
@@ -302,7 +299,7 @@ mod tests {
             )),
         );
 
-        assert_equal!(
+        assert_eq!(
             error.message,
             "[Error] An error occurred.\n\n 9 \u{2502} foo\n   \u{250a}  \u{203e}\u{203e}\n10 \
                 \u{2502} bar\n   \u{250a} \u{203e}\u{203e}\u{203e}\n11 \u{2502} baz\n     \u{203e}\
@@ -317,8 +314,8 @@ mod tests {
             reason: None,
         });
 
-        assert_equal!(error.message, "An error occurred.");
+        assert_eq!(error.message, "An error occurred.");
 
-        assert_equal!(error.reason.unwrap().to_string(), "This is why.");
+        assert_eq!(error.reason.unwrap().to_string(), "This is why.");
     }
 }
