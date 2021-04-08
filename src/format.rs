@@ -22,20 +22,21 @@ impl CodeStr for str {
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_equal, format::CodeStr};
+    use crate::format::CodeStr;
 
     #[test]
     fn code_str_colorize_off_display() {
-        assert_equal!(format!("{}", "foo".code_str()), "`foo`");
+        assert_eq!(format!("{}", "foo".code_str()), "`foo`");
     }
 
     #[test]
     fn code_str_colorize_on_display() {
-        // If tests are run in parallel, then this may be overridden by another test (or the other
-        // way around). That would cause the test to fail. So we are forced to run tests
-        // sequentially. [tag:sequential_tests]
+        // If tests are run in parallel, then this may interfere with other tests. So we are forced
+        // to run tests sequentially [tag:sequential_tests].
         colored::control::set_override(true);
 
         assert_eq!(format!("{}", "foo".code_str()), "\u{1b}[35mfoo\u{1b}[0m");
+
+        colored::control::unset_override();
     }
 }
