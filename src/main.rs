@@ -89,14 +89,13 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
     // The schema and all its transitive dependencies will end up here.
     let mut schemas = HashMap::new();
 
-    // Canonicalize the path to avoid loading the same file multiple
-    // times.
-    let canonical_schema_path = match schema_path.canonicalize() {
-        Ok(canonical_path) => canonical_path,
+    // Canonicalize the path.
+    let schema_path = match schema_path.canonicalize() {
+        Ok(schema_path) => schema_path,
         Err(error) => {
             return Err(from_message(
                 &format!(
-                    "Unable to canonicalize path {}.",
+                    "Unable to load {}.",
                     schema_path.to_string_lossy().code_str(),
                 ),
                 None,
@@ -105,37 +104,48 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
         }
     };
 
-    // Initialize the "frontier" with the given path.
+    // Compute the base directory for this schema's dependencies.
+    let schema_parent_path = if let Some(schema_parent_path) = schema_path.parent() {
+        schema_parent_path
+    } else {
+        return Err(from_message::<Error>(
+            &format!(
+                "{} is not a file.",
+                schema_path.to_string_lossy().code_str(),
+            ),
+            None,
+            None,
+        ));
+    };
+
+    // Strip the schema parent path from the schema path, i.e., compute the schema file name.
+    let schema_file_name = match schema_path.strip_prefix(schema_parent_path) {
+        Ok(schema_file_name) => schema_file_name,
+        Err(error) => {
+            return Err(from_message(
+                &format!(
+                    "Unable to relativize path {}.",
+                    schema_path.to_string_lossy().code_str(),
+                ),
+                None,
+                Some(error),
+            ));
+        }
+    };
+
+    // Initialize the "frontier" with the given path. Paths in the frontier are relative to
+    // `schema_parent_path`. Also, paths in the frontier have parents
+    // [tag:frontier_paths_have_parents].
     let mut paths_to_load: Vec<(PathBuf, Option<(PathBuf, String)>)> =
-        vec![(canonical_schema_path.clone(), None)];
+        vec![(schema_file_name.to_owned(), None)];
     let mut visited_paths = HashSet::new();
-    visited_paths.insert(canonical_schema_path);
+    visited_paths.insert(schema_file_name.to_owned());
 
     // Perform a depth-first traversal of the transitive dependencies.
     let mut errors = vec![];
     while let Some((path, origin)) = paths_to_load.pop() {
-        // Compute the base directory for this schema's dependencies.
-        let base_dir = if let Some(base_dir) = path.parent() {
-            base_dir
-        } else {
-            let message = format!("Path {} has no parent.", path.to_string_lossy().code_str());
-
-            if let Some((origin_path, origin_listing)) = origin {
-                errors.push(with_listing::<Error>(
-                    &message,
-                    Some(&origin_path),
-                    &origin_listing,
-                    None,
-                ));
-            } else {
-                errors.push(from_message::<Error>(&message, None, None));
-            }
-
-            continue;
-        };
-
         // Read the file.
-        let contents = match read_to_string(&path) {
+        let contents = match read_to_string(&schema_parent_path.join(&path)) {
             Ok(contents) => contents,
             Err(error) => {
                 let message = format!("Unable to read file {}.", path.to_string_lossy().code_str());
@@ -175,36 +185,62 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
             }
         };
 
+        // Compute the base directory for this schema's dependencies. The `unwrap` is safe due to
+        // [ref:frontier_paths_have_parents].
+        let parent_path = path.parent().unwrap();
+
         // Add the dependencies to the frontier.
         for import in &schema.imports {
-            // Compute the source listing for this import for error
-            // reporting.
+            // Compute the source listing for this import for error reporting.
             let origin_listing = listing(&contents, import.source_range.0, import.source_range.1);
 
             // Compute the import path.
-            let path_to_canonicalize = base_dir.join(&import.path);
+            let import_path = schema_parent_path.join(parent_path.join(&import.path));
 
-            // Canonicalize the path to avoid loading the same file multiple
-            // times.
-            match path_to_canonicalize.canonicalize() {
-                Ok(canonical_path) => {
-                    // Visit this import if it hasn't been visited already.
-                    if !visited_paths.contains(&canonical_path) {
-                        visited_paths.insert(import.path.to_owned());
-                        paths_to_load.push((canonical_path, Some((path.clone(), origin_listing))));
-                    }
-                }
+            // Canonicalize the path.
+            let import_path = match import_path.canonicalize() {
+                Ok(import_path) => import_path,
                 Err(error) => {
                     errors.push(with_listing(
                         &format!(
-                            "Unable to canonicalize path {}.",
-                            path_to_canonicalize.to_string_lossy().code_str(),
+                            "Unable to load {}.",
+                            import_path.to_string_lossy().code_str(),
                         ),
                         Some(&path),
                         &origin_listing,
                         Some(error),
                     ));
+
+                    continue;
                 }
+            };
+
+            // Strip the schema parent path from the schema path, i.e., compute the schema file
+            // name.
+            let import_relative_path =
+                if let Ok(import_relative_path) = import_path.strip_prefix(schema_parent_path) {
+                    import_relative_path
+                } else {
+                    return Err(with_listing::<Error>(
+                        &format!(
+                            "{} is not a descendant of {}, which is the base directory for this \
+                                run.",
+                            import_path.to_string_lossy().code_str(),
+                            schema_parent_path.to_string_lossy().code_str(),
+                        ),
+                        Some(&path),
+                        &origin_listing,
+                        None,
+                    ));
+                };
+
+            // Visit this import if it hasn't been visited already.
+            if !visited_paths.contains(import_relative_path) {
+                visited_paths.insert(import_relative_path.to_owned());
+                paths_to_load.push((
+                    import_relative_path.to_owned(),
+                    Some((path.clone(), origin_listing)),
+                ));
             }
         }
 
