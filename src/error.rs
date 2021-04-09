@@ -384,19 +384,27 @@ mod tests {
 
     #[test]
     fn listing_single_line_full_range() {
-        assert_eq!(listing("foo bar", (0, 7)), "1 │ foo bar\n    ‾‾‾‾‾‾‾");
+        assert_eq!(
+            listing("foo bar", (0, 7)),
+            "1 \u{2502} foo bar\n    \u{203e}\u{203e}\u{203e}\u{203e}\u{203e}\u{203e}\u{203e}",
+        );
     }
 
     #[test]
     fn listing_single_line_partial_range() {
-        assert_eq!(listing("foo bar", (1, 6)), "1 │ foo bar\n     ‾‾‾‾‾");
+        assert_eq!(
+            listing("foo bar", (1, 6)),
+            "1 \u{2502} foo bar\n     \u{203e}\u{203e}\u{203e}\u{203e}\u{203e}",
+        );
     }
 
     #[test]
     fn listing_multiple_lines_full_range() {
         assert_eq!(
             listing("foo\nbar\nbaz\nqux", (0, 15)),
-            "1 │ foo\n  ┊ ‾‾‾\n2 │ bar\n  ┊ ‾‾‾\n3 │ baz\n  ┊ ‾‾‾\n4 │ qux\n    ‾‾‾",
+            "1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502} bar\n  \u{250a} \
+                \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n  \u{250a} \u{203e}\u{203e}\u{203e}\n4 \
+                \u{2502} qux\n    \u{203e}\u{203e}\u{203e}",
         );
     }
 
@@ -404,7 +412,7 @@ mod tests {
     fn listing_multiple_lines_partial_range() {
         assert_eq!(
             listing("foo\nbar\nbaz\nqux", (5, 9)),
-            "2 │ bar\n  ┊  ‾‾\n3 │ baz\n    ‾",
+            "2 \u{2502} bar\n  \u{250a}  \u{203e}\u{203e}\n3 \u{2502} baz\n    \u{203e}",
         );
     }
 
@@ -415,7 +423,8 @@ mod tests {
                 "foo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux",
                 (33, 42),
             ),
-            " 9 │ foo\n   ┊  ‾‾\n10 │ bar\n   ┊ ‾‾‾\n11 │ baz\n     ‾‾",
+            " 9 \u{2502} foo\n   \u{250a}  \u{203e}\u{203e}\n10 \u{2502} bar\n   \u{250a} \
+                \u{203e}\u{203e}\u{203e}\n11 \u{2502} baz\n     \u{203e}\u{203e}",
         );
     }
 }
