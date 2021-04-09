@@ -121,8 +121,8 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
     // Parse the schema.
     let schema = parse(schema_path, &schema_contents, &tokens).map_err(collect_errors)?;
 
-    // Print the schema.
-    println!("{}", schema.to_string().code_str());
+    // Print the schema. Note that the schema's representation includes a trailing empty line.
+    print!("{}", schema.to_string().code_str());
 
     // If we made it this far, nothing went wrong.
     Ok(())
