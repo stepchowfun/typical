@@ -22,7 +22,7 @@ fn span(x: SourceRange, y: SourceRange) -> SourceRange {
 
 // This function computes the source range for a token, or the empty range at the end of the source
 // file in the case where the given position is at the end of the token stream.
-fn token_source_range<'a>(tokens: &'a [token::Token<'a>], position: usize) -> SourceRange {
+fn token_source_range(tokens: &[token::Token], position: usize) -> SourceRange {
     if position == tokens.len() {
         SourceRange {
             0: tokens
@@ -38,10 +38,10 @@ fn token_source_range<'a>(tokens: &'a [token::Token<'a>], position: usize) -> So
 
 // This function constructs a generic error that just complains about a particular token not being
 // found where expected.
-fn unexpected_token<'a>(
-    source_path: &'a Path,
-    source_contents: &'a str,
-    tokens: &'a [token::Token<'a>],
+fn unexpected_token(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
     position: usize,
     expectation: &str,
 ) -> Error {
@@ -158,7 +158,7 @@ macro_rules! consume_token_1 {
         }
 
         // Check if the token matches what we expect.
-        if let token::Variant::$variant(argument) = tokens[*position].variant {
+        if let token::Variant::$variant(argument) = &tokens[*position].variant {
             *position += 1;
 
             argument.clone()
@@ -177,11 +177,11 @@ macro_rules! consume_token_1 {
 }
 
 // This is the top-level parsing function.
-pub fn parse<'a>(
-    source_path: &'a Path,
-    source_contents: &'a str,
-    tokens: &'a [token::Token<'a>],
-) -> Result<schema::Schema<'a>, Vec<Error>> {
+pub fn parse(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
+) -> Result<schema::Schema, Vec<Error>> {
     // Try to parse the tokens into a schema.
     let mut position = 0;
     let mut errors = vec![];
@@ -212,13 +212,13 @@ pub fn parse<'a>(
 }
 
 // Parse a schema.
-fn parse_schema<'a>(
-    source_path: &'a Path,
-    source_contents: &'a str,
-    tokens: &'a [token::Token<'a>],
+fn parse_schema(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
-) -> schema::Schema<'a> {
+) -> schema::Schema {
     let mut imports = vec![];
     let mut declarations = vec![];
 
@@ -300,7 +300,7 @@ fn parse_schema<'a>(
 
     // Construct and return the schema.
     schema::Schema {
-        path: source_path,
+        path: source_path.to_owned(),
         imports,
         declarations,
     }
@@ -309,13 +309,13 @@ fn parse_schema<'a>(
 // Parse an import. If this function returns `None`, then at least one error was added to `errors`.
 // If the starting token is the `import` keyword, then this function is guaranteed to advance the
 // `position` [tag:parse_import_keyword_chomp].
-fn parse_import<'a>(
-    source_path: &'a Path,
-    source_contents: &'a str,
-    tokens: &'a [token::Token<'a>],
+fn parse_import(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
-) -> Option<schema::Import<'a>> {
+) -> Option<schema::Import> {
     let start = *position;
 
     // Consume the `import` keyword.
@@ -379,14 +379,14 @@ fn parse_import<'a>(
 // Parse a series of fields enclosed in curly braces and preceded by a name. If this function
 // returns `None` in the first component, then at least one error was added to `errors`. Otherwise,
 // the `position` is guaranteed to have advanced [tag:parse_fields_some_advance].
-fn parse_fields<'a>(
-    source_path: &'a Path,
-    source_contents: &'a str,
-    tokens: &'a [token::Token<'a>],
+fn parse_fields(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
     position: &mut usize,
     name_expectation: &str,
     errors: &mut Vec<Error>,
-) -> Option<(&'a str, Vec<schema::Field<'a>>)> {
+) -> Option<(String, Vec<schema::Field>)> {
     // Parse the name.
     let name = consume_token_1!(
         source_path,
@@ -454,13 +454,13 @@ fn parse_fields<'a>(
 // Parse a field. If this function returns `None`, then at least one error was added to `errors`.
 // Otherwise, the `position` is guaranteed to have advanced [tag:parse_field_some_advance].
 #[allow(clippy::too_many_lines)]
-fn parse_field<'a>(
-    source_path: &'a Path,
-    source_contents: &'a str,
-    tokens: &'a [token::Token<'a>],
+fn parse_field(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
-) -> Option<schema::Field<'a>> {
+) -> Option<schema::Field> {
     let start = *position;
 
     // Parse the name.
@@ -631,37 +631,37 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: Path::new("foo.t"),
+                path: Path::new("foo.t").to_owned(),
                 imports: vec![schema::Import {
                     source_range: (13, 34),
-                    path: Path::new("bar.t"),
-                    name: "bar",
+                    path: Path::new("bar.t").to_owned(),
+                    name: "bar".to_owned(),
                 }],
                 declarations: vec![
                     schema::Declaration {
                         source_range: (80, 179),
                         variant: schema::DeclarationVariant::Struct(
-                            "plugh",
+                            "plugh".to_owned(),
                             vec![
                                 schema::Field {
                                     source_range: (109, 125),
-                                    name: "qux",
+                                    name: "qux".to_owned(),
                                     restricted: false,
                                     r#type: schema::Type {
                                         source_range: (114, 121),
-                                        import: Some("bar"),
-                                        name: "Foo",
+                                        import: Some("bar".to_owned()),
+                                        name: "Foo".to_owned(),
                                     },
                                     index: 0,
                                 },
                                 schema::Field {
                                     source_range: (140, 165),
-                                    name: "corge",
+                                    name: "corge".to_owned(),
                                     restricted: true,
                                     r#type: schema::Type {
                                         source_range: (158, 161),
                                         import: None,
-                                        name: "int",
+                                        name: "int".to_owned(),
                                     },
                                     index: 1,
                                 },
@@ -671,27 +671,27 @@ mod tests {
                     schema::Declaration {
                         source_range: (225, 328),
                         variant: schema::DeclarationVariant::Choice(
-                            "zyzzy",
+                            "zyzzy".to_owned(),
                             vec![
                                 schema::Field {
                                     source_range: (254, 273),
-                                    name: "grault",
+                                    name: "grault".to_owned(),
                                     restricted: false,
                                     r#type: schema::Type {
                                         source_range: (262, 269),
-                                        import: Some("bar"),
-                                        name: "Bar",
+                                        import: Some("bar".to_owned()),
+                                        name: "Bar".to_owned(),
                                     },
                                     index: 0,
                                 },
                                 schema::Field {
                                     source_range: (288, 314),
-                                    name: "garply",
+                                    name: "garply".to_owned(),
                                     restricted: true,
                                     r#type: schema::Type {
                                         source_range: (307, 310),
                                         import: None,
-                                        name: "int",
+                                        name: "int".to_owned(),
                                     },
                                     index: 1,
                                 },
@@ -712,7 +712,7 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![],
             },
@@ -728,11 +728,11 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![schema::Import {
                     source_range: (0, 21),
-                    path: Path::new("bar.t"),
-                    name: "bar",
+                    path: Path::new("bar.t").to_owned(),
+                    name: "bar".to_owned(),
                 }],
                 declarations: vec![],
             },
@@ -748,11 +748,11 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 14),
-                    variant: schema::DeclarationVariant::Struct("Foo", vec![]),
+                    variant: schema::DeclarationVariant::Struct("Foo".to_owned(), vec![]),
                 },],
             },
         );
@@ -767,20 +767,20 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 28),
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![schema::Field {
                             source_range: (13, 26),
-                            name: "foo",
+                            name: "foo".to_owned(),
                             restricted: false,
                             r#type: schema::Type {
                                 source_range: (18, 21),
                                 import: None,
-                                name: "Foo",
+                                name: "Foo".to_owned(),
                             },
                             index: 42,
                         }],
@@ -799,32 +799,32 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 42),
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![
                             schema::Field {
                                 source_range: (13, 26),
-                                name: "foo",
+                                name: "foo".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (18, 21),
                                     import: None,
-                                    name: "Foo",
+                                    name: "Foo".to_owned(),
                                 },
                                 index: 42,
                             },
                             schema::Field {
                                 source_range: (27, 40),
-                                name: "bar",
+                                name: "bar".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (32, 35),
                                     import: None,
-                                    name: "Bar",
+                                    name: "Bar".to_owned(),
                                 },
                                 index: 43,
                             },
@@ -844,11 +844,11 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 14),
-                    variant: schema::DeclarationVariant::Choice("Foo", vec![]),
+                    variant: schema::DeclarationVariant::Choice("Foo".to_owned(), vec![]),
                 },],
             },
         );
@@ -863,20 +863,20 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 28),
                     variant: schema::DeclarationVariant::Choice(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![schema::Field {
                             source_range: (13, 26),
-                            name: "foo",
+                            name: "foo".to_owned(),
                             restricted: false,
                             r#type: schema::Type {
                                 source_range: (18, 21),
                                 import: None,
-                                name: "Foo",
+                                name: "Foo".to_owned(),
                             },
                             index: 42,
                         }],
@@ -895,32 +895,32 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 42),
                     variant: schema::DeclarationVariant::Choice(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![
                             schema::Field {
                                 source_range: (13, 26),
-                                name: "foo",
+                                name: "foo".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (18, 21),
                                     import: None,
-                                    name: "Foo",
+                                    name: "Foo".to_owned(),
                                 },
                                 index: 42,
                             },
                             schema::Field {
                                 source_range: (27, 40),
-                                name: "bar",
+                                name: "bar".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (32, 35),
                                     import: None,
-                                    name: "Bar",
+                                    name: "Bar".to_owned(),
                                 },
                                 index: 43,
                             },
@@ -940,20 +940,20 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 39),
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![schema::Field {
                             source_range: (13, 37),
-                            name: "foo",
+                            name: "foo".to_owned(),
                             restricted: true,
                             r#type: schema::Type {
                                 source_range: (29, 32),
                                 import: None,
-                                name: "Foo",
+                                name: "Foo".to_owned(),
                             },
                             index: 42,
                         }],
@@ -972,20 +972,20 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path,
+                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 32),
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![schema::Field {
                             source_range: (13, 30),
-                            name: "foo",
+                            name: "foo".to_owned(),
                             restricted: false,
                             r#type: schema::Type {
                                 source_range: (18, 25),
-                                import: Some("bar"),
-                                name: "Bar",
+                                import: Some("bar".to_owned()),
+                                name: "Bar".to_owned(),
                             },
                             index: 42,
                         }],

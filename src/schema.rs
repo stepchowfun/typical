@@ -1,51 +1,51 @@
 use std::{
     fmt::{Display, Formatter},
-    path::Path,
+    path::PathBuf,
 };
 
 #[derive(Clone, Debug)]
-pub struct Schema<'a> {
-    pub path: &'a Path,
-    pub imports: Vec<Import<'a>>,
-    pub declarations: Vec<Declaration<'a>>,
+pub struct Schema {
+    pub path: PathBuf,
+    pub imports: Vec<Import>,
+    pub declarations: Vec<Declaration>,
 }
 
 #[derive(Clone, Debug)]
-pub struct Import<'a> {
+pub struct Import {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub path: &'a Path,
-    pub name: &'a str,
+    pub path: PathBuf,
+    pub name: String,
 }
 
 #[derive(Clone, Debug)]
-pub struct Declaration<'a> {
+pub struct Declaration {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub variant: DeclarationVariant<'a>,
+    pub variant: DeclarationVariant,
 }
 
 #[derive(Clone, Debug)]
-pub enum DeclarationVariant<'a> {
-    Struct(&'a str, Vec<Field<'a>>), // (name, fields)
-    Choice(&'a str, Vec<Field<'a>>), // (name, fields)
+pub enum DeclarationVariant {
+    Struct(String, Vec<Field>), // (name, fields)
+    Choice(String, Vec<Field>), // (name, fields)
 }
 
 #[derive(Clone, Debug)]
-pub struct Field<'a> {
+pub struct Field {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub name: &'a str,
+    pub name: String,
     pub restricted: bool,
-    pub r#type: Type<'a>,
+    pub r#type: Type,
     pub index: usize,
 }
 
 #[derive(Clone, Debug)]
-pub struct Type<'a> {
+pub struct Type {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub import: Option<&'a str>,
-    pub name: &'a str,
+    pub import: Option<String>,
+    pub name: String,
 }
 
-impl<'a> Display for Schema<'a> {
+impl Display for Schema {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         for import in &self.imports {
             writeln!(f, "import '{}' as {}", import.path.display(), import.name)?;
@@ -65,14 +65,14 @@ impl<'a> Display for Schema<'a> {
     }
 }
 
-impl<'a> Display for Declaration<'a> {
+impl Display for Declaration {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{}", self.variant)?;
         Ok(())
     }
 }
 
-impl<'a> Display for DeclarationVariant<'a> {
+impl Display for DeclarationVariant {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             Self::Struct(name, fields) => {
@@ -95,7 +95,7 @@ impl<'a> Display for DeclarationVariant<'a> {
     }
 }
 
-impl<'a> Display for Field<'a> {
+impl Display for Field {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         if self.restricted {
             writeln!(
@@ -111,9 +111,9 @@ impl<'a> Display for Field<'a> {
     }
 }
 
-impl<'a> Display for Type<'a> {
+impl Display for Type {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        if let Some(import) = self.import {
+        if let Some(import) = &self.import {
             write!(f, "{}.{}", import, self.name)?;
         } else {
             write!(f, "{}", self.name)?;
@@ -133,7 +133,7 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t"),
+                    path: Path::new("foo.t").to_owned(),
                     imports: vec![],
                     declarations: vec![],
                 },
@@ -148,17 +148,17 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t"),
+                    path: Path::new("foo.t").to_owned(),
                     imports: vec![
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("qux.t"),
-                            name: "qux",
+                            path: Path::new("qux.t").to_owned(),
+                            name: "qux".to_owned(),
                         },
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("corge.t"),
-                            name: "corge",
+                            path: Path::new("corge.t").to_owned(),
+                            name: "corge".to_owned(),
                         },
                     ],
                     declarations: vec![],
@@ -177,33 +177,33 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t"),
+                    path: Path::new("foo.t").to_owned(),
                     imports: vec![],
                     declarations: vec![
                         Declaration {
                             source_range: (0, 0),
                             variant: DeclarationVariant::Struct(
-                                "Foo",
+                                "Foo".to_owned(),
                                 vec![
                                     Field {
                                         source_range: (0, 0),
-                                        name: "foo",
+                                        name: "foo".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "Int",
+                                            name: "Int".to_owned(),
                                         },
                                         index: 42,
                                     },
                                     Field {
                                         source_range: (0, 0),
-                                        name: "bar",
+                                        name: "bar".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "String",
+                                            name: "String".to_owned(),
                                         },
                                         index: 43,
                                     },
@@ -213,27 +213,27 @@ mod tests {
                         Declaration {
                             source_range: (0, 0),
                             variant: DeclarationVariant::Choice(
-                                "Bar",
+                                "Bar".to_owned(),
                                 vec![
                                     Field {
                                         source_range: (0, 0),
-                                        name: "foo",
+                                        name: "foo".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "Int",
+                                            name: "Int".to_owned(),
                                         },
                                         index: 42,
                                     },
                                     Field {
                                         source_range: (0, 0),
-                                        name: "bar",
+                                        name: "bar".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "String",
+                                            name: "String".to_owned(),
                                         },
                                         index: 43,
                                     },
@@ -263,44 +263,44 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t"),
+                    path: Path::new("foo.t").to_owned(),
                     imports: vec![
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("qux.t"),
-                            name: "qux",
+                            path: Path::new("qux.t").to_owned(),
+                            name: "qux".to_owned(),
                         },
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("corge.t"),
-                            name: "corge",
+                            path: Path::new("corge.t").to_owned(),
+                            name: "corge".to_owned(),
                         },
                     ],
                     declarations: vec![
                         Declaration {
                             source_range: (0, 0),
                             variant: DeclarationVariant::Struct(
-                                "Foo",
+                                "Foo".to_owned(),
                                 vec![
                                     Field {
                                         source_range: (0, 0),
-                                        name: "foo",
+                                        name: "foo".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "Int",
+                                            name: "Int".to_owned(),
                                         },
                                         index: 42,
                                     },
                                     Field {
                                         source_range: (0, 0),
-                                        name: "bar",
+                                        name: "bar".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "String",
+                                            name: "String".to_owned(),
                                         },
                                         index: 43,
                                     },
@@ -310,27 +310,27 @@ mod tests {
                         Declaration {
                             source_range: (0, 0),
                             variant: DeclarationVariant::Choice(
-                                "Bar",
+                                "Bar".to_owned(),
                                 vec![
                                     Field {
                                         source_range: (0, 0),
-                                        name: "foo",
+                                        name: "foo".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "Int",
+                                            name: "Int".to_owned(),
                                         },
                                         index: 42,
                                     },
                                     Field {
                                         source_range: (0, 0),
-                                        name: "bar",
+                                        name: "bar".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
                                             import: None,
-                                            name: "String",
+                                            name: "String".to_owned(),
                                         },
                                         index: 43,
                                     },
@@ -365,27 +365,27 @@ mod tests {
                 Declaration {
                     source_range: (0, 0),
                     variant: DeclarationVariant::Struct(
-                        "Foo",
+                        "Foo".to_owned(),
                         vec![
                             Field {
                                 source_range: (0, 0),
-                                name: "foo",
+                                name: "foo".to_owned(),
                                 restricted: false,
                                 r#type: Type {
                                     source_range: (0, 0),
                                     import: None,
-                                    name: "Int"
+                                    name: "Int".to_owned()
                                 },
                                 index: 42,
                             },
                             Field {
                                 source_range: (0, 0),
-                                name: "bar",
+                                name: "bar".to_owned(),
                                 restricted: false,
                                 r#type: Type {
                                     source_range: (0, 0),
                                     import: None,
-                                    name: "String"
+                                    name: "String".to_owned()
                                 },
                                 index: 43,
                             },
@@ -408,27 +408,27 @@ mod tests {
             format!(
                 "{}",
                 DeclarationVariant::Struct(
-                    "Foo",
+                    "Foo".to_owned(),
                     vec![
                         Field {
                             source_range: (0, 0),
-                            name: "foo",
+                            name: "foo".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
                                 import: None,
-                                name: "Int"
+                                name: "Int".to_owned()
                             },
                             index: 42,
                         },
                         Field {
                             source_range: (0, 0),
-                            name: "bar",
+                            name: "bar".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
                                 import: None,
-                                name: "String"
+                                name: "String".to_owned()
                             },
                             index: 43,
                         },
@@ -450,27 +450,27 @@ mod tests {
             format!(
                 "{}",
                 DeclarationVariant::Choice(
-                    "Foo",
+                    "Foo".to_owned(),
                     vec![
                         Field {
                             source_range: (0, 0),
-                            name: "foo",
+                            name: "foo".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
                                 import: None,
-                                name: "Int"
+                                name: "Int".to_owned()
                             },
                             index: 42,
                         },
                         Field {
                             source_range: (0, 0),
-                            name: "bar",
+                            name: "bar".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
                                 import: None,
-                                name: "String"
+                                name: "String".to_owned()
                             },
                             index: 43,
                         },
@@ -493,12 +493,12 @@ mod tests {
                 "{}",
                 Field {
                     source_range: (0, 0),
-                    name: "foo",
+                    name: "foo".to_owned(),
                     restricted: false,
                     r#type: Type {
                         source_range: (0, 0),
                         import: None,
-                        name: "Int",
+                        name: "Int".to_owned(),
                     },
                     index: 42,
                 },
@@ -514,12 +514,12 @@ mod tests {
                 "{}",
                 Field {
                     source_range: (0, 0),
-                    name: "foo",
+                    name: "foo".to_owned(),
                     restricted: true,
                     r#type: Type {
                         source_range: (0, 0),
                         import: None,
-                        name: "Int",
+                        name: "Int".to_owned(),
                     },
                     index: 42,
                 },
@@ -536,7 +536,7 @@ mod tests {
                 Type {
                     source_range: (0, 0),
                     import: None,
-                    name: "Int",
+                    name: "Int".to_owned(),
                 },
             ),
             "Int",
@@ -550,8 +550,8 @@ mod tests {
                 "{}",
                 Type {
                     source_range: (0, 0),
-                    import: Some("foo"),
-                    name: "Int",
+                    import: Some("foo".to_owned()),
+                    name: "Int".to_owned(),
                 },
             ),
             "foo.Int",
