@@ -26,7 +26,8 @@ macro_rules! assert_fails {
 
             assert!(
                 found_error,
-                "The expression failed as expected, but with unexpected errors: {:?}.",
+                "The expression failed as expected, but the expected message was not found in \
+                    any of the errors: {:?}.",
                 errors,
             );
         } else {
@@ -92,7 +93,8 @@ mod tests {
         // This comma on the comment at the end of the line below is needed to satisfy the trailing
         // commas check.
         expected = "\
-            The expression failed as expected, but with unexpected errors: [\
+            The expression failed as expected, but the expected message was not found in any of \
+            the errors: [\
                 Error { message: \"foo\", reason: None }, \
                 Error { message: \"bar\", reason: None }, \
                 Error { message: \"baz\", reason: None }\
