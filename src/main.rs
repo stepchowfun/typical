@@ -22,7 +22,7 @@ use clap::{
     Arg, Shell, SubCommand,
 };
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     fs::read_to_string,
     io::stdout,
     path::{Path, PathBuf},
@@ -86,6 +86,9 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 // Check a schema.
 #[allow(clippy::too_many_lines)]
 fn check_schema(schema_path: &Path) -> Result<(), Error> {
+    // The schema and all its transitive dependencies will end up here.
+    let mut schemas = HashMap::new();
+
     // Canonicalize the path to avoid loading the same file multiple
     // times.
     let canonical_schema_path = match schema_path.canonicalize() {
@@ -110,7 +113,6 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
 
     // Perform a depth-first traversal of the transitive dependencies.
     let mut errors = vec![];
-    let mut first = true;
     while let Some((path, origin)) = paths_to_load.pop() {
         // Compute the base directory for this schema's dependencies.
         let base_dir = if let Some(base_dir) = path.parent() {
@@ -173,15 +175,6 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
             }
         };
 
-        // Print the schema.
-        if first {
-            first = false;
-        } else {
-            println!();
-        }
-
-        println!("{}", schema.to_string().code_str());
-
         // Add the dependencies to the frontier.
         for import in &schema.imports {
             // Compute the source listing for this import for error
@@ -214,9 +207,29 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
                 }
             }
         }
+
+        // Store the schema.
+        schemas.insert(path.clone(), schema);
     }
 
-    if !errors.is_empty() {
+    // Print the schemas.
+    let mut skip_blank_line = true;
+
+    for (path, schema) in schemas {
+        if skip_blank_line {
+            skip_blank_line = false;
+        } else {
+            println!();
+        }
+
+        println!(
+            "{}:\n\n{}",
+            path.to_string_lossy().code_str(),
+            schema.to_string().code_str(),
+        );
+    }
+
+    if !skip_blank_line && !errors.is_empty() {
         println!();
     }
 
