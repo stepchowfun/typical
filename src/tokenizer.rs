@@ -1,5 +1,5 @@
 use crate::{
-    error::{throw, Error},
+    error::{with_context, Error},
     format::CodeStr,
     token::{
         Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
@@ -130,13 +130,15 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         });
                     }
                     Err(_) => {
-                        errors.push(throw(
+                        errors.push(with_context::<Error>(
                             &format!(
                                 "Integer {} must be less than 2^64.",
                                 &schema_contents[i..end].code_str(),
                             ),
                             Some(schema_path),
-                            Some((schema_contents, (i, end))),
+                            schema_contents,
+                            (i, end),
+                            None,
                         ));
                     }
                 }
@@ -155,13 +157,15 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 }
 
                 if end == i {
-                    errors.push(throw(
+                    errors.push(with_context::<Error>(
                         &format!(
                             "Path starting here must be terminated by a {}.",
                             "'".code_str(),
                         ),
                         Some(schema_path),
-                        Some((schema_contents, (i, i + 1))),
+                        schema_contents,
+                        (i, i + 1),
+                        None,
                     ));
                 } else {
                     tokens.push(Token {
@@ -202,10 +206,12 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 let end = cursor.next_boundary(schema_contents, 0).unwrap().unwrap();
 
                 // Now that we've computed the grapheme cluster, construct and report the error.
-                errors.push(throw(
+                errors.push(with_context::<Error>(
                     &format!("Unexpected symbol {}.", &schema_contents[i..end].code_str()),
                     Some(schema_path),
-                    Some((schema_contents, (i, end))),
+                    schema_contents,
+                    (i, end),
+                    None,
                 ));
             }
         }
