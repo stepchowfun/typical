@@ -1,5 +1,5 @@
 # The familiar Boolean type
 choice Bool {
-  false: Unit = 0
-  true: Unit = 1
+  false: unit.Unit = 0
+  true: unit.Unit = 1
 }
