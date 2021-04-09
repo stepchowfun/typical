@@ -235,6 +235,184 @@ mod tests {
     };
     use std::path::Path;
 
+    #[allow(clippy::too_many_lines)]
+    #[test]
+    fn tokenize_example() {
+        let source = "
+            import 'bar.t' as bar
+
+            # This is a struct.
+            struct plugh {
+              qux: bar.Foo = 0
+              corge: restricted int = 1
+            }
+
+            # This is a choice.
+            choice zyzzy {
+              grault: bar.Bar = 0
+              garply: restricted int = 1
+            }
+        ";
+
+        assert_same!(
+            tokenize(Path::new("foo.t"), source).unwrap(),
+            vec![
+                Token {
+                    source_range: (13, 19),
+                    variant: Variant::Import,
+                },
+                Token {
+                    source_range: (20, 27),
+                    variant: Variant::Path(Path::new("bar.t")),
+                },
+                Token {
+                    source_range: (28, 30),
+                    variant: Variant::As,
+                },
+                Token {
+                    source_range: (31, 34),
+                    variant: Variant::Identifier("bar"),
+                },
+                Token {
+                    source_range: (80, 86),
+                    variant: Variant::Struct,
+                },
+                Token {
+                    source_range: (87, 92),
+                    variant: Variant::Identifier("plugh"),
+                },
+                Token {
+                    source_range: (93, 94),
+                    variant: Variant::LeftCurly,
+                },
+                Token {
+                    source_range: (109, 112),
+                    variant: Variant::Identifier("qux"),
+                },
+                Token {
+                    source_range: (112, 113),
+                    variant: Variant::Colon,
+                },
+                Token {
+                    source_range: (114, 117),
+                    variant: Variant::Identifier("bar"),
+                },
+                Token {
+                    source_range: (117, 118),
+                    variant: Variant::Dot,
+                },
+                Token {
+                    source_range: (118, 121),
+                    variant: Variant::Identifier("Foo"),
+                },
+                Token {
+                    source_range: (122, 123),
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: (124, 125),
+                    variant: Variant::Integer(0),
+                },
+                Token {
+                    source_range: (140, 145),
+                    variant: Variant::Identifier("corge"),
+                },
+                Token {
+                    source_range: (145, 146),
+                    variant: Variant::Colon,
+                },
+                Token {
+                    source_range: (147, 157),
+                    variant: Variant::Restricted,
+                },
+                Token {
+                    source_range: (158, 161),
+                    variant: Variant::Identifier("int"),
+                },
+                Token {
+                    source_range: (162, 163),
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: (164, 165),
+                    variant: Variant::Integer(1),
+                },
+                Token {
+                    source_range: (178, 179),
+                    variant: Variant::RightCurly,
+                },
+                Token {
+                    source_range: (225, 231),
+                    variant: Variant::Choice,
+                },
+                Token {
+                    source_range: (232, 237),
+                    variant: Variant::Identifier("zyzzy"),
+                },
+                Token {
+                    source_range: (238, 239),
+                    variant: Variant::LeftCurly,
+                },
+                Token {
+                    source_range: (254, 260),
+                    variant: Variant::Identifier("grault"),
+                },
+                Token {
+                    source_range: (260, 261),
+                    variant: Variant::Colon,
+                },
+                Token {
+                    source_range: (262, 265),
+                    variant: Variant::Identifier("bar"),
+                },
+                Token {
+                    source_range: (265, 266),
+                    variant: Variant::Dot,
+                },
+                Token {
+                    source_range: (266, 269),
+                    variant: Variant::Identifier("Bar"),
+                },
+                Token {
+                    source_range: (270, 271),
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: (272, 273),
+                    variant: Variant::Integer(0),
+                },
+                Token {
+                    source_range: (288, 294),
+                    variant: Variant::Identifier("garply"),
+                },
+                Token {
+                    source_range: (294, 295),
+                    variant: Variant::Colon,
+                },
+                Token {
+                    source_range: (296, 306),
+                    variant: Variant::Restricted,
+                },
+                Token {
+                    source_range: (307, 310),
+                    variant: Variant::Identifier("int"),
+                },
+                Token {
+                    source_range: (311, 312),
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: (313, 314),
+                    variant: Variant::Integer(1),
+                },
+                Token {
+                    source_range: (327, 328),
+                    variant: Variant::RightCurly,
+                },
+            ],
+        );
+    }
+
     #[test]
     fn tokenize_empty() {
         assert_same!(tokenize(Path::new("foo.t"), "").unwrap(), vec![]);
@@ -424,7 +602,10 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_unexpected_code_point() {
-        assert_fails!(tokenize(Path::new("foo.t"), "$"), "Unexpected symbol `$`.");
+    fn tokenize_unexpected_symbol() {
+        assert_fails!(
+            tokenize(Path::new("foo.t"), "\u{1f610}\u{fe0f}"),
+            "Unexpected symbol `\u{1f610}\u{fe0f}`.",
+        );
     }
 }

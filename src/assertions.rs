@@ -15,7 +15,7 @@ macro_rules! assert_fails {
             let mut found_error = false;
             let mut all_errors_string = "".to_owned();
 
-            for error in errors {
+            for error in &errors {
                 let error_string = error.to_string();
                 all_errors_string.push_str(&format!("{}\n", error_string));
 
@@ -26,7 +26,8 @@ macro_rules! assert_fails {
 
             assert!(
                 found_error,
-                "The expression failed as expected, but not with the expected error.",
+                "The expression failed as expected, but with unexpected errors: {:?}.",
+                errors,
             );
         } else {
             panic!("The expression was supposed to fail, but it succeeded.");
@@ -90,20 +91,25 @@ mod tests {
     #[should_panic(
         // This comma on the comment at the end of the line below is needed to satisfy the trailing
         // commas check.
-        expected = "The expression failed as expected, but not with the expected error." // ,
+        expected = "\
+            The expression failed as expected, but with unexpected errors: [\
+                Error { message: \"foo\", reason: None }, \
+                Error { message: \"bar\", reason: None }, \
+                Error { message: \"baz\", reason: None }\
+            ]." // ,
     )]
     fn assert_fails_mismatch() {
         let success: Result<usize, Vec<Error>> = Err(vec![
             Error {
-                message: "foo bar".to_owned(),
+                message: "foo".to_owned(),
                 reason: None,
             },
             Error {
-                message: "foo bar".to_owned(),
+                message: "bar".to_owned(),
                 reason: None,
             },
             Error {
-                message: "foo bar".to_owned(),
+                message: "baz".to_owned(),
                 reason: None,
             },
         ]);

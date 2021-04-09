@@ -609,6 +609,101 @@ mod tests {
     use std::path::Path;
 
     #[test]
+    fn parse_example() {
+        let source_path = Path::new("foo.t");
+        let source = "
+            import 'bar.t' as bar
+
+            # This is a struct.
+            struct plugh {
+              qux: bar.Foo = 0
+              corge: restricted int = 1
+            }
+
+            # This is a choice.
+            choice zyzzy {
+              grault: bar.Bar = 0
+              garply: restricted int = 1
+            }
+        ";
+        let tokens = tokenize(source_path, source).unwrap();
+
+        assert_same!(
+            parse(source_path, source, &tokens[..]).unwrap(),
+            schema::Schema {
+                path: Path::new("foo.t"),
+                imports: vec![schema::Import {
+                    source_range: (13, 34),
+                    path: Path::new("bar.t"),
+                    name: "bar",
+                }],
+                declarations: vec![
+                    schema::Declaration {
+                        source_range: (80, 179),
+                        variant: schema::DeclarationVariant::Struct(
+                            "plugh",
+                            vec![
+                                schema::Field {
+                                    source_range: (109, 125),
+                                    name: "qux",
+                                    restricted: false,
+                                    r#type: schema::Type {
+                                        source_range: (114, 121),
+                                        import: Some("bar"),
+                                        name: "Foo",
+                                    },
+                                    index: 0,
+                                },
+                                schema::Field {
+                                    source_range: (140, 165),
+                                    name: "corge",
+                                    restricted: true,
+                                    r#type: schema::Type {
+                                        source_range: (158, 161),
+                                        import: None,
+                                        name: "int",
+                                    },
+                                    index: 1,
+                                },
+                            ],
+                        ),
+                    },
+                    schema::Declaration {
+                        source_range: (225, 328),
+                        variant: schema::DeclarationVariant::Choice(
+                            "zyzzy",
+                            vec![
+                                schema::Field {
+                                    source_range: (254, 273),
+                                    name: "grault",
+                                    restricted: false,
+                                    r#type: schema::Type {
+                                        source_range: (262, 269),
+                                        import: Some("bar"),
+                                        name: "Bar",
+                                    },
+                                    index: 0,
+                                },
+                                schema::Field {
+                                    source_range: (288, 314),
+                                    name: "garply",
+                                    restricted: true,
+                                    r#type: schema::Type {
+                                        source_range: (307, 310),
+                                        import: None,
+                                        name: "int",
+                                    },
+                                    index: 1,
+                                },
+                            ],
+                        ),
+                    },
+                ],
+            },
+        );
+    }
+
+    #[test]
     fn parse_empty() {
         let source_path = Path::new("foo.t");
         let source = "";
