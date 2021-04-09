@@ -101,7 +101,6 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
             ));
         }
     };
-    drop(schema_path); // So we don't accidentally use this from now on
 
     // Initialize the "frontier" with the given path.
     let mut paths_to_load: Vec<(PathBuf, Option<(PathBuf, String)>)> =
@@ -174,15 +173,14 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
             }
         };
 
-        // Print the schema. Note that the schema's representation includes
-        // a trailing empty line.
+        // Print the schema.
         if first {
             first = false;
         } else {
             println!();
         }
 
-        print!("{}", schema.to_string().code_str());
+        println!("{}", schema.to_string().code_str());
 
         // Add the dependencies to the frontier.
         for import in &schema.imports {
@@ -218,7 +216,7 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
         }
     }
 
-    if !first {
+    if !errors.is_empty() {
         println!();
     }
 

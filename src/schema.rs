@@ -46,18 +46,25 @@ pub struct Type {
 
 impl Display for Schema {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        let mut skip_blank_line = true;
+
         for import in &self.imports {
-            writeln!(f, "import '{}' as {}", import.path.display(), import.name)?;
-        }
-
-        let mut skip_blank_line = self.imports.is_empty();
-
-        for declaration in &self.declarations {
             if skip_blank_line {
                 skip_blank_line = false;
             } else {
                 writeln!(f)?;
             }
+
+            write!(f, "import '{}' as {}", import.path.display(), import.name)?;
+        }
+
+        for declaration in &self.declarations {
+            if skip_blank_line {
+                skip_blank_line = false;
+            } else {
+                writeln!(f, "\n")?;
+            }
+
             write!(f, "{}", declaration)?;
         }
         Ok(())
@@ -76,18 +83,24 @@ impl Display for DeclarationVariant {
         match self {
             Self::Struct(name, fields) => {
                 writeln!(f, "struct {} {{", name)?;
+
                 for field in fields.iter() {
-                    write!(f, "{}", field)?;
+                    writeln!(f, "{}", field)?;
                 }
-                writeln!(f, "}}")?;
+
+                write!(f, "}}")?;
+
                 Ok(())
             }
             Self::Choice(name, fields) => {
                 writeln!(f, "choice {} {{", name)?;
+
                 for field in fields.iter() {
-                    write!(f, "{}", field)?;
+                    writeln!(f, "{}", field)?;
                 }
-                writeln!(f, "}}")?;
+
+                write!(f, "}}")?;
+
                 Ok(())
             }
         }
@@ -97,13 +110,13 @@ impl Display for DeclarationVariant {
 impl Display for Field {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         if self.restricted {
-            writeln!(
+            write!(
                 f,
                 "  {}: restricted {} = {}",
                 self.name, self.r#type, self.index,
             )?;
         } else {
-            writeln!(f, "  {}: {} = {}", self.name, self.r#type, self.index)?;
+            write!(f, "  {}: {} = {}", self.name, self.r#type, self.index)?;
         }
 
         Ok(())
@@ -163,7 +176,7 @@ mod tests {
             ),
             "\
             import 'qux.t' as qux\n\
-            import 'corge.t' as corge\n\
+            import 'corge.t' as corge\
             ",
         );
     }
@@ -248,7 +261,7 @@ mod tests {
             choice Bar {\n\
             \x20 foo: Int = 42\n\
             \x20 bar: String = 43\n\
-            }\n\
+            }\
             ",
         );
     }
@@ -347,7 +360,7 @@ mod tests {
             choice Bar {\n\
             \x20 foo: Int = 42\n\
             \x20 bar: String = 43\n\
-            }\n\
+            }\
             ",
         );
     }
@@ -392,7 +405,7 @@ mod tests {
             struct Foo {\n\
             \x20 foo: Int = 42\n\
             \x20 bar: String = 43\n\
-            }\n\
+            }\
             ",
         );
     }
@@ -434,7 +447,7 @@ mod tests {
             struct Foo {\n\
             \x20 foo: Int = 42\n\
             \x20 bar: String = 43\n\
-            }\n\
+            }\
             ",
         );
     }
@@ -476,7 +489,7 @@ mod tests {
             choice Foo {\n\
             \x20 foo: Int = 42\n\
             \x20 bar: String = 43\n\
-            }\n\
+            }\
             ",
         );
     }
@@ -498,7 +511,7 @@ mod tests {
                     index: 42,
                 },
             ),
-            "  foo: Int = 42\n",
+            "  foo: Int = 42",
         );
     }
 
@@ -519,7 +532,7 @@ mod tests {
                     index: 42,
                 },
             ),
-            "  foo: restricted Int = 42\n",
+            "  foo: restricted Int = 42",
         );
     }
 
