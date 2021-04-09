@@ -83,9 +83,11 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
 }
 
-// Check a schema.
+// Load a schema and its transitive dependencies. If this function succeeds, the imports in the
+// returned schemas are guaranteed to have valid paths which are relative to and contained within
+// the directory containing `schema_path`. No other validation is performed by this function.
 #[allow(clippy::too_many_lines)]
-fn check_schema(schema_path: &Path) -> Result<(), Error> {
+fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, Error> {
     // The schema and all its transitive dependencies will end up here.
     let mut schemas = HashMap::new();
 
@@ -238,30 +240,9 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
         schemas.insert(path.clone(), schema);
     }
 
-    // Print the schemas.
-    let mut skip_blank_line = true;
-
-    for (path, schema) in schemas {
-        if skip_blank_line {
-            skip_blank_line = false;
-        } else {
-            println!();
-        }
-
-        println!(
-            "-- {}\n\n{}",
-            path.to_string_lossy().code_str(),
-            schema.to_string().code_str(),
-        );
-    }
-
-    if !skip_blank_line && !errors.is_empty() {
-        println!();
-    }
-
     // Return a success or report any errors.
     if errors.is_empty() {
-        Ok(())
+        Ok(schemas)
     } else {
         Err(Error {
             message: errors
@@ -292,6 +273,31 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
             reason: None,
         })
     }
+}
+
+// Check a schema and its transitive dependencies.
+fn check_schema(schema_path: &Path) -> Result<(), Error> {
+    // Load the schema and its transitive dependencies.
+    let schemas = load_schemas(schema_path)?;
+
+    // Print the schemas.
+    let mut skip_blank_line = true;
+
+    for (path, schema) in schemas {
+        if skip_blank_line {
+            skip_blank_line = false;
+        } else {
+            println!();
+        }
+
+        println!(
+            "-- {}\n\n{}",
+            path.to_string_lossy().code_str(),
+            schema.to_string().code_str(),
+        );
+    }
+
+    Ok(())
 }
 
 // Print a shell completion script to STDOUT.
