@@ -330,15 +330,57 @@ fn parse_field<'a>(
     };
 
     // Parse the type.
-    let type_pos = next;
-    let (r#type, next) = consume_token_1!(
-        tokens,
-        next,
-        errors,
-        Identifier,
-        "a type for the field",
-        (None, start),
-    );
+    let type_start = next;
+
+    let (prefix, r#type, next) = if next < tokens.len() - 2 {
+        if let Some(token::Variant::Dot) = tokens.get(next + 1).map(|token| &token.variant) {
+            let (prefix, next) = consume_token_1!(
+                tokens,
+                next,
+                errors,
+                Identifier,
+                "a prefix for the type of the field",
+                (None, start),
+            );
+
+            let next = next + 1;
+
+            let (r#type, next) = consume_token_1!(
+                tokens,
+                next,
+                errors,
+                Identifier,
+                "a type for the field",
+                (None, start),
+            );
+
+            (Some(prefix), r#type, next)
+        } else {
+            let (r#type, next) = consume_token_1!(
+                tokens,
+                next,
+                errors,
+                Identifier,
+                "a type for the field",
+                (None, start),
+            );
+
+            (None, r#type, next)
+        }
+    } else {
+        let (r#type, next) = consume_token_1!(
+            tokens,
+            next,
+            errors,
+            Identifier,
+            "a type for the field",
+            (None, start),
+        );
+
+        (None, r#type, next)
+    };
+
+    let type_end = next;
 
     // Consume the equals sign.
     let next = consume_token_0!(tokens, next, errors, Equals, (None, start));
@@ -364,7 +406,12 @@ fn parse_field<'a>(
             name,
             restricted,
             r#type: schema::Type {
-                source_range: token_source_range(tokens, type_pos).0,
+                source_range: span(
+                    token_source_range(tokens, type_start),
+                    token_source_range(tokens, type_end - 1),
+                )
+                .0,
+                prefix,
                 name: r#type,
             },
             index,
@@ -431,6 +478,7 @@ mod tests {
                             restricted: false,
                             r#type: schema::Type {
                                 source_range: (18, 21),
+                                prefix: None,
                                 name: "Foo",
                             },
                             index: 42,
@@ -462,6 +510,7 @@ mod tests {
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (18, 21),
+                                    prefix: None,
                                     name: "Foo",
                                 },
                                 index: 42,
@@ -472,6 +521,7 @@ mod tests {
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (32, 35),
+                                    prefix: None,
                                     name: "Bar",
                                 },
                                 index: 43,
@@ -521,6 +571,7 @@ mod tests {
                             restricted: false,
                             r#type: schema::Type {
                                 source_range: (18, 21),
+                                prefix: None,
                                 name: "Foo",
                             },
                             index: 42,
@@ -552,6 +603,7 @@ mod tests {
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (18, 21),
+                                    prefix: None,
                                     name: "Foo",
                                 },
                                 index: 42,
@@ -562,6 +614,7 @@ mod tests {
                                 restricted: false,
                                 r#type: schema::Type {
                                     source_range: (32, 35),
+                                    prefix: None,
                                     name: "Bar",
                                 },
                                 index: 43,
@@ -593,7 +646,39 @@ mod tests {
                             restricted: true,
                             r#type: schema::Type {
                                 source_range: (29, 32),
+                                prefix: None,
                                 name: "Foo",
+                            },
+                            index: 42,
+                        }],
+                    ),
+                }],
+            },
+        );
+    }
+
+    #[test]
+    fn parse_field_type_prefix() {
+        let source_path = Path::new("foo.t");
+        let source = "struct Foo { foo: bar.Bar = 42 }";
+        let tokens = tokenize(source_path, source).unwrap();
+
+        assert_same!(
+            parse(source_path, source, &tokens[..]).unwrap(),
+            schema::Schema {
+                path: source_path,
+                declarations: vec![schema::Declaration {
+                    source_range: (0, 32),
+                    variant: schema::DeclarationVariant::Struct(
+                        "Foo",
+                        vec![schema::Field {
+                            source_range: (13, 30),
+                            name: "foo",
+                            restricted: false,
+                            r#type: schema::Type {
+                                source_range: (18, 25),
+                                prefix: Some("bar"),
+                                name: "Bar",
                             },
                             index: 42,
                         }],

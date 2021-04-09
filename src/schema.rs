@@ -33,6 +33,7 @@ pub struct Field<'a> {
 #[derive(Clone, Debug)]
 pub struct Type<'a> {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
+    pub prefix: Option<&'a str>,
     pub name: &'a str,
 }
 
@@ -99,7 +100,11 @@ impl<'a> Display for Field<'a> {
 
 impl<'a> Display for Type<'a> {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.name)?;
+        if let Some(prefix) = self.prefix {
+            write!(f, "{}.{}", prefix, self.name)?;
+        } else {
+            write!(f, "{}", self.name)?;
+        }
         Ok(())
     }
 }
@@ -128,6 +133,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
+                                            prefix: None,
                                             name: "Int",
                                         },
                                         index: 42,
@@ -138,6 +144,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
+                                            prefix: None,
                                             name: "String",
                                         },
                                         index: 43,
@@ -156,6 +163,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
+                                            prefix: None,
                                             name: "Int",
                                         },
                                         index: 42,
@@ -166,6 +174,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
+                                            prefix: None,
                                             name: "String",
                                         },
                                         index: 43,
@@ -206,6 +215,7 @@ mod tests {
                                 restricted: false,
                                 r#type: Type {
                                     source_range: (0, 0),
+                                    prefix: None,
                                     name: "Int"
                                 },
                                 index: 42,
@@ -216,6 +226,7 @@ mod tests {
                                 restricted: false,
                                 r#type: Type {
                                     source_range: (0, 0),
+                                    prefix: None,
                                     name: "String"
                                 },
                                 index: 43,
@@ -247,6 +258,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
+                                prefix: None,
                                 name: "Int"
                             },
                             index: 42,
@@ -257,6 +269,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
+                                prefix: None,
                                 name: "String"
                             },
                             index: 43,
@@ -287,6 +300,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
+                                prefix: None,
                                 name: "Int"
                             },
                             index: 42,
@@ -297,6 +311,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
+                                prefix: None,
                                 name: "String"
                             },
                             index: 43,
@@ -324,6 +339,7 @@ mod tests {
                     restricted: false,
                     r#type: Type {
                         source_range: (0, 0),
+                        prefix: None,
                         name: "Int",
                     },
                     index: 42,
@@ -344,6 +360,7 @@ mod tests {
                     restricted: true,
                     r#type: Type {
                         source_range: (0, 0),
+                        prefix: None,
                         name: "Int",
                     },
                     index: 42,
@@ -354,16 +371,32 @@ mod tests {
     }
 
     #[test]
-    fn type_display() {
+    fn type_display_no_prefix() {
         assert_eq!(
             format!(
                 "{}",
                 Type {
                     source_range: (0, 0),
+                    prefix: None,
                     name: "Int",
                 },
             ),
             "Int",
+        );
+    }
+
+    #[test]
+    fn type_display_prefix() {
+        assert_eq!(
+            format!(
+                "{}",
+                Type {
+                    source_range: (0, 0),
+                    prefix: Some("foo"),
+                    name: "Int",
+                },
+            ),
+            "foo.Int",
         );
     }
 }
