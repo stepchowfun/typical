@@ -1,5 +1,5 @@
 use crate::{
-    error::{with_context, Error},
+    error::{listing, throw, Error},
     format::CodeStr,
     schema, token,
 };
@@ -48,31 +48,28 @@ fn unexpected_token(
     let source_range = token_source_range(tokens, position);
 
     if tokens.is_empty() {
-        with_context::<Error>(
+        throw::<Error>(
             &format!("Expected {}, but the file is empty.", expectation),
             Some(source_path),
-            source_contents,
-            source_range.0,
+            Some(&listing(source_contents, source_range.0)),
             None,
         )
     } else if position == tokens.len() {
-        with_context::<Error>(
+        throw::<Error>(
             &format!("Expected {} at the end of the file.", expectation),
             Some(source_path),
-            source_contents,
-            source_range.0,
+            Some(&listing(source_contents, source_range.0)),
             None,
         )
     } else {
-        with_context::<Error>(
+        throw::<Error>(
             &format!(
                 "Expected {}, but encountered {}.",
                 expectation,
                 tokens[position].to_string().code_str(),
             ),
             Some(source_path),
-            source_contents,
-            source_range.0,
+            Some(&listing(source_contents, source_range.0)),
             None,
         )
     }
@@ -202,11 +199,13 @@ pub fn parse(
     // Check if the parse was successful but we didn't consume all the tokens.
     if errors.is_empty() && position != tokens.len() {
         // Complain about the first unparsed token.
-        errors.push(with_context::<Error>(
+        errors.push(throw::<Error>(
             &format!("Unexpected {}.", tokens[position].to_string().code_str()),
             Some(source_path),
-            source_contents,
-            token_source_range(tokens, position).0,
+            Some(&listing(
+                source_contents,
+                token_source_range(tokens, position).0,
+            )),
             None,
         ));
     }

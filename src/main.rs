@@ -9,7 +9,7 @@ mod token;
 mod tokenizer;
 
 use crate::{
-    error::{from_message, listing, with_listing, Error},
+    error::{listing, throw, Error},
     format::CodeStr,
     parser::parse,
     tokenizer::tokenize,
@@ -93,11 +93,12 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
     let canonical_schema_path = match schema_path.canonicalize() {
         Ok(canonical_schema_path) => canonical_schema_path,
         Err(error) => {
-            return Err(from_message(
+            return Err(throw(
                 &format!(
                     "Unable to load {}.",
                     schema_path.to_string_lossy().code_str(),
                 ),
+                None,
                 None,
                 Some(error),
             ));
@@ -108,11 +109,12 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
     let base_path = if let Some(base_path) = canonical_schema_path.parent() {
         base_path
     } else {
-        return Err(from_message::<Error>(
+        return Err(throw::<Error>(
             &format!(
                 "{} is not a file.",
                 schema_path.to_string_lossy().code_str(),
             ),
+            None,
             None,
             None,
         ));
@@ -139,14 +141,14 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
                 let message = format!("Unable to load {}.", path.to_string_lossy().code_str());
 
                 if let Some((origin_path, origin_listing)) = origin {
-                    errors.push(with_listing(
+                    errors.push(throw(
                         &message,
                         Some(&origin_path),
-                        &origin_listing,
+                        Some(&origin_listing),
                         Some(error),
                     ));
                 } else {
-                    errors.push(from_message(&message, None, Some(error)));
+                    errors.push(throw(&message, None, None, Some(error)));
                 }
 
                 continue;
@@ -180,7 +182,7 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
         // Add the dependencies to the frontier.
         for import in &schema.imports {
             // Compute the source listing for this import for error reporting.
-            let origin_listing = listing(&contents, import.source_range.0, import.source_range.1);
+            let origin_listing = listing(&contents, import.source_range);
 
             // Compute the import path.
             let non_canonical_import_path = base_path.join(parent_path.join(&import.path));
@@ -189,13 +191,13 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
             let canonical_import_path = match non_canonical_import_path.canonicalize() {
                 Ok(canonical_import_path) => canonical_import_path,
                 Err(error) => {
-                    errors.push(with_listing(
+                    errors.push(throw(
                         &format!(
                             "Unable to load {}.",
                             import.path.to_string_lossy().code_str(),
                         ),
                         Some(&path),
-                        &origin_listing,
+                        Some(&origin_listing),
                         Some(error),
                     ));
 
@@ -209,7 +211,7 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
                 if let Ok(based_import_path) = canonical_import_path.strip_prefix(base_path) {
                     based_import_path
                 } else {
-                    return Err(with_listing::<Error>(
+                    return Err(throw::<Error>(
                         &format!(
                             "{} is not a descendant of {}, which is the base directory for this \
                                 run.",
@@ -217,7 +219,7 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
                             base_path.to_string_lossy().code_str(),
                         ),
                         Some(&path),
-                        &origin_listing,
+                        Some(&origin_listing),
                         None,
                     ));
                 };
