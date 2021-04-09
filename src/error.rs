@@ -18,7 +18,13 @@ pub struct Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(reason) = &self.reason {
-            write!(f, "{} Reason: {}", self.message, reason)
+            write!(
+                f,
+                "{}\n\n{} {}",
+                self.message,
+                "Reason:".blue().bold(),
+                reason,
+            )
         } else {
             write!(f, "{}", self.message)
         }
@@ -31,60 +37,64 @@ impl error::Error for Error {
     }
 }
 
-// This function constructs an `Error` that may occur at a specific location in a source file.
-pub fn throw(
+// This function constructs an `Error` from a message.
+pub fn from_message<T: error::Error + 'static>(
     message: &str,
     source_path: Option<&Path>,
-
-    // The range is inclusive on the left and exclusive on the right.
-    source: Option<(&str, (usize, usize))>,
+    reason: Option<T>,
 ) -> Error {
-    {
-        // Render the relevant lines from the source if applicable.
-        let listing = source.map_or_else(
-            || "".to_owned(),
-            |(source_contents, source_range)| {
-                listing(source_contents, source_range.0, source_range.1)
-            },
-        );
-
-        // Now we have everything we need to construct the error.
-        Error {
-            message: if let Some(path) = source_path {
-                if listing.is_empty() {
-                    format!(
-                        "{} {} {}",
-                        "[Error]".red().bold(),
-                        format!("[{}]", path.to_string_lossy().code_str()).magenta(),
-                        message,
-                    )
-                } else {
-                    format!(
-                        "{} {} {}\n\n{}",
-                        "[Error]".red().bold(),
-                        format!("[{}]", path.to_string_lossy().code_str()).magenta(),
-                        message,
-                        listing,
-                    )
-                }
-            } else if listing.is_empty() {
-                format!("{} {}", "[Error]".red().bold(), message)
-            } else {
-                format!("{} {}\n\n{}", "[Error]".red().bold(), message, listing)
-            },
-            reason: None,
-        }
-    }
+    with_listing(message, source_path, "", reason)
 }
 
-// This function constructs an `Error` from a message and a reason. It's written in a curried style
-// so it can be used in a higher-order fashion, e.g.,
-// `foo.map_err(lift("Error doing foo."))`.
-pub fn lift<T: Into<String>, U: error::Error + 'static>(message: T) -> impl FnOnce(U) -> Error {
-    let message = message.into();
-    move |error: U| Error {
+// This function constructs an `Error` that may occur at a specific location in a source file.
+pub fn with_context<T: error::Error + 'static>(
+    message: &str,
+    source_path: Option<&Path>,
+    source_contents: &str,
+    source_range: (usize, usize), // Inclusive on the left and exclusive on the right
+    reason: Option<T>,
+) -> Error {
+    with_listing(
         message,
-        reason: Some(Rc::new(error)),
+        source_path,
+        &listing(source_contents, source_range.0, source_range.1),
+        reason,
+    )
+}
+
+// This function constructs an `Error` with a given source listing.
+pub fn with_listing<T: error::Error + 'static>(
+    message: &str,
+    source_path: Option<&Path>,
+    listing: &str,
+    reason: Option<T>,
+) -> Error {
+    #[allow(clippy::option_map_or_none)]
+    Error {
+        message: if let Some(path) = source_path {
+            if listing.is_empty() {
+                format!(
+                    "{} {} {}",
+                    "[Error]".red().bold(),
+                    format!("[{}]", path.to_string_lossy().code_str()).magenta(),
+                    message,
+                )
+            } else {
+                format!(
+                    "{} {} {}\n\n{}",
+                    "[Error]".red().bold(),
+                    format!("[{}]", path.to_string_lossy().code_str()).magenta(),
+                    message,
+                    listing,
+                )
+            }
+        } else if listing.is_empty() {
+            format!("{} {}", "[Error]".red().bold(), message)
+        } else {
+            format!("{} {}\n\n{}", "[Error]".red().bold(), message, listing)
+        },
+
+        reason: reason.map_or(None, |reason| Some(Rc::new(reason))),
     }
 }
 
@@ -202,44 +212,46 @@ pub fn listing(source_contents: &str, range_start: usize, range_end: usize) -> S
 
 #[cfg(test)]
 mod tests {
-    use crate::error::{lift, throw, Error};
+    use crate::error::{from_message, with_context, Error};
     use std::path::Path;
 
     #[test]
-    fn throw_no_path_missing_range() {
-        let error = throw("An error occurred.", None, None);
+    fn from_message_no_path() {
+        let error = from_message::<Error>("An error occurred.", None, None);
 
         assert_eq!(error.message, "[Error] An error occurred.");
     }
 
     #[test]
-    fn throw_no_path_empty_range() {
-        let error = throw("An error occurred.", None, Some(("", (0, 0))));
-
-        assert_eq!(error.message, "[Error] An error occurred.");
-    }
-
-    #[test]
-    fn throw_with_path_missing_range() {
-        let error = throw("An error occurred.", Some(Path::new("foo.g")), None);
+    fn from_message_with_path() {
+        let error = from_message::<Error>("An error occurred.", Some(Path::new("foo.g")), None);
 
         assert_eq!(error.message, "[Error] [`foo.g`] An error occurred.");
     }
 
     #[test]
-    fn throw_with_path_empty_range() {
-        let error = throw(
+    fn with_context_no_path_empty_range() {
+        let error = with_context::<Error>("An error occurred.", None, "", (0, 0), None);
+
+        assert_eq!(error.message, "[Error] An error occurred.");
+    }
+
+    #[test]
+    fn with_context_with_path_empty_range() {
+        let error = with_context::<Error>(
             "An error occurred.",
             Some(Path::new("foo.g")),
-            Some(("", (0, 0))),
+            "",
+            (0, 0),
+            None,
         );
 
         assert_eq!(error.message, "[Error] [`foo.g`] An error occurred.");
     }
 
     #[test]
-    fn throw_no_path_single_line_full_range() {
-        let error = throw("An error occurred.", None, Some(("foo", (0, 3))));
+    fn with_context_no_path_single_line_full_range() {
+        let error = with_context::<Error>("An error occurred.", None, "foo", (0, 3), None);
 
         assert_eq!(
             error.message,
@@ -248,11 +260,13 @@ mod tests {
     }
 
     #[test]
-    fn throw_with_path_single_line_full_range() {
-        let error = throw(
+    fn with_context_with_path_single_line_full_range() {
+        let error = with_context::<Error>(
             "An error occurred.",
             Some(Path::new("foo.g")),
-            Some(("foo", (0, 3))),
+            "foo",
+            (0, 3),
+            None,
         );
 
         assert_eq!(
@@ -262,8 +276,9 @@ mod tests {
     }
 
     #[test]
-    fn throw_no_path_multiple_lines_full_range() {
-        let error = throw("An error occurred.", None, Some(("foo\nbar\nbaz", (0, 11))));
+    fn with_context_no_path_multiple_lines_full_range() {
+        let error =
+            with_context::<Error>("An error occurred.", None, "foo\nbar\nbaz", (0, 11), None);
 
         assert_eq!(
             error.message,
@@ -274,11 +289,13 @@ mod tests {
     }
 
     #[test]
-    fn throw_no_path_multiple_lines_partial_range() {
-        let error = throw(
+    fn with_context_no_path_multiple_lines_partial_range() {
+        let error = with_context::<Error>(
             "An error occurred.",
             None,
-            Some(("foo\nbar\nbaz\nqux", (5, 11))),
+            "foo\nbar\nbaz\nqux",
+            (5, 11),
+            None,
         );
 
         assert_eq!(
@@ -289,14 +306,13 @@ mod tests {
     }
 
     #[test]
-    fn throw_no_path_many_lines_partial_range() {
-        let error = throw(
+    fn with_context_no_path_many_lines_partial_range() {
+        let error = with_context::<Error>(
             "An error occurred.",
             None,
-            Some((
-                "foo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux",
-                (33, 42),
-            )),
+            "foo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux",
+            (33, 42),
+            None,
         );
 
         assert_eq!(
@@ -305,17 +321,5 @@ mod tests {
                 \u{2502} bar\n   \u{250a} \u{203e}\u{203e}\u{203e}\n11 \u{2502} baz\n     \u{203e}\
                 \u{203e}",
         );
-    }
-
-    #[test]
-    fn lift_simple() {
-        let error = lift("An error occurred.")(Error {
-            message: "This is why.".to_owned(),
-            reason: None,
-        });
-
-        assert_eq!(error.message, "An error occurred.");
-
-        assert_eq!(error.reason.unwrap().to_string(), "This is why.");
     }
 }

@@ -9,7 +9,7 @@ mod token;
 mod tokenizer;
 
 use crate::{
-    error::{lift, Error},
+    error::{from_message, listing, with_listing, Error},
     format::CodeStr,
     parser::parse,
     tokenizer::tokenize,
@@ -21,7 +21,13 @@ use clap::{
     },
     Arg, Shell, SubCommand,
 };
-use std::{fs::read_to_string, io::stdout, path::Path, process::exit};
+use std::{
+    collections::HashSet,
+    fs::read_to_string,
+    io::stdout,
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 // The program version
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -78,54 +84,177 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 }
 
 // Check a schema.
+#[allow(clippy::too_many_lines)]
 fn check_schema(schema_path: &Path) -> Result<(), Error> {
-    // Here is a helper function for mapping a `Vec<Error>` to a single `Error`.
-    let collect_errors = |errors: Vec<Error>| Error {
-        message: errors
-            .iter()
-            .fold(String::new(), |acc, error| {
-                format!(
-                    "{}\n{}{}",
-                    acc,
-                    // Only render an empty line between errors here if the previous line
-                    // doesn't already visually look like an empty line. See
-                    // [ref:overline_u203e].
-                    if acc
-                        .split('\n')
-                        .last()
-                        .unwrap()
-                        .chars()
-                        .all(|c| c == ' ' || c == '\u{203e}')
-                    {
-                        ""
-                    } else {
-                        "\n"
-                    },
-                    error,
-                )
-            })
-            .trim()
-            .to_owned(),
-        reason: None,
+    // Canonicalize the path to avoid loading the same file multiple
+    // times.
+    let canonical_schema_path = match schema_path.canonicalize() {
+        Ok(canonical_path) => canonical_path,
+        Err(error) => {
+            return Err(from_message(
+                &format!(
+                    "Unable to canonicalize path {}.",
+                    schema_path.to_string_lossy().code_str(),
+                ),
+                None,
+                Some(error),
+            ));
+        }
     };
+    drop(schema_path); // So we don't accidentally use this from now on
 
-    // Read the file.
-    let schema_contents = read_to_string(schema_path).map_err(lift(format!(
-        "Error when reading file {}.",
-        schema_path.to_string_lossy().code_str(),
-    )))?;
+    // Initialize the "frontier" with the given path.
+    let mut paths_to_load: Vec<(PathBuf, Option<(PathBuf, String)>)> =
+        vec![(canonical_schema_path.clone(), None)];
+    let mut visited_paths = HashSet::new();
+    visited_paths.insert(canonical_schema_path);
 
-    // Tokenize the source.
-    let tokens = tokenize(schema_path, &schema_contents).map_err(collect_errors)?;
+    // Perform a depth-first traversal of the transitive dependencies.
+    let mut errors = vec![];
+    let mut first = true;
+    while let Some((path, origin)) = paths_to_load.pop() {
+        // Compute the base directory for this schema's dependencies.
+        let base_dir = if let Some(base_dir) = path.parent() {
+            base_dir
+        } else {
+            let message = format!("Path {} has no parent.", path.to_string_lossy().code_str());
 
-    // Parse the tokens.
-    let schema = parse(schema_path, &schema_contents, &tokens).map_err(collect_errors)?;
+            if let Some((origin_path, origin_listing)) = origin {
+                errors.push(with_listing::<Error>(
+                    &message,
+                    Some(&origin_path),
+                    &origin_listing,
+                    None,
+                ));
+            } else {
+                errors.push(from_message::<Error>(&message, None, None));
+            }
 
-    // Print the schema. Note that the schema's representation includes a trailing empty line.
-    print!("{}", schema.to_string().code_str());
+            continue;
+        };
 
-    // If we made it this far, nothing went wrong.
-    Ok(())
+        // Read the file.
+        let contents = match read_to_string(&path) {
+            Ok(contents) => contents,
+            Err(error) => {
+                let message = format!("Unable to read file {}.", path.to_string_lossy().code_str());
+
+                if let Some((origin_path, origin_listing)) = origin {
+                    errors.push(with_listing(
+                        &message,
+                        Some(&origin_path),
+                        &origin_listing,
+                        Some(error),
+                    ));
+                } else {
+                    errors.push(from_message(&message, None, Some(error)));
+                }
+
+                continue;
+            }
+        };
+
+        // Tokenize the contents.
+        let tokens = match tokenize(&path, &contents) {
+            Ok(tokens) => tokens,
+            Err(error) => {
+                errors.extend_from_slice(&error);
+
+                continue;
+            }
+        };
+
+        // Parse the tokens.
+        let schema = match parse(&path, &contents, &tokens) {
+            Ok(schema) => schema,
+            Err(error) => {
+                errors.extend_from_slice(&error);
+
+                continue;
+            }
+        };
+
+        // Print the schema. Note that the schema's representation includes
+        // a trailing empty line.
+        if first {
+            first = false;
+        } else {
+            println!();
+        }
+
+        print!("{}", schema.to_string().code_str());
+
+        // Add the dependencies to the frontier.
+        for import in &schema.imports {
+            // Compute the source listing for this import for error
+            // reporting.
+            let origin_listing = listing(&contents, import.source_range.0, import.source_range.1);
+
+            // Compute the import path.
+            let path_to_canonicalize = base_dir.join(&import.path);
+
+            // Canonicalize the path to avoid loading the same file multiple
+            // times.
+            match path_to_canonicalize.canonicalize() {
+                Ok(canonical_path) => {
+                    // Visit this import if it hasn't been visited already.
+                    if !visited_paths.contains(&canonical_path) {
+                        visited_paths.insert(import.path.to_owned());
+                        paths_to_load.push((canonical_path, Some((path.clone(), origin_listing))));
+                    }
+                }
+                Err(error) => {
+                    errors.push(with_listing(
+                        &format!(
+                            "Unable to canonicalize path {}.",
+                            path_to_canonicalize.to_string_lossy().code_str(),
+                        ),
+                        Some(&path),
+                        &origin_listing,
+                        Some(error),
+                    ));
+                }
+            }
+        }
+    }
+
+    if !first {
+        println!();
+    }
+
+    // Return a success or report any errors.
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(Error {
+            message: errors
+                .iter()
+                .fold(String::new(), |acc, error| {
+                    format!(
+                        "{}\n{}{}",
+                        acc,
+                        // Only render an empty line between errors here if the previous line
+                        // doesn't already visually look like an empty line. See
+                        // [ref:overline_u203e].
+                        if acc
+                            .split('\n')
+                            .last()
+                            .unwrap()
+                            .chars()
+                            .all(|c| c == ' ' || c == '\u{203e}')
+                        {
+                            ""
+                        } else {
+                            "\n"
+                        },
+                        error,
+                    )
+                })
+                .trim()
+                .to_owned(),
+            reason: None,
+        })
+    }
 }
 
 // Print a shell completion script to STDOUT.
