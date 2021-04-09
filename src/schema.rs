@@ -6,7 +6,15 @@ use std::{
 #[derive(Clone, Debug)]
 pub struct Schema<'a> {
     pub path: &'a Path,
+    pub imports: Vec<Import<'a>>,
     pub declarations: Vec<Declaration<'a>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Import<'a> {
+    pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
+    pub path: &'a Path,
+    pub name: &'a str,
 }
 
 #[derive(Clone, Debug)]
@@ -33,16 +41,21 @@ pub struct Field<'a> {
 #[derive(Clone, Debug)]
 pub struct Type<'a> {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub prefix: Option<&'a str>,
+    pub import: Option<&'a str>,
     pub name: &'a str,
 }
 
 impl<'a> Display for Schema<'a> {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        let mut first = true;
+        for import in &self.imports {
+            writeln!(f, "import '{}' as {}", import.path.display(), import.name)?;
+        }
+
+        let mut skip_blank_line = self.imports.is_empty();
+
         for declaration in &self.declarations {
-            if first {
-                first = false;
+            if skip_blank_line {
+                skip_blank_line = false;
             } else {
                 writeln!(f)?;
             }
@@ -100,8 +113,8 @@ impl<'a> Display for Field<'a> {
 
 impl<'a> Display for Type<'a> {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        if let Some(prefix) = self.prefix {
-            write!(f, "{}.{}", prefix, self.name)?;
+        if let Some(import) = self.import {
+            write!(f, "{}.{}", import, self.name)?;
         } else {
             write!(f, "{}", self.name)?;
         }
@@ -111,16 +124,61 @@ impl<'a> Display for Type<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::schema::{Declaration, DeclarationVariant, Field, Schema, Type};
+    use crate::schema::{Declaration, DeclarationVariant, Field, Import, Schema, Type};
     use std::path::Path;
 
     #[test]
-    fn schema_display() {
+    fn schema_empty_display() {
         assert_eq!(
             format!(
                 "{}",
                 Schema {
                     path: Path::new("foo.t"),
+                    imports: vec![],
+                    declarations: vec![],
+                },
+            ),
+            "",
+        );
+    }
+
+    #[test]
+    fn schema_imports_only_display() {
+        assert_eq!(
+            format!(
+                "{}",
+                Schema {
+                    path: Path::new("foo.t"),
+                    imports: vec![
+                        Import {
+                            source_range: (0, 0),
+                            path: Path::new("qux.t"),
+                            name: "qux",
+                        },
+                        Import {
+                            source_range: (0, 0),
+                            path: Path::new("corge.t"),
+                            name: "corge",
+                        },
+                    ],
+                    declarations: vec![],
+                },
+            ),
+            "\
+            import 'qux.t' as qux\n\
+            import 'corge.t' as corge\n\
+            ",
+        );
+    }
+
+    #[test]
+    fn schema_declarations_only_display() {
+        assert_eq!(
+            format!(
+                "{}",
+                Schema {
+                    path: Path::new("foo.t"),
+                    imports: vec![],
                     declarations: vec![
                         Declaration {
                             source_range: (0, 0),
@@ -133,7 +191,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
-                                            prefix: None,
+                                            import: None,
                                             name: "Int",
                                         },
                                         index: 42,
@@ -144,7 +202,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
-                                            prefix: None,
+                                            import: None,
                                             name: "String",
                                         },
                                         index: 43,
@@ -163,7 +221,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
-                                            prefix: None,
+                                            import: None,
                                             name: "Int",
                                         },
                                         index: 42,
@@ -174,7 +232,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: (0, 0),
-                                            prefix: None,
+                                            import: None,
                                             name: "String",
                                         },
                                         index: 43,
@@ -186,6 +244,106 @@ mod tests {
                 },
             ),
             "\
+            struct Foo {\n\
+            \x20 foo: Int = 42\n\
+            \x20 bar: String = 43\n\
+            }\n\
+            \n\
+            choice Bar {\n\
+            \x20 foo: Int = 42\n\
+            \x20 bar: String = 43\n\
+            }\n\
+            ",
+        );
+    }
+
+    #[test]
+    fn schema_imports_and_declarations_display() {
+        assert_eq!(
+            format!(
+                "{}",
+                Schema {
+                    path: Path::new("foo.t"),
+                    imports: vec![
+                        Import {
+                            source_range: (0, 0),
+                            path: Path::new("qux.t"),
+                            name: "qux",
+                        },
+                        Import {
+                            source_range: (0, 0),
+                            path: Path::new("corge.t"),
+                            name: "corge",
+                        },
+                    ],
+                    declarations: vec![
+                        Declaration {
+                            source_range: (0, 0),
+                            variant: DeclarationVariant::Struct(
+                                "Foo",
+                                vec![
+                                    Field {
+                                        source_range: (0, 0),
+                                        name: "foo",
+                                        restricted: false,
+                                        r#type: Type {
+                                            source_range: (0, 0),
+                                            import: None,
+                                            name: "Int",
+                                        },
+                                        index: 42,
+                                    },
+                                    Field {
+                                        source_range: (0, 0),
+                                        name: "bar",
+                                        restricted: false,
+                                        r#type: Type {
+                                            source_range: (0, 0),
+                                            import: None,
+                                            name: "String",
+                                        },
+                                        index: 43,
+                                    },
+                                ],
+                            ),
+                        },
+                        Declaration {
+                            source_range: (0, 0),
+                            variant: DeclarationVariant::Choice(
+                                "Bar",
+                                vec![
+                                    Field {
+                                        source_range: (0, 0),
+                                        name: "foo",
+                                        restricted: false,
+                                        r#type: Type {
+                                            source_range: (0, 0),
+                                            import: None,
+                                            name: "Int",
+                                        },
+                                        index: 42,
+                                    },
+                                    Field {
+                                        source_range: (0, 0),
+                                        name: "bar",
+                                        restricted: false,
+                                        r#type: Type {
+                                            source_range: (0, 0),
+                                            import: None,
+                                            name: "String",
+                                        },
+                                        index: 43,
+                                    },
+                                ],
+                            ),
+                        },
+                    ],
+                },
+            ),
+            "\
+            import 'qux.t' as qux\n\
+            import 'corge.t' as corge\n\
+            \n\
             struct Foo {\n\
             \x20 foo: Int = 42\n\
             \x20 bar: String = 43\n\
@@ -215,7 +373,7 @@ mod tests {
                                 restricted: false,
                                 r#type: Type {
                                     source_range: (0, 0),
-                                    prefix: None,
+                                    import: None,
                                     name: "Int"
                                 },
                                 index: 42,
@@ -226,7 +384,7 @@ mod tests {
                                 restricted: false,
                                 r#type: Type {
                                     source_range: (0, 0),
-                                    prefix: None,
+                                    import: None,
                                     name: "String"
                                 },
                                 index: 43,
@@ -258,7 +416,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
-                                prefix: None,
+                                import: None,
                                 name: "Int"
                             },
                             index: 42,
@@ -269,7 +427,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
-                                prefix: None,
+                                import: None,
                                 name: "String"
                             },
                             index: 43,
@@ -300,7 +458,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
-                                prefix: None,
+                                import: None,
                                 name: "Int"
                             },
                             index: 42,
@@ -311,7 +469,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: (0, 0),
-                                prefix: None,
+                                import: None,
                                 name: "String"
                             },
                             index: 43,
@@ -339,7 +497,7 @@ mod tests {
                     restricted: false,
                     r#type: Type {
                         source_range: (0, 0),
-                        prefix: None,
+                        import: None,
                         name: "Int",
                     },
                     index: 42,
@@ -360,7 +518,7 @@ mod tests {
                     restricted: true,
                     r#type: Type {
                         source_range: (0, 0),
-                        prefix: None,
+                        import: None,
                         name: "Int",
                     },
                     index: 42,
@@ -371,13 +529,13 @@ mod tests {
     }
 
     #[test]
-    fn type_display_no_prefix() {
+    fn type_display_no_import() {
         assert_eq!(
             format!(
                 "{}",
                 Type {
                     source_range: (0, 0),
-                    prefix: None,
+                    import: None,
                     name: "Int",
                 },
             ),
@@ -386,13 +544,13 @@ mod tests {
     }
 
     #[test]
-    fn type_display_prefix() {
+    fn type_display_import() {
         assert_eq!(
             format!(
                 "{}",
                 Type {
                     source_range: (0, 0),
-                    prefix: Some("foo"),
+                    import: Some("foo"),
                     name: "Int",
                 },
             ),
