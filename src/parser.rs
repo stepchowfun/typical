@@ -80,7 +80,7 @@ macro_rules! consume_token_0 {
         $source_path:expr,
         $source_contents:expr,
         $tokens:expr,
-        $next:expr,
+        $position:expr,
         $errors:ident,
         $variant:ident,
         $error_value:expr $(,)? // This comma is needed to satisfy the trailing commas check: ,
@@ -90,15 +90,15 @@ macro_rules! consume_token_0 {
         let source_path = $source_path;
         let source_contents = $source_contents;
         let tokens = $tokens;
-        let next = $next;
+        let position = $position;
 
         // Make sure we have a token to parse.
-        if next == tokens.len() {
+        if *position == tokens.len() {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                *position,
                 &format!("{}", token::Variant::$variant.to_string().code_str()),
             ));
 
@@ -106,14 +106,14 @@ macro_rules! consume_token_0 {
         }
 
         // Check if the token matches what we expect.
-        if let token::Variant::$variant = tokens[next].variant {
-            next + 1
+        if let token::Variant::$variant = tokens[*position].variant {
+            *position += 1;
         } else {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                *position,
                 &format!("{}", token::Variant::$variant.to_string().code_str()),
             ));
 
@@ -130,7 +130,7 @@ macro_rules! consume_token_1 {
         $source_path:expr,
         $source_contents:expr,
         $tokens:expr,
-        $next:expr,
+        $position:expr,
         $errors:ident,
         $variant:ident,
         $expectation:expr,
@@ -141,16 +141,16 @@ macro_rules! consume_token_1 {
         let source_path = $source_path;
         let source_contents = $source_contents;
         let tokens = $tokens;
-        let next = $next;
+        let position = $position;
         let expectation = $expectation;
 
         // Make sure we have a token to parse.
-        if next == tokens.len() {
+        if *position == tokens.len() {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                *position,
                 expectation,
             ));
 
@@ -158,14 +158,16 @@ macro_rules! consume_token_1 {
         }
 
         // Check if the token matches what we expect.
-        if let token::Variant::$variant(argument) = tokens[next].variant {
-            (argument.clone(), next + 1)
+        if let token::Variant::$variant(argument) = tokens[*position].variant {
+            *position += 1;
+
+            argument.clone()
         } else {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                *position,
                 expectation,
             ));
 
@@ -181,16 +183,23 @@ pub fn parse<'a>(
     tokens: &'a [token::Token<'a>],
 ) -> Result<schema::Schema<'a>, Vec<Error>> {
     // Try to parse the tokens into a schema.
+    let mut position = 0;
     let mut errors = vec![];
-    let (schema, next) = parse_schema(source_path, source_contents, tokens, 0, &mut errors);
+    let schema = parse_schema(
+        source_path,
+        source_contents,
+        tokens,
+        &mut position,
+        &mut errors,
+    );
 
     // Check if the parse was successful but we didn't consume all the tokens.
-    if errors.is_empty() && next != tokens.len() {
+    if errors.is_empty() && position != tokens.len() {
         // Complain about the first unparsed token.
         errors.push(throw(
-            &format!("Unexpected {}.", tokens[next].to_string().code_str()),
+            &format!("Unexpected {}.", tokens[position].to_string().code_str()),
             Some(source_path),
-            Some((source_contents, token_source_range(tokens, next).0)),
+            Some((source_contents, token_source_range(tokens, position).0)),
         ));
     }
 
@@ -207,24 +216,22 @@ fn parse_schema<'a>(
     source_path: &'a Path,
     source_contents: &'a str,
     tokens: &'a [token::Token<'a>],
-    start: usize,
+    position: &mut usize,
     errors: &mut Vec<Error>,
-) -> (schema::Schema<'a>, usize) {
+) -> schema::Schema<'a> {
     let mut imports = vec![];
     let mut declarations = vec![];
-    let mut next = start;
 
     // Parse the imports.
-    while next < tokens.len() {
-        match tokens[next].variant {
+    while *position < tokens.len() {
+        match tokens[*position].variant {
             token::Variant::Import => {
                 // Parse the path and name. This is guaranteed to advance the token position due to
                 // [ref:parse_import_keyword_chomp].
-                let (import, new_next) =
-                    parse_import(source_path, source_contents, tokens, next, errors);
-                next = new_next;
 
-                if let Some(import) = import {
+                if let Some(import) =
+                    parse_import(source_path, source_contents, tokens, position, errors)
+                {
                     imports.push(import);
                 }
             }
@@ -235,30 +242,26 @@ fn parse_schema<'a>(
     }
 
     // Parse the declarations.
-    while next < tokens.len() {
-        match tokens[next].variant {
+    while *position < tokens.len() {
+        match tokens[*position].variant {
             token::Variant::Struct => {
-                let declaration_start = next;
-                next += 1;
+                let declaration_start = *position;
+                *position += 1;
 
                 // Parse the name and fields. This is guaranteed to advance the token position due
                 // to [ref:parse_fields_some_advance].
-                let (result, new_next) = parse_fields(
+                if let Some((name, fields)) = parse_fields(
                     source_path,
                     source_contents,
                     tokens,
-                    next,
+                    position,
                     "a name for the struct",
                     errors,
-                );
-                next = new_next;
-
-                // Create the declaration if one was parsed.
-                if let Some((name, fields)) = result {
+                ) {
                     declarations.push(schema::Declaration {
                         source_range: span(
                             token_source_range(tokens, declaration_start),
-                            token_source_range(tokens, next - 1),
+                            token_source_range(tokens, *position - 1),
                         )
                         .0,
                         variant: schema::DeclarationVariant::Struct(name, fields),
@@ -266,27 +269,23 @@ fn parse_schema<'a>(
                 }
             }
             token::Variant::Choice => {
-                let declaration_start = next;
-                next += 1;
+                let declaration_start = *position;
+                *position += 1;
 
                 // Parse the name and fields. This is guaranteed to advance the token position due
                 // to [ref:parse_fields_some_advance].
-                let (result, new_next) = parse_fields(
+                if let Some((name, fields)) = parse_fields(
                     source_path,
                     source_contents,
                     tokens,
-                    next,
+                    position,
                     "a name for the choice",
                     errors,
-                );
-                next = new_next;
-
-                // Create the declaration.
-                if let Some((name, fields)) = result {
+                ) {
                     declarations.push(schema::Declaration {
                         source_range: span(
                             token_source_range(tokens, declaration_start),
-                            token_source_range(tokens, next - 1),
+                            token_source_range(tokens, *position - 1),
                         )
                         .0,
                         variant: schema::DeclarationVariant::Choice(name, fields),
@@ -299,314 +298,309 @@ fn parse_schema<'a>(
         }
     }
 
-    (
-        schema::Schema {
-            path: source_path,
-            imports,
-            declarations,
-        },
-        next,
-    )
+    // Construct and return the schema.
+    schema::Schema {
+        path: source_path,
+        imports,
+        declarations,
+    }
 }
 
 // Parse an import. If this function returns `None`, then at least one error was added to `errors`.
 // If the starting token is the `import` keyword, then this function is guaranteed to advance the
-// token index [tag:parse_import_keyword_chomp].
+// `position` [tag:parse_import_keyword_chomp].
 fn parse_import<'a>(
     source_path: &'a Path,
     source_contents: &'a str,
     tokens: &'a [token::Token<'a>],
-    start: usize,
+    position: &mut usize,
     errors: &mut Vec<Error>,
-) -> (Option<schema::Import<'a>>, usize) {
+) -> Option<schema::Import<'a>> {
+    let start = *position;
+
     // Consume the `import` keyword.
-    let next = consume_token_0!(
+    consume_token_0!(
         source_path,
         source_contents,
         tokens,
-        start,
+        &mut *position,
         errors,
         Import,
-        (None, start),
+        None,
     );
 
     // Parse the path.
-    let (path, next) = consume_token_1!(
+    let path = consume_token_1!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         Path,
         "the path of a file to import",
-        (None, next),
+        None,
     );
 
     // Consume the `as` keyword.
-    let next = consume_token_0!(
+    consume_token_0!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         As,
-        (None, next),
+        None,
     );
 
     // Parse the name.
-    let (name, next) = consume_token_1!(
+    let name = consume_token_1!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         Identifier,
         "a name for the import",
-        (None, next),
+        None,
     );
 
-    // Return the import and the next token position.
-    (
-        Some(schema::Import {
-            source_range: span(
-                token_source_range(tokens, start),
-                token_source_range(tokens, next - 1),
-            )
-            .0,
-            path,
-            name,
-        }),
-        next,
-    )
+    // Construct and return the import.
+    Some(schema::Import {
+        source_range: span(
+            token_source_range(tokens, start),
+            token_source_range(tokens, *position - 1),
+        )
+        .0,
+        path,
+        name,
+    })
 }
 
 // Parse a series of fields enclosed in curly braces and preceded by a name. If this function
 // returns `None` in the first component, then at least one error was added to `errors`. Otherwise,
-// the token position is guaranteed to have advanced [tag:parse_fields_some_advance].
+// the `position` is guaranteed to have advanced [tag:parse_fields_some_advance].
 fn parse_fields<'a>(
     source_path: &'a Path,
     source_contents: &'a str,
     tokens: &'a [token::Token<'a>],
-    start: usize,
+    position: &mut usize,
     name_expectation: &str,
     errors: &mut Vec<Error>,
-) -> (Option<(&'a str, Vec<schema::Field<'a>>)>, usize) {
+) -> Option<(&'a str, Vec<schema::Field<'a>>)> {
     // Parse the name.
-    let (name, mut next) = consume_token_1!(
+    let name = consume_token_1!(
         source_path,
         source_contents,
         tokens,
-        start,
+        &mut *position,
         errors,
         Identifier,
         name_expectation,
-        (None, start),
+        None,
     );
 
     // Consume the `{`.
-    next = consume_token_0!(
+    consume_token_0!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         LeftCurly,
-        (None, next),
+        None,
     );
 
     // Parse the fields.
     let mut fields = vec![];
-    while next < tokens.len() {
-        if let token::Variant::RightCurly = tokens[next].variant {
+    while *position < tokens.len() {
+        if let token::Variant::RightCurly = tokens[*position].variant {
             break;
         }
 
-        let (result, new_next) = parse_field(source_path, source_contents, tokens, next, errors);
-        next = new_next;
-
-        if let Some(field) = result {
+        if let Some(field) = parse_field(source_path, source_contents, tokens, position, errors) {
             // In this case, [ref:parse_field_some_advance] guarantees that we will not loop
             // forever.
             fields.push(field);
         } else {
             // Jump past the closing curly brace, if it exists. Otherwise, jump to the end of the
             // source.
-            while next < tokens.len() {
-                next += 1;
+            while *position < tokens.len() {
+                *position += 1;
 
-                if let token::Variant::RightCurly = tokens[next - 1].variant {
+                if let token::Variant::RightCurly = tokens[*position - 1].variant {
                     break;
                 }
             }
 
-            return (Some((name, fields)), next);
+            return Some((name, fields));
         }
     }
 
     // Consume the `}`.
-    next = consume_token_0!(
+    consume_token_0!(
         source_path,
         source_contents,
         tokens,
-        next,
+        position,
         errors,
         RightCurly,
-        (Some((name, fields)), next),
+        Some((name, fields)),
     );
 
-    // Return the name, fields, and next token position.
-    (Some((name, fields)), next)
+    // Return the name and fields.
+    Some((name, fields))
 }
 
 // Parse a field. If this function returns `None`, then at least one error was added to `errors`.
-// Otherwise, the token position is guaranteed to have advanced [tag:parse_field_some_advance].
+// Otherwise, the `position` is guaranteed to have advanced [tag:parse_field_some_advance].
 #[allow(clippy::too_many_lines)]
 fn parse_field<'a>(
     source_path: &'a Path,
     source_contents: &'a str,
     tokens: &'a [token::Token<'a>],
-    start: usize,
+    position: &mut usize,
     errors: &mut Vec<Error>,
-) -> (Option<schema::Field<'a>>, usize) {
+) -> Option<schema::Field<'a>> {
+    let start = *position;
+
     // Parse the name.
-    let (name, next) = consume_token_1!(
+    let name = consume_token_1!(
         source_path,
         source_contents,
         tokens,
-        start,
+        &mut *position,
         errors,
         Identifier,
         "a field",
-        (None, start),
+        None,
     );
 
     // Consume the colon.
-    let next = consume_token_0!(
+    consume_token_0!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         Colon,
-        (None, next),
+        None,
     );
 
     // Determine if the field is restricted.
-    let (restricted, next) = if next == tokens.len() {
-        (false, next)
-    } else if let token::Variant::Restricted = tokens[next].variant {
-        (true, next + 1)
+    let restricted = if *position == tokens.len() {
+        false
+    } else if let token::Variant::Restricted = tokens[*position].variant {
+        *position += 1;
+
+        true
     } else {
-        (false, next)
+        false
     };
 
     // Parse the type.
-    let type_start = next;
+    let type_start = *position;
 
-    let (import, r#type, next) = if next < tokens.len() - 2 {
-        if let Some(token::Variant::Dot) = tokens.get(next + 1).map(|token| &token.variant) {
-            let (import, next) = consume_token_1!(
+    let (import, r#type) = if *position < tokens.len() - 2 {
+        if let Some(token::Variant::Dot) = tokens.get(*position + 1).map(|token| &token.variant) {
+            let import = consume_token_1!(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                &mut *position,
                 errors,
                 Identifier,
                 "the name of an import",
-                (None, next),
+                None,
             );
 
-            let next = next + 1;
+            *position += 1;
 
-            let (r#type, next) = consume_token_1!(
+            let r#type = consume_token_1!(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                &mut *position,
                 errors,
                 Identifier,
                 "a type for the field",
-                (None, next),
+                None,
             );
 
-            (Some(import), r#type, next)
+            (Some(import), r#type)
         } else {
-            let (r#type, next) = consume_token_1!(
+            let r#type = consume_token_1!(
                 source_path,
                 source_contents,
                 tokens,
-                next,
+                &mut *position,
                 errors,
                 Identifier,
                 "a type for the field",
-                (None, next),
+                None,
             );
 
-            (None, r#type, next)
+            (None, r#type)
         }
     } else {
-        let (r#type, next) = consume_token_1!(
+        let r#type = consume_token_1!(
             source_path,
             source_contents,
             tokens,
-            next,
+            &mut *position,
             errors,
             Identifier,
             "a type for the field",
-            (None, next),
+            None,
         );
 
-        (None, r#type, next)
+        (None, r#type)
     };
 
-    let type_end = next;
+    let type_end = *position;
 
     // Consume the equals sign.
-    let next = consume_token_0!(
+    consume_token_0!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         Equals,
-        (None, next),
+        None,
     );
 
     // Parse the index.
-    let (index, next) = consume_token_1!(
+    let index = consume_token_1!(
         source_path,
         source_contents,
         tokens,
-        next,
+        &mut *position,
         errors,
         Integer,
         "an index for the field",
-        (None, next),
+        None,
     );
 
     // Return the field.
-    (
-        Some(schema::Field {
+    Some(schema::Field {
+        source_range: span(
+            token_source_range(tokens, start),
+            token_source_range(tokens, *position - 1),
+        )
+        .0,
+        name,
+        restricted,
+        r#type: schema::Type {
             source_range: span(
-                token_source_range(tokens, start),
-                token_source_range(tokens, next - 1),
+                token_source_range(tokens, type_start),
+                token_source_range(tokens, type_end - 1),
             )
             .0,
-            name,
-            restricted,
-            r#type: schema::Type {
-                source_range: span(
-                    token_source_range(tokens, type_start),
-                    token_source_range(tokens, type_end - 1),
-                )
-                .0,
-                import,
-                name: r#type,
-            },
-            index,
-        }),
-        next,
-    )
+            import,
+            name: r#type,
+        },
+        index,
+    })
 }
 
 #[cfg(test)]
