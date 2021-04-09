@@ -79,12 +79,6 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 
 // Check a schema.
 fn check_schema(schema_path: &Path) -> Result<(), Error> {
-    // Read the schema file.
-    let schema_contents = read_to_string(schema_path).map_err(lift(format!(
-        "Error when reading file {}.",
-        schema_path.to_string_lossy().code_str(),
-    )))?;
-
     // Here is a helper function for mapping a `Vec<Error>` to a single `Error`.
     let collect_errors = |errors: Vec<Error>| Error {
         message: errors
@@ -115,10 +109,16 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
         reason: None,
     };
 
-    // Tokenize the schema file.
+    // Read the file.
+    let schema_contents = read_to_string(schema_path).map_err(lift(format!(
+        "Error when reading file {}.",
+        schema_path.to_string_lossy().code_str(),
+    )))?;
+
+    // Tokenize the source.
     let tokens = tokenize(schema_path, &schema_contents).map_err(collect_errors)?;
 
-    // Parse the schema.
+    // Parse the tokens.
     let schema = parse(schema_path, &schema_contents, &tokens).map_err(collect_errors)?;
 
     // Print the schema. Note that the schema's representation includes a trailing empty line.

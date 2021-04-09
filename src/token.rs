@@ -1,6 +1,6 @@
 use std::{
     fmt::{Display, Formatter, Result},
-    path::Path,
+    path::PathBuf,
 };
 
 // Keywords
@@ -13,36 +13,36 @@ pub const STRUCT_KEYWORD: &str = "struct";
 // The first step of compilation is to split the source into a stream of tokens. This struct
 // represents a single token.
 #[derive(Clone, Debug)]
-pub struct Token<'a> {
+pub struct Token {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub variant: Variant<'a>,
+    pub variant: Variant,
 }
 
 // We assign each token a "variant" describing what kind of token it is.
 #[derive(Clone, Debug)]
-pub enum Variant<'a> {
+pub enum Variant {
     As,
     Choice,
     Colon,
     Dot,
     Equals,
-    Identifier(&'a str),
+    Identifier(String),
     Import,
     Integer(usize),
     LeftCurly,
-    Path(&'a Path),
+    Path(PathBuf),
     Restricted,
     RightCurly,
     Struct,
 }
 
-impl<'a> Display for Token<'a> {
+impl Display for Token {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "{}", self.variant)
     }
 }
 
-impl<'a> Display for Variant<'a> {
+impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
@@ -111,7 +111,7 @@ mod tests {
 
     #[test]
     fn variant_identifier_display() {
-        assert_eq!(format!("{}", Variant::Identifier("foo")), "foo");
+        assert_eq!(format!("{}", Variant::Identifier("foo".to_owned())), "foo");
     }
 
     #[test]
@@ -131,7 +131,10 @@ mod tests {
 
     #[test]
     fn variant_path_display() {
-        assert_eq!(format!("{}", Variant::Path(Path::new("foo"))), "'foo'");
+        assert_eq!(
+            format!("{}", Variant::Path(Path::new("foo").to_owned())),
+            "'foo'",
+        );
     }
 
     #[test]

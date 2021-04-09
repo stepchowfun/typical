@@ -12,10 +12,7 @@ use unicode_segmentation::GraphemeCursor;
 // Tokenize the contents of a schema file.
 #[allow(clippy::cognitive_complexity)]
 #[allow(clippy::too_many_lines)]
-pub fn tokenize<'a>(
-    schema_path: &'a Path,
-    schema_contents: &'a str,
-) -> Result<Vec<Token<'a>>, Vec<Error>> {
+pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>, Vec<Error>> {
     // We'll be building up this vector of tokens.
     let mut tokens = vec![];
 
@@ -105,7 +102,7 @@ pub fn tokenize<'a>(
                 } else {
                     tokens.push(Token {
                         source_range: (i, end),
-                        variant: Variant::Identifier(&schema_contents[i..end]),
+                        variant: Variant::Identifier(schema_contents[i..end].to_owned()),
                     });
                 }
             }
@@ -169,7 +166,7 @@ pub fn tokenize<'a>(
                 } else {
                     tokens.push(Token {
                         source_range: (i, end + 1),
-                        variant: Variant::Path(Path::new(&schema_contents[i + 1..end])),
+                        variant: Variant::Path(Path::new(&schema_contents[i + 1..end]).to_owned()),
                     });
                 }
             }
@@ -263,7 +260,7 @@ mod tests {
                 },
                 Token {
                     source_range: (20, 27),
-                    variant: Variant::Path(Path::new("bar.t")),
+                    variant: Variant::Path(Path::new("bar.t").to_owned()),
                 },
                 Token {
                     source_range: (28, 30),
@@ -271,7 +268,7 @@ mod tests {
                 },
                 Token {
                     source_range: (31, 34),
-                    variant: Variant::Identifier("bar"),
+                    variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
                     source_range: (80, 86),
@@ -279,7 +276,7 @@ mod tests {
                 },
                 Token {
                     source_range: (87, 92),
-                    variant: Variant::Identifier("plugh"),
+                    variant: Variant::Identifier("plugh".to_owned()),
                 },
                 Token {
                     source_range: (93, 94),
@@ -287,7 +284,7 @@ mod tests {
                 },
                 Token {
                     source_range: (109, 112),
-                    variant: Variant::Identifier("qux"),
+                    variant: Variant::Identifier("qux".to_owned()),
                 },
                 Token {
                     source_range: (112, 113),
@@ -295,7 +292,7 @@ mod tests {
                 },
                 Token {
                     source_range: (114, 117),
-                    variant: Variant::Identifier("bar"),
+                    variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
                     source_range: (117, 118),
@@ -303,7 +300,7 @@ mod tests {
                 },
                 Token {
                     source_range: (118, 121),
-                    variant: Variant::Identifier("Foo"),
+                    variant: Variant::Identifier("Foo".to_owned()),
                 },
                 Token {
                     source_range: (122, 123),
@@ -315,7 +312,7 @@ mod tests {
                 },
                 Token {
                     source_range: (140, 145),
-                    variant: Variant::Identifier("corge"),
+                    variant: Variant::Identifier("corge".to_owned()),
                 },
                 Token {
                     source_range: (145, 146),
@@ -327,7 +324,7 @@ mod tests {
                 },
                 Token {
                     source_range: (158, 161),
-                    variant: Variant::Identifier("int"),
+                    variant: Variant::Identifier("int".to_owned()),
                 },
                 Token {
                     source_range: (162, 163),
@@ -347,7 +344,7 @@ mod tests {
                 },
                 Token {
                     source_range: (232, 237),
-                    variant: Variant::Identifier("zyzzy"),
+                    variant: Variant::Identifier("zyzzy".to_owned()),
                 },
                 Token {
                     source_range: (238, 239),
@@ -355,7 +352,7 @@ mod tests {
                 },
                 Token {
                     source_range: (254, 260),
-                    variant: Variant::Identifier("grault"),
+                    variant: Variant::Identifier("grault".to_owned()),
                 },
                 Token {
                     source_range: (260, 261),
@@ -363,7 +360,7 @@ mod tests {
                 },
                 Token {
                     source_range: (262, 265),
-                    variant: Variant::Identifier("bar"),
+                    variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
                     source_range: (265, 266),
@@ -371,7 +368,7 @@ mod tests {
                 },
                 Token {
                     source_range: (266, 269),
-                    variant: Variant::Identifier("Bar"),
+                    variant: Variant::Identifier("Bar".to_owned()),
                 },
                 Token {
                     source_range: (270, 271),
@@ -383,7 +380,7 @@ mod tests {
                 },
                 Token {
                     source_range: (288, 294),
-                    variant: Variant::Identifier("garply"),
+                    variant: Variant::Identifier("garply".to_owned()),
                 },
                 Token {
                     source_range: (294, 295),
@@ -395,7 +392,7 @@ mod tests {
                 },
                 Token {
                     source_range: (307, 310),
-                    variant: Variant::Identifier("int"),
+                    variant: Variant::Identifier("int".to_owned()),
                 },
                 Token {
                     source_range: (311, 312),
@@ -492,7 +489,7 @@ mod tests {
             tokenize(Path::new("foo.t"), "\u{5e78}\u{798f}").unwrap(),
             vec![Token {
                 source_range: (0, 6),
-                variant: Variant::Identifier("\u{5e78}\u{798f}"),
+                variant: Variant::Identifier("\u{5e78}\u{798f}".to_owned()),
             }],
         );
     }
@@ -544,7 +541,7 @@ mod tests {
             tokenize(Path::new("foo.t"), "'bar.t'").unwrap(),
             vec![Token {
                 source_range: (0, 7),
-                variant: Variant::Path(Path::new("bar.t")),
+                variant: Variant::Path(Path::new("bar.t").to_owned()),
             }],
         );
     }
@@ -555,7 +552,7 @@ mod tests {
             tokenize(Path::new("foo.t"), "''").unwrap(),
             vec![Token {
                 source_range: (0, 2),
-                variant: Variant::Path(Path::new("")),
+                variant: Variant::Path(Path::new("").to_owned()),
             }],
         );
     }
