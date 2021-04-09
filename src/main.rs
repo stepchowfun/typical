@@ -223,7 +223,7 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
         }
 
         println!(
-            "{}:\n\n{}",
+            "-- {}\n\n{}",
             path.to_string_lossy().code_str(),
             schema.to_string().code_str(),
         );
