@@ -5,7 +5,6 @@ use std::{
 
 #[derive(Clone, Debug)]
 pub struct Schema {
-    pub path: PathBuf,
     pub imports: Vec<Import>,
     pub declarations: Vec<Declaration>,
 }
@@ -133,7 +132,6 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t").to_owned(),
                     imports: vec![],
                     declarations: vec![],
                 },
@@ -148,7 +146,6 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t").to_owned(),
                     imports: vec![
                         Import {
                             source_range: (0, 0),
@@ -177,7 +174,6 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t").to_owned(),
                     imports: vec![],
                     declarations: vec![
                         Declaration {
@@ -263,7 +259,6 @@ mod tests {
             format!(
                 "{}",
                 Schema {
-                    path: Path::new("foo.t").to_owned(),
                     imports: vec![
                         Import {
                             source_range: (0, 0),

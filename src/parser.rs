@@ -300,7 +300,6 @@ fn parse_schema(
 
     // Construct and return the schema.
     schema::Schema {
-        path: source_path.to_owned(),
         imports,
         declarations,
     }
@@ -631,7 +630,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: Path::new("foo.t").to_owned(),
                 imports: vec![schema::Import {
                     source_range: (13, 34),
                     path: Path::new("bar.t").to_owned(),
@@ -712,7 +710,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![],
             },
@@ -728,7 +725,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![schema::Import {
                     source_range: (0, 21),
                     path: Path::new("bar.t").to_owned(),
@@ -748,7 +744,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 14),
@@ -767,7 +762,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 28),
@@ -799,7 +793,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 42),
@@ -844,7 +837,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 14),
@@ -863,7 +855,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 28),
@@ -895,7 +886,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 42),
@@ -940,7 +930,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 39),
@@ -972,7 +961,6 @@ mod tests {
         assert_same!(
             parse(source_path, source, &tokens[..]).unwrap(),
             schema::Schema {
-                path: source_path.to_owned(),
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: (0, 32),
