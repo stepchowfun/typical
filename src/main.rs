@@ -85,20 +85,57 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
 }
 
+// Merge a list of errors into a single one.
+fn merge_errors(errors: &[Error]) -> Error {
+    Error {
+        message: errors
+            .iter()
+            .fold(String::new(), |acc, error| {
+                format!(
+                    "{}\n{}{}",
+                    acc,
+                    // Only render an empty line between errors here if the previous line
+                    // doesn't already visually look like an empty line. See
+                    // [ref:overline_u203e].
+                    if acc
+                        .split('\n')
+                        .last()
+                        .unwrap()
+                        .chars()
+                        .all(|c| c == ' ' || c == '\u{203e}')
+                    {
+                        ""
+                    } else {
+                        "\n"
+                    },
+                    error,
+                )
+            })
+            .trim()
+            .to_owned(),
+        reason: None,
+    }
+}
+
 // Load a schema and its transitive dependencies. If this function succeeds, the imports in the
 // returned schemas are guaranteed to have valid paths which are relative to and contained within
 // the directory containing `schema_path` [tag:valid_based_paths]. No other validation is performed
 // by this function.
 #[allow(clippy::too_many_lines)]
-fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, String)>, Error> {
+fn load_schemas(
+    schema_path: &Path,
+) -> Result<HashMap<PathBuf, (schema::Schema, String)>, Vec<Error>> {
     // The schema and all its transitive dependencies will end up here.
     let mut schemas = HashMap::new();
+
+    // Any errors will end up here.
+    let mut errors = vec![];
 
     // Canonicalize the path.
     let canonical_schema_path = match schema_path.canonicalize() {
         Ok(canonical_schema_path) => canonical_schema_path,
         Err(error) => {
-            return Err(throw(
+            errors.push(throw(
                 &format!(
                     "Unable to load {}.",
                     schema_path.to_string_lossy().code_str(),
@@ -107,6 +144,8 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
                 None,
                 Some(error),
             ));
+
+            return Err(errors);
         }
     };
 
@@ -114,7 +153,7 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
     let base_path = if let Some(base_path) = canonical_schema_path.parent() {
         base_path
     } else {
-        return Err(throw::<Error>(
+        errors.push(throw::<Error>(
             &format!(
                 "{} is not a file.",
                 schema_path.to_string_lossy().code_str(),
@@ -123,6 +162,8 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
             None,
             None,
         ));
+
+        return Err(errors);
     };
 
     // Strip the schema parent path from the schema path, i.e., compute the schema file name. The
@@ -137,7 +178,6 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
     visited_paths.insert(based_schema_path.to_owned());
 
     // Perform a depth-first traversal of the transitive dependencies.
-    let mut errors = vec![];
     while let Some((path, origin)) = paths_to_load.pop() {
         // Read the file.
         let contents = match read_to_string(&base_path.join(&path)) {
@@ -216,7 +256,7 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
                 if let Ok(based_import_path) = canonical_import_path.strip_prefix(base_path) {
                     based_import_path.to_owned()
                 } else {
-                    return Err(throw::<Error>(
+                    errors.push(throw::<Error>(
                         &format!(
                             "{} is not a descendant of {}, which is the base directory for this \
                                 run.",
@@ -227,6 +267,8 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
                         Some(&origin_listing),
                         None,
                     ));
+
+                    continue;
                 };
 
             // Visit this import if it hasn't been visited already.
@@ -247,44 +289,17 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, 
     if errors.is_empty() {
         Ok(schemas)
     } else {
-        Err(Error {
-            message: errors
-                .iter()
-                .fold(String::new(), |acc, error| {
-                    format!(
-                        "{}\n{}{}",
-                        acc,
-                        // Only render an empty line between errors here if the previous line
-                        // doesn't already visually look like an empty line. See
-                        // [ref:overline_u203e].
-                        if acc
-                            .split('\n')
-                            .last()
-                            .unwrap()
-                            .chars()
-                            .all(|c| c == ' ' || c == '\u{203e}')
-                        {
-                            ""
-                        } else {
-                            "\n"
-                        },
-                        error,
-                    )
-                })
-                .trim()
-                .to_owned(),
-            reason: None,
-        })
+        Err(errors)
     }
 }
 
 // Check a schema and its transitive dependencies.
 fn check_schema(schema_path: &Path) -> Result<(), Error> {
     // Load the schema and its transitive dependencies.
-    let schemas = load_schemas(schema_path)?;
+    let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
 
     // Validate the schemas.
-    validate(&schemas)?;
+    validate(&schemas).map_err(|errors| merge_errors(&errors))?;
 
     // Print the schemas.
     let mut skip_blank_line = true;
