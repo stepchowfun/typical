@@ -1,5 +1,5 @@
 use crate::{
-    error::{listing, throw, Error},
+    error::{listing, throw, Error, SourceRange},
     format::CodeStr,
     token::{
         Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
@@ -30,31 +30,46 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
             // Match tokens corresponding to symbols.
             ':' => {
                 tokens.push(Token {
-                    source_range: (i, i + 1),
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
                     variant: Variant::Colon,
                 });
             }
             '.' => {
                 tokens.push(Token {
-                    source_range: (i, i + 1),
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
                     variant: Variant::Dot,
                 });
             }
             '=' => {
                 tokens.push(Token {
-                    source_range: (i, i + 1),
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
                     variant: Variant::Equals,
                 });
             }
             '{' => {
                 tokens.push(Token {
-                    source_range: (i, i + 1),
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
                     variant: Variant::LeftCurly,
                 });
             }
             '}' => {
                 tokens.push(Token {
-                    source_range: (i, i + 1),
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
                     variant: Variant::RightCurly,
                 });
             }
@@ -76,32 +91,32 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 
                 if &schema_contents[i..end] == AS_KEYWORD {
                     tokens.push(Token {
-                        source_range: (i, end),
+                        source_range: SourceRange { start: i, end },
                         variant: Variant::As,
                     });
                 } else if &schema_contents[i..end] == CHOICE_KEYWORD {
                     tokens.push(Token {
-                        source_range: (i, end),
+                        source_range: SourceRange { start: i, end },
                         variant: Variant::Choice,
                     });
                 } else if &schema_contents[i..end] == IMPORT_KEYWORD {
                     tokens.push(Token {
-                        source_range: (i, end),
+                        source_range: SourceRange { start: i, end },
                         variant: Variant::Import,
                     });
                 } else if &schema_contents[i..end] == RESTRICTED_KEYWORD {
                     tokens.push(Token {
-                        source_range: (i, end),
+                        source_range: SourceRange { start: i, end },
                         variant: Variant::Restricted,
                     });
                 } else if &schema_contents[i..end] == STRUCT_KEYWORD {
                     tokens.push(Token {
-                        source_range: (i, end),
+                        source_range: SourceRange { start: i, end },
                         variant: Variant::Struct,
                     });
                 } else {
                     tokens.push(Token {
-                        source_range: (i, end),
+                        source_range: SourceRange { start: i, end },
                         variant: Variant::Identifier(schema_contents[i..end].to_owned()),
                     });
                 }
@@ -125,7 +140,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 match schema_contents[i..end].parse::<usize>() {
                     Ok(integer) => {
                         tokens.push(Token {
-                            source_range: (i, end),
+                            source_range: SourceRange { start: i, end },
                             variant: Variant::Integer(integer),
                         });
                     }
@@ -136,7 +151,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                                 &schema_contents[i..end].code_str(),
                             ),
                             Some(schema_path),
-                            Some(&listing(schema_contents, (i, end))),
+                            Some(&listing(schema_contents, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -162,12 +177,21 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                             "'".code_str(),
                         ),
                         Some(schema_path),
-                        Some(&listing(schema_contents, (i, i + 1))),
+                        Some(&listing(
+                            schema_contents,
+                            SourceRange {
+                                start: i,
+                                end: i + 1,
+                            },
+                        )),
                         None,
                     ));
                 } else {
                     tokens.push(Token {
-                        source_range: (i, end + 1),
+                        source_range: SourceRange {
+                            start: i,
+                            end: end + 1,
+                        },
                         variant: Variant::Path(Path::new(&schema_contents[i + 1..end]).to_owned()),
                     });
                 }
@@ -207,7 +231,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 errors.push(throw::<Error>(
                     &format!("Unexpected symbol {}.", &schema_contents[i..end].code_str()),
                     Some(schema_path),
-                    Some(&listing(schema_contents, (i, end))),
+                    Some(&listing(schema_contents, SourceRange { start: i, end: i })),
                     None,
                 ));
             }
@@ -227,6 +251,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 mod tests {
     use crate::{
         assert_fails, assert_same,
+        error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
             STRUCT_KEYWORD,
@@ -258,155 +283,248 @@ mod tests {
             tokenize(Path::new("foo.t"), source).unwrap(),
             vec![
                 Token {
-                    source_range: (13, 19),
+                    source_range: SourceRange { start: 13, end: 19 },
                     variant: Variant::Import,
                 },
                 Token {
-                    source_range: (20, 27),
+                    source_range: SourceRange { start: 20, end: 27 },
                     variant: Variant::Path(Path::new("bar.t").to_owned()),
                 },
                 Token {
-                    source_range: (28, 30),
+                    source_range: SourceRange { start: 28, end: 30 },
                     variant: Variant::As,
                 },
                 Token {
-                    source_range: (31, 34),
+                    source_range: SourceRange { start: 31, end: 34 },
                     variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
-                    source_range: (80, 86),
+                    source_range: SourceRange { start: 80, end: 86 },
                     variant: Variant::Struct,
                 },
                 Token {
-                    source_range: (87, 92),
+                    source_range: SourceRange { start: 87, end: 92 },
                     variant: Variant::Identifier("plugh".to_owned()),
                 },
                 Token {
-                    source_range: (93, 94),
+                    source_range: SourceRange { start: 93, end: 94 },
                     variant: Variant::LeftCurly,
                 },
                 Token {
-                    source_range: (109, 112),
+                    source_range: SourceRange {
+                        start: 109,
+                        end: 112,
+                    },
                     variant: Variant::Identifier("qux".to_owned()),
                 },
                 Token {
-                    source_range: (112, 113),
+                    source_range: SourceRange {
+                        start: 112,
+                        end: 113,
+                    },
                     variant: Variant::Colon,
                 },
                 Token {
-                    source_range: (114, 117),
+                    source_range: SourceRange {
+                        start: 114,
+                        end: 117,
+                    },
                     variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
-                    source_range: (117, 118),
+                    source_range: SourceRange {
+                        start: 117,
+                        end: 118,
+                    },
                     variant: Variant::Dot,
                 },
                 Token {
-                    source_range: (118, 121),
+                    source_range: SourceRange {
+                        start: 118,
+                        end: 121,
+                    },
                     variant: Variant::Identifier("Foo".to_owned()),
                 },
                 Token {
-                    source_range: (122, 123),
+                    source_range: SourceRange {
+                        start: 122,
+                        end: 123,
+                    },
                     variant: Variant::Equals,
                 },
                 Token {
-                    source_range: (124, 125),
+                    source_range: SourceRange {
+                        start: 124,
+                        end: 125,
+                    },
                     variant: Variant::Integer(0),
                 },
                 Token {
-                    source_range: (140, 145),
+                    source_range: SourceRange {
+                        start: 140,
+                        end: 145,
+                    },
                     variant: Variant::Identifier("corge".to_owned()),
                 },
                 Token {
-                    source_range: (145, 146),
+                    source_range: SourceRange {
+                        start: 145,
+                        end: 146,
+                    },
                     variant: Variant::Colon,
                 },
                 Token {
-                    source_range: (147, 157),
+                    source_range: SourceRange {
+                        start: 147,
+                        end: 157,
+                    },
                     variant: Variant::Restricted,
                 },
                 Token {
-                    source_range: (158, 161),
+                    source_range: SourceRange {
+                        start: 158,
+                        end: 161,
+                    },
                     variant: Variant::Identifier("int".to_owned()),
                 },
                 Token {
-                    source_range: (162, 163),
+                    source_range: SourceRange {
+                        start: 162,
+                        end: 163,
+                    },
                     variant: Variant::Equals,
                 },
                 Token {
-                    source_range: (164, 165),
+                    source_range: SourceRange {
+                        start: 164,
+                        end: 165,
+                    },
                     variant: Variant::Integer(1),
                 },
                 Token {
-                    source_range: (178, 179),
+                    source_range: SourceRange {
+                        start: 178,
+                        end: 179,
+                    },
                     variant: Variant::RightCurly,
                 },
                 Token {
-                    source_range: (225, 231),
+                    source_range: SourceRange {
+                        start: 225,
+                        end: 231,
+                    },
                     variant: Variant::Choice,
                 },
                 Token {
-                    source_range: (232, 237),
+                    source_range: SourceRange {
+                        start: 232,
+                        end: 237,
+                    },
                     variant: Variant::Identifier("zyzzy".to_owned()),
                 },
                 Token {
-                    source_range: (238, 239),
+                    source_range: SourceRange {
+                        start: 238,
+                        end: 239,
+                    },
                     variant: Variant::LeftCurly,
                 },
                 Token {
-                    source_range: (254, 260),
+                    source_range: SourceRange {
+                        start: 254,
+                        end: 260,
+                    },
                     variant: Variant::Identifier("grault".to_owned()),
                 },
                 Token {
-                    source_range: (260, 261),
+                    source_range: SourceRange {
+                        start: 260,
+                        end: 261,
+                    },
                     variant: Variant::Colon,
                 },
                 Token {
-                    source_range: (262, 265),
+                    source_range: SourceRange {
+                        start: 262,
+                        end: 265,
+                    },
                     variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
-                    source_range: (265, 266),
+                    source_range: SourceRange {
+                        start: 265,
+                        end: 266,
+                    },
                     variant: Variant::Dot,
                 },
                 Token {
-                    source_range: (266, 269),
+                    source_range: SourceRange {
+                        start: 266,
+                        end: 269,
+                    },
                     variant: Variant::Identifier("Bar".to_owned()),
                 },
                 Token {
-                    source_range: (270, 271),
+                    source_range: SourceRange {
+                        start: 270,
+                        end: 271,
+                    },
                     variant: Variant::Equals,
                 },
                 Token {
-                    source_range: (272, 273),
+                    source_range: SourceRange {
+                        start: 272,
+                        end: 273,
+                    },
                     variant: Variant::Integer(0),
                 },
                 Token {
-                    source_range: (288, 294),
+                    source_range: SourceRange {
+                        start: 288,
+                        end: 294,
+                    },
                     variant: Variant::Identifier("garply".to_owned()),
                 },
                 Token {
-                    source_range: (294, 295),
+                    source_range: SourceRange {
+                        start: 294,
+                        end: 295,
+                    },
                     variant: Variant::Colon,
                 },
                 Token {
-                    source_range: (296, 306),
+                    source_range: SourceRange {
+                        start: 296,
+                        end: 306,
+                    },
                     variant: Variant::Restricted,
                 },
                 Token {
-                    source_range: (307, 310),
+                    source_range: SourceRange {
+                        start: 307,
+                        end: 310,
+                    },
                     variant: Variant::Identifier("int".to_owned()),
                 },
                 Token {
-                    source_range: (311, 312),
+                    source_range: SourceRange {
+                        start: 311,
+                        end: 312,
+                    },
                     variant: Variant::Equals,
                 },
                 Token {
-                    source_range: (313, 314),
+                    source_range: SourceRange {
+                        start: 313,
+                        end: 314,
+                    },
                     variant: Variant::Integer(1),
                 },
                 Token {
-                    source_range: (327, 328),
+                    source_range: SourceRange {
+                        start: 327,
+                        end: 328,
+                    },
                     variant: Variant::RightCurly,
                 },
             ],
@@ -436,7 +554,10 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), AS_KEYWORD).unwrap(),
             vec![Token {
-                source_range: (0, AS_KEYWORD.len()),
+                source_range: SourceRange {
+                    start: 0,
+                    end: AS_KEYWORD.len(),
+                },
                 variant: Variant::As,
             }],
         );
@@ -447,7 +568,10 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), CHOICE_KEYWORD).unwrap(),
             vec![Token {
-                source_range: (0, CHOICE_KEYWORD.len()),
+                source_range: SourceRange {
+                    start: 0,
+                    end: CHOICE_KEYWORD.len(),
+                },
                 variant: Variant::Choice,
             }],
         );
@@ -458,7 +582,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), ":").unwrap(),
             vec![Token {
-                source_range: (0, 1),
+                source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Colon,
             }],
         );
@@ -469,7 +593,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), ".").unwrap(),
             vec![Token {
-                source_range: (0, 1),
+                source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Dot,
             }],
         );
@@ -480,7 +604,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "=").unwrap(),
             vec![Token {
-                source_range: (0, 1),
+                source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Equals,
             }],
         );
@@ -491,7 +615,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "\u{5e78}\u{798f}").unwrap(),
             vec![Token {
-                source_range: (0, 6),
+                source_range: SourceRange { start: 0, end: 6 },
                 variant: Variant::Identifier("\u{5e78}\u{798f}".to_owned()),
             }],
         );
@@ -502,7 +626,10 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), IMPORT_KEYWORD).unwrap(),
             vec![Token {
-                source_range: (0, IMPORT_KEYWORD.len()),
+                source_range: SourceRange {
+                    start: 0,
+                    end: IMPORT_KEYWORD.len()
+                },
                 variant: Variant::Import,
             }],
         );
@@ -513,7 +640,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "42").unwrap(),
             vec![Token {
-                source_range: (0, 2),
+                source_range: SourceRange { start: 0, end: 2 },
                 variant: Variant::Integer(42),
             }],
         );
@@ -532,7 +659,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "{").unwrap(),
             vec![Token {
-                source_range: (0, 1),
+                source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::LeftCurly,
             }],
         );
@@ -543,7 +670,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "'bar.t'").unwrap(),
             vec![Token {
-                source_range: (0, 7),
+                source_range: SourceRange { start: 0, end: 7 },
                 variant: Variant::Path(Path::new("bar.t").to_owned()),
             }],
         );
@@ -554,7 +681,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "''").unwrap(),
             vec![Token {
-                source_range: (0, 2),
+                source_range: SourceRange { start: 0, end: 2 },
                 variant: Variant::Path(Path::new("").to_owned()),
             }],
         );
@@ -573,7 +700,10 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), RESTRICTED_KEYWORD).unwrap(),
             vec![Token {
-                source_range: (0, RESTRICTED_KEYWORD.len()),
+                source_range: SourceRange {
+                    start: 0,
+                    end: RESTRICTED_KEYWORD.len(),
+                },
                 variant: Variant::Restricted,
             }],
         );
@@ -584,7 +714,7 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), "}").unwrap(),
             vec![Token {
-                source_range: (0, 1),
+                source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::RightCurly,
             }],
         );
@@ -595,7 +725,10 @@ mod tests {
         assert_same!(
             tokenize(Path::new("foo.t"), STRUCT_KEYWORD).unwrap(),
             vec![Token {
-                source_range: (0, STRUCT_KEYWORD.len()),
+                source_range: SourceRange {
+                    start: 0,
+                    end: STRUCT_KEYWORD.len(),
+                },
                 variant: Variant::Struct,
             }],
         );

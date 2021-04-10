@@ -1,3 +1,4 @@
+use crate::error::SourceRange;
 use std::{
     fmt::{Display, Formatter, Result},
     path::PathBuf,
@@ -14,7 +15,7 @@ pub const STRUCT_KEYWORD: &str = "struct";
 // represents a single token.
 #[derive(Clone, Debug)]
 pub struct Token {
-    pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
+    pub source_range: SourceRange,
     pub variant: Variant,
 }
 
@@ -64,9 +65,12 @@ impl Display for Variant {
 
 #[cfg(test)]
 mod tests {
-    use crate::token::{
-        Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
-        STRUCT_KEYWORD,
+    use crate::{
+        error::SourceRange,
+        token::{
+            Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
+            STRUCT_KEYWORD,
+        },
     };
     use std::path::Path;
 
@@ -76,7 +80,7 @@ mod tests {
             format!(
                 "{}",
                 Token {
-                    source_range: (0, 0),
+                    source_range: SourceRange { start: 0, end: 0 },
                     variant: Variant::Choice,
                 },
             ),
