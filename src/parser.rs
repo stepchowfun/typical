@@ -618,15 +618,15 @@ mod tests {
             import 'bar.t' as bar
 
             # This is a struct.
-            struct plugh {
-              qux: bar.Foo = 0
-              corge: restricted int = 1
+            struct Foo {
+              x: bar.Bar = 0
+              y: restricted int = 1
             }
 
             # This is a choice.
-            choice zyzzy {
-              grault: bar.Bar = 0
-              garply: restricted int = 1
+            choice Qux {
+              x: bar.Bar = 0
+              y: restricted int = 1
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
@@ -637,46 +637,46 @@ mod tests {
                 imports: vec![schema::Import {
                     source_range: SourceRange { start: 13, end: 34 },
                     original_path: Path::new("bar.t").to_owned(),
-                    based_path: Path::new(BASED_PATH_PLACEHOLDER).to_owned(),
+                    based_path: Path::new("<MISSING>").to_owned(),
                     name: "bar".to_owned(),
                 }],
                 declarations: vec![
                     schema::Declaration {
                         source_range: SourceRange {
                             start: 80,
-                            end: 179,
+                            end: 171,
                         },
                         variant: schema::DeclarationVariant::Struct(
-                            "plugh".to_owned(),
+                            "Foo".to_owned(),
                             vec![
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 109,
-                                        end: 125,
+                                        start: 107,
+                                        end: 121,
                                     },
-                                    name: "qux".to_owned(),
+                                    name: "x".to_owned(),
                                     restricted: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 114,
-                                            end: 121,
+                                            start: 110,
+                                            end: 117,
                                         },
                                         import: Some("bar".to_owned()),
-                                        name: "Foo".to_owned(),
+                                        name: "Bar".to_owned(),
                                     },
                                     index: 0,
                                 },
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 140,
-                                        end: 165,
+                                        start: 136,
+                                        end: 157,
                                     },
-                                    name: "corge".to_owned(),
+                                    name: "y".to_owned(),
                                     restricted: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 158,
-                                            end: 161,
+                                            start: 150,
+                                            end: 153,
                                         },
                                         import: None,
                                         name: "int".to_owned(),
@@ -688,23 +688,23 @@ mod tests {
                     },
                     schema::Declaration {
                         source_range: SourceRange {
-                            start: 225,
-                            end: 328,
+                            start: 217,
+                            end: 308,
                         },
                         variant: schema::DeclarationVariant::Choice(
-                            "zyzzy".to_owned(),
+                            "Qux".to_owned(),
                             vec![
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 254,
-                                        end: 273,
+                                        start: 244,
+                                        end: 258,
                                     },
-                                    name: "grault".to_owned(),
+                                    name: "x".to_owned(),
                                     restricted: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 262,
-                                            end: 269,
+                                            start: 247,
+                                            end: 254,
                                         },
                                         import: Some("bar".to_owned()),
                                         name: "Bar".to_owned(),
@@ -713,15 +713,15 @@ mod tests {
                                 },
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 288,
-                                        end: 314,
+                                        start: 273,
+                                        end: 294,
                                     },
-                                    name: "garply".to_owned(),
+                                    name: "y".to_owned(),
                                     restricted: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 307,
-                                            end: 310,
+                                            start: 287,
+                                            end: 290,
                                         },
                                         import: None,
                                         name: "int".to_owned(),
@@ -792,7 +792,7 @@ mod tests {
     #[test]
     fn parse_struct_single() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { foo: Foo = 42 }";
+        let source = "struct Foo { x: Foo = 0 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -800,19 +800,19 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 28 },
+                    source_range: SourceRange { start: 0, end: 25 },
                     variant: schema::DeclarationVariant::Struct(
                         "Foo".to_owned(),
                         vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 26 },
-                            name: "foo".to_owned(),
+                            source_range: SourceRange { start: 13, end: 23 },
+                            name: "x".to_owned(),
                             restricted: false,
                             r#type: schema::Type {
-                                source_range: SourceRange { start: 18, end: 21 },
+                                source_range: SourceRange { start: 16, end: 19 },
                                 import: None,
                                 name: "Foo".to_owned(),
                             },
-                            index: 42,
+                            index: 0,
                         }],
                     ),
                 }],
@@ -823,7 +823,7 @@ mod tests {
     #[test]
     fn parse_struct_multi() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { foo: Foo = 42 bar: Bar = 43 }";
+        let source = "struct Foo { x: Foo = 0 y: Bar = 1 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -831,31 +831,31 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 42 },
+                    source_range: SourceRange { start: 0, end: 36 },
                     variant: schema::DeclarationVariant::Struct(
                         "Foo".to_owned(),
                         vec![
                             schema::Field {
-                                source_range: SourceRange { start: 13, end: 26 },
-                                name: "foo".to_owned(),
+                                source_range: SourceRange { start: 13, end: 23 },
+                                name: "x".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
-                                    source_range: SourceRange { start: 18, end: 21 },
+                                    source_range: SourceRange { start: 16, end: 19 },
                                     import: None,
                                     name: "Foo".to_owned(),
                                 },
-                                index: 42,
+                                index: 0,
                             },
                             schema::Field {
-                                source_range: SourceRange { start: 27, end: 40 },
-                                name: "bar".to_owned(),
+                                source_range: SourceRange { start: 24, end: 34 },
+                                name: "y".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
-                                    source_range: SourceRange { start: 32, end: 35 },
+                                    source_range: SourceRange { start: 27, end: 30 },
                                     import: None,
                                     name: "Bar".to_owned(),
                                 },
-                                index: 43,
+                                index: 1,
                             },
                         ],
                     ),
@@ -885,7 +885,7 @@ mod tests {
     #[test]
     fn parse_choice_single() {
         let source_path = Path::new("foo.t");
-        let source = "choice Foo { foo: Foo = 42 }";
+        let source = "choice Foo { x: Foo = 0 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -893,19 +893,19 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 28 },
+                    source_range: SourceRange { start: 0, end: 25 },
                     variant: schema::DeclarationVariant::Choice(
                         "Foo".to_owned(),
                         vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 26 },
-                            name: "foo".to_owned(),
+                            source_range: SourceRange { start: 13, end: 23 },
+                            name: "x".to_owned(),
                             restricted: false,
                             r#type: schema::Type {
-                                source_range: SourceRange { start: 18, end: 21 },
+                                source_range: SourceRange { start: 16, end: 19 },
                                 import: None,
                                 name: "Foo".to_owned(),
                             },
-                            index: 42,
+                            index: 0,
                         }],
                     ),
                 }],
@@ -916,7 +916,7 @@ mod tests {
     #[test]
     fn parse_choice_multi() {
         let source_path = Path::new("foo.t");
-        let source = "choice Foo { foo: Foo = 42 bar: Bar = 43 }";
+        let source = "choice Foo { x: Foo = 0 y: Bar = 1 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -924,31 +924,31 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 42 },
+                    source_range: SourceRange { start: 0, end: 36 },
                     variant: schema::DeclarationVariant::Choice(
                         "Foo".to_owned(),
                         vec![
                             schema::Field {
-                                source_range: SourceRange { start: 13, end: 26 },
-                                name: "foo".to_owned(),
+                                source_range: SourceRange { start: 13, end: 23 },
+                                name: "x".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
-                                    source_range: SourceRange { start: 18, end: 21 },
+                                    source_range: SourceRange { start: 16, end: 19 },
                                     import: None,
                                     name: "Foo".to_owned(),
                                 },
-                                index: 42,
+                                index: 0,
                             },
                             schema::Field {
-                                source_range: SourceRange { start: 27, end: 40 },
-                                name: "bar".to_owned(),
+                                source_range: SourceRange { start: 24, end: 34 },
+                                name: "y".to_owned(),
                                 restricted: false,
                                 r#type: schema::Type {
-                                    source_range: SourceRange { start: 32, end: 35 },
+                                    source_range: SourceRange { start: 27, end: 30 },
                                     import: None,
                                     name: "Bar".to_owned(),
                                 },
-                                index: 43,
+                                index: 1,
                             },
                         ],
                     ),
@@ -960,7 +960,7 @@ mod tests {
     #[test]
     fn parse_field_restricted() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { foo: restricted Foo = 42 }";
+        let source = "struct Foo { x: restricted Foo = 0 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -968,19 +968,19 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 39 },
+                    source_range: SourceRange { start: 0, end: 36 },
                     variant: schema::DeclarationVariant::Struct(
                         "Foo".to_owned(),
                         vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 37 },
-                            name: "foo".to_owned(),
+                            source_range: SourceRange { start: 13, end: 34 },
+                            name: "x".to_owned(),
                             restricted: true,
                             r#type: schema::Type {
-                                source_range: SourceRange { start: 29, end: 32 },
+                                source_range: SourceRange { start: 27, end: 30 },
                                 import: None,
                                 name: "Foo".to_owned(),
                             },
-                            index: 42,
+                            index: 0,
                         }],
                     ),
                 }],
@@ -991,7 +991,7 @@ mod tests {
     #[test]
     fn parse_field_imported_type() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { foo: bar.Bar = 42 }";
+        let source = "struct Foo { x: bar.Bar = 0 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -999,19 +999,19 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 32 },
+                    source_range: SourceRange { start: 0, end: 29 },
                     variant: schema::DeclarationVariant::Struct(
                         "Foo".to_owned(),
                         vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 30 },
-                            name: "foo".to_owned(),
+                            source_range: SourceRange { start: 13, end: 27 },
+                            name: "x".to_owned(),
                             restricted: false,
                             r#type: schema::Type {
-                                source_range: SourceRange { start: 18, end: 25 },
+                                source_range: SourceRange { start: 16, end: 23 },
                                 import: Some("bar".to_owned()),
                                 name: "Bar".to_owned(),
                             },
-                            index: 42,
+                            index: 0,
                         }],
                     ),
                 }],
