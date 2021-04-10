@@ -7,12 +7,14 @@ mod parser;
 mod schema;
 mod token;
 mod tokenizer;
+mod validator;
 
 use crate::{
     error::{listing, throw, Error},
     format::CodeStr,
     parser::parse,
     tokenizer::tokenize,
+    validator::validate,
 };
 use clap::{
     App,
@@ -85,7 +87,8 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 
 // Load a schema and its transitive dependencies. If this function succeeds, the imports in the
 // returned schemas are guaranteed to have valid paths which are relative to and contained within
-// the directory containing `schema_path`. No other validation is performed by this function.
+// the directory containing `schema_path` [tag:valid_based_paths]. No other validation is performed
+// by this function.
 #[allow(clippy::too_many_lines)]
 fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, Error> {
     // The schema and all its transitive dependencies will end up here.
@@ -279,6 +282,9 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
 fn check_schema(schema_path: &Path) -> Result<(), Error> {
     // Load the schema and its transitive dependencies.
     let schemas = load_schemas(schema_path)?;
+
+    // Validate the schemas.
+    validate(&schemas)?;
 
     // Print the schemas.
     let mut skip_blank_line = true;
