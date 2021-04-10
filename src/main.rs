@@ -1,8 +1,10 @@
 #![deny(warnings)]
 
 mod assertions;
+mod count;
 mod error;
 mod format;
+mod generate_rust;
 mod parser;
 mod schema;
 mod token;
@@ -10,19 +12,14 @@ mod tokenizer;
 mod validator;
 
 use crate::{
+    count::count,
     error::{listing, throw, Error},
     format::CodeStr,
     parser::parse,
     tokenizer::tokenize,
     validator::validate,
 };
-use clap::{
-    App,
-    AppSettings::{
-        ColoredHelp, SubcommandRequiredElseHelp, UnifiedHelpMessage, VersionlessSubcommands,
-    },
-    Arg, Shell, SubCommand,
-};
+use clap::{App, AppSettings, Arg, Shell, SubCommand};
 use std::{
     collections::{HashMap, HashSet},
     fs::read_to_string,
@@ -38,8 +35,9 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const BIN_NAME: &str = "typical";
 
 // Command-line option and subcommand names
-const CHECK_SUBCOMMAND: &str = "check";
-const CHECK_SUBCOMMAND_PATH_OPTION: &str = "check-path";
+const GENERATE_SUBCOMMAND: &str = "generate";
+const GENERATE_SUBCOMMAND_PATH_OPTION: &str = "generate-path";
+const GENERATE_SUBCOMMAND_RUST_OUT_DIR_OPTION: &str = "rust-out-dir";
 const SHELL_COMPLETION_SUBCOMMAND: &str = "shell-completion";
 const SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION: &str = "shell-completion-shell";
 
@@ -48,21 +46,27 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
     App::new("Typical")
         .version(VERSION)
         .version_short("v")
+        .author("Stephan Boyer <stephan@stephanboyer.com>")
         .about("Typical is an interface definition language.")
-        .setting(SubcommandRequiredElseHelp) // [tag:subcommand_required_else_help]
-        .setting(ColoredHelp)
-        .setting(UnifiedHelpMessage)
-        .setting(VersionlessSubcommands)
+        .setting(AppSettings::ColoredHelp)
+        .setting(AppSettings::NextLineHelp)
+        .setting(AppSettings::SubcommandRequiredElseHelp) // [tag:subcommand_required_else_help],
+        .setting(AppSettings::UnifiedHelpMessage)
+        .setting(AppSettings::VersionlessSubcommands)
         .subcommand(
-            SubCommand::with_name(CHECK_SUBCOMMAND)
-                .about("Checks a schema")
+            SubCommand::with_name(GENERATE_SUBCOMMAND)
+                .about("Generate code for a schema and its transitive dependencies")
                 .arg(
-                    Arg::with_name(CHECK_SUBCOMMAND_PATH_OPTION)
-                        .value_name("PATH")
+                    Arg::with_name(GENERATE_SUBCOMMAND_PATH_OPTION)
+                        .value_name("SCHEMA_PATH")
                         .help("Sets the path of the schema")
-                        .required(true) // [tag:check_subcommand_shell_required]
-                        .takes_value(true)
-                        .number_of_values(1),
+                        .required(true), // [tag:generate_subcommand_path_required],
+                )
+                .arg(
+                    Arg::with_name(GENERATE_SUBCOMMAND_RUST_OUT_DIR_OPTION)
+                        .value_name("PATH")
+                        .long(GENERATE_SUBCOMMAND_RUST_OUT_DIR_OPTION)
+                        .help("Sets the path of the directory to emit Rust code"),
                 ),
         )
         .subcommand(
@@ -78,9 +82,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
                     Arg::with_name(SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION)
                         .value_name("SHELL")
                         .help("Bash, Fish, Zsh, PowerShell, or Elvish")
-                        .required(true) // [tag:shell_completion_subcommand_shell_required]
-                        .takes_value(true)
-                        .number_of_values(1),
+                        .required(true), // [tag:shell_completion_subcommand_shell_required],
                 ),
         )
 }
@@ -293,31 +295,24 @@ fn merge_errors(errors: &[Error]) -> Error {
     }
 }
 
-// Check a schema and its transitive dependencies.
-fn check_schema(schema_path: &Path) -> Result<(), Error> {
+// Generate code for a schema and its transitive dependencies
+fn generate_code(schema_path: &Path, rust_out_dir: Option<&Path>) -> Result<(), Error> {
     // Load the schema and its transitive dependencies.
+    eprintln!("Loading schemas\u{2026}");
     let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
+    eprintln!("{} loaded.", count(schemas.len(), "schema"));
 
     // Validate the schemas.
+    eprintln!("Validating schemas\u{2026}");
     validate(&schemas).map_err(|errors| merge_errors(&errors))?;
 
-    // Print the schemas.
-    let mut skip_blank_line = true;
-
-    for (path, (schema, _)) in schemas {
-        if skip_blank_line {
-            skip_blank_line = false;
-        } else {
-            println!();
-        }
-
-        println!(
-            "-- {}\n\n{}",
-            path.to_string_lossy().code_str(),
-            schema.to_string().code_str(),
-        );
+    // Generate Rust code, if applicable.
+    if let Some(rust_out_dir) = rust_out_dir {
+        eprintln!("Generating Rust\u{2026}");
+        generate_rust::generate(&schemas, rust_out_dir)?;
     }
 
+    eprintln!("Done.");
     Ok(())
 }
 
@@ -355,20 +350,27 @@ fn entry() -> Result<(), Error> {
 
     // Decide what to do based on the subcommand.
     match matches.subcommand_name() {
-        // [tag:check_subcommand]
-        Some(subcommand) if subcommand == CHECK_SUBCOMMAND => {
+        // [tag:generate_subcommand]
+        Some(subcommand) if subcommand == GENERATE_SUBCOMMAND => {
             // Determine the path to the schema file.
             let schema_path = Path::new(
                 matches
-                    .subcommand_matches(CHECK_SUBCOMMAND)
-                    .unwrap() // [ref:check_subcommand]
-                    .value_of(CHECK_SUBCOMMAND_PATH_OPTION)
-                    // [ref:check_subcommand_shell_required]
+                    .subcommand_matches(GENERATE_SUBCOMMAND)
+                    .unwrap() // [ref:generate_subcommand]
+                    .value_of(GENERATE_SUBCOMMAND_PATH_OPTION)
+                    // [ref:generate_subcommand_path_required]
                     .unwrap(),
             );
 
-            // Check the schema.
-            check_schema(schema_path)?;
+            // Determine the path to the Rust output directory, if provided.
+            let rust_out_dir = matches
+                .subcommand_matches(GENERATE_SUBCOMMAND)
+                .unwrap() // [ref:generate_subcommand]
+                .value_of(GENERATE_SUBCOMMAND_RUST_OUT_DIR_OPTION)
+                .map(Path::new);
+
+            // Generate code for the schema.
+            generate_code(schema_path, rust_out_dir)?;
         }
 
         // [tag:shell_completion_subcommand]

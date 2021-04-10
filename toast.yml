@@ -155,7 +155,7 @@ tasks:
       # Check all the examples.
       for file in examples/*.t; do
         echo "Checking $file..."
-        cargo run -- check "$file"
+        cargo run -- generate "$file"
       done
 
   check:
