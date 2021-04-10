@@ -8,6 +8,10 @@ use std::{
     path::Path,
 };
 
+// The parser does not have enough information to compute the based import paths. So it simply uses
+// a placeholder, which is later replaced by the actual value [ref:populate_based_path].
+pub const BASED_PATH_PLACEHOLDER: &str = "<MISSING>";
+
 // For extra type safety, we use the "newtype" pattern here to introduce a new type for source
 // ranges. The goal is to prevent source ranges from accidentally including token indices.
 #[derive(Clone, Copy, Debug)]
@@ -377,7 +381,8 @@ fn parse_import(
             token_source_range(tokens, *position - 1),
         )
         .0,
-        path,
+        original_path: path,
+        based_path: Path::new(BASED_PATH_PLACEHOLDER).to_owned(),
         name,
     })
 }
@@ -611,7 +616,12 @@ fn parse_field(
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_same, parser::parse, schema, tokenizer::tokenize};
+    use crate::{
+        assert_same,
+        parser::{parse, BASED_PATH_PLACEHOLDER},
+        schema,
+        tokenizer::tokenize,
+    };
     use std::path::Path;
 
     #[test]
@@ -639,7 +649,8 @@ mod tests {
             schema::Schema {
                 imports: vec![schema::Import {
                     source_range: (13, 34),
-                    path: Path::new("bar.t").to_owned(),
+                    original_path: Path::new("bar.t").to_owned(),
+                    based_path: Path::new(BASED_PATH_PLACEHOLDER).to_owned(),
                     name: "bar".to_owned(),
                 }],
                 declarations: vec![
@@ -734,7 +745,8 @@ mod tests {
             schema::Schema {
                 imports: vec![schema::Import {
                     source_range: (0, 21),
-                    path: Path::new("bar.t").to_owned(),
+                    original_path: Path::new("bar.t").to_owned(),
+                    based_path: Path::new(BASED_PATH_PLACEHOLDER).to_owned(),
                     name: "bar".to_owned(),
                 }],
                 declarations: vec![],
