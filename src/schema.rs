@@ -120,7 +120,9 @@ impl Display for Field {
             write!(
                 f,
                 "  {}: restricted {} = {}",
-                self.name, self.r#type, self.index,
+                self.name,
+                self.r#type,
+                self.index,
             )?;
         } else {
             write!(f, "  {}: {} = {}", self.name, self.r#type, self.index)?;
