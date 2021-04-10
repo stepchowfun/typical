@@ -628,7 +628,7 @@ mod tests {
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
-                    end: IMPORT_KEYWORD.len()
+                    end: IMPORT_KEYWORD.len(),
                 },
                 variant: Variant::Import,
             }],
