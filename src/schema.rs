@@ -12,7 +12,8 @@ pub struct Schema {
 #[derive(Clone, Debug)]
 pub struct Import {
     pub source_range: (usize, usize), // Inclusive on the left and exclusive on the right
-    pub path: PathBuf,
+    pub original_path: PathBuf,       // The literal path from the source file
+    pub based_path: PathBuf,          // Relative to the base
     pub name: String,
 }
 
@@ -55,7 +56,12 @@ impl Display for Schema {
                 writeln!(f)?;
             }
 
-            write!(f, "import '{}' as {}", import.path.display(), import.name)?;
+            write!(
+                f,
+                "import '{}' as {}",
+                import.original_path.display(),
+                import.name,
+            )?;
         }
 
         for declaration in &self.declarations {
@@ -162,12 +168,14 @@ mod tests {
                     imports: vec![
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("qux.t").to_owned(),
+                            original_path: Path::new("qux.t").to_owned(),
+                            based_path: Path::new("qux.t").to_owned(),
                             name: "qux".to_owned(),
                         },
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("corge.t").to_owned(),
+                            original_path: Path::new("corge.t").to_owned(),
+                            based_path: Path::new("corge.t").to_owned(),
                             name: "corge".to_owned(),
                         },
                     ],
@@ -275,12 +283,14 @@ mod tests {
                     imports: vec![
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("qux.t").to_owned(),
+                            original_path: Path::new("qux.t").to_owned(),
+                            based_path: Path::new("qux.t").to_owned(),
                             name: "qux".to_owned(),
                         },
                         Import {
                             source_range: (0, 0),
-                            path: Path::new("corge.t").to_owned(),
+                            original_path: Path::new("corge.t").to_owned(),
+                            based_path: Path::new("corge.t").to_owned(),
                             name: "corge".to_owned(),
                         },
                     ],

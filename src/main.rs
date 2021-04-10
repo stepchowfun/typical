@@ -168,7 +168,7 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
         };
 
         // Parse the tokens.
-        let schema = match parse(&path, &contents, &tokens) {
+        let mut schema = match parse(&path, &contents, &tokens) {
             Ok(schema) => schema,
             Err(error) => {
                 errors.extend_from_slice(&error);
@@ -182,12 +182,12 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
         let parent_path = path.parent().unwrap();
 
         // Add the dependencies to the frontier.
-        for import in &schema.imports {
+        for import in &mut schema.imports {
             // Compute the source listing for this import for error reporting.
             let origin_listing = listing(&contents, import.source_range);
 
             // Compute the import path.
-            let non_canonical_import_path = base_path.join(parent_path.join(&import.path));
+            let non_canonical_import_path = base_path.join(parent_path.join(&import.original_path));
 
             // Canonicalize the path.
             let canonical_import_path = match non_canonical_import_path.canonicalize() {
@@ -196,7 +196,7 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
                     errors.push(throw(
                         &format!(
                             "Unable to load {}.",
-                            import.path.to_string_lossy().code_str(),
+                            import.original_path.to_string_lossy().code_str(),
                         ),
                         Some(&path),
                         Some(&origin_listing),
@@ -207,11 +207,11 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
                 }
             };
 
-            // Strip the schema parent path from the schema path, i.e., compute the schema file
-            // name.
-            let based_import_path =
+            // Populate the based path in the schema by stripping the base path from the canonical
+            // import path[tag:populate_based_path].
+            import.based_path =
                 if let Ok(based_import_path) = canonical_import_path.strip_prefix(base_path) {
-                    based_import_path
+                    based_import_path.to_owned()
                 } else {
                     return Err(throw::<Error>(
                         &format!(
@@ -227,10 +227,10 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
                 };
 
             // Visit this import if it hasn't been visited already.
-            if !visited_paths.contains(based_import_path) {
-                visited_paths.insert(based_import_path.to_owned());
+            if !visited_paths.contains(&import.based_path) {
+                visited_paths.insert(import.based_path.clone());
                 paths_to_load.push((
-                    based_import_path.to_owned(),
+                    import.based_path.clone(),
                     Some((path.clone(), origin_listing)),
                 ));
             }
