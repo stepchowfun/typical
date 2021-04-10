@@ -172,23 +172,23 @@ mod tests {
                     imports: vec![
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("qux.t").to_owned(),
-                            based_path: Path::new("qux.t").to_owned(),
-                            name: "qux".to_owned(),
+                            original_path: Path::new("foo.t").to_owned(),
+                            based_path: Path::new("foo.t").to_owned(),
+                            name: "foo".to_owned(),
                         },
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("corge.t").to_owned(),
-                            based_path: Path::new("corge.t").to_owned(),
-                            name: "corge".to_owned(),
+                            original_path: Path::new("bar.t").to_owned(),
+                            based_path: Path::new("bar.t").to_owned(),
+                            name: "bar".to_owned(),
                         },
                     ],
                     declarations: vec![],
                 },
             ),
             "\
-            import 'qux.t' as qux\n\
-            import 'corge.t' as corge\
+            import 'foo.t' as foo\n\
+            import 'bar.t' as bar\
             ",
         );
     }
@@ -208,25 +208,25 @@ mod tests {
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "foo".to_owned(),
+                                        name: "x".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "Int".to_owned(),
                                         },
-                                        index: 42,
+                                        index: 0,
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "bar".to_owned(),
+                                        name: "y".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "String".to_owned(),
                                         },
-                                        index: 43,
+                                        index: 1,
                                     },
                                 ],
                             ),
@@ -238,25 +238,25 @@ mod tests {
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "foo".to_owned(),
+                                        name: "x".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "Int".to_owned(),
                                         },
-                                        index: 42,
+                                        index: 0,
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "bar".to_owned(),
+                                        name: "y".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "String".to_owned(),
                                         },
-                                        index: 43,
+                                        index: 1,
                                     },
                                 ],
                             ),
@@ -266,13 +266,13 @@ mod tests {
             ),
             "\
             struct Foo {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\n\
             \n\
             choice Bar {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\
             ",
         );
@@ -287,15 +287,15 @@ mod tests {
                     imports: vec![
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("qux.t").to_owned(),
-                            based_path: Path::new("qux.t").to_owned(),
-                            name: "qux".to_owned(),
+                            original_path: Path::new("foo.t").to_owned(),
+                            based_path: Path::new("foo.t").to_owned(),
+                            name: "foo".to_owned(),
                         },
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("corge.t").to_owned(),
-                            based_path: Path::new("corge.t").to_owned(),
-                            name: "corge".to_owned(),
+                            original_path: Path::new("bar.t").to_owned(),
+                            based_path: Path::new("bar.t").to_owned(),
+                            name: "bar".to_owned(),
                         },
                     ],
                     declarations: vec![
@@ -306,25 +306,25 @@ mod tests {
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "foo".to_owned(),
+                                        name: "x".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "Int".to_owned(),
                                         },
-                                        index: 42,
+                                        index: 0,
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "bar".to_owned(),
+                                        name: "y".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "String".to_owned(),
                                         },
-                                        index: 43,
+                                        index: 1,
                                     },
                                 ],
                             ),
@@ -336,25 +336,25 @@ mod tests {
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "foo".to_owned(),
+                                        name: "x".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "Int".to_owned(),
                                         },
-                                        index: 42,
+                                        index: 0,
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "bar".to_owned(),
+                                        name: "y".to_owned(),
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             import: None,
                                             name: "String".to_owned(),
                                         },
-                                        index: 43,
+                                        index: 1,
                                     },
                                 ],
                             ),
@@ -363,17 +363,17 @@ mod tests {
                 },
             ),
             "\
-            import 'qux.t' as qux\n\
-            import 'corge.t' as corge\n\
+            import 'foo.t' as foo\n\
+            import 'bar.t' as bar\n\
             \n\
             struct Foo {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\n\
             \n\
             choice Bar {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\
             ",
         );
@@ -391,25 +391,25 @@ mod tests {
                         vec![
                             Field {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                name: "foo".to_owned(),
+                                name: "x".to_owned(),
                                 restricted: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
                                     import: None,
                                     name: "Int".to_owned(),
                                 },
-                                index: 42,
+                                index: 0,
                             },
                             Field {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                name: "bar".to_owned(),
+                                name: "y".to_owned(),
                                 restricted: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
                                     import: None,
                                     name: "String".to_owned(),
                                 },
-                                index: 43,
+                                index: 1,
                             },
                         ],
                     ),
@@ -417,8 +417,8 @@ mod tests {
             ),
             "\
             struct Foo {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\
             ",
         );
@@ -434,33 +434,33 @@ mod tests {
                     vec![
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "foo".to_owned(),
+                            name: "x".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
                                 name: "Int".to_owned(),
                             },
-                            index: 42,
+                            index: 0,
                         },
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "bar".to_owned(),
+                            name: "y".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
                                 name: "String".to_owned(),
                             },
-                            index: 43,
+                            index: 1,
                         },
                     ],
                 ),
             ),
             "\
             struct Foo {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\
             ",
         );
@@ -476,33 +476,33 @@ mod tests {
                     vec![
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "foo".to_owned(),
+                            name: "x".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
                                 name: "Int".to_owned(),
                             },
-                            index: 42,
+                            index: 0,
                         },
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "bar".to_owned(),
+                            name: "y".to_owned(),
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
                                 name: "String".to_owned(),
                             },
-                            index: 43,
+                            index: 1,
                         },
                     ],
                 ),
             ),
             "\
             choice Foo {\n\
-            \x20 foo: Int = 42\n\
-            \x20 bar: String = 43\n\
+            \x20 x: Int = 0\n\
+            \x20 y: String = 1\n\
             }\
             ",
         );
@@ -515,17 +515,17 @@ mod tests {
                 "{}",
                 Field {
                     source_range: SourceRange { start: 0, end: 0 },
-                    name: "foo".to_owned(),
+                    name: "x".to_owned(),
                     restricted: false,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
                         import: None,
                         name: "Int".to_owned(),
                     },
-                    index: 42,
+                    index: 0,
                 },
             ),
-            "  foo: Int = 42",
+            "  x: Int = 0",
         );
     }
 
@@ -536,17 +536,17 @@ mod tests {
                 "{}",
                 Field {
                     source_range: SourceRange { start: 0, end: 0 },
-                    name: "foo".to_owned(),
+                    name: "x".to_owned(),
                     restricted: true,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
                         import: None,
                         name: "Int".to_owned(),
                     },
-                    index: 42,
+                    index: 0,
                 },
             ),
-            "  foo: restricted Int = 42",
+            "  x: restricted Int = 0",
         );
     }
 

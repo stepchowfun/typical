@@ -85,38 +85,6 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
 }
 
-// Merge a list of errors into a single one.
-fn merge_errors(errors: &[Error]) -> Error {
-    Error {
-        message: errors
-            .iter()
-            .fold(String::new(), |acc, error| {
-                format!(
-                    "{}\n{}{}",
-                    acc,
-                    // Only render an empty line between errors here if the previous line
-                    // doesn't already visually look like an empty line. See
-                    // [ref:overline_u203e].
-                    if acc
-                        .split('\n')
-                        .last()
-                        .unwrap()
-                        .chars()
-                        .all(|c| c == ' ' || c == '\u{203e}')
-                    {
-                        ""
-                    } else {
-                        "\n"
-                    },
-                    error,
-                )
-            })
-            .trim()
-            .to_owned(),
-        reason: None,
-    }
-}
-
 // Load a schema and its transitive dependencies. If this function succeeds, the imports in the
 // returned schemas are guaranteed to have valid paths which are relative to and contained within
 // the directory containing `schema_path` [tag:valid_based_paths]. No other validation is performed
@@ -290,6 +258,38 @@ fn load_schemas(
         Ok(schemas)
     } else {
         Err(errors)
+    }
+}
+
+// Merge a list of errors into a single one.
+fn merge_errors(errors: &[Error]) -> Error {
+    Error {
+        message: errors
+            .iter()
+            .fold(String::new(), |acc, error| {
+                format!(
+                    "{}\n{}{}",
+                    acc,
+                    // Only render an empty line between errors here if the previous line
+                    // doesn't already visually look like an empty line. See
+                    // [ref:overline_u203e].
+                    if acc
+                        .split('\n')
+                        .last()
+                        .unwrap()
+                        .chars()
+                        .all(|c| c == ' ' || c == '\u{203e}')
+                    {
+                        ""
+                    } else {
+                        "\n"
+                    },
+                    error,
+                )
+            })
+            .trim()
+            .to_owned(),
+        reason: None,
     }
 }
 
