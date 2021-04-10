@@ -396,7 +396,7 @@ mod tests {
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
                                     import: None,
-                                    name: "Int".to_owned()
+                                    name: "Int".to_owned(),
                                 },
                                 index: 42,
                             },
@@ -407,7 +407,7 @@ mod tests {
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
                                     import: None,
-                                    name: "String".to_owned()
+                                    name: "String".to_owned(),
                                 },
                                 index: 43,
                             },
@@ -439,7 +439,7 @@ mod tests {
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
-                                name: "Int".to_owned()
+                                name: "Int".to_owned(),
                             },
                             index: 42,
                         },
@@ -450,7 +450,7 @@ mod tests {
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
-                                name: "String".to_owned()
+                                name: "String".to_owned(),
                             },
                             index: 43,
                         },
@@ -481,7 +481,7 @@ mod tests {
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
-                                name: "Int".to_owned()
+                                name: "Int".to_owned(),
                             },
                             index: 42,
                         },
@@ -492,7 +492,7 @@ mod tests {
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 import: None,
-                                name: "String".to_owned()
+                                name: "String".to_owned(),
                             },
                             index: 43,
                         },

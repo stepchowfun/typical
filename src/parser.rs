@@ -644,7 +644,7 @@ mod tests {
                     schema::Declaration {
                         source_range: SourceRange {
                             start: 80,
-                            end: 179
+                            end: 179,
                         },
                         variant: schema::DeclarationVariant::Struct(
                             "plugh".to_owned(),
@@ -652,14 +652,14 @@ mod tests {
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 109,
-                                        end: 125
+                                        end: 125,
                                     },
                                     name: "qux".to_owned(),
                                     restricted: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 114,
-                                            end: 121
+                                            end: 121,
                                         },
                                         import: Some("bar".to_owned()),
                                         name: "Foo".to_owned(),
@@ -669,14 +669,14 @@ mod tests {
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 140,
-                                        end: 165
+                                        end: 165,
                                     },
                                     name: "corge".to_owned(),
                                     restricted: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 158,
-                                            end: 161
+                                            end: 161,
                                         },
                                         import: None,
                                         name: "int".to_owned(),
@@ -689,7 +689,7 @@ mod tests {
                     schema::Declaration {
                         source_range: SourceRange {
                             start: 225,
-                            end: 328
+                            end: 328,
                         },
                         variant: schema::DeclarationVariant::Choice(
                             "zyzzy".to_owned(),
@@ -697,14 +697,14 @@ mod tests {
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 254,
-                                        end: 273
+                                        end: 273,
                                     },
                                     name: "grault".to_owned(),
                                     restricted: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 262,
-                                            end: 269
+                                            end: 269,
                                         },
                                         import: Some("bar".to_owned()),
                                         name: "Bar".to_owned(),
@@ -714,14 +714,14 @@ mod tests {
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 288,
-                                        end: 314
+                                        end: 314,
                                     },
                                     name: "garply".to_owned(),
                                     restricted: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 307,
-                                            end: 310
+                                            end: 310,
                                         },
                                         import: None,
                                         name: "int".to_owned(),
@@ -784,7 +784,7 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 14 },
                     variant: schema::DeclarationVariant::Struct("Foo".to_owned(), vec![]),
-                },],
+                }],
             },
         );
     }
@@ -877,7 +877,7 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 14 },
                     variant: schema::DeclarationVariant::Choice("Foo".to_owned(), vec![]),
-                },],
+                }],
             },
         );
     }
