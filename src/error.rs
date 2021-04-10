@@ -86,9 +86,17 @@ pub fn throw<T: error::Error + 'static>(
     }
 }
 
+// For extra type safety, we introduce a dedicated type for source ranges. Tokens and syntax trees
+// can use this type instead of tuples.
+#[derive(Clone, Copy, Debug)]
+pub struct SourceRange {
+    pub start: usize, // Inclusive
+    pub end: usize,   // Exclusive
+}
+
 // This function renders the relevant lines of a source file given the source file contents and a
 // range. The range is inclusive on the left and exclusive on the right.
-pub fn listing(source_contents: &str, source_range: (usize, usize)) -> String {
+pub fn listing(source_contents: &str, source_range: SourceRange) -> String {
     // Remember the relevant lines and the position of the start of the next line.
     let mut lines = vec![];
     let mut pos = 0_usize;
@@ -102,12 +110,12 @@ pub fn listing(source_contents: &str, source_range: (usize, usize)) -> String {
         pos += line.len() + 1;
 
         // If we're past the lines of interest, we're done.
-        if line_start >= source_range.1 {
+        if line_start >= source_range.end {
             break;
         }
 
         // If we haven't reached the lines of interest yet, skip to the next line.
-        if pos <= source_range.0 {
+        if pos <= source_range.start {
             continue;
         }
 
@@ -116,13 +124,13 @@ pub fn listing(source_contents: &str, source_range: (usize, usize)) -> String {
         let trimmed_line = line.trim_end();
 
         // Highlight the relevant part of the line.
-        let (section_start, section_end) = if source_range.0 > line_start {
+        let (section_start, section_end) = if source_range.start > line_start {
             (
-                min(source_range.0 - line_start, trimmed_line.len()),
-                min(source_range.1 - line_start, trimmed_line.len()),
+                min(source_range.start - line_start, trimmed_line.len()),
+                min(source_range.end - line_start, trimmed_line.len()),
             )
         } else {
-            let end = min(source_range.1 - line_start, trimmed_line.len());
+            let end = min(source_range.end - line_start, trimmed_line.len());
             let start = trimmed_line
                 .find(|c: char| !c.is_whitespace())
                 .unwrap_or(end);
@@ -202,7 +210,7 @@ pub fn listing(source_contents: &str, source_range: (usize, usize)) -> String {
 mod tests {
     use crate::{
         assert_same,
-        error::{listing, throw, Error},
+        error::{listing, throw, Error, SourceRange},
     };
     use std::{path::Path, rc::Rc};
 
@@ -379,13 +387,13 @@ mod tests {
 
     #[test]
     fn listing_empty() {
-        assert_eq!(listing("", (0, 0)), "");
+        assert_eq!(listing("", SourceRange { start: 0, end: 0 }), "");
     }
 
     #[test]
     fn listing_single_line_full_range() {
         assert_eq!(
-            listing("foo bar", (0, 7)),
+            listing("foo bar", SourceRange { start: 0, end: 7 }),
             "1 \u{2502} foo bar\n    \u{203e}\u{203e}\u{203e}\u{203e}\u{203e}\u{203e}\u{203e}",
         );
     }
@@ -393,7 +401,7 @@ mod tests {
     #[test]
     fn listing_single_line_partial_range() {
         assert_eq!(
-            listing("foo bar", (1, 6)),
+            listing("foo bar", SourceRange { start: 1, end: 6 }),
             "1 \u{2502} foo bar\n     \u{203e}\u{203e}\u{203e}\u{203e}\u{203e}",
         );
     }
@@ -401,7 +409,7 @@ mod tests {
     #[test]
     fn listing_multiple_lines_full_range() {
         assert_eq!(
-            listing("foo\nbar\nbaz\nqux", (0, 15)),
+            listing("foo\nbar\nbaz\nqux", SourceRange { start: 0, end: 15 }),
             "1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502} bar\n  \u{250a} \
                 \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n  \u{250a} \u{203e}\u{203e}\u{203e}\n4 \
                 \u{2502} qux\n    \u{203e}\u{203e}\u{203e}",
@@ -411,7 +419,7 @@ mod tests {
     #[test]
     fn listing_multiple_lines_partial_range() {
         assert_eq!(
-            listing("foo\nbar\nbaz\nqux", (5, 9)),
+            listing("foo\nbar\nbaz\nqux", SourceRange { start: 5, end: 9 }),
             "2 \u{2502} bar\n  \u{250a}  \u{203e}\u{203e}\n3 \u{2502} baz\n    \u{203e}",
         );
     }
@@ -421,7 +429,7 @@ mod tests {
         assert_eq!(
             listing(
                 "foo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux\nfoo\nbar\nbaz\nqux",
-                (33, 42),
+                SourceRange { start: 33, end: 42 },
             ),
             " 9 \u{2502} foo\n   \u{250a}  \u{203e}\u{203e}\n10 \u{2502} bar\n   \u{250a} \
                 \u{203e}\u{203e}\u{203e}\n11 \u{2502} baz\n     \u{203e}\u{203e}",
