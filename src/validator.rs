@@ -10,17 +10,35 @@ use std::{
 
 // This function validates a schema and its transitive dependencies. The based import paths are
 // assumed to be in the `HashMap` [ref:valid_based_paths].
+#[allow(clippy::too_many_lines)]
 pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<(), Vec<Error>> {
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
 
-    // Validate uniqueness of various things within each file.
+    // For the purpose of validating types, construct a complete set of (path, declaration) pairs.
+    let mut all_types = HashSet::new();
+
+    for (path, (schema, _)) in schemas {
+        for declaration in &schema.declarations {
+            match &declaration.variant {
+                schema::DeclarationVariant::Struct(name, _)
+                | schema::DeclarationVariant::Choice(name, _) => {
+                    all_types.insert((path.clone(), name.clone()));
+                }
+            }
+        }
+    }
+
+    // Validate each file.
     for (path, (schema, source_contents)) in schemas {
-        // Check that imports are unique within each file.
-        let mut import_names = HashSet::new();
+        // Check that imports are unique within this file.
+        let mut imports = HashMap::new();
 
         for import in &schema.imports {
-            if !import_names.insert(import.name.to_owned()) {
+            if imports
+                .insert(import.name.clone(), import.based_path.clone())
+                .is_some()
+            {
                 errors.push(throw::<Error>(
                     &format!(
                         "An import named {} already exists in this file.",
@@ -33,15 +51,15 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
             }
         }
 
-        // Validate uniqueness of declarations and of field names and indices within each
-        // declaration.
+        // Validate the declarations in this file.
         let mut declaration_names = HashSet::new();
 
         for declaration in &schema.declarations {
             match &declaration.variant {
                 schema::DeclarationVariant::Struct(name, fields)
                 | schema::DeclarationVariant::Choice(name, fields) => {
-                    if !declaration_names.insert(name.to_owned()) {
+                    // Validate the declaration name.
+                    if !declaration_names.insert(name.clone()) {
                         errors.push(throw::<Error>(
                             &format!(
                                 "A declaration named {} already exists in this file.",
@@ -56,8 +74,10 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                     let mut field_names = HashSet::new();
                     let mut field_indices = HashSet::new();
 
+                    // Validate the fields in this declaration.
                     for field in fields {
-                        if !field_names.insert(field.name.to_owned()) {
+                        // Validate the field name.
+                        if !field_names.insert(field.name.clone()) {
                             errors.push(throw::<Error>(
                                 &format!(
                                     "A field named {} already exists in this declaration.",
@@ -69,7 +89,8 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                             ));
                         }
 
-                        if !field_indices.insert(field.index.to_owned()) {
+                        // Validate the field index.
+                        if !field_indices.insert(field.index) {
                             errors.push(throw::<Error>(
                                 &format!(
                                     "A field with index {} already exists in this declaration.",
@@ -77,6 +98,48 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                                 ),
                                 Some(path),
                                 Some(&listing(source_contents, field.source_range)),
+                                None,
+                            ));
+                        }
+
+                        // Determine which file the type is from.
+                        let type_path = if let Some(import) = &field.r#type.import {
+                            if let Some(based_path) = imports.get(import) {
+                                based_path
+                            } else {
+                                errors.push(throw::<Error>(
+                                    &format!(
+                                        "There is no import named {} in this file.",
+                                        import.code_str(),
+                                    ),
+                                    Some(path),
+                                    Some(&listing(source_contents, field.r#type.source_range)),
+                                    None,
+                                ));
+
+                                continue;
+                            }
+                        } else {
+                            path
+                        };
+
+                        // Validate the type.
+                        if !all_types.contains(&(type_path.clone(), field.r#type.name.clone())) {
+                            errors.push(throw::<Error>(
+                                &if let Some(import) = &field.r#type.import {
+                                    format!(
+                                        "There is no type named {} in import {}.",
+                                        field.r#type.name.code_str(),
+                                        import.code_str(),
+                                    )
+                                } else {
+                                    format!(
+                                        "There is no type named {} in this file.",
+                                        field.r#type.name.code_str(),
+                                    )
+                                },
+                                Some(path),
+                                Some(&listing(source_contents, field.r#type.source_range)),
                                 None,
                             ));
                         }
@@ -121,8 +184,8 @@ mod tests {
             import 'bar.t' as bar
 
             struct Foo {
-              corge: bar.Bar = 0
-              grault: bar.Bar = 1
+              x: bar.Bar = 0
+              y: bar.Bar = 1
             }
         "
         .to_owned();
@@ -134,9 +197,9 @@ mod tests {
         let bar_contents = "
             import 'foo.t' as foo
 
-            choice Qux {
-              corge: foo.Foo = 0
-              grault: foo.Foo = 1
+            choice Bar {
+              x: foo.Foo = 0
+              y: foo.Foo = 1
             }
         "
         .to_owned();
@@ -160,8 +223,8 @@ mod tests {
             import 'baz.t' as bar
 
             struct Foo {
-              corge: bar.Bar = 0
-              grault: bar.Bar = 1
+              x: bar.Bar = 0
+              y: bar.Bar = 1
             }
         "
         .to_owned();
@@ -173,9 +236,9 @@ mod tests {
         let bar_contents = "
             import 'foo.t' as foo
 
-            choice Qux {
-              corge: foo.Foo = 0
-              grault: foo.Foo = 1
+            choice Bar {
+              x: foo.Foo = 0
+              y: foo.Foo = 1
             }
         "
         .to_owned();
@@ -187,9 +250,9 @@ mod tests {
         let baz_contents = "
             import 'foo.t' as foo
 
-            choice Qux {
-              corge: foo.Foo = 0
-              grault: foo.Foo = 1
+            choice Baz {
+              x: foo.Foo = 0
+              y: foo.Foo = 1
             }
         "
         .to_owned();
@@ -328,6 +391,82 @@ mod tests {
         assert_fails!(
             validate(&schemas),
             "A field with index `0` already exists in this declaration.",
+        );
+    }
+
+    #[test]
+    fn validate_non_existent_field_import() {
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct Foo {
+              x: bar.Bar = 0
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = HashMap::new();
+        schemas.insert(path, (schema, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "There is no import named `bar` in this file.",
+        );
+    }
+
+    #[test]
+    fn validate_non_existent_field_type_same_file() {
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct Foo {
+              x: Bar = 0
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = HashMap::new();
+        schemas.insert(path, (schema, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "There is no type named `Bar` in this file.",
+        );
+    }
+
+    #[test]
+    fn validate_non_existent_field_type_different_file() {
+        let foo_path = Path::new("foo.t").to_owned();
+        let foo_contents = "
+            import 'bar.t' as bar
+
+            struct Foo {
+              x: bar.Bar = 0
+            }
+        "
+        .to_owned();
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports[0].based_path = foo_schema.imports[0].original_path.clone();
+
+        let bar_path = Path::new("bar.t").to_owned();
+        let bar_contents = "
+            struct Qux {
+            }
+        "
+        .to_owned();
+        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
+        let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+
+        let mut schemas = HashMap::new();
+        schemas.insert(foo_path, (foo_schema, foo_contents));
+        schemas.insert(bar_path, (bar_schema, bar_contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "There is no type named `Bar` in import `bar`.",
         );
     }
 }
