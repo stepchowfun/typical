@@ -27,7 +27,7 @@ pub enum Variant {
     Colon,
     Dot,
     Equals,
-    Identifier(String),
+    Identifier(String), // Non-empty [tag:identifier_non_empty]
     Import,
     Integer(usize),
     LeftCurly,

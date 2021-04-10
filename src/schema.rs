@@ -15,7 +15,7 @@ pub struct Import {
     pub source_range: SourceRange,
     pub original_path: PathBuf, // The literal path from the source file
     pub based_path: PathBuf,    // Relative to the base directory
-    pub name: String,
+    pub name: String,           // Non-empty due to [ref:identifier_non_empty]
 }
 
 #[derive(Clone, Debug)]
@@ -26,14 +26,14 @@ pub struct Declaration {
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(String, Vec<Field>), // (name, fields)
-    Choice(String, Vec<Field>), // (name, fields)
+    Struct(String, Vec<Field>), // (non-empty name [ref:identifier_non_empty], fields)
+    Choice(String, Vec<Field>), // (non-empty name [ref:identifier_non_empty], fields)
 }
 
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub name: String,
+    pub name: String, // Non-empty due to [ref:identifier_non_empty]
     pub restricted: bool,
     pub r#type: Type,
     pub index: usize,
@@ -43,7 +43,7 @@ pub struct Field {
 pub struct Type {
     pub source_range: SourceRange,
     pub import: Option<String>,
-    pub name: String,
+    pub name: String, // Non-empty due to [ref:identifier_non_empty]
 }
 
 impl Display for Schema {

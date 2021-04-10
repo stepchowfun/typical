@@ -90,7 +90,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 // the directory containing `schema_path` [tag:valid_based_paths]. No other validation is performed
 // by this function.
 #[allow(clippy::too_many_lines)]
-fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, Error> {
+fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, (schema::Schema, String)>, Error> {
     // The schema and all its transitive dependencies will end up here.
     let mut schemas = HashMap::new();
 
@@ -240,7 +240,7 @@ fn load_schemas(schema_path: &Path) -> Result<HashMap<PathBuf, schema::Schema>, 
         }
 
         // Store the schema.
-        schemas.insert(path.clone(), schema);
+        schemas.insert(path.clone(), (schema, contents));
     }
 
     // Return a success or report any errors.
@@ -289,7 +289,7 @@ fn check_schema(schema_path: &Path) -> Result<(), Error> {
     // Print the schemas.
     let mut skip_blank_line = true;
 
-    for (path, schema) in schemas {
+    for (path, (schema, _)) in schemas {
         if skip_blank_line {
             skip_blank_line = false;
         } else {
