@@ -13,6 +13,6 @@ jobs:
       if: github.event_name == 'push'
     - uses: stepchowfun/toast/.github/actions/toast@main
       with:
-        tasks: build check test lint run
+        tasks: build check test_units test_rust_integration lint
         repo: stephanmisc/toast
         write_remote_cache: ${{ github.event_name == 'push' }}
