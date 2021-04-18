@@ -99,6 +99,7 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
         components: path
             .components()
             .map(|component| match component {
+                // [ref:names_unique_after_normalization]
                 Component::Normal(component) => snake_case(&component.to_string_lossy()),
                 _ => panic!(),
             })
