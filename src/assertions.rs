@@ -98,7 +98,8 @@ mod tests {
                 Error { message: \"foo\", reason: None }, \
                 Error { message: \"bar\", reason: None }, \
                 Error { message: \"baz\", reason: None }\
-            ]." // ,
+            ].\
+        " // ,
     )]
     fn assert_fails_mismatch() {
         let success: Result<usize, Vec<Error>> = Err(vec![

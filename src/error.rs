@@ -242,9 +242,9 @@ mod tests {
                 },
             ),
             "\
-            Something went wrong.\n\
-            \n\
-            Reason: Something deeper went wrong.\
+                Something went wrong.\n\
+                \n\
+                Reason: Something deeper went wrong.\
             ",
         );
     }
