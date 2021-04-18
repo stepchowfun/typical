@@ -78,8 +78,8 @@ tasks:
       . $HOME/.cargo/env
       cargo build
 
-  test:
-    description: Run the test suite.
+  test_units:
+    description: Run the unit test suite.
     dependencies:
       - build
     user: user
@@ -87,6 +87,19 @@ tasks:
       set -euo pipefail
       . $HOME/.cargo/env
       NO_COLOR=true cargo test # [tag:colorless_tests]
+
+  test_rust_integration:
+    description: Run an integration test for the Rust code generator.
+    dependencies:
+      - build
+    user: user
+    input_paths:
+      - integration
+    command: |
+      set -euo pipefail
+      . $HOME/.cargo/env
+      cargo run -- generate integration/types/main.t --rust-out-file integration/rust/src/types.rs
+      (cd integration/rust && cargo check)
 
   lint:
     description: Run the linters.
@@ -140,23 +153,6 @@ tasks:
         echo "There are single-line sequences with trailing commas." >&2
         exit 1
       fi
-
-  run:
-    description: Run the program.
-    dependencies:
-      - build
-    user: user
-    input_paths:
-      - examples
-    command: |
-      set -euo pipefail
-      . $HOME/.cargo/env
-
-      # Check all the examples.
-      for file in examples/*.t; do
-        echo "Checking $file..."
-        cargo run -- generate "$file"
-      done
 
   check:
     description: Type-check the program.

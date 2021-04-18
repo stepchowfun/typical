@@ -10,12 +10,22 @@ pub struct Schema {
     pub declarations: Vec<Declaration>,
 }
 
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct Namespace {
+    // This is a representation of a path to a schema, relative to the base directory, i.e., the
+    // parent of the schema path provided by the user. However, it differs from paths as follows:
+    // - It doesn't include the file extension.
+    // - It can't contain `.`.
+    // - It can't contain `..`.
+    pub components: Vec<String>,
+}
+
 #[derive(Clone, Debug)]
 pub struct Import {
     pub source_range: SourceRange,
-    pub original_path: PathBuf, // The literal path from the source file
-    pub based_path: PathBuf,    // Relative to the base directory
-    pub name: String,           // Non-empty due to [ref:identifier_non_empty]
+    pub path: PathBuf, // The literal path as it appears in the source file
+    pub namespace: Option<Namespace>, // A normalized form of the path
+    pub name: String,  // Non-empty due to [ref:identifier_non_empty]
 }
 
 #[derive(Clone, Debug)]
@@ -46,6 +56,34 @@ pub struct Type {
     pub name: String, // Non-empty due to [ref:identifier_non_empty]
 }
 
+// This function returns takes two namespaces and returns a version of the former relative to the
+// latter. The `usize` in the return value corresponds to the number of `..` that is understood to
+// come before the returned namespace (since namespaces don't have a way to encode this
+// information).
+pub fn relativize_namespace(namespace1: &Namespace, namespace2: &Namespace) -> (Namespace, usize) {
+    // Compute when the namespaces diverge.
+    let mut common_components: usize = 0;
+    while let Some(component1) = namespace1.components.get(common_components) {
+        if let Some(component2) = namespace2.components.get(common_components) {
+            if component1 == component2 {
+                common_components += 1;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+
+    // Construct and return the namespace.
+    (
+        Namespace {
+            components: namespace1.components[common_components..].to_owned(),
+        },
+        namespace2.components.len() - common_components,
+    )
+}
+
 impl Display for Schema {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         let mut skip_blank_line = true;
@@ -57,12 +95,7 @@ impl Display for Schema {
                 writeln!(f)?;
             }
 
-            write!(
-                f,
-                "import '{}' as {}",
-                import.original_path.display(),
-                import.name,
-            )?;
+            write!(f, "import '{}' as {}", import.path.display(), import.name)?;
         }
 
         for declaration in &self.declarations {
@@ -141,13 +174,156 @@ impl Display for Type {
     }
 }
 
+impl Display for Namespace {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.components.join("."))?;
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
+        assert_same,
         error::SourceRange,
-        schema::{Declaration, DeclarationVariant, Field, Import, Schema, Type},
+        schema::{
+            relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace,
+            Schema, Type,
+        },
     };
     use std::path::Path;
+
+    #[test]
+    fn relativize_namespace_both_empty() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace { components: vec![] },
+                &Namespace { components: vec![] },
+            ),
+            (Namespace { components: vec![] }, 0),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_first_empty() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace { components: vec![] },
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+            ),
+            (Namespace { components: vec![] }, 2),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_second_empty() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+                &Namespace { components: vec![] },
+            ),
+            (
+                Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()]
+                },
+                0,
+            ),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_no_overlap() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+                &Namespace {
+                    components: vec!["baz".to_owned(), "qux".to_owned()],
+                },
+            ),
+            (
+                Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()]
+                },
+                2,
+            ),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_some_overlap() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+                &Namespace {
+                    components: vec!["foo".to_owned(), "baz".to_owned()],
+                },
+            ),
+            (
+                Namespace {
+                    components: vec!["bar".to_owned()]
+                },
+                1,
+            ),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_complete_overlap() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+            ),
+            (Namespace { components: vec![] }, 0),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_child() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned(), "baz".to_owned()],
+                },
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+            ),
+            (
+                Namespace {
+                    components: vec!["baz".to_owned()]
+                },
+                0,
+            ),
+        );
+    }
+
+    #[test]
+    fn relativize_namespace_parent() {
+        assert_same!(
+            relativize_namespace(
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+                &Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned(), "baz".to_owned()],
+                },
+            ),
+            (Namespace { components: vec![] }, 1),
+        );
+    }
 
     #[test]
     fn schema_empty_display() {
@@ -172,14 +348,14 @@ mod tests {
                     imports: vec![
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("foo.t").to_owned(),
-                            based_path: Path::new("foo.t").to_owned(),
+                            path: Path::new("foo.t").to_owned(),
+                            namespace: None,
                             name: "foo".to_owned(),
                         },
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("bar.t").to_owned(),
-                            based_path: Path::new("bar.t").to_owned(),
+                            path: Path::new("bar.t").to_owned(),
+                            namespace: None,
                             name: "bar".to_owned(),
                         },
                     ],
@@ -287,14 +463,14 @@ mod tests {
                     imports: vec![
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("foo.t").to_owned(),
-                            based_path: Path::new("foo.t").to_owned(),
+                            path: Path::new("foo.t").to_owned(),
+                            namespace: None,
                             name: "foo".to_owned(),
                         },
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
-                            original_path: Path::new("bar.t").to_owned(),
-                            based_path: Path::new("bar.t").to_owned(),
+                            path: Path::new("bar.t").to_owned(),
+                            namespace: None,
                             name: "bar".to_owned(),
                         },
                     ],
@@ -577,6 +753,37 @@ mod tests {
                 },
             ),
             "foo.Int",
+        );
+    }
+
+    #[test]
+    fn namespace_display_empty() {
+        assert_eq!(format!("{}", Namespace { components: vec![] }), "");
+    }
+
+    #[test]
+    fn namespace_display_single() {
+        assert_eq!(
+            format!(
+                "{}",
+                Namespace {
+                    components: vec!["foo".to_owned()],
+                },
+            ),
+            "foo",
+        );
+    }
+
+    #[test]
+    fn namespace_display_multiple() {
+        assert_eq!(
+            format!(
+                "{}",
+                Namespace {
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                },
+            ),
+            "foo.bar",
         );
     }
 }

@@ -5,10 +5,6 @@ use crate::{
 };
 use std::path::Path;
 
-// The parser does not have enough information to compute the based import paths. So it simply uses
-// a placeholder, which is later replaced by the actual value [ref:populate_based_path].
-pub const BASED_PATH_PLACEHOLDER: &str = "<MISSING>";
-
 // This function computes the source range for a token, or the empty range at the end of the source
 // file in the case where the given position is at the end of the token stream.
 fn token_source_range(tokens: &[token::Token], position: usize) -> SourceRange {
@@ -374,8 +370,8 @@ fn parse_import(
     // Construct and return the import.
     Some(schema::Import {
         source_range: span_tokens(tokens, start, *position),
-        original_path: path,
-        based_path: Path::new(BASED_PATH_PLACEHOLDER).to_owned(),
+        path,
+        namespace: None,
         name,
     })
 }
@@ -601,13 +597,7 @@ fn parse_field(
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_same,
-        error::SourceRange,
-        parser::{parse, BASED_PATH_PLACEHOLDER},
-        schema,
-        tokenizer::tokenize,
-    };
+    use crate::{assert_same, error::SourceRange, parser::parse, schema, tokenizer::tokenize};
     use std::path::Path;
 
     #[allow(clippy::too_many_lines)]
@@ -636,8 +626,8 @@ mod tests {
             schema::Schema {
                 imports: vec![schema::Import {
                     source_range: SourceRange { start: 13, end: 34 },
-                    original_path: Path::new("bar.t").to_owned(),
-                    based_path: Path::new("<MISSING>").to_owned(),
+                    path: Path::new("bar.t").to_owned(),
+                    namespace: None,
                     name: "bar".to_owned(),
                 }],
                 declarations: vec![
@@ -762,8 +752,8 @@ mod tests {
             schema::Schema {
                 imports: vec![schema::Import {
                     source_range: SourceRange { start: 0, end: 21 },
-                    original_path: Path::new("bar.t").to_owned(),
-                    based_path: Path::new(BASED_PATH_PLACEHOLDER).to_owned(),
+                    path: Path::new("bar.t").to_owned(),
+                    namespace: None,
                     name: "bar".to_owned(),
                 }],
                 declarations: vec![],

@@ -8,35 +8,37 @@ use std::{
     path::PathBuf,
 };
 
-// This function validates a schema and its transitive dependencies. The based import paths are
-// assumed to be in the `HashMap` [ref:valid_based_paths].
+// This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
-pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<(), Vec<Error>> {
+pub fn validate(
+    schemas: &HashMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
+) -> Result<(), Vec<Error>> {
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
 
     // For the purpose of validating types, construct a complete set of (path, declaration) pairs.
     let mut all_types = HashSet::new();
 
-    for (path, (schema, _)) in schemas {
+    for (namespace, (schema, _, _)) in schemas {
         for declaration in &schema.declarations {
             match &declaration.variant {
                 schema::DeclarationVariant::Struct(name, _)
                 | schema::DeclarationVariant::Choice(name, _) => {
-                    all_types.insert((path.clone(), name.clone()));
+                    all_types.insert((namespace.clone(), name.clone()));
                 }
             }
         }
     }
 
     // Validate each file.
-    for (path, (schema, source_contents)) in schemas {
+    for (namespace, (schema, source_path, source_contents)) in schemas {
         // Check that imports are unique within this file.
         let mut imports = HashMap::new();
 
         for import in &schema.imports {
+            // The `unwrap` is safe due to [ref:namespace_populated].
             if imports
-                .insert(import.name.clone(), import.based_path.clone())
+                .insert(import.name.clone(), import.namespace.clone().unwrap())
                 .is_some()
             {
                 errors.push(throw::<Error>(
@@ -44,7 +46,7 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                         "An import named {} already exists in this file.",
                         import.name.code_str(),
                     ),
-                    Some(path),
+                    Some(source_path),
                     Some(&listing(source_contents, import.source_range)),
                     None,
                 ));
@@ -65,7 +67,7 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                                 "A declaration named {} already exists in this file.",
                                 name.code_str(),
                             ),
-                            Some(path),
+                            Some(source_path),
                             Some(&listing(source_contents, declaration.source_range)),
                             None,
                         ));
@@ -83,7 +85,7 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                                     "A field named {} already exists in this declaration.",
                                     field.name.code_str(),
                                 ),
-                                Some(path),
+                                Some(source_path),
                                 Some(&listing(source_contents, field.source_range)),
                                 None,
                             ));
@@ -96,7 +98,7 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                                     "A field with index {} already exists in this declaration.",
                                     field.index.to_string().code_str(),
                                 ),
-                                Some(path),
+                                Some(source_path),
                                 Some(&listing(source_contents, field.source_range)),
                                 None,
                             ));
@@ -104,15 +106,15 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
 
                         // Determine which file the type is from.
                         let type_path = if let Some(import) = &field.r#type.import {
-                            if let Some(based_path) = imports.get(import) {
-                                based_path
+                            if let Some(namespace) = imports.get(import) {
+                                namespace
                             } else {
                                 errors.push(throw::<Error>(
                                     &format!(
                                         "There is no import named {} in this file.",
                                         import.code_str(),
                                     ),
-                                    Some(path),
+                                    Some(source_path),
                                     Some(&listing(source_contents, field.r#type.source_range)),
                                     None,
                                 ));
@@ -120,7 +122,7 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                                 continue;
                             }
                         } else {
-                            path
+                            namespace
                         };
 
                         // Validate the type.
@@ -138,7 +140,7 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
                                         field.r#type.name.code_str(),
                                     )
                                 },
-                                Some(path),
+                                Some(source_path),
                                 Some(&listing(source_contents, field.r#type.source_range)),
                                 None,
                             ));
@@ -160,25 +162,33 @@ pub fn validate(schemas: &HashMap<PathBuf, (schema::Schema, String)>) -> Result<
 #[cfg(test)]
 mod tests {
     use crate::{
-        assert_fails, assert_same, parser::parse, tokenizer::tokenize, validator::validate,
+        assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
+        validator::validate,
     };
     use std::{collections::HashMap, path::Path};
 
     #[test]
     fn validate_empty() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "".to_owned();
+
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_same!(validate(&schemas), Ok(()));
     }
 
     #[test]
     fn validate_example() {
+        let foo_namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
             import 'bar.t' as bar
@@ -189,10 +199,10 @@ mod tests {
             }
         "
         .to_owned();
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
-        foo_schema.imports[0].based_path = foo_schema.imports[0].original_path.clone();
 
+        let bar_namespace = Namespace {
+            components: vec!["bar".to_owned()],
+        };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
             import 'foo.t' as foo
@@ -203,13 +213,18 @@ mod tests {
             }
         "
         .to_owned();
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports[0].namespace = Some(bar_namespace.clone());
+
         let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
         let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
-        bar_schema.imports[0].based_path = bar_schema.imports[0].original_path.clone();
+        bar_schema.imports[0].namespace = Some(foo_namespace.clone());
 
         let mut schemas = HashMap::new();
-        schemas.insert(foo_path, (foo_schema, foo_contents));
-        schemas.insert(bar_path, (bar_schema, bar_contents));
+        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
+        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
 
         assert_same!(validate(&schemas), Ok(()));
     }
@@ -217,6 +232,9 @@ mod tests {
     #[allow(clippy::similar_names)]
     #[test]
     fn validate_duplicate_imports() {
+        let foo_namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
             import 'bar.t' as bar
@@ -228,10 +246,10 @@ mod tests {
             }
         "
         .to_owned();
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
-        foo_schema.imports[0].based_path = foo_schema.imports[0].original_path.clone();
 
+        let bar_namespace = Namespace {
+            components: vec!["bar".to_owned()],
+        };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
             import 'foo.t' as foo
@@ -242,10 +260,10 @@ mod tests {
             }
         "
         .to_owned();
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
-        bar_schema.imports[0].based_path = bar_schema.imports[0].original_path.clone();
 
+        let baz_namespace = Namespace {
+            components: vec!["baz".to_owned()],
+        };
         let baz_path = Path::new("baz.t").to_owned();
         let baz_contents = "
             import 'foo.t' as foo
@@ -256,14 +274,24 @@ mod tests {
             }
         "
         .to_owned();
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports[0].namespace = Some(bar_namespace.clone());
+        foo_schema.imports[1].namespace = Some(baz_namespace.clone());
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
+        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        bar_schema.imports[0].namespace = Some(foo_namespace.clone());
+
         let baz_tokens = tokenize(&baz_path, &baz_contents).unwrap();
         let mut baz_schema = parse(&baz_path, &baz_contents, &baz_tokens).unwrap();
-        baz_schema.imports[0].based_path = baz_schema.imports[0].original_path.clone();
+        baz_schema.imports[0].namespace = Some(foo_namespace.clone());
 
         let mut schemas = HashMap::new();
-        schemas.insert(foo_path, (foo_schema, foo_contents));
-        schemas.insert(bar_path, (bar_schema, bar_contents));
-        schemas.insert(baz_path, (baz_schema, baz_contents));
+        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
+        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+        schemas.insert(baz_namespace, (baz_schema, baz_path, baz_contents));
 
         assert_fails!(
             validate(&schemas),
@@ -273,6 +301,9 @@ mod tests {
 
     #[test]
     fn validate_duplicate_declarations() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -286,7 +317,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -296,6 +327,9 @@ mod tests {
 
     #[test]
     fn validate_duplicate_struct_field_names() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -311,7 +345,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -321,6 +355,9 @@ mod tests {
 
     #[test]
     fn validate_duplicate_struct_field_indices() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -336,7 +373,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -346,6 +383,9 @@ mod tests {
 
     #[test]
     fn validate_duplicate_choice_field_names() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -361,7 +401,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -371,6 +411,9 @@ mod tests {
 
     #[test]
     fn validate_duplicate_choice_field_indices() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -386,7 +429,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -396,6 +439,9 @@ mod tests {
 
     #[test]
     fn validate_non_existent_field_import() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -407,7 +453,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -417,6 +463,9 @@ mod tests {
 
     #[test]
     fn validate_non_existent_field_type_same_file() {
+        let namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
@@ -428,7 +477,7 @@ mod tests {
         let schema = parse(&path, &contents, &tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(path, (schema, contents));
+        schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
             validate(&schemas),
@@ -438,6 +487,9 @@ mod tests {
 
     #[test]
     fn validate_non_existent_field_type_different_file() {
+        let foo_namespace = Namespace {
+            components: vec!["foo".to_owned()],
+        };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
             import 'bar.t' as bar
@@ -447,22 +499,27 @@ mod tests {
             }
         "
         .to_owned();
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
-        foo_schema.imports[0].based_path = foo_schema.imports[0].original_path.clone();
 
+        let bar_namespace = Namespace {
+            components: vec!["bar".to_owned()],
+        };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
             struct Qux {
             }
         "
         .to_owned();
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports[0].namespace = Some(bar_namespace.clone());
+
         let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
         let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
 
         let mut schemas = HashMap::new();
-        schemas.insert(foo_path, (foo_schema, foo_contents));
-        schemas.insert(bar_path, (bar_schema, bar_contents));
+        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
+        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
 
         assert_fails!(
             validate(&schemas),
