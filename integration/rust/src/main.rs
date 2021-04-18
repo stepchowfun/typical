@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 mod types;
 
 fn main() {

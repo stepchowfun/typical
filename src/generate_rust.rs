@@ -201,6 +201,8 @@ fn render_struct(
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
+    let formatted_name = pascal_case(name);
+
     [Flavor::In, Flavor::Out, Flavor::Diff]
         .iter()
         .map(|flavor| {
@@ -216,7 +218,7 @@ fn render_struct(
                 indentation_str,
                 TRAITS_TO_DERIVE.join(", "),
                 indentation_str,
-                pascal_case(name),
+                formatted_name,
                 flavor,
                 fields
                     .iter()
@@ -232,6 +234,65 @@ fn render_struct(
                 indentation_str,
             )
         })
+        .chain(once(format!(
+            "\
+                {}impl From<self::r#{}{}> for self::r#{}{} {{\n\
+                {}{}fn from({}out: self::r#{}{}) -> Self {{\n\
+                {}{}{}self::r#{}{} {{\n\
+                {}\
+                {}{}{}}}\n\
+                {}{}}}\n\
+                {}}}\n\
+            ",
+            indentation_str,
+            formatted_name,
+            Flavor::Out,
+            formatted_name,
+            Flavor::In,
+            indentation_str,
+            INDENTATION,
+            if fields.iter().any(|field| !field.restricted) {
+                ""
+            } else {
+                "_"
+            },
+            formatted_name,
+            Flavor::Out,
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            formatted_name,
+            Flavor::In,
+            fields
+                .iter()
+                .filter_map(|field| {
+                    if field.restricted {
+                        None
+                    } else {
+                        let formatted_field_name = snake_case(&field.name);
+
+                        Some(format!(
+                            "\
+                                  {}{}{}{}r#{}: out.r#{}.into(),\n\
+                                ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_field_name,
+                            formatted_field_name,
+                        ))
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(""),
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            indentation_str,
+            INDENTATION,
+            indentation_str,
+        )))
         .collect::<Vec<_>>()
         .join("\n")
 }
@@ -245,6 +306,8 @@ fn render_choice(
     indentation: u64,
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
+
+    let formatted_name = pascal_case(name);
 
     [Flavor::In, Flavor::Out, Flavor::Diff]
         .iter()
@@ -261,7 +324,7 @@ fn render_choice(
                 indentation_str,
                 TRAITS_TO_DERIVE.join(", "),
                 indentation_str,
-                pascal_case(name),
+                formatted_name,
                 flavor,
                 fields
                     .iter()
@@ -277,6 +340,63 @@ fn render_choice(
                 indentation_str,
             )
         })
+        .chain(once(format!(
+            "\
+                {}impl From<self::r#{}{}> for self::r#{}{} {{\n\
+                {}{}fn from(out: self::r#{}{}) -> Self {{\n\
+                {}{}{}match out {{\n\
+                {}\
+                {}{}{}}}\n\
+                {}{}}}\n\
+                {}}}\n\
+            ",
+            indentation_str,
+            formatted_name,
+            Flavor::Out,
+            formatted_name,
+            Flavor::In,
+            indentation_str,
+            INDENTATION,
+            formatted_name,
+            Flavor::Out,
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            fields
+                .iter()
+                .filter_map(|field| {
+                    if field.restricted {
+                        None
+                    } else {
+                        let formatted_field_name = pascal_case(&field.name);
+
+                        Some(format!(
+                            "\
+                                  {}{}{}{}self::{}{}::r#{}(payload) => \
+                                    self::{}{}::r#{}(payload.into()),\n\
+                                ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_name,
+                            Flavor::Out,
+                            formatted_field_name,
+                            formatted_name,
+                            Flavor::In,
+                            formatted_field_name,
+                        ))
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(""),
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            indentation_str,
+            INDENTATION,
+            indentation_str,
+        )))
         .collect::<Vec<_>>()
         .join("\n")
 }
