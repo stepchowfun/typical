@@ -5,6 +5,7 @@ use crate::{
 };
 use std::{
     collections::BTreeMap,
+    fmt::{Display, Formatter},
     iter::{empty, once},
     path::PathBuf,
 };
@@ -164,6 +165,32 @@ fn render_schema(
         .join("\n")
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum Flavor {
+    In,
+    Out,
+    Diff,
+}
+
+impl Display for Flavor {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            Self::In => {
+                write!(f, "In")?;
+                Ok(())
+            }
+            Self::Out => {
+                write!(f, "Out")?;
+                Ok(())
+            }
+            Self::Diff => {
+                write!(f, "Diff")?;
+                Ok(())
+            }
+        }
+    }
+}
+
 // Render a struct, including a trailing line break.
 fn render_struct(
     imports: &BTreeMap<String, schema::Namespace>,
@@ -174,26 +201,39 @@ fn render_struct(
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-    format!(
-        "\
-            {}#[allow(dead_code)]\n\
-            {}#[derive({})]\n\
-            {}pub struct r#{} {{\n\
-            {}\
-            {}}}\n\
-        ",
-        indentation_str,
-        indentation_str,
-        TRAITS_TO_DERIVE.join(", "),
-        indentation_str,
-        pascal_case(name),
-        fields
-            .iter()
-            .map(|field| render_struct_field(imports, namespace, field, indentation + 1))
-            .collect::<Vec<_>>()
-            .join(""),
-        indentation_str,
-    )
+    [Flavor::In, Flavor::Out, Flavor::Diff]
+        .iter()
+        .map(|flavor| {
+            format!(
+                "\
+                {}#[allow(dead_code)]\n\
+                {}#[derive({})]\n\
+                {}pub struct r#{}{} {{\n\
+                {}\
+                {}}}\n\
+            ",
+                indentation_str,
+                indentation_str,
+                TRAITS_TO_DERIVE.join(", "),
+                indentation_str,
+                pascal_case(name),
+                flavor,
+                fields
+                    .iter()
+                    .map(|field| render_struct_field(
+                        imports,
+                        namespace,
+                        field,
+                        *flavor,
+                        indentation + 1,
+                    ))
+                    .collect::<Vec<_>>()
+                    .join(""),
+                indentation_str,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 // Render a choice, including a trailing line break.
@@ -206,26 +246,39 @@ fn render_choice(
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-    format!(
-        "\
-            {}#[allow(dead_code)]\n\
-            {}#[derive({})]\n\
-            {}pub enum r#{} {{\n\
-            {}\
-            {}}}\n\
-        ",
-        indentation_str,
-        indentation_str,
-        TRAITS_TO_DERIVE.join(", "),
-        indentation_str,
-        pascal_case(name),
-        fields
-            .iter()
-            .map(|field| render_choice_field(imports, namespace, field, indentation + 1))
-            .collect::<Vec<_>>()
-            .join(""),
-        indentation_str,
-    )
+    [Flavor::In, Flavor::Out, Flavor::Diff]
+        .iter()
+        .map(|flavor| {
+            format!(
+                "\
+                {}#[allow(dead_code)]\n\
+                {}#[derive({})]\n\
+                {}pub enum r#{}{} {{\n\
+                {}\
+                {}}}\n\
+            ",
+                indentation_str,
+                indentation_str,
+                TRAITS_TO_DERIVE.join(", "),
+                indentation_str,
+                pascal_case(name),
+                flavor,
+                fields
+                    .iter()
+                    .map(|field| render_choice_field(
+                        imports,
+                        namespace,
+                        field,
+                        *flavor,
+                        indentation + 1,
+                    ))
+                    .collect::<Vec<_>>()
+                    .join(""),
+                indentation_str,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 // Render a field of a struct, including a trailing line break.
@@ -233,16 +286,25 @@ fn render_struct_field(
     imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     field: &schema::Field,
+    flavor: Flavor,
     indentation: u64,
 ) -> String {
-    let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
+    if match flavor {
+        Flavor::In => !field.restricted,
+        Flavor::Out => true,
+        Flavor::Diff => field.restricted,
+    } {
+        let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-    format!(
-        "{}r#{}: {},\n",
-        indentation_str,
-        snake_case(&field.name),
-        render_type(imports, namespace, &field.r#type),
-    )
+        format!(
+            "{}r#{}: {},\n",
+            indentation_str,
+            snake_case(&field.name),
+            render_type(imports, namespace, &field.r#type, flavor),
+        )
+    } else {
+        "".to_owned()
+    }
 }
 
 // Render a field of a choice, including a trailing line break.
@@ -250,16 +312,25 @@ fn render_choice_field(
     imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     field: &schema::Field,
+    flavor: Flavor,
     indentation: u64,
 ) -> String {
-    let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
+    if match flavor {
+        Flavor::In => true,
+        Flavor::Out => !field.restricted,
+        Flavor::Diff => field.restricted,
+    } {
+        let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-    format!(
-        "{}r#{}({}),\n",
-        indentation_str,
-        pascal_case(&field.name),
-        render_type(imports, namespace, &field.r#type),
-    )
+        format!(
+            "{}r#{}({}),\n",
+            indentation_str,
+            pascal_case(&field.name),
+            render_type(imports, namespace, &field.r#type, flavor),
+        )
+    } else {
+        "".to_owned()
+    }
 }
 
 // Render a type with no line breaks.
@@ -267,6 +338,7 @@ fn render_type(
     imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     r#type: &schema::Type,
+    flavor: Flavor,
 ) -> String {
     let type_namespace = schema::Namespace {
         components: if let Some(import) = &r#type.import {
@@ -295,7 +367,7 @@ fn render_type(
             .map(|component| format!("r#{}", snake_case(component))),
     );
 
-    components.push(format!("r#{}", pascal_case(&r#type.name)));
+    components.push(format!("r#{}{}", pascal_case(&r#type.name), flavor));
 
     components.join("::")
 }

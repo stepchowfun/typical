@@ -1,6 +1,13 @@
 import 'basic/bool.t' as bool
 
-struct Pair {
-  first: bool.Bool = 0
-  second: bool.Bool = 1
+struct Foo {
+  x: bool.Bool = 0
+  y: bool.Bool = 1
+  z: restricted bool.Bool = 2
+}
+
+choice Bar {
+  x: bool.Bool = 0
+  y: bool.Bool = 1
+  z: restricted bool.Bool = 2
 }
