@@ -169,7 +169,6 @@ fn render_schema(
 pub enum Flavor {
     In,
     Out,
-    Diff,
 }
 
 impl Display for Flavor {
@@ -181,10 +180,6 @@ impl Display for Flavor {
             }
             Self::Out => {
                 write!(f, "Out")?;
-                Ok(())
-            }
-            Self::Diff => {
-                write!(f, "Diff")?;
                 Ok(())
             }
         }
@@ -203,17 +198,17 @@ fn render_struct(
 
     let formatted_name = pascal_case(name);
 
-    [Flavor::In, Flavor::Out, Flavor::Diff]
+    [Flavor::In, Flavor::Out]
         .iter()
         .map(|flavor| {
             format!(
                 "\
-                {}#[allow(dead_code)]\n\
-                {}#[derive({})]\n\
-                {}pub struct r#{}{} {{\n\
-                {}\
-                {}}}\n\
-            ",
+                    {}#[allow(dead_code)]\n\
+                    {}#[derive({})]\n\
+                    {}pub struct r#{}{} {{\n\
+                    {}\
+                    {}}}\n\
+                ",
                 indentation_str,
                 indentation_str,
                 TRAITS_TO_DERIVE.join(", "),
@@ -273,8 +268,8 @@ fn render_struct(
 
                         Some(format!(
                             "\
-                                  {}{}{}{}r#{}: out.r#{}.into(),\n\
-                                ",
+                                {}{}{}{}r#{}: out.r#{}.into(),\n\
+                            ",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
@@ -309,17 +304,17 @@ fn render_choice(
 
     let formatted_name = pascal_case(name);
 
-    [Flavor::In, Flavor::Out, Flavor::Diff]
+    [Flavor::In, Flavor::Out]
         .iter()
         .map(|flavor| {
             format!(
                 "\
-                {}#[allow(dead_code)]\n\
-                {}#[derive({})]\n\
-                {}pub enum r#{}{} {{\n\
-                {}\
-                {}}}\n\
-            ",
+                    {}#[allow(dead_code)]\n\
+                    {}#[derive({})]\n\
+                    {}pub enum r#{}{} {{\n\
+                    {}\
+                    {}}}\n\
+                ",
                 indentation_str,
                 indentation_str,
                 TRAITS_TO_DERIVE.join(", "),
@@ -372,9 +367,9 @@ fn render_choice(
 
                         Some(format!(
                             "\
-                                  {}{}{}{}self::{}{}::r#{}(payload) => \
+                                {}{}{}{}self::{}{}::r#{}(payload) => \
                                     self::{}{}::r#{}(payload.into()),\n\
-                                ",
+                            ",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
@@ -412,7 +407,6 @@ fn render_struct_field(
     if match flavor {
         Flavor::In => !field.restricted,
         Flavor::Out => true,
-        Flavor::Diff => field.restricted,
     } {
         let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
@@ -438,7 +432,6 @@ fn render_choice_field(
     if match flavor {
         Flavor::In => true,
         Flavor::Out => !field.restricted,
-        Flavor::Diff => field.restricted,
     } {
         let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
