@@ -97,7 +97,7 @@ fn render_module(
     new_namespace.components.push(name.to_owned());
 
     format!(
-        "{}pub mod {} {{\n{}{}}}\n",
+        "{}pub mod r#{} {{\n{}{}}}\n",
         indentation_str,
         snake_case(name),
         render_module_contents(
@@ -175,7 +175,7 @@ fn render_struct(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub struct {} {{\n{}{}}}\n",
+        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub struct r#{} {{\n{}{}}}\n",
         indentation_str,
         indentation_str,
         TRAITS_TO_DERIVE.join(", "),
@@ -201,7 +201,7 @@ fn render_choice(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub enum {} {{\n{}{}}}\n",
+        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub enum r#{} {{\n{}{}}}\n",
         indentation_str,
         indentation_str,
         TRAITS_TO_DERIVE.join(", "),
@@ -226,7 +226,7 @@ fn render_struct_field(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}{}: {},\n",
+        "{}r#{}: {},\n",
         indentation_str,
         snake_case(&field.name),
         render_type(imports, namespace, &field.r#type),
@@ -243,7 +243,7 @@ fn render_choice_field(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}{}({}),\n",
+        "{}r#{}({}),\n",
         indentation_str,
         pascal_case(&field.name),
         render_type(imports, namespace, &field.r#type),
@@ -280,10 +280,10 @@ fn render_type(
         relative_type_namespace
             .components
             .iter()
-            .map(|component| snake_case(component)),
+            .map(|component| format!("r#{}", snake_case(component))),
     );
 
-    components.push(pascal_case(&r#type.name));
+    components.push(format!("r#{}", pascal_case(&r#type.name)));
 
     components.join("::")
 }
@@ -313,7 +313,7 @@ mod tests {
         assert_eq!(
             generate(schemas),
             "\
-                pub mod foo {\n\
+                pub mod r#foo {\n\
                 }\n\
             ",
         );

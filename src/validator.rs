@@ -1,12 +1,19 @@
 use crate::{
     error::{listing, throw, Error},
     format::CodeStr,
+    naming_conventions::snake_case,
     schema,
 };
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     path::PathBuf,
 };
+
+// Various names must be checked for uniqueness. Names that are included in the generated code are
+// converted to the idiomatic casing convention for the relevant programming language. For these
+// names, we must consider names which differ only in their casing convention to be equal when
+// performing uniqueness validation. This is accomplished by arbitrarily converting the names to
+// `snake_case` before doing the check. [tag:names_unique_after_normalization]
 
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
@@ -32,7 +39,10 @@ pub fn validate(
 
     // Validate each file.
     for (namespace, (schema, source_path, source_contents)) in schemas {
-        // Check that imports are unique within this file.
+        // Check that the names of imports are unique within this file. Note that import names are
+        // not included in the generated code, so we do not need to normalize the names before this
+        // check. This means, for example, imports named `Foo` and `foo` can coexist without
+        // causing any technical problems.
         let mut imports = HashMap::new();
 
         for import in &schema.imports {
@@ -60,8 +70,8 @@ pub fn validate(
             match &declaration.variant {
                 schema::DeclarationVariant::Struct(name, fields)
                 | schema::DeclarationVariant::Choice(name, fields) => {
-                    // Validate the declaration name.
-                    if !declaration_names.insert(name.clone()) {
+                    // [ref:names_unique_after_normalization]
+                    if !declaration_names.insert(snake_case(name)) {
                         errors.push(throw::<Error>(
                             &format!(
                                 "A declaration named {} already exists in this file.",
@@ -78,8 +88,8 @@ pub fn validate(
 
                     // Validate the fields in this declaration.
                     for field in fields {
-                        // Validate the field name.
-                        if !field_names.insert(field.name.clone()) {
+                        // [ref:names_unique_after_normalization]
+                        if !field_names.insert(snake_case(&field.name)) {
                             errors.push(throw::<Error>(
                                 &format!(
                                     "A field named {} already exists in this declaration.",
@@ -91,7 +101,7 @@ pub fn validate(
                             ));
                         }
 
-                        // Validate the field index.
+                        // Check that the indices of the fields are unique within this declaration.
                         if !field_indices.insert(field.index) {
                             errors.push(throw::<Error>(
                                 &format!(
@@ -309,7 +319,7 @@ mod tests {
             struct Foo {
             }
 
-            choice Foo {
+            choice foo {
             }
         "
         .to_owned();
@@ -321,7 +331,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "A declaration named `Foo` already exists in this file.",
+            "A declaration named `foo` already exists in this file.",
         );
     }
 
@@ -336,7 +346,7 @@ mod tests {
             }
 
             struct Bar {
-              x: Foo = 0
+              X: Foo = 0
               x: Foo = 1
             }
         "
@@ -392,7 +402,7 @@ mod tests {
             }
 
             choice Bar {
-              x: Foo = 0
+              X: Foo = 0
               x: Foo = 1
             }
         "
