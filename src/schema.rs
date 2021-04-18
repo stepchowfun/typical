@@ -229,7 +229,7 @@ mod tests {
             ),
             (
                 Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()]
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
                 },
                 0,
             ),
@@ -249,7 +249,7 @@ mod tests {
             ),
             (
                 Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()]
+                    components: vec!["foo".to_owned(), "bar".to_owned()],
                 },
                 2,
             ),
@@ -269,7 +269,7 @@ mod tests {
             ),
             (
                 Namespace {
-                    components: vec!["bar".to_owned()]
+                    components: vec!["bar".to_owned()],
                 },
                 1,
             ),
@@ -304,7 +304,7 @@ mod tests {
             ),
             (
                 Namespace {
-                    components: vec!["baz".to_owned()]
+                    components: vec!["baz".to_owned()],
                 },
                 0,
             ),
