@@ -4,14 +4,14 @@ use crate::{
     schema,
 };
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     path::PathBuf,
 };
 
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
 pub fn validate(
-    schemas: &HashMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
+    schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
 ) -> Result<(), Vec<Error>> {
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
@@ -165,7 +165,7 @@ mod tests {
         assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
         validator::validate,
     };
-    use std::{collections::HashMap, path::Path};
+    use std::{collections::BTreeMap, path::Path};
 
     #[test]
     fn validate_empty() {
@@ -178,7 +178,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_same!(validate(&schemas), Ok(()));
@@ -222,7 +222,7 @@ mod tests {
         let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
         bar_schema.imports[0].namespace = Some(foo_namespace.clone());
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
         schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
 
@@ -288,7 +288,7 @@ mod tests {
         let mut baz_schema = parse(&baz_path, &baz_contents, &baz_tokens).unwrap();
         baz_schema.imports[0].namespace = Some(foo_namespace.clone());
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
         schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
         schemas.insert(baz_namespace, (baz_schema, baz_path, baz_contents));
@@ -316,7 +316,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -344,7 +344,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -372,7 +372,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -400,7 +400,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -428,7 +428,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -452,7 +452,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -476,7 +476,7 @@ mod tests {
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(namespace, (schema, path, contents));
 
         assert_fails!(
@@ -517,7 +517,7 @@ mod tests {
         let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
         let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
 
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
         schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
 

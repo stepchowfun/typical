@@ -22,7 +22,7 @@ use crate::{
 };
 use clap::{App, AppSettings, Arg, Shell, SubCommand};
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashSet},
     fs::{create_dir_all, read_to_string, write},
     io::stdout,
     path::{Component, Path, PathBuf},
@@ -111,9 +111,9 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
 #[allow(clippy::type_complexity)]
 fn load_schemas(
     schema_path: &Path,
-) -> Result<HashMap<schema::Namespace, (schema::Schema, PathBuf, String)>, Vec<Error>> {
+) -> Result<BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>, Vec<Error>> {
     // The schema and all its transitive dependencies will end up here.
-    let mut schemas = HashMap::new();
+    let mut schemas = BTreeMap::new();
 
     // Any errors will end up here.
     let mut errors = vec![];
