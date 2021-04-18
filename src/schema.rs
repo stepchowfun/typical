@@ -10,7 +10,7 @@ pub struct Schema {
     pub declarations: Vec<Declaration>,
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Namespace {
     // This is a representation of a path to a schema, relative to the base directory, i.e., the
     // parent of the schema path provided by the user. However, it differs from paths as follows:

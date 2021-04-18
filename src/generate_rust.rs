@@ -4,7 +4,7 @@ use crate::{
     schema::relativize_namespace,
 };
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     iter::{empty, once},
     path::PathBuf,
 };
@@ -15,7 +15,7 @@ const INDENTATION: &str = "    ";
 // This struct represents a tree of schemas organized in a module hierarchy.
 #[derive(Clone, Debug)]
 struct Module {
-    children: HashMap<String, Module>,
+    children: BTreeMap<String, Module>,
     schema: schema::Schema,
 }
 
@@ -34,7 +34,7 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: sch
             );
         } else {
             let mut child = Module {
-                children: HashMap::new(),
+                children: BTreeMap::new(),
                 schema: schema::Schema {
                     imports: vec![],
                     declarations: vec![],
@@ -57,10 +57,10 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: sch
 }
 
 // Generate Rust code from a schema and its transitive dependencies.
-pub fn generate(schemas: HashMap<schema::Namespace, (schema::Schema, PathBuf, String)>) -> String {
+pub fn generate(schemas: BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>) -> String {
     // Construct a tree of modules and schemas. We start with an empty tree.
     let mut tree = Module {
-        children: HashMap::new(),
+        children: BTreeMap::new(),
         schema: schema::Schema {
             imports: vec![],
             declarations: vec![],
@@ -110,7 +110,7 @@ fn render_module(
 // Render the contents of a module, including a trailing line break if there was anything to render.
 fn render_module_contents(
     namespace: &schema::Namespace,
-    children: &HashMap<String, Module>,
+    children: &BTreeMap<String, Module>,
     schema: &schema::Schema,
     indentation: u64,
 ) -> String {
@@ -139,7 +139,7 @@ fn render_schema(
     indentation: u64,
 ) -> String {
     // Construct a map from import name to namespace.
-    let mut imports = HashMap::new();
+    let mut imports = BTreeMap::new();
     for import in &schema.imports {
         // The unwrap is safe due to [ref:namespace_populated].
         imports.insert(import.name.clone(), import.namespace.clone().unwrap());
@@ -163,7 +163,7 @@ fn render_schema(
 
 // Render a struct, including a trailing line break.
 fn render_struct(
-    imports: &HashMap<String, schema::Namespace>,
+    imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &str,
     fields: &[schema::Field],
@@ -187,7 +187,7 @@ fn render_struct(
 
 // Render a choice, including a trailing line break.
 fn render_choice(
-    imports: &HashMap<String, schema::Namespace>,
+    imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &str,
     fields: &[schema::Field],
@@ -211,7 +211,7 @@ fn render_choice(
 
 // Render a field of a struct, including a trailing line break.
 fn render_struct_field(
-    imports: &HashMap<String, schema::Namespace>,
+    imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     field: &schema::Field,
     indentation: u64,
@@ -228,7 +228,7 @@ fn render_struct_field(
 
 // Render a field of a choice, including a trailing line break.
 fn render_choice_field(
-    imports: &HashMap<String, schema::Namespace>,
+    imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     field: &schema::Field,
     indentation: u64,
@@ -245,7 +245,7 @@ fn render_choice_field(
 
 // Render a type with no line breaks.
 fn render_type(
-    imports: &HashMap<String, schema::Namespace>,
+    imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
     r#type: &schema::Type,
 ) -> String {
@@ -286,7 +286,7 @@ mod tests {
     use crate::{
         generate_rust::generate, parser::parse, schema, tokenizer::tokenize, validator::validate,
     };
-    use std::{collections::HashMap, path::Path};
+    use std::{collections::BTreeMap, path::Path};
 
     #[test]
     fn generate_empty() {
@@ -294,7 +294,7 @@ mod tests {
         let contents = "".to_owned();
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();
-        let mut schemas = HashMap::new();
+        let mut schemas = BTreeMap::new();
         schemas.insert(
             schema::Namespace {
                 components: vec!["foo".to_owned()],
