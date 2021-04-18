@@ -217,13 +217,9 @@ fn render_struct(
                 flavor,
                 fields
                     .iter()
-                    .map(|field| render_struct_field(
-                        imports,
-                        namespace,
-                        field,
-                        *flavor,
-                        indentation + 1,
-                    ))
+                    .map(|field| {
+                        render_struct_field(imports, namespace, field, *flavor, indentation + 1)
+                    })
                     .collect::<Vec<_>>()
                     .join(""),
                 indentation_str,
@@ -323,13 +319,9 @@ fn render_choice(
                 flavor,
                 fields
                     .iter()
-                    .map(|field| render_choice_field(
-                        imports,
-                        namespace,
-                        field,
-                        *flavor,
-                        indentation + 1,
-                    ))
+                    .map(|field| {
+                        render_choice_field(imports, namespace, field, *flavor, indentation + 1)
+                    })
                     .collect::<Vec<_>>()
                     .join(""),
                 indentation_str,
