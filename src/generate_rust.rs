@@ -175,7 +175,13 @@ fn render_struct(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub struct r#{} {{\n{}{}}}\n",
+        "\
+            {}#[allow(dead_code)]\n\
+            {}#[derive({})]\n\
+            {}pub struct r#{} {{\n\
+            {}\
+            {}}}\n\
+        ",
         indentation_str,
         indentation_str,
         TRAITS_TO_DERIVE.join(", "),
@@ -201,7 +207,13 @@ fn render_choice(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub enum r#{} {{\n{}{}}}\n",
+        "\
+            {}#[allow(dead_code)]\n\
+            {}#[derive({})]\n\
+            {}pub enum r#{} {{\n\
+            {}\
+            {}}}\n\
+        ",
         indentation_str,
         indentation_str,
         TRAITS_TO_DERIVE.join(", "),

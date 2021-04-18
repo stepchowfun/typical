@@ -364,8 +364,8 @@ mod tests {
                 },
             ),
             "\
-            import 'foo.t' as foo\n\
-            import 'bar.t' as bar\
+                import 'foo.t' as foo\n\
+                import 'bar.t' as bar\
             ",
         );
     }
@@ -442,15 +442,15 @@ mod tests {
                 },
             ),
             "\
-            struct Foo {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\n\
-            \n\
-            choice Bar {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\
+                struct Foo {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\n\
+                \n\
+                choice Bar {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\
             ",
         );
     }
@@ -540,18 +540,18 @@ mod tests {
                 },
             ),
             "\
-            import 'foo.t' as foo\n\
-            import 'bar.t' as bar\n\
-            \n\
-            struct Foo {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\n\
-            \n\
-            choice Bar {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\
+                import 'foo.t' as foo\n\
+                import 'bar.t' as bar\n\
+                \n\
+                struct Foo {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\n\
+                \n\
+                choice Bar {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\
             ",
         );
     }
@@ -593,10 +593,10 @@ mod tests {
                 },
             ),
             "\
-            struct Foo {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\
+                struct Foo {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\
             ",
         );
     }
@@ -635,10 +635,10 @@ mod tests {
                 ),
             ),
             "\
-            struct Foo {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\
+                struct Foo {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\
             ",
         );
     }
@@ -677,10 +677,10 @@ mod tests {
                 ),
             ),
             "\
-            choice Foo {\n\
-            \x20 x: Int = 0\n\
-            \x20 y: String = 1\n\
-            }\
+                choice Foo {\n\
+                \x20 x: Int = 0\n\
+                \x20 y: String = 1\n\
+                }\
             ",
         );
     }
