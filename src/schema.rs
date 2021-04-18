@@ -14,9 +14,10 @@ pub struct Schema {
 pub struct Namespace {
     // This is a representation of a path to a schema, relative to the base directory, i.e., the
     // parent of the schema path provided by the user. However, it differs from paths as follows:
-    // - It doesn't include the file extension.
-    // - It can't contain `.`.
-    // - It can't contain `..`.
+    // - It doesn't include the file extension in the final component.
+    // - It can only contain "normal" path components. For example, `.` and `..` are not allowed.
+    // - It must be in `snake_case` to facilitate uniqueness validation
+    //   [ref:names_unique_after_normalization].
     pub components: Vec<String>,
 }
 

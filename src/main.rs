@@ -16,6 +16,7 @@ use crate::{
     count::count,
     error::{listing, throw, Error},
     format::CodeStr,
+    naming_conventions::snake_case,
     parser::parse,
     tokenizer::tokenize,
     validator::validate,
@@ -98,7 +99,7 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
         components: path
             .components()
             .map(|component| match component {
-                Component::Normal(component) => component.to_string_lossy().to_string(),
+                Component::Normal(component) => snake_case(&component.to_string_lossy()),
                 _ => panic!(),
             })
             .collect(),
@@ -286,7 +287,7 @@ fn load_schemas(
         {
             errors.push(throw::<Error>(
                 &format!(
-                    "This file conflicts with {}, since both would have the same module name {}.",
+                    "This file conflicts with {}, since both correspond to the same namespace {}.",
                     conflicting_schema_path.to_string_lossy().code_str(),
                     namespace.to_string().code_str(),
                 ),
