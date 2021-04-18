@@ -12,6 +12,9 @@ use std::{
 // The string to be used for each indentation level.
 const INDENTATION: &str = "    ";
 
+// Any generated types will derive these traits.
+const TRAITS_TO_DERIVE: &[&str] = &["Clone", "Debug"];
+
 // This struct represents a tree of schemas organized in a module hierarchy.
 #[derive(Clone, Debug)]
 struct Module {
@@ -172,8 +175,10 @@ fn render_struct(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}#[allow(dead_code)]\n{}pub struct {} {{\n{}{}}}\n",
+        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub struct {} {{\n{}{}}}\n",
         indentation_str,
+        indentation_str,
+        TRAITS_TO_DERIVE.join(", "),
         indentation_str,
         pascal_case(name),
         fields
@@ -196,8 +201,10 @@ fn render_choice(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     format!(
-        "{}#[allow(dead_code)]\n{}pub enum {} {{\n{}{}}}\n",
+        "{}#[allow(dead_code)]\n{}#[derive({})]\n{}pub enum {} {{\n{}{}}}\n",
         indentation_str,
+        indentation_str,
+        TRAITS_TO_DERIVE.join(", "),
         indentation_str,
         pascal_case(name),
         fields
