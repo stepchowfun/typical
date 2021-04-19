@@ -114,46 +114,55 @@ pub fn validate(
                             ));
                         }
 
-                        // Determine which file the type is from.
-                        let type_path = if let Some(import) = &field.r#type.import {
-                            if let Some(namespace) = imports.get(import) {
-                                namespace
-                            } else {
-                                errors.push(throw::<Error>(
-                                    &format!(
-                                        "There is no import named {} in this file.",
-                                        import.code_str(),
-                                    ),
-                                    Some(source_path),
-                                    Some(&listing(source_contents, field.r#type.source_range)),
-                                    None,
-                                ));
+                        // Validate the type if it's custom.
+                        match &field.r#type.variant {
+                            schema::TypeVariant::Bool => {}
+                            schema::TypeVariant::Custom(import, name) => {
+                                // Determine which file the type is from.
+                                let type_path = if let Some(import) = import {
+                                    if let Some(namespace) = imports.get(import) {
+                                        namespace
+                                    } else {
+                                        errors.push(throw::<Error>(
+                                            &format!(
+                                                "There is no import named {} in this file.",
+                                                import.code_str(),
+                                            ),
+                                            Some(source_path),
+                                            Some(&listing(
+                                                source_contents,
+                                                field.r#type.source_range,
+                                            )),
+                                            None,
+                                        ));
 
-                                continue;
-                            }
-                        } else {
-                            namespace
-                        };
-
-                        // Validate the type.
-                        if !all_types.contains(&(type_path.clone(), field.r#type.name.clone())) {
-                            errors.push(throw::<Error>(
-                                &if let Some(import) = &field.r#type.import {
-                                    format!(
-                                        "There is no type named {} in import {}.",
-                                        field.r#type.name.code_str(),
-                                        import.code_str(),
-                                    )
+                                        continue;
+                                    }
                                 } else {
-                                    format!(
-                                        "There is no type named {} in this file.",
-                                        field.r#type.name.code_str(),
-                                    )
-                                },
-                                Some(source_path),
-                                Some(&listing(source_contents, field.r#type.source_range)),
-                                None,
-                            ));
+                                    namespace
+                                };
+
+                                // Validate the type.
+                                if !all_types.contains(&(type_path.clone(), name.clone())) {
+                                    errors.push(throw::<Error>(
+                                        &if let Some(import) = import {
+                                            format!(
+                                                "There is no type named {} in import {}.",
+                                                name.code_str(),
+                                                import.code_str(),
+                                            )
+                                        } else {
+                                            format!(
+                                                "There is no type named {} in this file.",
+                                                name.code_str(),
+                                            )
+                                        },
+                                        Some(source_path),
+                                        Some(&listing(source_contents, field.r#type.source_range)),
+                                        None,
+                                    ));
+                                }
+                            }
                         }
                     }
                 }

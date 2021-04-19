@@ -6,6 +6,7 @@ use std::{
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
+pub const BOOL_KEYWORD: &str = "Bool";
 pub const CHOICE_KEYWORD: &str = "choice";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const RESTRICTED_KEYWORD: &str = "restricted";
@@ -23,11 +24,12 @@ pub struct Token {
 #[derive(Clone, Debug)]
 pub enum Variant {
     As,
+    Bool,
     Choice,
     Colon,
     Dot,
     Equals,
-    Identifier(String), // Non-empty [tag:identifier_non_empty]
+    Identifier(String),
     Import,
     Integer(usize),
     LeftCurly,
@@ -47,6 +49,7 @@ impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
+            Self::Bool => write!(f, "{}", BOOL_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
@@ -68,8 +71,8 @@ mod tests {
     use crate::{
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
-            STRUCT_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
+            RESTRICTED_KEYWORD, STRUCT_KEYWORD,
         },
     };
     use std::path::Path;
@@ -91,6 +94,11 @@ mod tests {
     #[test]
     fn variant_as_display() {
         assert_eq!(format!("{}", Variant::As), AS_KEYWORD);
+    }
+
+    #[test]
+    fn variant_bool_display() {
+        assert_eq!(format!("{}", Variant::Bool), BOOL_KEYWORD);
     }
 
     #[test]

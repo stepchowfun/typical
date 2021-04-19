@@ -2,8 +2,8 @@ use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
     token::{
-        Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
-        STRUCT_KEYWORD,
+        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
+        RESTRICTED_KEYWORD, STRUCT_KEYWORD,
     },
 };
 use std::path::Path;
@@ -93,6 +93,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::As,
+                    });
+                } else if &schema_contents[i..end] == BOOL_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Bool,
                     });
                 } else if &schema_contents[i..end] == CHOICE_KEYWORD {
                     tokens.push(Token {
@@ -253,8 +258,8 @@ mod tests {
         assert_fails, assert_same,
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, RESTRICTED_KEYWORD,
-            STRUCT_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
+            RESTRICTED_KEYWORD, STRUCT_KEYWORD,
         },
         tokenizer::tokenize,
     };
@@ -559,6 +564,20 @@ mod tests {
                     end: AS_KEYWORD.len(),
                 },
                 variant: Variant::As,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_bool() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), BOOL_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: BOOL_KEYWORD.len(),
+                },
+                variant: Variant::Bool,
             }],
         );
     }

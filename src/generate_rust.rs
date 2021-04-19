@@ -445,36 +445,42 @@ fn render_type(
     r#type: &schema::Type,
     flavor: Flavor,
 ) -> String {
-    let type_namespace = schema::Namespace {
-        components: if let Some(import) = &r#type.import {
-            imports[import].components.clone()
-        } else {
-            vec!["self".to_owned()]
-        },
-    };
+    match &r#type.variant {
+        schema::TypeVariant::Bool => "bool".to_owned(),
+        schema::TypeVariant::Custom(import, name) => {
+            let type_namespace = schema::Namespace {
+                components: if let Some(import) = import {
+                    imports[import].components.clone()
+                } else {
+                    vec!["self".to_owned()]
+                },
+            };
 
-    let (relative_type_namespace, ancestors) = relativize_namespace(&type_namespace, namespace);
+            let (relative_type_namespace, ancestors) =
+                relativize_namespace(&type_namespace, namespace);
 
-    let mut components = vec![];
+            let mut components = vec![];
 
-    if ancestors == 0 {
-        components.push("self".to_owned());
-    } else {
-        for _ in 0..ancestors {
-            components.push("super".to_owned());
+            if ancestors == 0 {
+                components.push("self".to_owned());
+            } else {
+                for _ in 0..ancestors {
+                    components.push("super".to_owned());
+                }
+            }
+
+            components.extend(
+                relative_type_namespace
+                    .components
+                    .iter()
+                    .map(|component| format!("r#{}", snake_case(component))),
+            );
+
+            components.push(format!("r#{}{}", pascal_case(&name), flavor));
+
+            components.join("::")
         }
     }
-
-    components.extend(
-        relative_type_namespace
-            .components
-            .iter()
-            .map(|component| format!("r#{}", snake_case(component))),
-    );
-
-    components.push(format!("r#{}{}", pascal_case(&r#type.name), flavor));
-
-    components.join("::")
 }
 
 #[cfg(test)]
