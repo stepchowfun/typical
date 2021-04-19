@@ -13,7 +13,7 @@ use std::{
 // The string to be used for each indentation level.
 const INDENTATION: &str = "    ";
 
-// Any generated types will derive these traits.
+// The generated types will derive these traits.
 const TRAITS_TO_DERIVE: &[&str] = &["Clone", "Debug"];
 
 // This is the full list of Rust 2018 keywords, both in use and reserved.
@@ -785,7 +785,7 @@ mod tests {
         };
         let void_path = Path::new("basic/void.t").to_owned();
         let void_contents = "\
-            struct Void {\n\
+            choice Void {\n\
             }\n\
         "
         .to_owned();
@@ -882,12 +882,12 @@ pub mod basic {
     pub mod void {
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
-        pub struct VoidIn {
+        pub enum VoidIn {
         }
 
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
-        pub struct VoidOut {
+        pub enum VoidOut {
         }
 
         #[allow(dead_code)]
@@ -895,15 +895,15 @@ pub mod basic {
         }
 
         impl From<self::VoidOut> for self::VoidIn {
-            fn from(_out: self::VoidOut) -> Self {
-                self::VoidIn {
+            fn from(out: self::VoidOut) -> Self {
+                match out {
                 }
             }
         }
 
         impl From<(self::VoidIn, self::VoidInToOut)> for self::VoidOut {
-            fn from((_in, _in_to_out): (self::VoidIn, self::VoidInToOut)) -> Self {
-                self::VoidOut {
+            fn from((r#in, _in_to_out): (self::VoidIn, self::VoidInToOut)) -> Self {
+                match r#in {
                 }
             }
         }
