@@ -765,7 +765,7 @@ mod tests {
     use crate::{
         generate_rust::generate, parser::parse, schema, tokenizer::tokenize, validator::validate,
     };
-    use std::{collections::BTreeMap, path::Path};
+    use std::{collections::BTreeMap, fs::read_to_string, path::Path};
 
     #[allow(clippy::too_many_lines)]
     #[test]
@@ -773,60 +773,20 @@ mod tests {
         let unit_namespace = schema::Namespace {
             components: vec!["basic".to_owned(), "unit".to_owned()],
         };
-        let unit_path = Path::new("basic/unit.t").to_owned();
-        let unit_contents = "\
-            struct Unit {\n\
-            }\n\
-        "
-        .to_owned();
+        let unit_path = Path::new("integration/types/basic/unit.t").to_owned();
+        let unit_contents = read_to_string(&unit_path).unwrap();
 
         let void_namespace = schema::Namespace {
             components: vec!["basic".to_owned(), "void".to_owned()],
         };
-        let void_path = Path::new("basic/void.t").to_owned();
-        let void_contents = "\
-            choice Void {\n\
-            }\n\
-        "
-        .to_owned();
+        let void_path = Path::new("integration/types/basic/void.t").to_owned();
+        let void_contents = read_to_string(&void_path).unwrap();
 
         let main_namespace = schema::Namespace {
             components: vec!["main".to_owned()],
         };
-        let main_path = Path::new("main.t").to_owned();
-        let main_contents = "\
-            import 'basic/unit.t' as unit\n\
-            import 'basic/void.t' as void\n\
-            \n\
-            struct Foo {\n\
-              x: Bool = 0\n\
-              y: restricted Bool = 1\n\
-              z: void.Void = 2\n\
-              w: restricted void.Void = 3\n\
-              s: unit.Unit = 4\n\
-              t: restricted unit.Unit = 5\n\
-            }\n\
-            \n\
-            choice Bar {\n\
-              x: Bool = 0\n\
-              y: restricted Bool = 1\n\
-              z: void.Void = 2\n\
-              w: restricted void.Void = 3\n\
-              s: unit.Unit = 4\n\
-              t: restricted unit.Unit = 5\n\
-            }
-            \n\
-            struct FooAndBar {\n\
-              foo: Foo = 0\n\
-              bar: Bar = 1\n\
-            }\n\
-            \n\
-            choice FooOrBar {\n\
-              foo: Foo = 0\n\
-              bar: Bar = 1\n\
-            }\n\
-        "
-        .to_owned();
+        let main_path = Path::new("integration/types/main.t").to_owned();
+        let main_contents = read_to_string(&main_path).unwrap();
 
         let unit_tokens = tokenize(&unit_path, &unit_contents).unwrap();
         let unit_schema = parse(&unit_path, &unit_contents, &unit_tokens).unwrap();
