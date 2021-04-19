@@ -26,7 +26,7 @@ pub struct Import {
     pub source_range: SourceRange,
     pub path: PathBuf, // The literal path as it appears in the source file
     pub namespace: Option<Namespace>, // A normalized form of the path
-    pub name: String,  // Non-empty due to [ref:identifier_non_empty]
+    pub name: String,
 }
 
 #[derive(Clone, Debug)]
@@ -37,14 +37,14 @@ pub struct Declaration {
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(String, Vec<Field>), // (non-empty name [ref:identifier_non_empty], fields)
-    Choice(String, Vec<Field>), // (non-empty name [ref:identifier_non_empty], fields)
+    Struct(String, Vec<Field>),
+    Choice(String, Vec<Field>),
 }
 
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub name: String, // Non-empty due to [ref:identifier_non_empty]
+    pub name: String,
     pub restricted: bool,
     pub r#type: Type,
     pub index: usize,
@@ -53,8 +53,13 @@ pub struct Field {
 #[derive(Clone, Debug)]
 pub struct Type {
     pub source_range: SourceRange,
-    pub import: Option<String>,
-    pub name: String, // Non-empty due to [ref:identifier_non_empty]
+    pub variant: TypeVariant,
+}
+
+#[derive(Clone, Debug)]
+pub enum TypeVariant {
+    Bool,
+    Custom(Option<String>, String), // (import, name)
 }
 
 // This function returns takes two namespaces and returns a version of the former relative to the
@@ -166,10 +171,24 @@ impl Display for Field {
 
 impl Display for Type {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        if let Some(import) = &self.import {
-            write!(f, "{}.{}", import, self.name)?;
-        } else {
-            write!(f, "{}", self.name)?;
+        write!(f, "{}", self.variant)?;
+        Ok(())
+    }
+}
+
+impl Display for TypeVariant {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            Self::Bool => {
+                write!(f, "Bool")?;
+            }
+            Self::Custom(import, name) => {
+                if let Some(import) = import {
+                    write!(f, "{}.{}", import, name)?;
+                } else {
+                    write!(f, "{}", name)?;
+                }
+            }
         }
         Ok(())
     }
@@ -189,7 +208,7 @@ mod tests {
         error::SourceRange,
         schema::{
             relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace,
-            Schema, Type,
+            Schema, Type, TypeVariant,
         },
     };
     use std::path::Path;
@@ -389,8 +408,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "Int".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 0,
                                     },
@@ -400,8 +418,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "String".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 1,
                                     },
@@ -419,8 +436,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "Int".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 0,
                                     },
@@ -430,8 +446,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "String".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 1,
                                     },
@@ -443,13 +458,13 @@ mod tests {
             ),
             "\
                 struct Foo {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\n\
                 \n\
                 choice Bar {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\
             ",
         );
@@ -487,8 +502,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "Int".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 0,
                                     },
@@ -498,8 +512,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "String".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 1,
                                     },
@@ -517,8 +530,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "Int".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 0,
                                     },
@@ -528,8 +540,7 @@ mod tests {
                                         restricted: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
-                                            import: None,
-                                            name: "String".to_owned(),
+                                            variant: TypeVariant::Bool,
                                         },
                                         index: 1,
                                     },
@@ -544,13 +555,13 @@ mod tests {
                 import 'bar.t' as bar\n\
                 \n\
                 struct Foo {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\n\
                 \n\
                 choice Bar {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\
             ",
         );
@@ -572,8 +583,7 @@ mod tests {
                                 restricted: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
-                                    import: None,
-                                    name: "Int".to_owned(),
+                                    variant: TypeVariant::Bool,
                                 },
                                 index: 0,
                             },
@@ -583,8 +593,7 @@ mod tests {
                                 restricted: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
-                                    import: None,
-                                    name: "String".to_owned(),
+                                    variant: TypeVariant::Bool,
                                 },
                                 index: 1,
                             },
@@ -594,8 +603,8 @@ mod tests {
             ),
             "\
                 struct Foo {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\
             ",
         );
@@ -615,8 +624,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                import: None,
-                                name: "Int".to_owned(),
+                                variant: TypeVariant::Bool,
                             },
                             index: 0,
                         },
@@ -626,8 +634,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                import: None,
-                                name: "String".to_owned(),
+                                variant: TypeVariant::Bool,
                             },
                             index: 1,
                         },
@@ -636,8 +643,8 @@ mod tests {
             ),
             "\
                 struct Foo {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\
             ",
         );
@@ -657,8 +664,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                import: None,
-                                name: "Int".to_owned(),
+                                variant: TypeVariant::Bool,
                             },
                             index: 0,
                         },
@@ -668,8 +674,7 @@ mod tests {
                             restricted: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                import: None,
-                                name: "String".to_owned(),
+                                variant: TypeVariant::Bool,
                             },
                             index: 1,
                         },
@@ -678,8 +683,8 @@ mod tests {
             ),
             "\
                 choice Foo {\n\
-                \x20 x: Int = 0\n\
-                \x20 y: String = 1\n\
+                \x20 x: Bool = 0\n\
+                \x20 y: Bool = 1\n\
                 }\
             ",
         );
@@ -696,13 +701,12 @@ mod tests {
                     restricted: false,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
-                        import: None,
-                        name: "Int".to_owned(),
+                        variant: TypeVariant::Bool,
                     },
                     index: 0,
                 },
             ),
-            "  x: Int = 0",
+            "  x: Bool = 0",
         );
     }
 
@@ -717,25 +721,37 @@ mod tests {
                     restricted: true,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
-                        import: None,
-                        name: "Int".to_owned(),
+                        variant: TypeVariant::Bool,
                     },
                     index: 0,
                 },
             ),
-            "  x: restricted Int = 0",
+            "  x: restricted Bool = 0",
         );
     }
 
     #[test]
-    fn type_display_no_import() {
+    fn type_display_bool() {
         assert_eq!(
             format!(
                 "{}",
                 Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    import: None,
-                    name: "Int".to_owned(),
+                    variant: TypeVariant::Bool,
+                },
+            ),
+            "Bool",
+        );
+    }
+
+    #[test]
+    fn type_display_custom_no_import() {
+        assert_eq!(
+            format!(
+                "{}",
+                Type {
+                    source_range: SourceRange { start: 0, end: 0 },
+                    variant: TypeVariant::Custom(None, "Int".to_owned()),
                 },
             ),
             "Int",
@@ -743,14 +759,13 @@ mod tests {
     }
 
     #[test]
-    fn type_display_import() {
+    fn type_display_custom_import() {
         assert_eq!(
             format!(
                 "{}",
                 Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    import: Some("foo".to_owned()),
-                    name: "Int".to_owned(),
+                    variant: TypeVariant::Custom(Some("foo".to_owned()), "Int".to_owned()),
                 },
             ),
             "foo.Int",
