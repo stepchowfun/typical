@@ -318,8 +318,18 @@ fn render_struct(
             Flavor::Out,
             indentation_str,
             INDENTATION,
-            if fields.is_empty() { "_" } else { "" },
-            if fields.is_empty() { "_" } else { "" },
+            if fields.iter().any(|field| !field.restricted) {
+                ""
+            } else {
+                "_"
+            },
+            if fields.iter().any(|field| field.restricted
+                || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)))
+            {
+                ""
+            } else {
+                "_"
+            },
             formatted_name,
             Flavor::In,
             formatted_name,
@@ -505,7 +515,7 @@ fn render_choice(
         .chain(once(format!(
             "\
                 {}impl From<(self::r#{}{}, self::r#{}{})> for self::r#{}{} {{\n\
-                {}{}fn from((r#{}in, r#{}in_to_out): (self::r#{}{}, self::r#{}{})) -> Self {{\n\
+                {}{}fn from((r#in, r#{}in_to_out): (self::r#{}{}, self::r#{}{})) -> Self {{\n\
                 {}{}{}match r#in {{\n\
                 {}\
                 {}{}{}}}\n\
@@ -521,8 +531,13 @@ fn render_choice(
             Flavor::Out,
             indentation_str,
             INDENTATION,
-            if fields.is_empty() { "_" } else { "" },
-            if fields.is_empty() { "_" } else { "" },
+            if fields.iter().any(|field| field.restricted
+                || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)))
+            {
+                ""
+            } else {
+                "_"
+            },
             formatted_name,
             Flavor::In,
             formatted_name,
