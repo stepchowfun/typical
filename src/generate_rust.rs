@@ -169,7 +169,10 @@ fn render_schema(
 pub enum Flavor {
     In,
     Out,
+    InToOut,
 }
+
+pub const FLAVORS: &[Flavor] = &[Flavor::In, Flavor::Out, Flavor::InToOut];
 
 impl Display for Flavor {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
@@ -182,11 +185,16 @@ impl Display for Flavor {
                 write!(f, "Out")?;
                 Ok(())
             }
+            Self::InToOut => {
+                write!(f, "InToOut")?;
+                Ok(())
+            }
         }
     }
 }
 
 // Render a struct, including a trailing line break.
+#[allow(clippy::too_many_lines)]
 fn render_struct(
     imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
@@ -198,20 +206,27 @@ fn render_struct(
 
     let formatted_name = pascal_case(name);
 
-    [Flavor::In, Flavor::Out]
+    FLAVORS
         .iter()
         .map(|flavor| {
             format!(
                 "\
                     {}#[allow(dead_code)]\n\
-                    {}#[derive({})]\n\
+                    {}\
                     {}pub struct r#{}{} {{\n\
                     {}\
                     {}}}\n\
                 ",
                 indentation_str,
-                indentation_str,
-                TRAITS_TO_DERIVE.join(", "),
+                if matches!(flavor, Flavor::InToOut) {
+                    "".to_owned()
+                } else {
+                    format!(
+                        "{}#[derive({})]\n",
+                        indentation_str,
+                        TRAITS_TO_DERIVE.join(", "),
+                    )
+                },
                 indentation_str,
                 formatted_name,
                 flavor,
@@ -284,11 +299,95 @@ fn render_struct(
             INDENTATION,
             indentation_str,
         )))
+        .chain(once(format!(
+            "\
+                {}impl From<(self::r#{}{}, self::r#{}{})> for self::r#{}{} {{\n\
+                {}{}fn from((r#{}in, r#{}in_to_out): (self::r#{}{}, self::r#{}{})) -> Self {{\n\
+                {}{}{}self::r#{}{} {{\n\
+                {}\
+                {}{}{}}}\n\
+                {}{}}}\n\
+                {}}}\n\
+            ",
+            indentation_str,
+            formatted_name,
+            Flavor::In,
+            formatted_name,
+            Flavor::InToOut,
+            formatted_name,
+            Flavor::Out,
+            indentation_str,
+            INDENTATION,
+            if fields.is_empty() { "_" } else { "" },
+            if fields.is_empty() { "_" } else { "" },
+            formatted_name,
+            Flavor::In,
+            formatted_name,
+            Flavor::InToOut,
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            formatted_name,
+            Flavor::Out,
+            fields
+                .iter()
+                .map(|field| {
+                    let formatted_field_name = snake_case(&field.name);
+
+                    if field.restricted {
+                        format!(
+                            "\
+                                {}{}{}{}r#{}: in_to_out.r#{},\n\
+                            ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_field_name,
+                            formatted_field_name,
+                        )
+                    } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
+                        format!(
+                            "\
+                                {}{}{}{}r#{}: (r#in.r#{}, in_to_out.r#{}).into(),\n\
+                            ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_field_name,
+                            formatted_field_name,
+                            formatted_field_name,
+                        )
+                    } else {
+                        format!(
+                            "\
+                                {}{}{}{}r#{}: r#in.r#{},\n\
+                            ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_field_name,
+                            formatted_field_name,
+                        )
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(""),
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            indentation_str,
+            INDENTATION,
+            indentation_str,
+        )))
         .collect::<Vec<_>>()
         .join("\n")
 }
 
 // Render a choice, including a trailing line break.
+#[allow(clippy::too_many_lines)]
 fn render_choice(
     imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
@@ -300,27 +399,46 @@ fn render_choice(
 
     let formatted_name = pascal_case(name);
 
-    [Flavor::In, Flavor::Out]
+    FLAVORS
         .iter()
         .map(|flavor| {
             format!(
                 "\
                     {}#[allow(dead_code)]\n\
-                    {}#[derive({})]\n\
-                    {}pub enum r#{}{} {{\n\
+                    {}\
+                    {}pub {} r#{}{} {{\n\
                     {}\
                     {}}}\n\
                 ",
                 indentation_str,
+                if matches!(flavor, Flavor::InToOut) {
+                    "".to_owned()
+                } else {
+                    format!(
+                        "{}#[derive({})]\n",
+                        indentation_str,
+                        TRAITS_TO_DERIVE.join(", "),
+                    )
+                },
                 indentation_str,
-                TRAITS_TO_DERIVE.join(", "),
-                indentation_str,
+                if let Flavor::InToOut = flavor {
+                    "struct"
+                } else {
+                    "enum"
+                },
                 formatted_name,
                 flavor,
                 fields
                     .iter()
                     .map(|field| {
-                        render_choice_field(imports, namespace, field, *flavor, indentation + 1)
+                        render_choice_field(
+                            imports,
+                            namespace,
+                            name,
+                            field,
+                            *flavor,
+                            indentation + 1,
+                        )
                     })
                     .collect::<Vec<_>>()
                     .join(""),
@@ -384,6 +502,98 @@ fn render_choice(
             INDENTATION,
             indentation_str,
         )))
+        .chain(once(format!(
+            "\
+                {}impl From<(self::r#{}{}, self::r#{}{})> for self::r#{}{} {{\n\
+                {}{}fn from((r#{}in, r#{}in_to_out): (self::r#{}{}, self::r#{}{})) -> Self {{\n\
+                {}{}{}match r#in {{\n\
+                {}\
+                {}{}{}}}\n\
+                {}{}}}\n\
+                {}}}\n\
+            ",
+            indentation_str,
+            formatted_name,
+            Flavor::In,
+            formatted_name,
+            Flavor::InToOut,
+            formatted_name,
+            Flavor::Out,
+            indentation_str,
+            INDENTATION,
+            if fields.is_empty() { "_" } else { "" },
+            if fields.is_empty() { "_" } else { "" },
+            formatted_name,
+            Flavor::In,
+            formatted_name,
+            Flavor::InToOut,
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            fields
+                .iter()
+                .map(|field| {
+                    let formatted_field_name = pascal_case(&field.name);
+
+                    if field.restricted {
+                        format!(
+                            "\
+                                {}{}{}{}self::{}{}::r#{}(payload) => (r#in_to_out.r#{})(payload),\n\
+                            ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_name,
+                            Flavor::In,
+                            formatted_field_name,
+                            snake_case(&field.name),
+                        )
+                    } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
+                        format!(
+                            "\
+                                {}{}{}{}self::{}{}::r#{}(payload) => \
+                                    self::{}{}::r#{}((payload, r#in_to_out.r#{}).into()),\n\
+                            ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_name,
+                            Flavor::In,
+                            formatted_field_name,
+                            formatted_name,
+                            Flavor::Out,
+                            formatted_field_name,
+                            snake_case(&field.name),
+                        )
+                    } else {
+                        format!(
+                            "\
+                                {}{}{}{}self::{}{}::r#{}(payload) => self::{}{}::r#{}(payload),\n\
+                            ",
+                            indentation_str,
+                            INDENTATION,
+                            INDENTATION,
+                            INDENTATION,
+                            formatted_name,
+                            Flavor::In,
+                            formatted_field_name,
+                            formatted_name,
+                            Flavor::Out,
+                            formatted_field_name,
+                        )
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(""),
+            indentation_str,
+            INDENTATION,
+            INDENTATION,
+            indentation_str,
+            INDENTATION,
+            indentation_str,
+        )))
         .collect::<Vec<_>>()
         .join("\n")
 }
@@ -399,6 +609,13 @@ fn render_struct_field(
     if match flavor {
         Flavor::In => !field.restricted,
         Flavor::Out => true,
+        Flavor::InToOut => {
+            if field.restricted {
+                true
+            } else {
+                matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
+            }
+        }
     } {
         let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
@@ -406,7 +623,20 @@ fn render_struct_field(
             "{}r#{}: {},\n",
             indentation_str,
             snake_case(&field.name),
-            render_type(imports, namespace, &field.r#type, flavor),
+            render_type(
+                imports,
+                namespace,
+                &field.r#type,
+                if let Flavor::InToOut = flavor {
+                    if field.restricted {
+                        Flavor::Out
+                    } else {
+                        flavor
+                    }
+                } else {
+                    flavor
+                },
+            ),
         )
     } else {
         "".to_owned()
@@ -417,24 +647,49 @@ fn render_struct_field(
 fn render_choice_field(
     imports: &BTreeMap<String, schema::Namespace>,
     namespace: &schema::Namespace,
+    choice_name: &str,
     field: &schema::Field,
     flavor: Flavor,
     indentation: u64,
 ) -> String {
-    if match flavor {
-        Flavor::In => true,
-        Flavor::Out => !field.restricted,
-    } {
-        let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
+    match flavor {
+        Flavor::In | Flavor::Out => {
+            if matches!(flavor, Flavor::In) || !field.restricted {
+                let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-        format!(
-            "{}r#{}({}),\n",
-            indentation_str,
-            pascal_case(&field.name),
-            render_type(imports, namespace, &field.r#type, flavor),
-        )
-    } else {
-        "".to_owned()
+                format!(
+                    "{}r#{}({}),\n",
+                    indentation_str,
+                    pascal_case(&field.name),
+                    render_type(imports, namespace, &field.r#type, flavor),
+                )
+            } else {
+                "".to_owned()
+            }
+        }
+        Flavor::InToOut => {
+            let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
+
+            if field.restricted {
+                format!(
+                    "{}r#{}: Box<dyn FnOnce({}) -> r#{}{}>,\n",
+                    indentation_str,
+                    snake_case(&field.name),
+                    render_type(imports, namespace, &field.r#type, Flavor::In),
+                    choice_name,
+                    Flavor::Out,
+                )
+            } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
+                format!(
+                    "{}r#{}: {},\n",
+                    indentation_str,
+                    snake_case(&field.name),
+                    render_type(imports, namespace, &field.r#type, Flavor::InToOut),
+                )
+            } else {
+                "".to_owned()
+            }
+        }
     }
 }
 
@@ -449,11 +704,10 @@ fn render_type(
         schema::TypeVariant::Bool => "bool".to_owned(),
         schema::TypeVariant::Custom(import, name) => {
             let type_namespace = schema::Namespace {
-                components: if let Some(import) = import {
-                    imports[import].components.clone()
-                } else {
-                    vec!["self".to_owned()]
-                },
+                components: import.as_ref().map_or_else(
+                    || namespace.components.clone(),
+                    |import| imports[import].components.clone(),
+                ),
             };
 
             let (relative_type_namespace, ancestors) =
@@ -461,12 +715,8 @@ fn render_type(
 
             let mut components = vec![];
 
-            if ancestors == 0 {
-                components.push("self".to_owned());
-            } else {
-                for _ in 0..ancestors {
-                    components.push("super".to_owned());
-                }
+            for _ in 0..ancestors {
+                components.push("super".to_owned());
             }
 
             components.extend(
@@ -490,27 +740,331 @@ mod tests {
     };
     use std::{collections::BTreeMap, path::Path};
 
+    #[allow(clippy::too_many_lines)]
     #[test]
-    fn generate_empty() {
-        let path = Path::new("foo.t").to_owned();
-        let contents = "".to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+    fn generate_example() {
+        let unit_namespace = schema::Namespace {
+            components: vec!["basic".to_owned(), "unit".to_owned()],
+        };
+        let unit_path = Path::new("basic/unit.t").to_owned();
+        let unit_contents = "\
+            struct Unit {\n\
+            }\n\
+        "
+        .to_owned();
+
+        let void_namespace = schema::Namespace {
+            components: vec!["basic".to_owned(), "void".to_owned()],
+        };
+        let void_path = Path::new("basic/void.t").to_owned();
+        let void_contents = "\
+            struct Void {\n\
+            }\n\
+        "
+        .to_owned();
+
+        let main_namespace = schema::Namespace {
+            components: vec!["main".to_owned()],
+        };
+        let main_path = Path::new("main.t").to_owned();
+        let main_contents = "\
+            import 'basic/unit.t' as unit\n\
+            import 'basic/void.t' as void\n\
+            \n\
+            struct Foo {\n\
+              x: Bool = 0\n\
+              y: restricted Bool = 1\n\
+              z: void.Void = 2\n\
+              w: restricted void.Void = 3\n\
+              s: unit.Unit = 4\n\
+              t: restricted unit.Unit = 5\n\
+            }\n\
+            \n\
+            choice Bar {\n\
+              x: Bool = 0\n\
+              y: restricted Bool = 1\n\
+              z: void.Void = 2\n\
+              w: restricted void.Void = 3\n\
+              s: unit.Unit = 4\n\
+              t: restricted unit.Unit = 5\n\
+            }
+            \n\
+            struct FooAndBar {\n\
+              foo: Foo = 0\n\
+              bar: Bar = 1\n\
+            }\n\
+            \n\
+            choice FooOrBar {\n\
+              foo: Foo = 0\n\
+              bar: Bar = 1\n\
+            }\n\
+        "
+        .to_owned();
+
+        let unit_tokens = tokenize(&unit_path, &unit_contents).unwrap();
+        let unit_schema = parse(&unit_path, &unit_contents, &unit_tokens).unwrap();
+
+        let void_tokens = tokenize(&void_path, &void_contents).unwrap();
+        let void_schema = parse(&void_path, &void_contents, &void_tokens).unwrap();
+
+        let main_tokens = tokenize(&main_path, &main_contents).unwrap();
+        let mut main_schema = parse(&main_path, &main_contents, &main_tokens).unwrap();
+        main_schema.imports[0].namespace = Some(unit_namespace.clone());
+        main_schema.imports[1].namespace = Some(void_namespace.clone());
+
         let mut schemas = BTreeMap::new();
-        schemas.insert(
-            schema::Namespace {
-                components: vec!["foo".to_owned()],
-            },
-            (schema, path, contents),
-        );
+        schemas.insert(unit_namespace, (unit_schema, unit_path, unit_contents));
+        schemas.insert(void_namespace, (void_schema, void_path, void_contents));
+        schemas.insert(main_namespace, (main_schema, main_path, main_contents));
         validate(&schemas).unwrap();
 
         assert_eq!(
             generate(schemas),
             "\
-                pub mod r#foo {\n\
-                }\n\
-            ",
+pub mod r#basic {
+    pub mod r#unit {
+        #[allow(dead_code)]
+        #[derive(Clone, Debug)]
+        pub struct r#UnitIn {
+        }
+
+        #[allow(dead_code)]
+        #[derive(Clone, Debug)]
+        pub struct r#UnitOut {
+        }
+
+        #[allow(dead_code)]
+        pub struct r#UnitInToOut {
+        }
+
+        impl From<self::r#UnitOut> for self::r#UnitIn {
+            fn from(_out: self::r#UnitOut) -> Self {
+                self::r#UnitIn {
+                }
+            }
+        }
+
+        impl From<(self::r#UnitIn, self::r#UnitInToOut)> for self::r#UnitOut {
+            fn from((r#_in, r#_in_to_out): (self::r#UnitIn, self::r#UnitInToOut)) -> Self {
+                self::r#UnitOut {
+                }
+            }
+        }
+    }
+
+    pub mod r#void {
+        #[allow(dead_code)]
+        #[derive(Clone, Debug)]
+        pub struct r#VoidIn {
+        }
+
+        #[allow(dead_code)]
+        #[derive(Clone, Debug)]
+        pub struct r#VoidOut {
+        }
+
+        #[allow(dead_code)]
+        pub struct r#VoidInToOut {
+        }
+
+        impl From<self::r#VoidOut> for self::r#VoidIn {
+            fn from(_out: self::r#VoidOut) -> Self {
+                self::r#VoidIn {
+                }
+            }
+        }
+
+        impl From<(self::r#VoidIn, self::r#VoidInToOut)> for self::r#VoidOut {
+            fn from((r#_in, r#_in_to_out): (self::r#VoidIn, self::r#VoidInToOut)) -> Self {
+                self::r#VoidOut {
+                }
+            }
+        }
+    }
+}
+
+pub mod r#main {
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub struct r#FooIn {
+        r#x: bool,
+        r#z: super::r#basic::r#void::r#VoidIn,
+        r#s: super::r#basic::r#unit::r#UnitIn,
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub struct r#FooOut {
+        r#x: bool,
+        r#y: bool,
+        r#z: super::r#basic::r#void::r#VoidOut,
+        r#w: super::r#basic::r#void::r#VoidOut,
+        r#s: super::r#basic::r#unit::r#UnitOut,
+        r#t: super::r#basic::r#unit::r#UnitOut,
+    }
+
+    #[allow(dead_code)]
+    pub struct r#FooInToOut {
+        r#y: bool,
+        r#z: super::r#basic::r#void::r#VoidInToOut,
+        r#w: super::r#basic::r#void::r#VoidOut,
+        r#s: super::r#basic::r#unit::r#UnitInToOut,
+        r#t: super::r#basic::r#unit::r#UnitOut,
+    }
+
+    impl From<self::r#FooOut> for self::r#FooIn {
+        fn from(out: self::r#FooOut) -> Self {
+            self::r#FooIn {
+                r#x: out.r#x.into(),
+                r#z: out.r#z.into(),
+                r#s: out.r#s.into(),
+            }
+        }
+    }
+
+    impl From<(self::r#FooIn, self::r#FooInToOut)> for self::r#FooOut {
+        fn from((r#in, r#in_to_out): (self::r#FooIn, self::r#FooInToOut)) -> Self {
+            self::r#FooOut {
+                r#x: r#in.r#x,
+                r#y: in_to_out.r#y,
+                r#z: (r#in.r#z, in_to_out.r#z).into(),
+                r#w: in_to_out.r#w,
+                r#s: (r#in.r#s, in_to_out.r#s).into(),
+                r#t: in_to_out.r#t,
+            }
+        }
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub enum r#BarIn {
+        r#X(bool),
+        r#Y(bool),
+        r#Z(super::r#basic::r#void::r#VoidIn),
+        r#W(super::r#basic::r#void::r#VoidIn),
+        r#S(super::r#basic::r#unit::r#UnitIn),
+        r#T(super::r#basic::r#unit::r#UnitIn),
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub enum r#BarOut {
+        r#X(bool),
+        r#Z(super::r#basic::r#void::r#VoidOut),
+        r#S(super::r#basic::r#unit::r#UnitOut),
+    }
+
+    #[allow(dead_code)]
+    pub struct r#BarInToOut {
+        r#y: Box<dyn FnOnce(bool) -> r#BarOut>,
+        r#z: super::r#basic::r#void::r#VoidInToOut,
+        r#w: Box<dyn FnOnce(super::r#basic::r#void::r#VoidIn) -> r#BarOut>,
+        r#s: super::r#basic::r#unit::r#UnitInToOut,
+        r#t: Box<dyn FnOnce(super::r#basic::r#unit::r#UnitIn) -> r#BarOut>,
+    }
+
+    impl From<self::r#BarOut> for self::r#BarIn {
+        fn from(out: self::r#BarOut) -> Self {
+            match out {
+                self::BarOut::r#X(payload) => self::BarIn::r#X(payload.into()),
+                self::BarOut::r#Z(payload) => self::BarIn::r#Z(payload.into()),
+                self::BarOut::r#S(payload) => self::BarIn::r#S(payload.into()),
+            }
+        }
+    }
+
+    impl From<(self::r#BarIn, self::r#BarInToOut)> for self::r#BarOut {
+        fn from((r#in, r#in_to_out): (self::r#BarIn, self::r#BarInToOut)) -> Self {
+            match r#in {
+                self::BarIn::r#X(payload) => self::BarOut::r#X(payload),
+                self::BarIn::r#Y(payload) => (r#in_to_out.r#y)(payload),
+                self::BarIn::r#Z(payload) => self::BarOut::r#Z((payload, r#in_to_out.r#z).into()),
+                self::BarIn::r#W(payload) => (r#in_to_out.r#w)(payload),
+                self::BarIn::r#S(payload) => self::BarOut::r#S((payload, r#in_to_out.r#s).into()),
+                self::BarIn::r#T(payload) => (r#in_to_out.r#t)(payload),
+            }
+        }
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub struct r#FooAndBarIn {
+        r#foo: r#FooIn,
+        r#bar: r#BarIn,
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub struct r#FooAndBarOut {
+        r#foo: r#FooOut,
+        r#bar: r#BarOut,
+    }
+
+    #[allow(dead_code)]
+    pub struct r#FooAndBarInToOut {
+        r#foo: r#FooInToOut,
+        r#bar: r#BarInToOut,
+    }
+
+    impl From<self::r#FooAndBarOut> for self::r#FooAndBarIn {
+        fn from(out: self::r#FooAndBarOut) -> Self {
+            self::r#FooAndBarIn {
+                r#foo: out.r#foo.into(),
+                r#bar: out.r#bar.into(),
+            }
+        }
+    }
+
+    impl From<(self::r#FooAndBarIn, self::r#FooAndBarInToOut)> for self::r#FooAndBarOut {
+        fn from((r#in, r#in_to_out): (self::r#FooAndBarIn, self::r#FooAndBarInToOut)) -> Self {
+            self::r#FooAndBarOut {
+                r#foo: (r#in.r#foo, in_to_out.r#foo).into(),
+                r#bar: (r#in.r#bar, in_to_out.r#bar).into(),
+            }
+        }
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub enum r#FooOrBarIn {
+        r#Foo(r#FooIn),
+        r#Bar(r#BarIn),
+    }
+
+    #[allow(dead_code)]
+    #[derive(Clone, Debug)]
+    pub enum r#FooOrBarOut {
+        r#Foo(r#FooOut),
+        r#Bar(r#BarOut),
+    }
+
+    #[allow(dead_code)]
+    pub struct r#FooOrBarInToOut {
+        r#foo: r#FooInToOut,
+        r#bar: r#BarInToOut,
+    }
+
+    impl From<self::r#FooOrBarOut> for self::r#FooOrBarIn {
+        fn from(out: self::r#FooOrBarOut) -> Self {
+            match out {
+                self::FooOrBarOut::r#Foo(payload) => self::FooOrBarIn::r#Foo(payload.into()),
+                self::FooOrBarOut::r#Bar(payload) => self::FooOrBarIn::r#Bar(payload.into()),
+            }
+        }
+    }
+
+    impl From<(self::r#FooOrBarIn, self::r#FooOrBarInToOut)> for self::r#FooOrBarOut {
+        fn from((r#in, r#in_to_out): (self::r#FooOrBarIn, self::r#FooOrBarInToOut)) -> Self {
+            match r#in {
+                self::FooOrBarIn::r#Foo(payload) => \
+                    self::FooOrBarOut::r#Foo((payload, r#in_to_out.r#foo).into()),
+                self::FooOrBarIn::r#Bar(payload) => \
+                    self::FooOrBarOut::r#Bar((payload, r#in_to_out.r#bar).into()),
+            }
+        }
+    }
+}
+",
         );
     }
 }
