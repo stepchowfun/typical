@@ -16,11 +16,70 @@ const INDENTATION: &str = "    ";
 // Any generated types will derive these traits.
 const TRAITS_TO_DERIVE: &[&str] = &["Clone", "Debug"];
 
+// This is the full list of Rust 2018 keywords, both in use and reserved.
+const RUST_KEYWORDS: &[&str] = &[
+    "Self", "abstract", "as", "async", "await", "become", "box", "break", "const", "continue",
+    "crate", "do", "dyn", "else", "enum", "extern", "false", "final", "fn", "for", "if", "impl",
+    "in", "let", "loop", "macro", "match", "mod", "move", "mut", "override", "priv", "pub", "ref",
+    "return", "self", "static", "struct", "super", "trait", "true", "try", "type", "typeof",
+    "unsafe", "unsized", "use", "virtual", "where", "while", "yield",
+];
+
+// These are some names that can appear in the generated code.
+const IN_VARIABLE: &str = "in";
+const OUT_VARIABLE: &str = "out";
+const IN_TO_OUT_VARIABLE: &str = "in_to_out";
+const PAYLOAD_VARIABLE: &str = "payload";
+
 // This struct represents a tree of schemas organized in a module hierarchy.
 #[derive(Clone, Debug)]
 struct Module {
     children: BTreeMap<String, Module>,
     schema: schema::Schema,
+}
+
+// For each declaration, we emit these three "flavors" of it.
+#[derive(Copy, Clone, Debug)]
+pub enum Flavor {
+    In,
+    Out,
+    InToOut,
+}
+
+pub const FLAVORS: &[Flavor] = &[Flavor::In, Flavor::Out, Flavor::InToOut];
+
+impl Display for Flavor {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            Self::In => {
+                write!(f, "In")?;
+                Ok(())
+            }
+            Self::Out => {
+                write!(f, "Out")?;
+                Ok(())
+            }
+            Self::InToOut => {
+                write!(f, "InToOut")?;
+                Ok(())
+            }
+        }
+    }
+}
+
+// Convert a name to a raw identifier if it happens to be a Rust keyword.
+fn emit_identifier(name: &str) -> String {
+    if RUST_KEYWORDS.iter().any(|keyword| name == *keyword) {
+        format!("r#{}", name)
+    } else {
+        name.to_owned()
+    }
+}
+
+// Append a flavor to a name. Convert the result to a raw identifier if it happens to be a Rust
+// keyword.
+fn emit_identifier_with_flavor(name: &str, flavor: Flavor) -> String {
+    emit_identifier(&format!("{}{}", name, flavor))
 }
 
 // Insert a schema into a module.
@@ -98,9 +157,9 @@ fn render_module(
     new_namespace.components.push(name.to_owned());
 
     format!(
-        "{}pub mod r#{} {{\n{}{}}}\n",
+        "{}pub mod {} {{\n{}{}}}\n",
         indentation_str,
-        snake_case(name),
+        emit_identifier(&snake_case(name)),
         render_module_contents(
             &new_namespace,
             &module.children,
@@ -165,34 +224,6 @@ fn render_schema(
         .join("\n")
 }
 
-#[derive(Copy, Clone, Debug)]
-pub enum Flavor {
-    In,
-    Out,
-    InToOut,
-}
-
-pub const FLAVORS: &[Flavor] = &[Flavor::In, Flavor::Out, Flavor::InToOut];
-
-impl Display for Flavor {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        match self {
-            Self::In => {
-                write!(f, "In")?;
-                Ok(())
-            }
-            Self::Out => {
-                write!(f, "Out")?;
-                Ok(())
-            }
-            Self::InToOut => {
-                write!(f, "InToOut")?;
-                Ok(())
-            }
-        }
-    }
-}
-
 // Render a struct, including a trailing line break.
 #[allow(clippy::too_many_lines)]
 fn render_struct(
@@ -204,8 +235,9 @@ fn render_struct(
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-    let formatted_name = pascal_case(name);
+    let formatted_name = emit_identifier(&pascal_case(name));
 
+    #[allow(clippy::blocks_in_if_conditions)]
     FLAVORS
         .iter()
         .map(|flavor| {
@@ -213,7 +245,7 @@ fn render_struct(
                 "\
                     {}#[allow(dead_code)]\n\
                     {}\
-                    {}pub struct r#{}{} {{\n\
+                    {}pub struct {} {{\n\
                     {}\
                     {}}}\n\
                 ",
@@ -228,8 +260,7 @@ fn render_struct(
                     )
                 },
                 indentation_str,
-                formatted_name,
-                flavor,
+                emit_identifier_with_flavor(&formatted_name, *flavor),
                 fields
                     .iter()
                     .map(|field| {
@@ -242,50 +273,45 @@ fn render_struct(
         })
         .chain(once(format!(
             "\
-                {}impl From<self::r#{}{}> for self::r#{}{} {{\n\
-                {}{}fn from({}out: self::r#{}{}) -> Self {{\n\
-                {}{}{}self::r#{}{} {{\n\
+                {}impl From<self::{}> for self::{} {{\n\
+                {}{}fn from({}: self::{}) -> Self {{\n\
+                {}{}{}self::{} {{\n\
                 {}\
                 {}{}{}}}\n\
                 {}{}}}\n\
                 {}}}\n\
             ",
             indentation_str,
-            formatted_name,
-            Flavor::Out,
-            formatted_name,
-            Flavor::In,
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
             indentation_str,
             INDENTATION,
-            if fields.iter().any(|field| !field.restricted) {
-                ""
+            emit_identifier(&if fields.iter().any(|field| !field.restricted) {
+                OUT_VARIABLE.to_owned()
             } else {
-                "_"
-            },
-            formatted_name,
-            Flavor::Out,
+                format!("_{}", OUT_VARIABLE)
+            }),
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
             indentation_str,
             INDENTATION,
             INDENTATION,
-            formatted_name,
-            Flavor::In,
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
             fields
                 .iter()
                 .filter_map(|field| {
                     if field.restricted {
                         None
                     } else {
-                        let formatted_field_name = snake_case(&field.name);
+                        let formatted_field_name = emit_identifier(&snake_case(&field.name));
 
                         Some(format!(
-                            "\
-                                {}{}{}{}r#{}: out.r#{}.into(),\n\
-                            ",
+                            "{}{}{}{}{}: {}.{}.into(),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
                             formatted_field_name,
+                            emit_identifier(OUT_VARIABLE),
                             formatted_field_name,
                         ))
                     }
@@ -301,84 +327,77 @@ fn render_struct(
         )))
         .chain(once(format!(
             "\
-                {}impl From<(self::r#{}{}, self::r#{}{})> for self::r#{}{} {{\n\
-                {}{}fn from((r#{}in, r#{}in_to_out): (self::r#{}{}, self::r#{}{})) -> Self {{\n\
-                {}{}{}self::r#{}{} {{\n\
+                {}impl From<(self::{}, self::{})> for self::{} {{\n\
+                {}{}fn from(({}, {}): (self::{}, self::{})) -> Self {{\n\
+                {}{}{}self::{} {{\n\
                 {}\
                 {}{}{}}}\n\
                 {}{}}}\n\
                 {}}}\n\
             ",
             indentation_str,
-            formatted_name,
-            Flavor::In,
-            formatted_name,
-            Flavor::InToOut,
-            formatted_name,
-            Flavor::Out,
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
+            emit_identifier_with_flavor(&formatted_name, Flavor::InToOut),
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
             indentation_str,
             INDENTATION,
-            if fields.iter().any(|field| !field.restricted) {
-                ""
+            emit_identifier(&if fields.iter().any(|field| !field.restricted) {
+                IN_VARIABLE.to_owned()
             } else {
-                "_"
-            },
-            if fields.iter().any(|field| field.restricted
-                || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)))
-            {
-                ""
+                format!("_{}", IN_VARIABLE)
+            }),
+            emit_identifier(&if fields.iter().any(|field| {
+                field.restricted
+                    || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
+            }) {
+                IN_TO_OUT_VARIABLE.to_owned()
             } else {
-                "_"
-            },
-            formatted_name,
-            Flavor::In,
-            formatted_name,
-            Flavor::InToOut,
+                format!("_{}", IN_TO_OUT_VARIABLE)
+            }),
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
+            emit_identifier_with_flavor(&formatted_name, Flavor::InToOut),
             indentation_str,
             INDENTATION,
             INDENTATION,
-            formatted_name,
-            Flavor::Out,
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
             fields
                 .iter()
                 .map(|field| {
-                    let formatted_field_name = snake_case(&field.name);
+                    let formatted_field_name = emit_identifier(&snake_case(&field.name));
 
                     if field.restricted {
                         format!(
-                            "\
-                                {}{}{}{}r#{}: in_to_out.r#{},\n\
-                            ",
+                            "{}{}{}{}{}: {}.{},\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
                             formatted_field_name,
+                            emit_identifier(IN_TO_OUT_VARIABLE),
                             formatted_field_name,
                         )
                     } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                         format!(
-                            "\
-                                {}{}{}{}r#{}: (r#in.r#{}, in_to_out.r#{}).into(),\n\
-                            ",
+                            "{}{}{}{}{}: ({}.{}, {}.{}).into(),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
                             formatted_field_name,
+                            emit_identifier(IN_VARIABLE),
                             formatted_field_name,
+                            emit_identifier(IN_TO_OUT_VARIABLE),
                             formatted_field_name,
                         )
                     } else {
                         format!(
-                            "\
-                                {}{}{}{}r#{}: r#in.r#{},\n\
-                            ",
+                            "{}{}{}{}{}: {}.{},\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
                             formatted_field_name,
+                            emit_identifier(IN_VARIABLE),
                             formatted_field_name,
                         )
                     }
@@ -407,8 +426,9 @@ fn render_choice(
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-    let formatted_name = pascal_case(name);
+    let formatted_name = emit_identifier(&pascal_case(name));
 
+    #[allow(clippy::blocks_in_if_conditions)]
     FLAVORS
         .iter()
         .map(|flavor| {
@@ -416,7 +436,7 @@ fn render_choice(
                 "\
                     {}#[allow(dead_code)]\n\
                     {}\
-                    {}pub {} r#{}{} {{\n\
+                    {}pub {} {} {{\n\
                     {}\
                     {}}}\n\
                 ",
@@ -436,8 +456,7 @@ fn render_choice(
                 } else {
                     "enum"
                 },
-                formatted_name,
-                flavor,
+                emit_identifier_with_flavor(&formatted_name, *flavor),
                 fields
                     .iter()
                     .map(|field| {
@@ -457,49 +476,45 @@ fn render_choice(
         })
         .chain(once(format!(
             "\
-                {}impl From<self::r#{}{}> for self::r#{}{} {{\n\
-                {}{}fn from(out: self::r#{}{}) -> Self {{\n\
-                {}{}{}match out {{\n\
+                {}impl From<self::{}> for self::{} {{\n\
+                {}{}fn from({}: self::{}) -> Self {{\n\
+                {}{}{}match {} {{\n\
                 {}\
                 {}{}{}}}\n\
                 {}{}}}\n\
                 {}}}\n\
             ",
             indentation_str,
-            formatted_name,
-            Flavor::Out,
-            formatted_name,
-            Flavor::In,
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
             indentation_str,
             INDENTATION,
-            formatted_name,
-            Flavor::Out,
+            emit_identifier(OUT_VARIABLE),
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
             indentation_str,
             INDENTATION,
             INDENTATION,
+            emit_identifier(OUT_VARIABLE),
             fields
                 .iter()
                 .filter_map(|field| {
                     if field.restricted {
                         None
                     } else {
-                        let formatted_field_name = pascal_case(&field.name);
+                        let formatted_field_name = emit_identifier(&pascal_case(&field.name));
 
                         Some(format!(
-                            "\
-                                {}{}{}{}self::{}{}::r#{}(payload) => \
-                                    self::{}{}::r#{}(payload.into()),\n\
-                            ",
+                            "{}{}{}{}self::{}::{}({}) => self::{}::{}({}.into()),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            formatted_name,
-                            Flavor::Out,
+                            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
                             formatted_field_name,
-                            formatted_name,
-                            Flavor::In,
+                            emit_identifier(PAYLOAD_VARIABLE),
+                            emit_identifier_with_flavor(&formatted_name, Flavor::In),
                             formatted_field_name,
+                            emit_identifier(PAYLOAD_VARIABLE),
                         ))
                     }
                 })
@@ -514,89 +529,83 @@ fn render_choice(
         )))
         .chain(once(format!(
             "\
-                {}impl From<(self::r#{}{}, self::r#{}{})> for self::r#{}{} {{\n\
-                {}{}fn from((r#in, r#{}in_to_out): (self::r#{}{}, self::r#{}{})) -> Self {{\n\
-                {}{}{}match r#in {{\n\
+                {}impl From<(self::{}, self::{})> for self::{} {{\n\
+                {}{}fn from(({}, {}): (self::{}, self::{})) -> Self {{\n\
+                {}{}{}match {} {{\n\
                 {}\
                 {}{}{}}}\n\
                 {}{}}}\n\
                 {}}}\n\
             ",
             indentation_str,
-            formatted_name,
-            Flavor::In,
-            formatted_name,
-            Flavor::InToOut,
-            formatted_name,
-            Flavor::Out,
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
+            emit_identifier_with_flavor(&formatted_name, Flavor::InToOut),
+            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
             indentation_str,
             INDENTATION,
-            if fields.iter().any(|field| field.restricted
-                || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)))
-            {
-                ""
+            emit_identifier(IN_VARIABLE),
+            emit_identifier(&if fields.iter().any(|field| {
+                field.restricted
+                    || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
+            }) {
+                IN_TO_OUT_VARIABLE.to_owned()
             } else {
-                "_"
-            },
-            formatted_name,
-            Flavor::In,
-            formatted_name,
-            Flavor::InToOut,
+                format!("_{}", IN_TO_OUT_VARIABLE)
+            }),
+            emit_identifier_with_flavor(&formatted_name, Flavor::In),
+            emit_identifier_with_flavor(&formatted_name, Flavor::InToOut),
             indentation_str,
             INDENTATION,
             INDENTATION,
+            emit_identifier(IN_VARIABLE),
             fields
                 .iter()
                 .map(|field| {
-                    let formatted_field_name = pascal_case(&field.name);
+                    let formatted_field_name = emit_identifier(&pascal_case(&field.name));
 
                     if field.restricted {
                         format!(
-                            "\
-                                {}{}{}{}self::{}{}::r#{}(payload) => (r#in_to_out.r#{})(payload),\n\
-                            ",
+                            "{}{}{}{}self::{}::{}({}) => ({}.{})({}),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            formatted_name,
-                            Flavor::In,
+                            emit_identifier_with_flavor(&formatted_name, Flavor::In),
                             formatted_field_name,
-                            snake_case(&field.name),
+                            emit_identifier(PAYLOAD_VARIABLE),
+                            emit_identifier(IN_TO_OUT_VARIABLE),
+                            emit_identifier(&snake_case(&field.name)),
+                            emit_identifier(PAYLOAD_VARIABLE),
                         )
                     } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                         format!(
-                            "\
-                                {}{}{}{}self::{}{}::r#{}(payload) => \
-                                    self::{}{}::r#{}((payload, r#in_to_out.r#{}).into()),\n\
-                            ",
+                            "{}{}{}{}self::{}::{}({}) => self::{}::{}(({}, {}.{}).into()),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            formatted_name,
-                            Flavor::In,
+                            emit_identifier_with_flavor(&formatted_name, Flavor::In),
                             formatted_field_name,
-                            formatted_name,
-                            Flavor::Out,
+                            emit_identifier(PAYLOAD_VARIABLE),
+                            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
                             formatted_field_name,
-                            snake_case(&field.name),
+                            emit_identifier(PAYLOAD_VARIABLE),
+                            emit_identifier(IN_TO_OUT_VARIABLE),
+                            emit_identifier(&snake_case(&field.name)),
                         )
                     } else {
                         format!(
-                            "\
-                                {}{}{}{}self::{}{}::r#{}(payload) => self::{}{}::r#{}(payload),\n\
-                            ",
+                            "{}{}{}{}self::{}::{}({}) => self::{}::{}({}),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            formatted_name,
-                            Flavor::In,
+                            emit_identifier_with_flavor(&formatted_name, Flavor::In),
                             formatted_field_name,
-                            formatted_name,
-                            Flavor::Out,
+                            emit_identifier(PAYLOAD_VARIABLE),
+                            emit_identifier_with_flavor(&formatted_name, Flavor::Out),
                             formatted_field_name,
+                            emit_identifier(PAYLOAD_VARIABLE),
                         )
                     }
                 })
@@ -635,9 +644,9 @@ fn render_struct_field(
         let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
         format!(
-            "{}r#{}: {},\n",
+            "{}{}: {},\n",
             indentation_str,
-            snake_case(&field.name),
+            emit_identifier(&snake_case(&field.name)),
             render_type(
                 imports,
                 namespace,
@@ -673,9 +682,9 @@ fn render_choice_field(
                 let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
                 format!(
-                    "{}r#{}({}),\n",
+                    "{}{}({}),\n",
                     indentation_str,
-                    pascal_case(&field.name),
+                    emit_identifier(&pascal_case(&field.name)),
                     render_type(imports, namespace, &field.r#type, flavor),
                 )
             } else {
@@ -687,18 +696,18 @@ fn render_choice_field(
 
             if field.restricted {
                 format!(
-                    "{}r#{}: Box<dyn FnOnce({}) -> r#{}{}>,\n",
+                    "{}{}: Box<dyn FnOnce({}) -> {}{}>,\n",
                     indentation_str,
-                    snake_case(&field.name),
+                    emit_identifier(&snake_case(&field.name)),
                     render_type(imports, namespace, &field.r#type, Flavor::In),
-                    choice_name,
+                    emit_identifier(choice_name),
                     Flavor::Out,
                 )
             } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                 format!(
-                    "{}r#{}: {},\n",
+                    "{}{}: {},\n",
                     indentation_str,
-                    snake_case(&field.name),
+                    emit_identifier(&snake_case(&field.name)),
                     render_type(imports, namespace, &field.r#type, Flavor::InToOut),
                 )
             } else {
@@ -738,10 +747,10 @@ fn render_type(
                 relative_type_namespace
                     .components
                     .iter()
-                    .map(|component| format!("r#{}", snake_case(component))),
+                    .map(|component| emit_identifier(&snake_case(component))),
             );
 
-            components.push(format!("r#{}{}", pascal_case(&name), flavor));
+            components.push(emit_identifier_with_flavor(&pascal_case(&name), flavor));
 
             components.join("::")
         }
@@ -836,245 +845,245 @@ mod tests {
         assert_eq!(
             generate(schemas),
             "\
-pub mod r#basic {
-    pub mod r#unit {
+pub mod basic {
+    pub mod unit {
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
-        pub struct r#UnitIn {
+        pub struct UnitIn {
         }
 
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
-        pub struct r#UnitOut {
+        pub struct UnitOut {
         }
 
         #[allow(dead_code)]
-        pub struct r#UnitInToOut {
+        pub struct UnitInToOut {
         }
 
-        impl From<self::r#UnitOut> for self::r#UnitIn {
-            fn from(_out: self::r#UnitOut) -> Self {
-                self::r#UnitIn {
+        impl From<self::UnitOut> for self::UnitIn {
+            fn from(_out: self::UnitOut) -> Self {
+                self::UnitIn {
                 }
             }
         }
 
-        impl From<(self::r#UnitIn, self::r#UnitInToOut)> for self::r#UnitOut {
-            fn from((r#_in, r#_in_to_out): (self::r#UnitIn, self::r#UnitInToOut)) -> Self {
-                self::r#UnitOut {
+        impl From<(self::UnitIn, self::UnitInToOut)> for self::UnitOut {
+            fn from((_in, _in_to_out): (self::UnitIn, self::UnitInToOut)) -> Self {
+                self::UnitOut {
                 }
             }
         }
     }
 
-    pub mod r#void {
+    pub mod void {
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
-        pub struct r#VoidIn {
+        pub struct VoidIn {
         }
 
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
-        pub struct r#VoidOut {
+        pub struct VoidOut {
         }
 
         #[allow(dead_code)]
-        pub struct r#VoidInToOut {
+        pub struct VoidInToOut {
         }
 
-        impl From<self::r#VoidOut> for self::r#VoidIn {
-            fn from(_out: self::r#VoidOut) -> Self {
-                self::r#VoidIn {
+        impl From<self::VoidOut> for self::VoidIn {
+            fn from(_out: self::VoidOut) -> Self {
+                self::VoidIn {
                 }
             }
         }
 
-        impl From<(self::r#VoidIn, self::r#VoidInToOut)> for self::r#VoidOut {
-            fn from((r#_in, r#_in_to_out): (self::r#VoidIn, self::r#VoidInToOut)) -> Self {
-                self::r#VoidOut {
+        impl From<(self::VoidIn, self::VoidInToOut)> for self::VoidOut {
+            fn from((_in, _in_to_out): (self::VoidIn, self::VoidInToOut)) -> Self {
+                self::VoidOut {
                 }
             }
         }
     }
 }
 
-pub mod r#main {
+pub mod main {
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub struct r#FooIn {
-        r#x: bool,
-        r#z: super::r#basic::r#void::r#VoidIn,
-        r#s: super::r#basic::r#unit::r#UnitIn,
+    pub struct FooIn {
+        x: bool,
+        z: super::basic::void::VoidIn,
+        s: super::basic::unit::UnitIn,
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub struct r#FooOut {
-        r#x: bool,
-        r#y: bool,
-        r#z: super::r#basic::r#void::r#VoidOut,
-        r#w: super::r#basic::r#void::r#VoidOut,
-        r#s: super::r#basic::r#unit::r#UnitOut,
-        r#t: super::r#basic::r#unit::r#UnitOut,
+    pub struct FooOut {
+        x: bool,
+        y: bool,
+        z: super::basic::void::VoidOut,
+        w: super::basic::void::VoidOut,
+        s: super::basic::unit::UnitOut,
+        t: super::basic::unit::UnitOut,
     }
 
     #[allow(dead_code)]
-    pub struct r#FooInToOut {
-        r#y: bool,
-        r#z: super::r#basic::r#void::r#VoidInToOut,
-        r#w: super::r#basic::r#void::r#VoidOut,
-        r#s: super::r#basic::r#unit::r#UnitInToOut,
-        r#t: super::r#basic::r#unit::r#UnitOut,
+    pub struct FooInToOut {
+        y: bool,
+        z: super::basic::void::VoidInToOut,
+        w: super::basic::void::VoidOut,
+        s: super::basic::unit::UnitInToOut,
+        t: super::basic::unit::UnitOut,
     }
 
-    impl From<self::r#FooOut> for self::r#FooIn {
-        fn from(out: self::r#FooOut) -> Self {
-            self::r#FooIn {
-                r#x: out.r#x.into(),
-                r#z: out.r#z.into(),
-                r#s: out.r#s.into(),
+    impl From<self::FooOut> for self::FooIn {
+        fn from(out: self::FooOut) -> Self {
+            self::FooIn {
+                x: out.x.into(),
+                z: out.z.into(),
+                s: out.s.into(),
             }
         }
     }
 
-    impl From<(self::r#FooIn, self::r#FooInToOut)> for self::r#FooOut {
-        fn from((r#in, r#in_to_out): (self::r#FooIn, self::r#FooInToOut)) -> Self {
-            self::r#FooOut {
-                r#x: r#in.r#x,
-                r#y: in_to_out.r#y,
-                r#z: (r#in.r#z, in_to_out.r#z).into(),
-                r#w: in_to_out.r#w,
-                r#s: (r#in.r#s, in_to_out.r#s).into(),
-                r#t: in_to_out.r#t,
+    impl From<(self::FooIn, self::FooInToOut)> for self::FooOut {
+        fn from((r#in, in_to_out): (self::FooIn, self::FooInToOut)) -> Self {
+            self::FooOut {
+                x: r#in.x,
+                y: in_to_out.y,
+                z: (r#in.z, in_to_out.z).into(),
+                w: in_to_out.w,
+                s: (r#in.s, in_to_out.s).into(),
+                t: in_to_out.t,
             }
         }
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub enum r#BarIn {
-        r#X(bool),
-        r#Y(bool),
-        r#Z(super::r#basic::r#void::r#VoidIn),
-        r#W(super::r#basic::r#void::r#VoidIn),
-        r#S(super::r#basic::r#unit::r#UnitIn),
-        r#T(super::r#basic::r#unit::r#UnitIn),
+    pub enum BarIn {
+        X(bool),
+        Y(bool),
+        Z(super::basic::void::VoidIn),
+        W(super::basic::void::VoidIn),
+        S(super::basic::unit::UnitIn),
+        T(super::basic::unit::UnitIn),
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub enum r#BarOut {
-        r#X(bool),
-        r#Z(super::r#basic::r#void::r#VoidOut),
-        r#S(super::r#basic::r#unit::r#UnitOut),
+    pub enum BarOut {
+        X(bool),
+        Z(super::basic::void::VoidOut),
+        S(super::basic::unit::UnitOut),
     }
 
     #[allow(dead_code)]
-    pub struct r#BarInToOut {
-        r#y: Box<dyn FnOnce(bool) -> r#BarOut>,
-        r#z: super::r#basic::r#void::r#VoidInToOut,
-        r#w: Box<dyn FnOnce(super::r#basic::r#void::r#VoidIn) -> r#BarOut>,
-        r#s: super::r#basic::r#unit::r#UnitInToOut,
-        r#t: Box<dyn FnOnce(super::r#basic::r#unit::r#UnitIn) -> r#BarOut>,
+    pub struct BarInToOut {
+        y: Box<dyn FnOnce(bool) -> BarOut>,
+        z: super::basic::void::VoidInToOut,
+        w: Box<dyn FnOnce(super::basic::void::VoidIn) -> BarOut>,
+        s: super::basic::unit::UnitInToOut,
+        t: Box<dyn FnOnce(super::basic::unit::UnitIn) -> BarOut>,
     }
 
-    impl From<self::r#BarOut> for self::r#BarIn {
-        fn from(out: self::r#BarOut) -> Self {
+    impl From<self::BarOut> for self::BarIn {
+        fn from(out: self::BarOut) -> Self {
             match out {
-                self::BarOut::r#X(payload) => self::BarIn::r#X(payload.into()),
-                self::BarOut::r#Z(payload) => self::BarIn::r#Z(payload.into()),
-                self::BarOut::r#S(payload) => self::BarIn::r#S(payload.into()),
+                self::BarOut::X(payload) => self::BarIn::X(payload.into()),
+                self::BarOut::Z(payload) => self::BarIn::Z(payload.into()),
+                self::BarOut::S(payload) => self::BarIn::S(payload.into()),
             }
         }
     }
 
-    impl From<(self::r#BarIn, self::r#BarInToOut)> for self::r#BarOut {
-        fn from((r#in, r#in_to_out): (self::r#BarIn, self::r#BarInToOut)) -> Self {
+    impl From<(self::BarIn, self::BarInToOut)> for self::BarOut {
+        fn from((r#in, in_to_out): (self::BarIn, self::BarInToOut)) -> Self {
             match r#in {
-                self::BarIn::r#X(payload) => self::BarOut::r#X(payload),
-                self::BarIn::r#Y(payload) => (r#in_to_out.r#y)(payload),
-                self::BarIn::r#Z(payload) => self::BarOut::r#Z((payload, r#in_to_out.r#z).into()),
-                self::BarIn::r#W(payload) => (r#in_to_out.r#w)(payload),
-                self::BarIn::r#S(payload) => self::BarOut::r#S((payload, r#in_to_out.r#s).into()),
-                self::BarIn::r#T(payload) => (r#in_to_out.r#t)(payload),
+                self::BarIn::X(payload) => self::BarOut::X(payload),
+                self::BarIn::Y(payload) => (in_to_out.y)(payload),
+                self::BarIn::Z(payload) => self::BarOut::Z((payload, in_to_out.z).into()),
+                self::BarIn::W(payload) => (in_to_out.w)(payload),
+                self::BarIn::S(payload) => self::BarOut::S((payload, in_to_out.s).into()),
+                self::BarIn::T(payload) => (in_to_out.t)(payload),
             }
         }
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub struct r#FooAndBarIn {
-        r#foo: r#FooIn,
-        r#bar: r#BarIn,
+    pub struct FooAndBarIn {
+        foo: FooIn,
+        bar: BarIn,
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub struct r#FooAndBarOut {
-        r#foo: r#FooOut,
-        r#bar: r#BarOut,
+    pub struct FooAndBarOut {
+        foo: FooOut,
+        bar: BarOut,
     }
 
     #[allow(dead_code)]
-    pub struct r#FooAndBarInToOut {
-        r#foo: r#FooInToOut,
-        r#bar: r#BarInToOut,
+    pub struct FooAndBarInToOut {
+        foo: FooInToOut,
+        bar: BarInToOut,
     }
 
-    impl From<self::r#FooAndBarOut> for self::r#FooAndBarIn {
-        fn from(out: self::r#FooAndBarOut) -> Self {
-            self::r#FooAndBarIn {
-                r#foo: out.r#foo.into(),
-                r#bar: out.r#bar.into(),
+    impl From<self::FooAndBarOut> for self::FooAndBarIn {
+        fn from(out: self::FooAndBarOut) -> Self {
+            self::FooAndBarIn {
+                foo: out.foo.into(),
+                bar: out.bar.into(),
             }
         }
     }
 
-    impl From<(self::r#FooAndBarIn, self::r#FooAndBarInToOut)> for self::r#FooAndBarOut {
-        fn from((r#in, r#in_to_out): (self::r#FooAndBarIn, self::r#FooAndBarInToOut)) -> Self {
-            self::r#FooAndBarOut {
-                r#foo: (r#in.r#foo, in_to_out.r#foo).into(),
-                r#bar: (r#in.r#bar, in_to_out.r#bar).into(),
+    impl From<(self::FooAndBarIn, self::FooAndBarInToOut)> for self::FooAndBarOut {
+        fn from((r#in, in_to_out): (self::FooAndBarIn, self::FooAndBarInToOut)) -> Self {
+            self::FooAndBarOut {
+                foo: (r#in.foo, in_to_out.foo).into(),
+                bar: (r#in.bar, in_to_out.bar).into(),
             }
         }
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub enum r#FooOrBarIn {
-        r#Foo(r#FooIn),
-        r#Bar(r#BarIn),
+    pub enum FooOrBarIn {
+        Foo(FooIn),
+        Bar(BarIn),
     }
 
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
-    pub enum r#FooOrBarOut {
-        r#Foo(r#FooOut),
-        r#Bar(r#BarOut),
+    pub enum FooOrBarOut {
+        Foo(FooOut),
+        Bar(BarOut),
     }
 
     #[allow(dead_code)]
-    pub struct r#FooOrBarInToOut {
-        r#foo: r#FooInToOut,
-        r#bar: r#BarInToOut,
+    pub struct FooOrBarInToOut {
+        foo: FooInToOut,
+        bar: BarInToOut,
     }
 
-    impl From<self::r#FooOrBarOut> for self::r#FooOrBarIn {
-        fn from(out: self::r#FooOrBarOut) -> Self {
+    impl From<self::FooOrBarOut> for self::FooOrBarIn {
+        fn from(out: self::FooOrBarOut) -> Self {
             match out {
-                self::FooOrBarOut::r#Foo(payload) => self::FooOrBarIn::r#Foo(payload.into()),
-                self::FooOrBarOut::r#Bar(payload) => self::FooOrBarIn::r#Bar(payload.into()),
+                self::FooOrBarOut::Foo(payload) => self::FooOrBarIn::Foo(payload.into()),
+                self::FooOrBarOut::Bar(payload) => self::FooOrBarIn::Bar(payload.into()),
             }
         }
     }
 
-    impl From<(self::r#FooOrBarIn, self::r#FooOrBarInToOut)> for self::r#FooOrBarOut {
-        fn from((r#in, r#in_to_out): (self::r#FooOrBarIn, self::r#FooOrBarInToOut)) -> Self {
+    impl From<(self::FooOrBarIn, self::FooOrBarInToOut)> for self::FooOrBarOut {
+        fn from((r#in, in_to_out): (self::FooOrBarIn, self::FooOrBarInToOut)) -> Self {
             match r#in {
-                self::FooOrBarIn::r#Foo(payload) => \
-                    self::FooOrBarOut::r#Foo((payload, r#in_to_out.r#foo).into()),
-                self::FooOrBarIn::r#Bar(payload) => \
-                    self::FooOrBarOut::r#Bar((payload, r#in_to_out.r#bar).into()),
+                self::FooOrBarIn::Foo(payload) => \
+                    self::FooOrBarOut::Foo((payload, in_to_out.foo).into()),
+                self::FooOrBarIn::Bar(payload) => \
+                    self::FooOrBarOut::Bar((payload, in_to_out.bar).into()),
             }
         }
     }
