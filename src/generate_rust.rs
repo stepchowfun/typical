@@ -241,7 +241,6 @@ fn render_struct(
 
     let formatted_name = pascal_case(name);
 
-    #[allow(clippy::blocks_in_if_conditions)]
     FLAVORS
         .iter()
         .map(|flavor| {
@@ -432,7 +431,6 @@ fn render_choice(
 
     let formatted_name = pascal_case(name);
 
-    #[allow(clippy::blocks_in_if_conditions)]
     FLAVORS
         .iter()
         .map(|flavor| {
