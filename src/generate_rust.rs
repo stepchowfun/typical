@@ -292,7 +292,7 @@ fn render_struct(
             emit_name(
                 OUT_VARIABLE,
                 None,
-                fields.iter().any(|field| !field.restricted),
+                fields.iter().any(|field| !field.transitional),
             ),
             emit_name(&formatted_name, Some(Flavor::Out), true),
             indentation_str,
@@ -302,7 +302,7 @@ fn render_struct(
             fields
                 .iter()
                 .filter_map(|field| {
-                    if field.restricted {
+                    if field.transitional {
                         None
                     } else {
                         let formatted_field_name = snake_case(&field.name);
@@ -347,13 +347,13 @@ fn render_struct(
             emit_name(
                 IN_VARIABLE,
                 None,
-                fields.iter().any(|field| !field.restricted),
+                fields.iter().any(|field| !field.transitional),
             ),
             emit_name(
                 IN_TO_OUT_VARIABLE,
                 None,
                 fields.iter().any(|field| {
-                    field.restricted
+                    field.transitional
                         || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
                 }),
             ),
@@ -368,7 +368,7 @@ fn render_struct(
                 .map(|field| {
                     let formatted_field_name = snake_case(&field.name);
 
-                    if field.restricted {
+                    if field.transitional {
                         format!(
                             "{}{}{}{}{}: {}.{},\n",
                             indentation_str,
@@ -500,7 +500,7 @@ fn render_choice(
             fields
                 .iter()
                 .filter_map(|field| {
-                    if field.restricted {
+                    if field.transitional {
                         None
                     } else {
                         let formatted_field_name = pascal_case(&field.name);
@@ -550,7 +550,7 @@ fn render_choice(
                 IN_TO_OUT_VARIABLE,
                 None,
                 fields.iter().any(|field| {
-                    field.restricted
+                    field.transitional
                         || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
                 }),
             ),
@@ -566,7 +566,7 @@ fn render_choice(
                     let formatted_field_name_pascal = pascal_case(&field.name);
                     let formatted_field_name_snake = snake_case(&field.name);
 
-                    if field.restricted {
+                    if field.transitional {
                         format!(
                             "{}{}{}{}self::{}::{}({}) => ({}.{})({}),\n",
                             indentation_str,
@@ -634,10 +634,10 @@ fn render_struct_field(
     indentation: u64,
 ) -> String {
     if match flavor {
-        Flavor::In => !field.restricted,
+        Flavor::In => !field.transitional,
         Flavor::Out => true,
         Flavor::InToOut => {
-            if field.restricted {
+            if field.transitional {
                 true
             } else {
                 matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
@@ -655,7 +655,7 @@ fn render_struct_field(
                 namespace,
                 &field.r#type,
                 if let Flavor::InToOut = flavor {
-                    if field.restricted {
+                    if field.transitional {
                         Flavor::Out
                     } else {
                         flavor
@@ -681,7 +681,7 @@ fn render_choice_field(
 ) -> String {
     match flavor {
         Flavor::In | Flavor::Out => {
-            if matches!(flavor, Flavor::In) || !field.restricted {
+            if matches!(flavor, Flavor::In) || !field.transitional {
                 let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
                 format!(
@@ -697,7 +697,7 @@ fn render_choice_field(
         Flavor::InToOut => {
             let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
-            if field.restricted {
+            if field.transitional {
                 format!(
                     "{}{}: Box<dyn FnOnce({}) -> {}{}>,\n",
                     indentation_str,
