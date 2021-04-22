@@ -9,7 +9,7 @@ pub const AS_KEYWORD: &str = "as";
 pub const BOOL_KEYWORD: &str = "Bool";
 pub const CHOICE_KEYWORD: &str = "choice";
 pub const IMPORT_KEYWORD: &str = "import";
-pub const RESTRICTED_KEYWORD: &str = "restricted";
+pub const TRANSITIONAL_KEYWORD: &str = "transitional";
 pub const STRUCT_KEYWORD: &str = "struct";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
@@ -34,7 +34,7 @@ pub enum Variant {
     Integer(usize),
     LeftCurly,
     Path(PathBuf),
-    Restricted,
+    Transitional,
     RightCurly,
     Struct,
 }
@@ -59,7 +59,7 @@ impl Display for Variant {
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
             Self::Path(path) => write!(f, "'{}'", path.display()),
-            Self::Restricted => write!(f, "{}", RESTRICTED_KEYWORD),
+            Self::Transitional => write!(f, "{}", TRANSITIONAL_KEYWORD),
             Self::RightCurly => write!(f, "}}"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
         }
@@ -72,7 +72,7 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-            RESTRICTED_KEYWORD, STRUCT_KEYWORD,
+            STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
         },
     };
     use std::path::Path;
@@ -150,8 +150,8 @@ mod tests {
     }
 
     #[test]
-    fn variant_restricted_display() {
-        assert_eq!(format!("{}", Variant::Restricted), RESTRICTED_KEYWORD);
+    fn variant_transitional_display() {
+        assert_eq!(format!("{}", Variant::Transitional), TRANSITIONAL_KEYWORD);
     }
 
     #[test]

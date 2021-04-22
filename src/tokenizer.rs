@@ -2,8 +2,8 @@ use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
     token::{
-        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-        RESTRICTED_KEYWORD, STRUCT_KEYWORD,
+        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD,
+        TRANSITIONAL_KEYWORD,
     },
 };
 use std::path::Path;
@@ -109,10 +109,10 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Import,
                     });
-                } else if &schema_contents[i..end] == RESTRICTED_KEYWORD {
+                } else if &schema_contents[i..end] == TRANSITIONAL_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Restricted,
+                        variant: Variant::Transitional,
                     });
                 } else if &schema_contents[i..end] == STRUCT_KEYWORD {
                     tokens.push(Token {
@@ -259,7 +259,7 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-            RESTRICTED_KEYWORD, STRUCT_KEYWORD,
+            STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
         },
         tokenizer::tokenize,
     };
@@ -274,13 +274,13 @@ mod tests {
             # This is a struct.
             struct plugh {
               qux: bar.Foo = 0
-              corge: restricted int = 1
+              corge: transitional int = 1
             }
 
             # This is a choice.
             choice zyzzy {
               grault: bar.Bar = 0
-              garply: restricted int = 1
+              garply: transitional int = 1
             }
         ";
 
@@ -381,154 +381,154 @@ mod tests {
                 Token {
                     source_range: SourceRange {
                         start: 147,
-                        end: 157,
+                        end: 159,
                     },
-                    variant: Variant::Restricted,
+                    variant: Variant::Transitional,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 158,
-                        end: 161,
-                    },
-                    variant: Variant::Identifier("int".to_owned()),
-                },
-                Token {
-                    source_range: SourceRange {
-                        start: 162,
+                        start: 160,
                         end: 163,
                     },
-                    variant: Variant::Equals,
+                    variant: Variant::Identifier("int".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
                         start: 164,
                         end: 165,
                     },
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 166,
+                        end: 167,
+                    },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 178,
-                        end: 179,
+                        start: 180,
+                        end: 181,
                     },
                     variant: Variant::RightCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 225,
-                        end: 231,
+                        start: 227,
+                        end: 233,
                     },
                     variant: Variant::Choice,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 232,
-                        end: 237,
+                        start: 234,
+                        end: 239,
                     },
                     variant: Variant::Identifier("zyzzy".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 238,
-                        end: 239,
+                        start: 240,
+                        end: 241,
                     },
                     variant: Variant::LeftCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 254,
-                        end: 260,
+                        start: 256,
+                        end: 262,
                     },
                     variant: Variant::Identifier("grault".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 260,
-                        end: 261,
+                        start: 262,
+                        end: 263,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 262,
-                        end: 265,
+                        start: 264,
+                        end: 267,
                     },
                     variant: Variant::Identifier("bar".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 265,
-                        end: 266,
+                        start: 267,
+                        end: 268,
                     },
                     variant: Variant::Dot,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 266,
-                        end: 269,
-                    },
-                    variant: Variant::Identifier("Bar".to_owned()),
-                },
-                Token {
-                    source_range: SourceRange {
-                        start: 270,
+                        start: 268,
                         end: 271,
                     },
-                    variant: Variant::Equals,
+                    variant: Variant::Identifier("Bar".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
                         start: 272,
                         end: 273,
                     },
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 274,
+                        end: 275,
+                    },
                     variant: Variant::Integer(0),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 288,
-                        end: 294,
+                        start: 290,
+                        end: 296,
                     },
                     variant: Variant::Identifier("garply".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 294,
-                        end: 295,
+                        start: 296,
+                        end: 297,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 296,
-                        end: 306,
+                        start: 298,
+                        end: 310,
                     },
-                    variant: Variant::Restricted,
+                    variant: Variant::Transitional,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 307,
-                        end: 310,
+                        start: 311,
+                        end: 314,
                     },
                     variant: Variant::Identifier("int".to_owned()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 311,
-                        end: 312,
+                        start: 315,
+                        end: 316,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 313,
-                        end: 314,
+                        start: 317,
+                        end: 318,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 327,
-                        end: 328,
+                        start: 331,
+                        end: 332,
                     },
                     variant: Variant::RightCurly,
                 },
@@ -715,15 +715,15 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_restricted() {
+    fn tokenize_transitional() {
         assert_same!(
-            tokenize(Path::new("foo.t"), RESTRICTED_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), TRANSITIONAL_KEYWORD).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
-                    end: RESTRICTED_KEYWORD.len(),
+                    end: TRANSITIONAL_KEYWORD.len(),
                 },
-                variant: Variant::Restricted,
+                variant: Variant::Transitional,
             }],
         );
     }

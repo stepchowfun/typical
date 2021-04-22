@@ -45,7 +45,7 @@ pub enum DeclarationVariant {
 pub struct Field {
     pub source_range: SourceRange,
     pub name: String,
-    pub restricted: bool,
+    pub transitional: bool,
     pub r#type: Type,
     pub index: usize,
 }
@@ -155,10 +155,10 @@ impl Display for DeclarationVariant {
 
 impl Display for Field {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        if self.restricted {
+        if self.transitional {
             write!(
                 f,
-                "  {}: restricted {} = {}",
+                "  {}: transitional {} = {}",
                 self.name, self.r#type, self.index,
             )?;
         } else {
@@ -405,7 +405,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "x".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -415,7 +415,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "y".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -433,7 +433,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "x".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -443,7 +443,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "y".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -499,7 +499,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "x".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -509,7 +509,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "y".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -527,7 +527,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "x".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -537,7 +537,7 @@ mod tests {
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
                                         name: "y".to_owned(),
-                                        restricted: false,
+                                        transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
                                             variant: TypeVariant::Bool,
@@ -580,7 +580,7 @@ mod tests {
                             Field {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 name: "x".to_owned(),
-                                restricted: false,
+                                transitional: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
                                     variant: TypeVariant::Bool,
@@ -590,7 +590,7 @@ mod tests {
                             Field {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 name: "y".to_owned(),
-                                restricted: false,
+                                transitional: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
                                     variant: TypeVariant::Bool,
@@ -621,7 +621,7 @@ mod tests {
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
                             name: "x".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 variant: TypeVariant::Bool,
@@ -631,7 +631,7 @@ mod tests {
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
                             name: "y".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 variant: TypeVariant::Bool,
@@ -661,7 +661,7 @@ mod tests {
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
                             name: "x".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 variant: TypeVariant::Bool,
@@ -671,7 +671,7 @@ mod tests {
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
                             name: "y".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
                                 variant: TypeVariant::Bool,
@@ -691,14 +691,14 @@ mod tests {
     }
 
     #[test]
-    fn field_display_non_restricted() {
+    fn field_display_non_transitional() {
         assert_eq!(
             format!(
                 "{}",
                 Field {
                     source_range: SourceRange { start: 0, end: 0 },
                     name: "x".to_owned(),
-                    restricted: false,
+                    transitional: false,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
                         variant: TypeVariant::Bool,
@@ -711,14 +711,14 @@ mod tests {
     }
 
     #[test]
-    fn field_display_restricted() {
+    fn field_display_transitional() {
         assert_eq!(
             format!(
                 "{}",
                 Field {
                     source_range: SourceRange { start: 0, end: 0 },
                     name: "x".to_owned(),
-                    restricted: true,
+                    transitional: true,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
                         variant: TypeVariant::Bool,
@@ -726,7 +726,7 @@ mod tests {
                     index: 0,
                 },
             ),
-            "  x: restricted Bool = 0",
+            "  x: transitional Bool = 0",
         );
     }
 

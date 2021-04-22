@@ -486,10 +486,10 @@ fn parse_field(
         None,
     );
 
-    // Determine if the field is restricted.
-    let restricted = if *position == tokens.len() {
+    // Determine if the field is transitional.
+    let transitional = if *position == tokens.len() {
         false
-    } else if let token::Variant::Restricted = tokens[*position].variant {
+    } else if let token::Variant::Transitional = tokens[*position].variant {
         *position += 1;
 
         true
@@ -610,7 +610,7 @@ fn parse_field(
     Some(schema::Field {
         source_range: span_tokens(tokens, start, *position),
         name,
-        restricted,
+        transitional,
         r#type,
         index,
     })
@@ -631,14 +631,14 @@ mod tests {
             # This is a struct.
             struct Foo {
               x: bar.Bar = 0
-              y: restricted int = 1
+              y: transitional int = 1
               z: Bool = 2
             }
 
             # This is a choice.
             choice Qux {
               x: bar.Bar = 0
-              y: restricted int = 1
+              y: transitional int = 1
               z: Bool = 2
             }
         ";
@@ -657,7 +657,7 @@ mod tests {
                     schema::Declaration {
                         source_range: SourceRange {
                             start: 80,
-                            end: 197,
+                            end: 199,
                         },
                         variant: schema::DeclarationVariant::Struct(
                             "Foo".to_owned(),
@@ -668,7 +668,7 @@ mod tests {
                                         end: 121,
                                     },
                                     name: "x".to_owned(),
-                                    restricted: false,
+                                    transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 110,
@@ -684,14 +684,14 @@ mod tests {
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 136,
-                                        end: 157,
+                                        end: 159,
                                     },
                                     name: "y".to_owned(),
-                                    restricted: true,
+                                    transitional: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 150,
-                                            end: 153,
+                                            start: 152,
+                                            end: 155,
                                         },
                                         variant: schema::TypeVariant::Custom(
                                             None,
@@ -702,15 +702,15 @@ mod tests {
                                 },
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 172,
-                                        end: 183,
+                                        start: 174,
+                                        end: 185,
                                     },
                                     name: "z".to_owned(),
-                                    restricted: false,
+                                    transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 175,
-                                            end: 179,
+                                            start: 177,
+                                            end: 181,
                                         },
                                         variant: schema::TypeVariant::Bool,
                                     },
@@ -721,23 +721,23 @@ mod tests {
                     },
                     schema::Declaration {
                         source_range: SourceRange {
-                            start: 243,
-                            end: 360,
+                            start: 245,
+                            end: 364,
                         },
                         variant: schema::DeclarationVariant::Choice(
                             "Qux".to_owned(),
                             vec![
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 270,
-                                        end: 284,
+                                        start: 272,
+                                        end: 286,
                                     },
                                     name: "x".to_owned(),
-                                    restricted: false,
+                                    transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 273,
-                                            end: 280,
+                                            start: 275,
+                                            end: 282,
                                         },
                                         variant: schema::TypeVariant::Custom(
                                             Some("bar".to_owned()),
@@ -748,15 +748,15 @@ mod tests {
                                 },
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 299,
-                                        end: 320,
+                                        start: 301,
+                                        end: 324,
                                     },
                                     name: "y".to_owned(),
-                                    restricted: true,
+                                    transitional: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 313,
-                                            end: 316,
+                                            start: 317,
+                                            end: 320,
                                         },
                                         variant: schema::TypeVariant::Custom(
                                             None,
@@ -767,15 +767,15 @@ mod tests {
                                 },
                                 schema::Field {
                                     source_range: SourceRange {
-                                        start: 335,
-                                        end: 346,
+                                        start: 339,
+                                        end: 350,
                                     },
                                     name: "z".to_owned(),
-                                    restricted: false,
+                                    transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
-                                            start: 338,
-                                            end: 342,
+                                            start: 342,
+                                            end: 346,
                                         },
                                         variant: schema::TypeVariant::Bool,
                                     },
@@ -859,7 +859,7 @@ mod tests {
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 24 },
                             name: "x".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 16, end: 20 },
                                 variant: schema::TypeVariant::Bool,
@@ -890,7 +890,7 @@ mod tests {
                             schema::Field {
                                 source_range: SourceRange { start: 13, end: 24 },
                                 name: "x".to_owned(),
-                                restricted: false,
+                                transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 16, end: 20 },
                                     variant: schema::TypeVariant::Bool,
@@ -900,7 +900,7 @@ mod tests {
                             schema::Field {
                                 source_range: SourceRange { start: 25, end: 36 },
                                 name: "y".to_owned(),
-                                restricted: false,
+                                transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 28, end: 32 },
                                     variant: schema::TypeVariant::Bool,
@@ -949,7 +949,7 @@ mod tests {
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 24 },
                             name: "x".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 16, end: 20 },
                                 variant: schema::TypeVariant::Bool,
@@ -980,7 +980,7 @@ mod tests {
                             schema::Field {
                                 source_range: SourceRange { start: 13, end: 24 },
                                 name: "x".to_owned(),
-                                restricted: false,
+                                transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 16, end: 20 },
                                     variant: schema::TypeVariant::Bool,
@@ -990,7 +990,7 @@ mod tests {
                             schema::Field {
                                 source_range: SourceRange { start: 25, end: 36 },
                                 name: "y".to_owned(),
-                                restricted: false,
+                                transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 28, end: 32 },
                                     variant: schema::TypeVariant::Bool,
@@ -1005,9 +1005,9 @@ mod tests {
     }
 
     #[test]
-    fn parse_field_restricted() {
+    fn parse_field_transitional() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { x: restricted Foo = 0 }";
+        let source = "struct Foo { x: transitional Foo = 0 }";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
@@ -1015,15 +1015,15 @@ mod tests {
             schema::Schema {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 36 },
+                    source_range: SourceRange { start: 0, end: 38 },
                     variant: schema::DeclarationVariant::Struct(
                         "Foo".to_owned(),
                         vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 34 },
+                            source_range: SourceRange { start: 13, end: 36 },
                             name: "x".to_owned(),
-                            restricted: true,
+                            transitional: true,
                             r#type: schema::Type {
-                                source_range: SourceRange { start: 27, end: 30 },
+                                source_range: SourceRange { start: 29, end: 32 },
                                 variant: schema::TypeVariant::Custom(None, "Foo".to_owned()),
                             },
                             index: 0,
@@ -1051,7 +1051,7 @@ mod tests {
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 27 },
                             name: "x".to_owned(),
-                            restricted: false,
+                            transitional: false,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 16, end: 23 },
                                 variant: schema::TypeVariant::Custom(
