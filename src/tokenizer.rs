@@ -1,9 +1,10 @@
 use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
+    naming_conventions::snake_case,
     token::{
-        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD,
-        TRANSITIONAL_KEYWORD,
+        Identifier, Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
+        STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
     },
 };
 use std::path::Path;
@@ -136,7 +137,10 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Identifier(schema_contents[start..end].to_owned()),
+                        variant: Variant::Identifier(Identifier {
+                            original: schema_contents[start..end].to_owned(),
+                            case_folded: snake_case(&schema_contents[start..end]).to_owned(),
+                        }),
                     });
                 }
             }
@@ -315,7 +319,7 @@ mod tests {
                 },
                 Token {
                     source_range: SourceRange { start: 31, end: 34 },
-                    variant: Variant::Identifier("bar".to_owned()),
+                    variant: Variant::Identifier("bar".into()),
                 },
                 Token {
                     source_range: SourceRange { start: 80, end: 86 },
@@ -323,7 +327,7 @@ mod tests {
                 },
                 Token {
                     source_range: SourceRange { start: 87, end: 92 },
-                    variant: Variant::Identifier("plugh".to_owned()),
+                    variant: Variant::Identifier("plugh".into()),
                 },
                 Token {
                     source_range: SourceRange { start: 93, end: 94 },
@@ -334,7 +338,7 @@ mod tests {
                         start: 109,
                         end: 112,
                     },
-                    variant: Variant::Identifier("qux".to_owned()),
+                    variant: Variant::Identifier("qux".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -348,7 +352,7 @@ mod tests {
                         start: 114,
                         end: 117,
                     },
-                    variant: Variant::Identifier("bar".to_owned()),
+                    variant: Variant::Identifier("bar".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -362,7 +366,7 @@ mod tests {
                         start: 118,
                         end: 121,
                     },
-                    variant: Variant::Identifier("Foo".to_owned()),
+                    variant: Variant::Identifier("Foo".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -383,7 +387,7 @@ mod tests {
                         start: 140,
                         end: 145,
                     },
-                    variant: Variant::Identifier("corge".to_owned()),
+                    variant: Variant::Identifier("corge".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -404,7 +408,7 @@ mod tests {
                         start: 160,
                         end: 163,
                     },
-                    variant: Variant::Identifier("int".to_owned()),
+                    variant: Variant::Identifier("int".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -439,7 +443,7 @@ mod tests {
                         start: 234,
                         end: 239,
                     },
-                    variant: Variant::Identifier("zyzzy".to_owned()),
+                    variant: Variant::Identifier("zyzzy".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -453,7 +457,7 @@ mod tests {
                         start: 256,
                         end: 262,
                     },
-                    variant: Variant::Identifier("grault".to_owned()),
+                    variant: Variant::Identifier("grault".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -467,7 +471,7 @@ mod tests {
                         start: 264,
                         end: 267,
                     },
-                    variant: Variant::Identifier("bar".to_owned()),
+                    variant: Variant::Identifier("bar".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -481,7 +485,7 @@ mod tests {
                         start: 268,
                         end: 271,
                     },
-                    variant: Variant::Identifier("Bar".to_owned()),
+                    variant: Variant::Identifier("Bar".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -502,7 +506,7 @@ mod tests {
                         start: 290,
                         end: 296,
                     },
-                    variant: Variant::Identifier("garply".to_owned()),
+                    variant: Variant::Identifier("garply".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -523,7 +527,7 @@ mod tests {
                         start: 311,
                         end: 314,
                     },
-                    variant: Variant::Identifier("int".to_owned()),
+                    variant: Variant::Identifier("int".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -649,7 +653,7 @@ mod tests {
             tokenize(Path::new("foo.t"), "\u{5e78}\u{798f}").unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 6 },
-                variant: Variant::Identifier("\u{5e78}\u{798f}".to_owned()),
+                variant: Variant::Identifier("\u{5e78}\u{798f}".into()),
             }],
         );
     }
@@ -664,7 +668,7 @@ mod tests {
             .unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 7 },
-                variant: Variant::Identifier(STRUCT_KEYWORD.to_owned()),
+                variant: Variant::Identifier(STRUCT_KEYWORD.into()),
             }],
         );
     }

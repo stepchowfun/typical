@@ -1,7 +1,8 @@
 use crate::{
-    naming_conventions::{pascal_case, snake_case},
+    naming_conventions::{pascal_case_id, snake_case_id},
     schema,
     schema::relativize_namespace,
+    token::Identifier,
 };
 use std::{
     collections::BTreeMap,
@@ -34,7 +35,7 @@ const PAYLOAD_VARIABLE: &str = "payload";
 // This struct represents a tree of schemas organized in a module hierarchy.
 #[derive(Clone, Debug)]
 struct Module {
-    children: BTreeMap<String, Module>,
+    children: BTreeMap<Identifier, Module>,
     schema: schema::Schema,
 }
 
@@ -68,22 +69,27 @@ impl Display for Flavor {
 }
 
 // Format an identifier with an optional flavor suffix in a way that Rust will be happy with.
-fn emit_name(name: &str, flavor: Option<Flavor>, used: bool) -> String {
-    let mut name = name.to_owned();
+fn emit_name(name: &Identifier, pascal_case: bool, flavor: Option<Flavor>) -> String {
+    let converted_name = if pascal_case {
+        pascal_case_id(name)
+    } else {
+        snake_case_id(name)
+    };
 
-    if let Some(flavor) = flavor {
-        name.push_str(&flavor.to_string());
-    }
-
-    if !used {
-        name = "_".to_owned() + &name;
-    }
-
-    if !name.starts_with("r#") && RUST_KEYWORDS.iter().any(|keyword| name == *keyword) {
-        name = "r#".to_owned() + &name;
-    }
-
-    name
+    format!(
+        "{}{}{}",
+        if !converted_name.starts_with("r#")
+            && RUST_KEYWORDS
+                .iter()
+                .any(|keyword| converted_name == *keyword)
+        {
+            "r#"
+        } else {
+            ""
+        },
+        converted_name,
+        flavor.map_or("".to_owned(), |flavor| flavor.to_string()),
+    )
 }
 
 // Insert a schema into a module.
@@ -157,7 +163,7 @@ pub fn generate(schemas: BTreeMap<schema::Namespace, (schema::Schema, PathBuf, S
 // Render a module, including a trailing line break.
 fn render_module(
     namespace: &schema::Namespace,
-    name: &str,
+    name: &Identifier,
     module: &Module,
     indentation: u64,
 ) -> String {
@@ -169,7 +175,7 @@ fn render_module(
     format!(
         "{}pub mod {} {{\n{}{}}}\n",
         indentation_str,
-        emit_name(&snake_case(name), None, true),
+        emit_name(name, false, None),
         render_module_contents(
             &new_namespace,
             &module.children,
@@ -183,7 +189,7 @@ fn render_module(
 // Render the contents of a module, including a trailing line break if there was anything to render.
 fn render_module_contents(
     namespace: &schema::Namespace,
-    children: &BTreeMap<String, Module>,
+    children: &BTreeMap<Identifier, Module>,
     schema: &schema::Schema,
     indentation: u64,
 ) -> String {
@@ -237,15 +243,13 @@ fn render_schema(
 // Render a struct, including a trailing line break.
 #[allow(clippy::too_many_lines)]
 fn render_struct(
-    imports: &BTreeMap<String, schema::Namespace>,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
-    name: &str,
+    name: &Identifier,
     fields: &[schema::Field],
     indentation: u64,
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
-
-    let formatted_name = pascal_case(name);
 
     FLAVORS
         .iter()
@@ -267,7 +271,7 @@ fn render_struct(
                     )
                 },
                 indentation_str,
-                emit_name(&formatted_name, Some(*flavor), true),
+                emit_name(name, true, Some(*flavor)),
                 fields
                     .iter()
                     .map(|field| {
@@ -289,37 +293,31 @@ fn render_struct(
                 {}}}\n\
             ",
             indentation_str,
-            emit_name(&formatted_name, Some(Flavor::Out), true),
-            emit_name(&formatted_name, Some(Flavor::In), true),
+            emit_name(name, true, Some(Flavor::Out)),
+            emit_name(name, true, Some(Flavor::In)),
             indentation_str,
             INDENTATION,
-            emit_name(
-                OUT_VARIABLE,
-                None,
-                fields.iter().any(|field| !field.transitional),
-            ),
-            emit_name(&formatted_name, Some(Flavor::Out), true),
+            emit_name(&(OUT_VARIABLE.into()), false, None),
+            emit_name(name, true, Some(Flavor::Out)),
             indentation_str,
             INDENTATION,
             INDENTATION,
-            emit_name(&formatted_name, Some(Flavor::In), true),
+            emit_name(name, true, Some(Flavor::In)),
             fields
                 .iter()
                 .filter_map(|field| {
                     if field.transitional {
                         None
                     } else {
-                        let formatted_field_name = snake_case(&field.name);
-
                         Some(format!(
                             "{}{}{}{}{}: {}.{}.into(),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(OUT_VARIABLE, None, true),
-                            emit_name(&formatted_field_name, None, true),
+                            emit_name(&field.name, false, None),
+                            emit_name(&(OUT_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
                         ))
                     }
                 })
@@ -343,35 +341,22 @@ fn render_struct(
                 {}}}\n\
             ",
             indentation_str,
-            emit_name(&formatted_name, Some(Flavor::In), true),
-            emit_name(&formatted_name, Some(Flavor::InToOut), true),
-            emit_name(&formatted_name, Some(Flavor::Out), true),
+            emit_name(name, true, Some(Flavor::In)),
+            emit_name(name, true, Some(Flavor::InToOut)),
+            emit_name(name, true, Some(Flavor::Out)),
             indentation_str,
             INDENTATION,
-            emit_name(
-                IN_VARIABLE,
-                None,
-                fields.iter().any(|field| !field.transitional),
-            ),
-            emit_name(
-                IN_TO_OUT_VARIABLE,
-                None,
-                fields.iter().any(|field| {
-                    field.transitional
-                        || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
-                }),
-            ),
-            emit_name(&formatted_name, Some(Flavor::In), true),
-            emit_name(&formatted_name, Some(Flavor::InToOut), true),
+            emit_name(&(IN_VARIABLE.into()), false, None),
+            emit_name(&(IN_TO_OUT_VARIABLE.into()), false, None),
+            emit_name(name, true, Some(Flavor::In)),
+            emit_name(name, true, Some(Flavor::InToOut)),
             indentation_str,
             INDENTATION,
             INDENTATION,
-            emit_name(&formatted_name, Some(Flavor::Out), true),
+            emit_name(name, true, Some(Flavor::Out)),
             fields
                 .iter()
                 .map(|field| {
-                    let formatted_field_name = snake_case(&field.name);
-
                     if field.transitional {
                         format!(
                             "{}{}{}{}{}: {}.{},\n",
@@ -379,9 +364,9 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(IN_TO_OUT_VARIABLE, None, true),
-                            emit_name(&formatted_field_name, None, true),
+                            emit_name(&field.name, false, None),
+                            emit_name(&(IN_TO_OUT_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
                         )
                     } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                         format!(
@@ -390,11 +375,11 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(IN_VARIABLE, None, true),
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(IN_TO_OUT_VARIABLE, None, true),
-                            emit_name(&formatted_field_name, None, true),
+                            emit_name(&field.name, false, None),
+                            emit_name(&(IN_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
+                            emit_name(&(IN_TO_OUT_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
                         )
                     } else {
                         format!(
@@ -403,9 +388,9 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(IN_VARIABLE, None, true),
-                            emit_name(&formatted_field_name, None, true),
+                            emit_name(&field.name, false, None),
+                            emit_name(&(IN_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
                         )
                     }
                 })
@@ -425,15 +410,13 @@ fn render_struct(
 // Render a choice, including a trailing line break.
 #[allow(clippy::too_many_lines)]
 fn render_choice(
-    imports: &BTreeMap<String, schema::Namespace>,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
-    name: &str,
+    name: &Identifier,
     fields: &[schema::Field],
     indentation: u64,
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
-
-    let formatted_name = pascal_case(name);
 
     FLAVORS
         .iter()
@@ -460,7 +443,7 @@ fn render_choice(
                 } else {
                     "enum"
                 },
-                emit_name(&formatted_name, Some(*flavor), true),
+                emit_name(name, true, Some(*flavor)),
                 fields
                     .iter()
                     .map(|field| {
@@ -489,36 +472,34 @@ fn render_choice(
                 {}}}\n\
             ",
             indentation_str,
-            emit_name(&formatted_name, Some(Flavor::Out), true),
-            emit_name(&formatted_name, Some(Flavor::In), true),
+            emit_name(name, true, Some(Flavor::Out)),
+            emit_name(name, true, Some(Flavor::In)),
             indentation_str,
             INDENTATION,
-            emit_name(OUT_VARIABLE, None, true),
-            emit_name(&formatted_name, Some(Flavor::Out), true),
+            emit_name(&(OUT_VARIABLE.into()), false, None),
+            emit_name(name, true, Some(Flavor::Out)),
             indentation_str,
             INDENTATION,
             INDENTATION,
-            emit_name(OUT_VARIABLE, None, true),
+            emit_name(&(OUT_VARIABLE.into()), false, None),
             fields
                 .iter()
                 .filter_map(|field| {
                     if field.transitional {
                         None
                     } else {
-                        let formatted_field_name = pascal_case(&field.name);
-
                         Some(format!(
                             "{}{}{}{}self::{}::{}({}) => self::{}::{}({}.into()),\n",
                             indentation_str,
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_name, Some(Flavor::Out), true),
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
-                            emit_name(&formatted_name, Some(Flavor::In), true),
-                            emit_name(&formatted_field_name, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
+                            emit_name(name, true, Some(Flavor::Out)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
+                            emit_name(name, true, Some(Flavor::In)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
                         ))
                     }
                 })
@@ -542,32 +523,22 @@ fn render_choice(
                 {}}}\n\
             ",
             indentation_str,
-            emit_name(&formatted_name, Some(Flavor::In), true),
-            emit_name(&formatted_name, Some(Flavor::InToOut), true),
-            emit_name(&formatted_name, Some(Flavor::Out), true),
+            emit_name(name, true, Some(Flavor::In)),
+            emit_name(name, true, Some(Flavor::InToOut)),
+            emit_name(name, true, Some(Flavor::Out)),
             indentation_str,
             INDENTATION,
-            emit_name(IN_VARIABLE, None, true),
-            emit_name(
-                IN_TO_OUT_VARIABLE,
-                None,
-                fields.iter().any(|field| {
-                    field.transitional
-                        || matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _))
-                }),
-            ),
-            emit_name(&formatted_name, Some(Flavor::In), true),
-            emit_name(&formatted_name, Some(Flavor::InToOut), true),
+            emit_name(&(IN_VARIABLE.into()), false, None),
+            emit_name(&(IN_TO_OUT_VARIABLE.into()), false, None),
+            emit_name(name, true, Some(Flavor::In)),
+            emit_name(name, true, Some(Flavor::InToOut)),
             indentation_str,
             INDENTATION,
             INDENTATION,
-            emit_name(IN_VARIABLE, None, true),
+            emit_name(&(IN_VARIABLE.into()), false, None),
             fields
                 .iter()
                 .map(|field| {
-                    let formatted_field_name_pascal = pascal_case(&field.name);
-                    let formatted_field_name_snake = snake_case(&field.name);
-
                     if field.transitional {
                         format!(
                             "{}{}{}{}self::{}::{}({}) => ({}.{})({}),\n",
@@ -575,12 +546,12 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_name, Some(Flavor::In), true),
-                            emit_name(&formatted_field_name_pascal, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
-                            emit_name(IN_TO_OUT_VARIABLE, None, true),
-                            emit_name(&formatted_field_name_snake, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
+                            emit_name(name, true, Some(Flavor::In)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
+                            emit_name(&(IN_TO_OUT_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
                         )
                     } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                         format!(
@@ -589,14 +560,14 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_name, Some(Flavor::In), true),
-                            emit_name(&formatted_field_name_pascal, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
-                            emit_name(&formatted_name, Some(Flavor::Out), true),
-                            emit_name(&formatted_field_name_pascal, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
-                            emit_name(IN_TO_OUT_VARIABLE, None, true),
-                            emit_name(&formatted_field_name_snake, None, true),
+                            emit_name(name, true, Some(Flavor::In)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
+                            emit_name(name, true, Some(Flavor::Out)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
+                            emit_name(&(IN_TO_OUT_VARIABLE.into()), false, None),
+                            emit_name(&field.name, false, None),
                         )
                     } else {
                         format!(
@@ -605,12 +576,12 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            emit_name(&formatted_name, Some(Flavor::In), true),
-                            emit_name(&formatted_field_name_pascal, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
-                            emit_name(&formatted_name, Some(Flavor::Out), true),
-                            emit_name(&formatted_field_name_pascal, None, true),
-                            emit_name(PAYLOAD_VARIABLE, None, true),
+                            emit_name(name, true, Some(Flavor::In)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
+                            emit_name(name, true, Some(Flavor::Out)),
+                            emit_name(&field.name, true, None),
+                            emit_name(&(PAYLOAD_VARIABLE.into()), false, None),
                         )
                     }
                 })
@@ -629,7 +600,7 @@ fn render_choice(
 
 // Render a field of a struct, including a trailing line break.
 fn render_struct_field(
-    imports: &BTreeMap<String, schema::Namespace>,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     field: &schema::Field,
     flavor: Flavor,
@@ -651,7 +622,7 @@ fn render_struct_field(
         format!(
             "{}{}: {},\n",
             indentation_str,
-            emit_name(&snake_case(&field.name), None, true),
+            emit_name(&field.name, false, None),
             render_type(
                 imports,
                 namespace,
@@ -674,9 +645,9 @@ fn render_struct_field(
 
 // Render a field of a choice, including a trailing line break.
 fn render_choice_field(
-    imports: &BTreeMap<String, schema::Namespace>,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
-    choice_name: &str,
+    choice_name: &Identifier,
     field: &schema::Field,
     flavor: Flavor,
     indentation: u64,
@@ -689,7 +660,7 @@ fn render_choice_field(
                 format!(
                     "{}{}({}),\n",
                     indentation_str,
-                    emit_name(&pascal_case(&field.name), None, true),
+                    emit_name(&field.name, true, None),
                     render_type(imports, namespace, &field.r#type, flavor),
                 )
             } else {
@@ -703,16 +674,16 @@ fn render_choice_field(
                 format!(
                     "{}{}: Box<dyn FnOnce({}) -> {}{}>,\n",
                     indentation_str,
-                    emit_name(&snake_case(&field.name), None, true),
+                    emit_name(&field.name, false, None),
                     render_type(imports, namespace, &field.r#type, Flavor::In),
-                    emit_name(choice_name, None, true),
+                    emit_name(choice_name, true, None),
                     Flavor::Out,
                 )
             } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                 format!(
                     "{}{}: {},\n",
                     indentation_str,
-                    emit_name(&snake_case(&field.name), None, true),
+                    emit_name(&field.name, false, None),
                     render_type(imports, namespace, &field.r#type, Flavor::InToOut),
                 )
             } else {
@@ -724,7 +695,7 @@ fn render_choice_field(
 
 // Render a type with no line breaks.
 fn render_type(
-    imports: &BTreeMap<String, schema::Namespace>,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     r#type: &schema::Type,
     flavor: Flavor,
@@ -752,10 +723,10 @@ fn render_type(
                 relative_type_namespace
                     .components
                     .iter()
-                    .map(|component| emit_name(&snake_case(component), None, true)),
+                    .map(|component| emit_name(component, false, None)),
             );
 
-            components.push(emit_name(&pascal_case(&name), Some(flavor), true));
+            components.push(emit_name(&name, true, Some(flavor)));
 
             components.join("::")
         }
@@ -773,19 +744,19 @@ mod tests {
     #[test]
     fn generate_example() {
         let unit_namespace = schema::Namespace {
-            components: vec!["basic".to_owned(), "unit".to_owned()],
+            components: vec!["basic".into(), "unit".into()],
         };
         let unit_path = Path::new("integration/types/basic/unit.t").to_owned();
         let unit_contents = read_to_string(&unit_path).unwrap();
 
         let void_namespace = schema::Namespace {
-            components: vec!["basic".to_owned(), "void".to_owned()],
+            components: vec!["basic".into(), "void".into()],
         };
         let void_path = Path::new("integration/types/basic/void.t").to_owned();
         let void_contents = read_to_string(&void_path).unwrap();
 
         let main_namespace = schema::Namespace {
-            components: vec!["main".to_owned()],
+            components: vec!["main".into()],
         };
         let main_path = Path::new("integration/types/main.t").to_owned();
         let main_contents = read_to_string(&main_path).unwrap();
@@ -826,14 +797,14 @@ pub mod basic {
         }
 
         impl From<self::UnitOut> for self::UnitIn {
-            fn from(_out: self::UnitOut) -> Self {
+            fn from(out: self::UnitOut) -> Self {
                 self::UnitIn {
                 }
             }
         }
 
         impl From<(self::UnitIn, self::UnitInToOut)> for self::UnitOut {
-            fn from((_in, _in_to_out): (self::UnitIn, self::UnitInToOut)) -> Self {
+            fn from((r#in, in_to_out): (self::UnitIn, self::UnitInToOut)) -> Self {
                 self::UnitOut {
                 }
             }
@@ -860,7 +831,7 @@ pub mod basic {
         }
 
         impl From<(self::VoidIn, self::VoidInToOut)> for self::VoidOut {
-            fn from((r#in, _in_to_out): (self::VoidIn, self::VoidInToOut)) -> Self {
+            fn from((r#in, in_to_out): (self::VoidIn, self::VoidInToOut)) -> Self {
                 match r#in {
                 }
             }

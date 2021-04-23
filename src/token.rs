@@ -1,6 +1,8 @@
-use crate::error::SourceRange;
+use crate::{error::SourceRange, naming_conventions::snake_case};
 use std::{
+    cmp::Ordering,
     fmt::{Display, Formatter, Result},
+    hash::{Hash, Hasher},
     path::PathBuf,
 };
 
@@ -20,6 +22,51 @@ pub struct Token {
     pub variant: Variant,
 }
 
+// This is a user-provided identifier. To make case-insensitive equality, hashing, etc.
+// performance, we pre-compute a case-folded version of the identifier. The main purpose of this
+// struct (rather than just using `String`) is to prevent accidental inclusion of identifiers in
+// generated code without case conversion.
+#[derive(Clone, Debug)]
+pub struct Identifier {
+    pub original: String,
+    pub case_folded: String,
+}
+
+impl PartialEq for Identifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.case_folded == other.case_folded
+    }
+}
+
+impl Eq for Identifier {}
+
+impl PartialOrd for Identifier {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.case_folded.partial_cmp(&other.case_folded)
+    }
+}
+
+impl Ord for Identifier {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.case_folded.cmp(&other.case_folded)
+    }
+}
+
+impl Hash for Identifier {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.case_folded.hash(state);
+    }
+}
+
+impl From<&str> for Identifier {
+    fn from(string: &str) -> Self {
+        Identifier {
+            original: string.to_owned(),
+            case_folded: snake_case(string),
+        }
+    }
+}
+
 // We assign each token a "variant" describing what kind of token it is.
 #[derive(Clone, Debug)]
 pub enum Variant {
@@ -29,7 +76,7 @@ pub enum Variant {
     Colon,
     Dot,
     Equals,
-    Identifier(String),
+    Identifier(Identifier),
     Import,
     Integer(usize),
     LeftCurly,
@@ -54,7 +101,7 @@ impl Display for Variant {
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
-            Self::Identifier(name) => write!(f, "{}", name),
+            Self::Identifier(name) => write!(f, "{}", name.original),
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
@@ -123,7 +170,7 @@ mod tests {
 
     #[test]
     fn variant_identifier_display() {
-        assert_eq!(format!("{}", Variant::Identifier("foo".to_owned())), "foo");
+        assert_eq!(format!("{}", Variant::Identifier("Foo".into())), "Foo");
     }
 
     #[test]

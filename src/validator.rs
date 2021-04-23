@@ -1,7 +1,6 @@
 use crate::{
     error::{listing, throw, Error},
     format::CodeStr,
-    naming_conventions::snake_case,
     schema,
 };
 use std::{
@@ -9,11 +8,7 @@ use std::{
     path::PathBuf,
 };
 
-// Various names must be checked for uniqueness. Names that are included in the generated code are
-// converted to the idiomatic casing convention for the relevant programming language. For these
-// names, we must consider names which differ only in their casing convention to be equal when
-// performing uniqueness validation. This is accomplished by arbitrarily converting the names to
-// `snake_case` before doing the check. [tag:names_unique_after_normalization]
+// Various names must be checked for uniqueness.
 
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
@@ -39,10 +34,7 @@ pub fn validate(
 
     // Validate each file.
     for (namespace, (schema, source_path, source_contents)) in schemas {
-        // Check that the names of imports are unique within this file. Note that import names are
-        // not included in the generated code, so we do not need to normalize the names before this
-        // check. This means, for example, imports named `Foo` and `foo` can coexist without
-        // causing any technical problems.
+        // Check that the names of imports are unique within this file.
         let mut imports = HashMap::new();
 
         for import in &schema.imports {
@@ -54,7 +46,7 @@ pub fn validate(
                 errors.push(throw::<Error>(
                     &format!(
                         "An import named {} already exists in this file.",
-                        import.name.code_str(),
+                        import.name.original.code_str(),
                     ),
                     Some(source_path),
                     Some(&listing(source_contents, import.source_range)),
@@ -70,12 +62,11 @@ pub fn validate(
             match &declaration.variant {
                 schema::DeclarationVariant::Struct(name, fields)
                 | schema::DeclarationVariant::Choice(name, fields) => {
-                    // [ref:names_unique_after_normalization]
-                    if !declaration_names.insert(snake_case(name)) {
+                    if !declaration_names.insert(name.clone()) {
                         errors.push(throw::<Error>(
                             &format!(
                                 "A declaration named {} already exists in this file.",
-                                name.code_str(),
+                                name.original.code_str(),
                             ),
                             Some(source_path),
                             Some(&listing(source_contents, declaration.source_range)),
@@ -88,12 +79,11 @@ pub fn validate(
 
                     // Validate the fields in this declaration.
                     for field in fields {
-                        // [ref:names_unique_after_normalization]
-                        if !field_names.insert(snake_case(&field.name)) {
+                        if !field_names.insert(field.name.clone()) {
                             errors.push(throw::<Error>(
                                 &format!(
                                     "A field named {} already exists in this declaration.",
-                                    field.name.code_str(),
+                                    field.name.original.code_str(),
                                 ),
                                 Some(source_path),
                                 Some(&listing(source_contents, field.source_range)),
@@ -126,7 +116,7 @@ pub fn validate(
                                         errors.push(throw::<Error>(
                                             &format!(
                                                 "There is no import named {} in this file.",
-                                                import.code_str(),
+                                                import.original.code_str(),
                                             ),
                                             Some(source_path),
                                             Some(&listing(
@@ -148,13 +138,13 @@ pub fn validate(
                                         &if let Some(import) = import {
                                             format!(
                                                 "There is no type named {} in import {}.",
-                                                name.code_str(),
-                                                import.code_str(),
+                                                name.original.code_str(),
+                                                import.original.code_str(),
                                             )
                                         } else {
                                             format!(
                                                 "There is no type named {} in this file.",
-                                                name.code_str(),
+                                                name.original.code_str(),
                                             )
                                         },
                                         Some(source_path),
@@ -189,7 +179,7 @@ mod tests {
     #[test]
     fn validate_empty() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "".to_owned();
@@ -206,7 +196,7 @@ mod tests {
     #[test]
     fn validate_example() {
         let foo_namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
@@ -220,7 +210,7 @@ mod tests {
         .to_owned();
 
         let bar_namespace = Namespace {
-            components: vec!["bar".to_owned()],
+            components: vec!["bar".into()],
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
@@ -252,7 +242,7 @@ mod tests {
     #[test]
     fn validate_duplicate_imports() {
         let foo_namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
@@ -267,7 +257,7 @@ mod tests {
         .to_owned();
 
         let bar_namespace = Namespace {
-            components: vec!["bar".to_owned()],
+            components: vec!["bar".into()],
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
@@ -281,7 +271,7 @@ mod tests {
         .to_owned();
 
         let baz_namespace = Namespace {
-            components: vec!["baz".to_owned()],
+            components: vec!["baz".into()],
         };
         let baz_path = Path::new("baz.t").to_owned();
         let baz_contents = "
@@ -321,7 +311,7 @@ mod tests {
     #[test]
     fn validate_duplicate_declarations() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -347,7 +337,7 @@ mod tests {
     #[test]
     fn validate_duplicate_struct_field_names() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -375,7 +365,7 @@ mod tests {
     #[test]
     fn validate_duplicate_struct_field_indices() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -403,7 +393,7 @@ mod tests {
     #[test]
     fn validate_duplicate_choice_field_names() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -431,7 +421,7 @@ mod tests {
     #[test]
     fn validate_duplicate_choice_field_indices() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -459,7 +449,7 @@ mod tests {
     #[test]
     fn validate_non_existent_field_import() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -483,7 +473,7 @@ mod tests {
     #[test]
     fn validate_non_existent_field_type_same_file() {
         let namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
@@ -507,7 +497,7 @@ mod tests {
     #[test]
     fn validate_non_existent_field_type_different_file() {
         let foo_namespace = Namespace {
-            components: vec!["foo".to_owned()],
+            components: vec!["foo".into()],
         };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
@@ -520,7 +510,7 @@ mod tests {
         .to_owned();
 
         let bar_namespace = Namespace {
-            components: vec!["bar".to_owned()],
+            components: vec!["bar".into()],
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
