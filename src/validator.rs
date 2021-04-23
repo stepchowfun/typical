@@ -44,7 +44,7 @@ pub fn validate(
                 errors.push(throw::<Error>(
                     &format!(
                         "An import named {} already exists in this file.",
-                        import.name.original.code_str(),
+                        import.name.original().code_str(),
                     ),
                     Some(source_path),
                     Some(&listing(source_contents, import.source_range)),
@@ -65,7 +65,7 @@ pub fn validate(
                         errors.push(throw::<Error>(
                             &format!(
                                 "A declaration named {} already exists in this file.",
-                                name.original.code_str(),
+                                name.original().code_str(),
                             ),
                             Some(source_path),
                             Some(&listing(source_contents, declaration.source_range)),
@@ -83,7 +83,7 @@ pub fn validate(
                             errors.push(throw::<Error>(
                                 &format!(
                                     "A field named {} already exists in this declaration.",
-                                    field.name.original.code_str(),
+                                    field.name.original().code_str(),
                                 ),
                                 Some(source_path),
                                 Some(&listing(source_contents, field.source_range)),
@@ -116,7 +116,7 @@ pub fn validate(
                                         errors.push(throw::<Error>(
                                             &format!(
                                                 "There is no import named {} in this file.",
-                                                import.original.code_str(),
+                                                import.original().code_str(),
                                             ),
                                             Some(source_path),
                                             Some(&listing(
@@ -138,13 +138,13 @@ pub fn validate(
                                         &if let Some(import) = import {
                                             format!(
                                                 "There is no type named {} in import {}.",
-                                                name.original.code_str(),
-                                                import.original.code_str(),
+                                                name.original().code_str(),
+                                                import.original().code_str(),
                                             )
                                         } else {
                                             format!(
                                                 "There is no type named {} in this file.",
-                                                name.original.code_str(),
+                                                name.original().code_str(),
                                             )
                                         },
                                         Some(source_path),

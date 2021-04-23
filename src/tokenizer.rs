@@ -1,10 +1,9 @@
 use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
-    naming_conventions::snake_case,
     token::{
-        Identifier, Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-        STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
+        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD,
+        TRANSITIONAL_KEYWORD,
     },
 };
 use std::path::Path;
@@ -137,10 +136,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Identifier(Identifier {
-                            original: schema_contents[start..end].to_owned(),
-                            case_folded: snake_case(&schema_contents[start..end]).to_owned(),
-                        }),
+                        variant: Variant::Identifier(schema_contents[start..end].into()),
                     });
                 }
             }

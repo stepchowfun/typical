@@ -53,12 +53,12 @@ pub fn pascal_case(name: &str) -> String {
 
 // This function converts an identifier to `snake_case`.
 pub fn snake_case_id(identifier: &Identifier) -> String {
-    snake_case(&identifier.case_folded)
+    snake_case(&identifier.original())
 }
 
 // This function converts an identifier to `PascalCase`.
 pub fn pascal_case_id(identifier: &Identifier) -> String {
-    pascal_case(&identifier.case_folded)
+    pascal_case(&identifier.original())
 }
 
 #[cfg(test)]
