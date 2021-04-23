@@ -28,8 +28,8 @@ pub struct Token {
 // generated code without case conversion.
 #[derive(Clone, Debug)]
 pub struct Identifier {
-    pub original: String,
-    pub case_folded: String,
+    original: String,
+    case_folded: String,
 }
 
 impl PartialEq for Identifier {
@@ -64,6 +64,12 @@ impl From<&str> for Identifier {
             original: string.to_owned(),
             case_folded: snake_case(string),
         }
+    }
+}
+
+impl Identifier {
+    pub fn original(&self) -> &str {
+        &self.original
     }
 }
 

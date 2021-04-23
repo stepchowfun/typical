@@ -103,7 +103,7 @@ impl Display for Schema {
                 f,
                 "import '{}' as {}",
                 import.path.display(),
-                import.name.original,
+                import.name.original(),
             )?;
         }
 
@@ -131,7 +131,7 @@ impl Display for DeclarationVariant {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             Self::Struct(name, fields) => {
-                writeln!(f, "struct {} {{", name.original)?;
+                writeln!(f, "struct {} {{", name.original())?;
 
                 for field in fields.iter() {
                     writeln!(f, "{}", field)?;
@@ -142,7 +142,7 @@ impl Display for DeclarationVariant {
                 Ok(())
             }
             Self::Choice(name, fields) => {
-                writeln!(f, "choice {} {{", name.original)?;
+                writeln!(f, "choice {} {{", name.original())?;
 
                 for field in fields.iter() {
                     writeln!(f, "{}", field)?;
@@ -162,13 +162,17 @@ impl Display for Field {
             write!(
                 f,
                 "  {}: transitional {} = {}",
-                self.name.original, self.r#type, self.index,
+                self.name.original(),
+                self.r#type,
+                self.index,
             )?;
         } else {
             write!(
                 f,
                 "  {}: {} = {}",
-                self.name.original, self.r#type, self.index,
+                self.name.original(),
+                self.r#type,
+                self.index,
             )?;
         }
 
@@ -191,9 +195,9 @@ impl Display for TypeVariant {
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
-                    write!(f, "{}.{}", import.original, name.original)?;
+                    write!(f, "{}.{}", import.original(), name.original())?;
                 } else {
-                    write!(f, "{}", name.original)?;
+                    write!(f, "{}", name.original())?;
                 }
             }
         }
@@ -208,7 +212,7 @@ impl Display for Namespace {
             "{}",
             self.components
                 .iter()
-                .map(|component| component.original.as_str())
+                .map(Identifier::original)
                 .collect::<Vec<_>>()
                 .join("."),
         )?;
