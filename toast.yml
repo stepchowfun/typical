@@ -96,12 +96,20 @@ tasks:
       - build
     user: user
     input_paths:
-      - integration
+      - integration/rust/Cargo.lock
+      - integration/rust/Cargo.toml
+      - integration/rust/src
+      - integration/types
     command: |
       set -euo pipefail
       . $HOME/.cargo/env
       cargo run -- generate integration/types/main.t --rust-out-file integration/rust/src/types.rs
-      (cd integration/rust && cargo check)
+      (
+        cd integration/rust && \
+        cargo check && \
+        cargo clippy --all-targets --all-features -- \
+          --deny warnings --deny clippy::all --deny clippy::pedantic
+      )
 
   lint:
     description: Run the linters.
