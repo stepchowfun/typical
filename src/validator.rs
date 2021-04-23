@@ -8,8 +8,6 @@ use std::{
     path::PathBuf,
 };
 
-// Various names must be checked for uniqueness.
-
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
 pub fn validate(
@@ -34,7 +32,7 @@ pub fn validate(
 
     // Validate each file.
     for (namespace, (schema, source_path, source_contents)) in schemas {
-        // Check that the names of imports are unique within this file.
+        // Check that the names of imports are unique within the file.
         let mut imports = HashMap::new();
 
         for import in &schema.imports {
@@ -55,13 +53,14 @@ pub fn validate(
             }
         }
 
-        // Validate the declarations in this file.
+        // Validate the declarations in the file.
         let mut declaration_names = HashSet::new();
 
         for declaration in &schema.declarations {
             match &declaration.variant {
                 schema::DeclarationVariant::Struct(name, fields)
                 | schema::DeclarationVariant::Choice(name, fields) => {
+                    // Check that the declaration is unique within the file.
                     if !declaration_names.insert(name.clone()) {
                         errors.push(throw::<Error>(
                             &format!(
@@ -74,11 +73,12 @@ pub fn validate(
                         ));
                     }
 
+                    // Validate the fields in the declaration.
                     let mut field_names = HashSet::new();
                     let mut field_indices = HashSet::new();
 
-                    // Validate the fields in this declaration.
                     for field in fields {
+                        // Check that the name of the field is unique within the declaration.
                         if !field_names.insert(field.name.clone()) {
                             errors.push(throw::<Error>(
                                 &format!(
@@ -91,7 +91,7 @@ pub fn validate(
                             ));
                         }
 
-                        // Check that the indices of the fields are unique within this declaration.
+                        // Check that the index of the field is unique within the declaration.
                         if !field_indices.insert(field.index) {
                             errors.push(throw::<Error>(
                                 &format!(
@@ -104,7 +104,7 @@ pub fn validate(
                             ));
                         }
 
-                        // Validate the type if it's custom.
+                        // Validate the type.
                         match &field.r#type.variant {
                             schema::TypeVariant::Bool => {}
                             schema::TypeVariant::Custom(import, name) => {
@@ -132,7 +132,7 @@ pub fn validate(
                                     namespace
                                 };
 
-                                // Validate the type.
+                                // Check that the type exists in that file.
                                 if !all_types.contains(&(type_path.clone(), name.clone())) {
                                     errors.push(throw::<Error>(
                                         &if let Some(import) = import {
