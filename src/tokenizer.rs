@@ -9,6 +9,9 @@ use crate::{
 use std::path::Path;
 use unicode_segmentation::GraphemeCursor;
 
+// An identifier can be prefixed with this character to avoid being parsed as a keyword.
+const RAW_IDENTIFIER_SIGIL: char = '$';
+
 // Tokenize the contents of a schema file.
 #[allow(clippy::cognitive_complexity)]
 #[allow(clippy::too_many_lines)]
@@ -77,7 +80,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
             // If the first code point is alphabetic according to the Unicode derived property,
             // keep reading subsequent alphanumeric code points and underscores to build up an
             // identifier or keyword.
-            _ if c.is_alphabetic() || c == '_' => {
+            _ if c.is_alphabetic() || c == '_' || c == RAW_IDENTIFIER_SIGIL => {
                 let mut end = schema_contents.len();
 
                 while let Some((j, d)) = iter.peek() {
@@ -120,9 +123,20 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         variant: Variant::Struct,
                     });
                 } else {
+                    let start = if c == RAW_IDENTIFIER_SIGIL { i + 1 } else { i };
+
+                    if start == end {
+                        errors.push(throw::<Error>(
+                            "Identifiers cannot be empty.",
+                            Some(schema_path),
+                            Some(&listing(schema_contents, SourceRange { start: i, end })),
+                            None,
+                        ));
+                    }
+
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Identifier(schema_contents[i..end].to_owned()),
+                        variant: Variant::Identifier(schema_contents[start..end].to_owned()),
                     });
                 }
             }
@@ -261,7 +275,7 @@ mod tests {
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
             STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
         },
-        tokenizer::tokenize,
+        tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
     };
     use std::path::Path;
 
@@ -636,6 +650,21 @@ mod tests {
             vec![Token {
                 source_range: SourceRange { start: 0, end: 6 },
                 variant: Variant::Identifier("\u{5e78}\u{798f}".to_owned()),
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_raw_identifier() {
+        assert_same!(
+            tokenize(
+                Path::new("foo.t"),
+                &format!("{}{}", RAW_IDENTIFIER_SIGIL, STRUCT_KEYWORD),
+            )
+            .unwrap(),
+            vec![Token {
+                source_range: SourceRange { start: 0, end: 7 },
+                variant: Variant::Identifier(STRUCT_KEYWORD.to_owned()),
             }],
         );
     }
