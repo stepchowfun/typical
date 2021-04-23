@@ -1,3 +1,5 @@
+use crate::format::CodeStr;
+use colored::ColoredString;
 use std::{
     cmp::Ordering,
     hash::{Hash, Hasher},
@@ -9,6 +11,9 @@ use std::{
 //   1. It makes case-insensitive operations like equality testing and comparison cheaper by
 //      pre-computing a case-folded version of the identifier.
 //   2. It prevents accidental inclusion of non-case-converted identifiers into generated code.
+//
+// Note that this struct intentionally does not implement `Display` (see (2) above), but it does
+// implement `Debug` and `CodeStr`.
 #[derive(Clone, Debug)]
 pub struct Identifier {
     original: String,
@@ -51,6 +56,12 @@ impl From<&str> for Identifier {
                 .collect::<Vec<_>>()
                 .join("_"),
         }
+    }
+}
+
+impl CodeStr for Identifier {
+    fn code_str(&self) -> ColoredString {
+        self.original.code_str()
     }
 }
 
@@ -109,7 +120,7 @@ fn split_words(name: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::identifier::Identifier;
+    use crate::{format::CodeStr, identifier::Identifier};
     use std::{
         cmp::Ordering,
         collections::hash_map::DefaultHasher,
@@ -336,6 +347,46 @@ mod tests {
                 original: "HelloWorld".to_owned(),
                 snake_case: "hello_world".to_owned(),
             },
+        );
+    }
+
+    #[test]
+    fn code_str_empty() {
+        assert_eq!(
+            format!("{}", Identifier::from("").code_str()),
+            "``".to_owned(),
+        );
+    }
+
+    #[test]
+    fn code_str_snake_case() {
+        assert_eq!(
+            format!("{}", Identifier::from("hello_world").code_str()),
+            "`hello_world`".to_owned(),
+        );
+    }
+
+    #[test]
+    fn code_str_snake_case_extra_delimiters() {
+        assert_eq!(
+            format!("{}", Identifier::from("__hello_world__").code_str()),
+            "`__hello_world__`".to_owned(),
+        );
+    }
+
+    #[test]
+    fn code_str_camel_case() {
+        assert_eq!(
+            format!("{}", Identifier::from("helloWorld").code_str()),
+            "`helloWorld`".to_owned(),
+        );
+    }
+
+    #[test]
+    fn code_str_pascal_case() {
+        assert_eq!(
+            format!("{}", Identifier::from("HelloWorld").code_str()),
+            "`HelloWorld`".to_owned(),
         );
     }
 
