@@ -3,10 +3,12 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-// This is a user-provided identifier. To make case-insensitive equality, hashing, etc.
-// performance, we pre-compute a case-folded version of the identifier. The main purpose of this
-// struct (rather than just using `String`) is to prevent accidental inclusion of identifiers in
-// generated code without case conversion.
+// This is a case-insensitive identifier. This struct provides two benefits over just using
+// `String` directly:
+//
+//   1. It makes case-insensitive operations like equality testing and comparison cheaper by
+//      pre-computing a case-folded version of the identifier.
+//   2. It prevents accidental inclusion of non-case-converted identifiers into generated code.
 #[derive(Clone, Debug)]
 pub struct Identifier {
     original: String,
@@ -108,6 +110,234 @@ fn split_words(name: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use crate::identifier::Identifier;
+    use std::{
+        cmp::Ordering,
+        collections::hash_map::DefaultHasher,
+        hash::{Hash, Hasher},
+    };
+
+    #[test]
+    fn eq_empty() {
+        assert_eq!(Identifier::from(""), Identifier::from(""));
+    }
+
+    #[test]
+    fn eq_equal() {
+        assert_eq!(Identifier::from("hello"), Identifier::from("hello"));
+    }
+
+    #[test]
+    fn eq_equal_up_to_case() {
+        assert_eq!(
+            Identifier::from("hello_world"),
+            Identifier::from("helloWorld"),
+        );
+    }
+
+    #[test]
+    fn eq_different() {
+        assert_ne!(Identifier::from("hello"), Identifier::from("world"));
+    }
+
+    #[test]
+    fn partial_cmp_empty() {
+        assert_eq!(
+            Identifier::from("").partial_cmp(&Identifier::from("")),
+            Some(Ordering::Equal),
+        );
+    }
+
+    #[test]
+    fn partial_cmp_equal() {
+        assert_eq!(
+            Identifier::from("hello").partial_cmp(&Identifier::from("hello")),
+            Some(Ordering::Equal),
+        );
+    }
+
+    #[test]
+    fn partial_cmp_equal_up_to_case() {
+        assert_eq!(
+            Identifier::from("hello_world").partial_cmp(&Identifier::from("helloWorld")),
+            Some(Ordering::Equal),
+        );
+    }
+
+    #[test]
+    fn partial_cmp_less() {
+        assert_eq!(
+            Identifier::from("hello").partial_cmp(&Identifier::from("world")),
+            Some(Ordering::Less),
+        );
+    }
+
+    #[test]
+    fn partial_cmp_greater() {
+        assert_eq!(
+            Identifier::from("world").partial_cmp(&Identifier::from("hello")),
+            Some(Ordering::Greater),
+        );
+    }
+
+    #[test]
+    fn cmp_empty() {
+        assert_eq!(
+            Identifier::from("").cmp(&Identifier::from("")),
+            Ordering::Equal,
+        );
+    }
+
+    #[test]
+    fn cmp_equal() {
+        assert_eq!(
+            Identifier::from("hello").cmp(&Identifier::from("hello")),
+            Ordering::Equal,
+        );
+    }
+
+    #[test]
+    fn cmp_equal_up_to_case() {
+        assert_eq!(
+            Identifier::from("hello_world").cmp(&Identifier::from("helloWorld")),
+            Ordering::Equal,
+        );
+    }
+
+    #[test]
+    fn cmp_less() {
+        assert_eq!(
+            Identifier::from("hello").cmp(&Identifier::from("world")),
+            Ordering::Less,
+        );
+    }
+
+    #[test]
+    fn cmp_greater() {
+        assert_eq!(
+            Identifier::from("world").cmp(&Identifier::from("hello")),
+            Ordering::Greater,
+        );
+    }
+
+    #[test]
+    fn hash_empty() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn hash_snake_case() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("hello_world").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "hello_world".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn hash_snake_case_extra_delimiters() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("__hello_world__").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "hello_world".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn hash_camel_case() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("helloWorld").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "hello_world".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn hash_pascal_case() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("HelloWorld").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "hello_world".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn from_empty() {
+        assert_eq!(
+            Identifier::from(""),
+            Identifier {
+                original: "".to_owned(),
+                snake_case: "".to_owned(),
+            },
+        );
+    }
+
+    #[test]
+    fn from_snake_case() {
+        assert_eq!(
+            Identifier::from("hello_world"),
+            Identifier {
+                original: "hello_world".to_owned(),
+                snake_case: "hello_world".to_owned(),
+            },
+        );
+    }
+
+    #[test]
+    fn from_snake_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("__hello_world__"),
+            Identifier {
+                original: "__hello_world__".to_owned(),
+                snake_case: "hello_world".to_owned(),
+            },
+        );
+    }
+
+    #[test]
+    fn from_camel_case() {
+        assert_eq!(
+            Identifier::from("helloWorld"),
+            Identifier {
+                original: "helloWorld".to_owned(),
+                snake_case: "hello_world".to_owned(),
+            },
+        );
+    }
+
+    #[test]
+    fn from_pascal_case() {
+        assert_eq!(
+            Identifier::from("HelloWorld"),
+            Identifier {
+                original: "HelloWorld".to_owned(),
+                snake_case: "hello_world".to_owned(),
+            },
+        );
+    }
 
     #[test]
     fn original_empty() {
