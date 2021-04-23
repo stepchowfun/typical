@@ -5,7 +5,7 @@ mod count;
 mod error;
 mod format;
 mod generate_rust;
-mod naming_conventions;
+mod identifier;
 mod parser;
 mod schema;
 mod token;

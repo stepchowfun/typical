@@ -1,8 +1,6 @@
-use crate::{error::SourceRange, naming_conventions::snake_case};
+use crate::{error::SourceRange, identifier::Identifier};
 use std::{
-    cmp::Ordering,
     fmt::{Display, Formatter, Result},
-    hash::{Hash, Hasher},
     path::PathBuf,
 };
 
@@ -20,57 +18,6 @@ pub const STRUCT_KEYWORD: &str = "struct";
 pub struct Token {
     pub source_range: SourceRange,
     pub variant: Variant,
-}
-
-// This is a user-provided identifier. To make case-insensitive equality, hashing, etc.
-// performance, we pre-compute a case-folded version of the identifier. The main purpose of this
-// struct (rather than just using `String`) is to prevent accidental inclusion of identifiers in
-// generated code without case conversion.
-#[derive(Clone, Debug)]
-pub struct Identifier {
-    original: String,
-    case_folded: String,
-}
-
-impl PartialEq for Identifier {
-    fn eq(&self, other: &Self) -> bool {
-        self.case_folded == other.case_folded
-    }
-}
-
-impl Eq for Identifier {}
-
-impl PartialOrd for Identifier {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.case_folded.partial_cmp(&other.case_folded)
-    }
-}
-
-impl Ord for Identifier {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.case_folded.cmp(&other.case_folded)
-    }
-}
-
-impl Hash for Identifier {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.case_folded.hash(state);
-    }
-}
-
-impl From<&str> for Identifier {
-    fn from(string: &str) -> Self {
-        Identifier {
-            original: string.to_owned(),
-            case_folded: snake_case(string),
-        }
-    }
-}
-
-impl Identifier {
-    pub fn original(&self) -> &str {
-        &self.original
-    }
 }
 
 // We assign each token a "variant" describing what kind of token it is.
@@ -107,7 +54,7 @@ impl Display for Variant {
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
-            Self::Identifier(name) => write!(f, "{}", name.original),
+            Self::Identifier(name) => write!(f, "{}", name.original()),
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),

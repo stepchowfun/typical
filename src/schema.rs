@@ -1,4 +1,4 @@
-use crate::{error::SourceRange, token::Identifier};
+use crate::{error::SourceRange, identifier::Identifier};
 use std::{
     fmt::{Display, Formatter},
     path::PathBuf,

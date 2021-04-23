@@ -1,9 +1,4 @@
-use crate::{
-    naming_conventions::{pascal_case_id, snake_case_id},
-    schema,
-    schema::relativize_namespace,
-    token::Identifier,
-};
+use crate::{identifier::Identifier, schema, schema::relativize_namespace};
 use std::{
     collections::BTreeMap,
     fmt::{Display, Formatter},
@@ -71,9 +66,9 @@ impl Display for Flavor {
 // Format an identifier with an optional flavor suffix in a way that Rust will be happy with.
 fn emit_name(name: &Identifier, pascal_case: bool, flavor: Option<Flavor>) -> String {
     let converted_name = if pascal_case {
-        pascal_case_id(name)
+        name.pascal_case()
     } else {
-        snake_case_id(name)
+        name.snake_case()
     };
 
     format!(
