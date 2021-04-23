@@ -2,6 +2,7 @@ use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
     schema, token,
+    token::Identifier,
 };
 use std::path::Path;
 
@@ -386,7 +387,7 @@ fn parse_fields(
     position: &mut usize,
     name_expectation: &str,
     errors: &mut Vec<Error>,
-) -> Option<(String, Vec<schema::Field>)> {
+) -> Option<(Identifier, Vec<schema::Field>)> {
     // Parse the name.
     let name = consume_token_1!(
         source_path,
@@ -651,7 +652,7 @@ mod tests {
                     source_range: SourceRange { start: 13, end: 34 },
                     path: Path::new("bar.t").to_owned(),
                     namespace: None,
-                    name: "bar".to_owned(),
+                    name: "bar".into(),
                 }],
                 declarations: vec![
                     schema::Declaration {
@@ -660,14 +661,14 @@ mod tests {
                             end: 199,
                         },
                         variant: schema::DeclarationVariant::Struct(
-                            "Foo".to_owned(),
+                            "Foo".into(),
                             vec![
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 107,
                                         end: 121,
                                     },
-                                    name: "x".to_owned(),
+                                    name: "x".into(),
                                     transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
@@ -675,8 +676,8 @@ mod tests {
                                             end: 117,
                                         },
                                         variant: schema::TypeVariant::Custom(
-                                            Some("bar".to_owned()),
-                                            "Bar".to_owned(),
+                                            Some("bar".into()),
+                                            "Bar".into(),
                                         ),
                                     },
                                     index: 0,
@@ -686,17 +687,14 @@ mod tests {
                                         start: 136,
                                         end: 159,
                                     },
-                                    name: "y".to_owned(),
+                                    name: "y".into(),
                                     transitional: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 152,
                                             end: 155,
                                         },
-                                        variant: schema::TypeVariant::Custom(
-                                            None,
-                                            "int".to_owned(),
-                                        ),
+                                        variant: schema::TypeVariant::Custom(None, "int".into()),
                                     },
                                     index: 1,
                                 },
@@ -705,7 +703,7 @@ mod tests {
                                         start: 174,
                                         end: 185,
                                     },
-                                    name: "z".to_owned(),
+                                    name: "z".into(),
                                     transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
@@ -725,14 +723,14 @@ mod tests {
                             end: 364,
                         },
                         variant: schema::DeclarationVariant::Choice(
-                            "Qux".to_owned(),
+                            "Qux".into(),
                             vec![
                                 schema::Field {
                                     source_range: SourceRange {
                                         start: 272,
                                         end: 286,
                                     },
-                                    name: "x".to_owned(),
+                                    name: "x".into(),
                                     transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
@@ -740,8 +738,8 @@ mod tests {
                                             end: 282,
                                         },
                                         variant: schema::TypeVariant::Custom(
-                                            Some("bar".to_owned()),
-                                            "Bar".to_owned(),
+                                            Some("bar".into()),
+                                            "Bar".into(),
                                         ),
                                     },
                                     index: 0,
@@ -751,17 +749,14 @@ mod tests {
                                         start: 301,
                                         end: 324,
                                     },
-                                    name: "y".to_owned(),
+                                    name: "y".into(),
                                     transitional: true,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
                                             start: 317,
                                             end: 320,
                                         },
-                                        variant: schema::TypeVariant::Custom(
-                                            None,
-                                            "int".to_owned(),
-                                        ),
+                                        variant: schema::TypeVariant::Custom(None, "int".into()),
                                     },
                                     index: 1,
                                 },
@@ -770,7 +765,7 @@ mod tests {
                                         start: 339,
                                         end: 350,
                                     },
-                                    name: "z".to_owned(),
+                                    name: "z".into(),
                                     transitional: false,
                                     r#type: schema::Type {
                                         source_range: SourceRange {
@@ -817,7 +812,7 @@ mod tests {
                     source_range: SourceRange { start: 0, end: 21 },
                     path: Path::new("bar.t").to_owned(),
                     namespace: None,
-                    name: "bar".to_owned(),
+                    name: "bar".into(),
                 }],
                 declarations: vec![],
             },
@@ -836,7 +831,7 @@ mod tests {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 14 },
-                    variant: schema::DeclarationVariant::Struct("Foo".to_owned(), vec![]),
+                    variant: schema::DeclarationVariant::Struct("Foo".into(), vec![]),
                 }],
             },
         );
@@ -855,10 +850,10 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 26 },
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 24 },
-                            name: "x".to_owned(),
+                            name: "x".into(),
                             transitional: false,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 16, end: 20 },
@@ -885,11 +880,11 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 38 },
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![
                             schema::Field {
                                 source_range: SourceRange { start: 13, end: 24 },
-                                name: "x".to_owned(),
+                                name: "x".into(),
                                 transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 16, end: 20 },
@@ -899,7 +894,7 @@ mod tests {
                             },
                             schema::Field {
                                 source_range: SourceRange { start: 25, end: 36 },
-                                name: "y".to_owned(),
+                                name: "y".into(),
                                 transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 28, end: 32 },
@@ -926,7 +921,7 @@ mod tests {
                 imports: vec![],
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 14 },
-                    variant: schema::DeclarationVariant::Choice("Foo".to_owned(), vec![]),
+                    variant: schema::DeclarationVariant::Choice("Foo".into(), vec![]),
                 }],
             },
         );
@@ -945,10 +940,10 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 26 },
                     variant: schema::DeclarationVariant::Choice(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 24 },
-                            name: "x".to_owned(),
+                            name: "x".into(),
                             transitional: false,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 16, end: 20 },
@@ -975,11 +970,11 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 38 },
                     variant: schema::DeclarationVariant::Choice(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![
                             schema::Field {
                                 source_range: SourceRange { start: 13, end: 24 },
-                                name: "x".to_owned(),
+                                name: "x".into(),
                                 transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 16, end: 20 },
@@ -989,7 +984,7 @@ mod tests {
                             },
                             schema::Field {
                                 source_range: SourceRange { start: 25, end: 36 },
-                                name: "y".to_owned(),
+                                name: "y".into(),
                                 transitional: false,
                                 r#type: schema::Type {
                                     source_range: SourceRange { start: 28, end: 32 },
@@ -1017,14 +1012,14 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 38 },
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 36 },
-                            name: "x".to_owned(),
+                            name: "x".into(),
                             transitional: true,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 29, end: 32 },
-                                variant: schema::TypeVariant::Custom(None, "Foo".to_owned()),
+                                variant: schema::TypeVariant::Custom(None, "Foo".into()),
                             },
                             index: 0,
                         }],
@@ -1047,16 +1042,16 @@ mod tests {
                 declarations: vec![schema::Declaration {
                     source_range: SourceRange { start: 0, end: 29 },
                     variant: schema::DeclarationVariant::Struct(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![schema::Field {
                             source_range: SourceRange { start: 13, end: 27 },
-                            name: "x".to_owned(),
+                            name: "x".into(),
                             transitional: false,
                             r#type: schema::Type {
                                 source_range: SourceRange { start: 16, end: 23 },
                                 variant: schema::TypeVariant::Custom(
-                                    Some("bar".to_owned()),
-                                    "Bar".to_owned(),
+                                    Some("bar".into()),
+                                    "Bar".into(),
                                 ),
                             },
                             index: 0,

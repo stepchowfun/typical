@@ -1,3 +1,5 @@
+use crate::token::Identifier;
+
 // This function splits a name into words using underscore delimiters and word case.
 fn split_words(name: &str) -> Vec<String> {
     let mut snaked = String::new();
@@ -49,9 +51,21 @@ pub fn pascal_case(name: &str) -> String {
         .join("")
 }
 
+// This function converts an identifier to `snake_case`.
+pub fn snake_case_id(identifier: &Identifier) -> String {
+    snake_case(&identifier.case_folded)
+}
+
+// This function converts an identifier to `PascalCase`.
+pub fn pascal_case_id(identifier: &Identifier) -> String {
+    pascal_case(&identifier.case_folded)
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::naming_conventions::{pascal_case, snake_case, split_words, uppercase};
+    use crate::naming_conventions::{
+        pascal_case, pascal_case_id, snake_case, snake_case_id, split_words, uppercase,
+    };
 
     #[test]
     fn split_words_empty() {
@@ -141,5 +155,79 @@ mod tests {
     #[test]
     fn pascal_case_pascal_case() {
         assert_eq!(pascal_case("HelloWorld"), "HelloWorld".to_owned());
+    }
+
+    #[test]
+    fn snake_case_id_empty() {
+        assert_eq!(snake_case_id(&"".into()), "".to_owned());
+    }
+
+    #[test]
+    fn snake_case_id_snake_case() {
+        assert_eq!(
+            snake_case_id(&"hello_world".into()),
+            "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn snake_case_id_snake_case_extra_delimiters() {
+        assert_eq!(
+            snake_case_id(&"__hello_world__".into()),
+            "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn snake_case_id_camel_case() {
+        assert_eq!(
+            snake_case_id(&"helloWorld".into()),
+            "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn snake_case_id_pascal_case() {
+        assert_eq!(
+            snake_case_id(&"HelloWorld".into()),
+            "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn pascal_case_id_empty() {
+        assert_eq!(pascal_case_id(&"".into()), "".to_owned());
+    }
+
+    #[test]
+    fn pascal_case_id_snake_case() {
+        assert_eq!(
+            pascal_case_id(&"hello_world".into()),
+            "HelloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn pascal_case_id_snake_case_extra_delimiters() {
+        assert_eq!(
+            pascal_case_id(&"__hello_world__".into()),
+            "HelloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn pascal_case_id_camel_case() {
+        assert_eq!(
+            pascal_case_id(&"helloWorld".into()),
+            "HelloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn pascal_case_id_pascal_case() {
+        assert_eq!(
+            pascal_case_id(&"HelloWorld".into()),
+            "HelloWorld".to_owned(),
+        );
     }
 }

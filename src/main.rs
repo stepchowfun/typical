@@ -16,7 +16,6 @@ use crate::{
     count::count,
     error::{listing, throw, Error},
     format::CodeStr,
-    naming_conventions::snake_case,
     parser::parse,
     tokenizer::tokenize,
     validator::validate,
@@ -99,8 +98,9 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
         components: path
             .components()
             .map(|component| match component {
-                // [ref:names_unique_after_normalization]
-                Component::Normal(component) => snake_case(&component.to_string_lossy()),
+                Component::Normal(component) => {
+                    component.to_string_lossy().to_string().as_str().into()
+                }
                 _ => panic!(),
             })
             .collect(),
@@ -120,7 +120,7 @@ fn load_schemas(
     // Any errors will end up here.
     let mut errors = vec![];
 
-    // Canonicalize the path. This ensures the path does not contain `..` or `.`.
+    // Canonicalize the path. This ensures the path doesn't contain `..` or `.`.
     let canonical_schema_path = match schema_path.canonicalize() {
         Ok(canonical_schema_path) => canonical_schema_path,
         Err(error) => {

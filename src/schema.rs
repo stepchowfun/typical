@@ -1,4 +1,4 @@
-use crate::error::SourceRange;
+use crate::{error::SourceRange, token::Identifier};
 use std::{
     fmt::{Display, Formatter},
     path::PathBuf,
@@ -16,9 +16,7 @@ pub struct Namespace {
     // parent of the schema path provided by the user. However, it differs from paths as follows:
     // - It doesn't include the file extension in the final component.
     // - It can only contain "normal" path components. For example, `.` and `..` are not allowed.
-    // - It must be in `snake_case` to facilitate uniqueness validation
-    //   [ref:names_unique_after_normalization].
-    pub components: Vec<String>,
+    pub components: Vec<Identifier>,
 }
 
 #[derive(Clone, Debug)]
@@ -26,7 +24,7 @@ pub struct Import {
     pub source_range: SourceRange,
     pub path: PathBuf, // The literal path as it appears in the source file
     pub namespace: Option<Namespace>, // A normalized form of the path
-    pub name: String,
+    pub name: Identifier,
 }
 
 #[derive(Clone, Debug)]
@@ -37,14 +35,14 @@ pub struct Declaration {
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(String, Vec<Field>),
-    Choice(String, Vec<Field>),
+    Struct(Identifier, Vec<Field>), // (name, fields)
+    Choice(Identifier, Vec<Field>), // (name, cases)
 }
 
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub name: String,
+    pub name: Identifier,
     pub transitional: bool,
     pub r#type: Type,
     pub index: usize,
@@ -59,7 +57,7 @@ pub struct Type {
 #[derive(Clone, Debug)]
 pub enum TypeVariant {
     Bool,
-    Custom(Option<String>, String), // (import, name)
+    Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
 // This function returns takes two namespaces and returns a version of the former relative to the
@@ -101,7 +99,12 @@ impl Display for Schema {
                 writeln!(f)?;
             }
 
-            write!(f, "import '{}' as {}", import.path.display(), import.name)?;
+            write!(
+                f,
+                "import '{}' as {}",
+                import.path.display(),
+                import.name.original,
+            )?;
         }
 
         for declaration in &self.declarations {
@@ -128,7 +131,7 @@ impl Display for DeclarationVariant {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             Self::Struct(name, fields) => {
-                writeln!(f, "struct {} {{", name)?;
+                writeln!(f, "struct {} {{", name.original)?;
 
                 for field in fields.iter() {
                     writeln!(f, "{}", field)?;
@@ -139,7 +142,7 @@ impl Display for DeclarationVariant {
                 Ok(())
             }
             Self::Choice(name, fields) => {
-                writeln!(f, "choice {} {{", name)?;
+                writeln!(f, "choice {} {{", name.original)?;
 
                 for field in fields.iter() {
                     writeln!(f, "{}", field)?;
@@ -159,10 +162,14 @@ impl Display for Field {
             write!(
                 f,
                 "  {}: transitional {} = {}",
-                self.name, self.r#type, self.index,
+                self.name.original, self.r#type, self.index,
             )?;
         } else {
-            write!(f, "  {}: {} = {}", self.name, self.r#type, self.index)?;
+            write!(
+                f,
+                "  {}: {} = {}",
+                self.name.original, self.r#type, self.index,
+            )?;
         }
 
         Ok(())
@@ -184,9 +191,9 @@ impl Display for TypeVariant {
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
-                    write!(f, "{}.{}", import, name)?;
+                    write!(f, "{}.{}", import.original, name.original)?;
                 } else {
-                    write!(f, "{}", name)?;
+                    write!(f, "{}", name.original)?;
                 }
             }
         }
@@ -196,7 +203,15 @@ impl Display for TypeVariant {
 
 impl Display for Namespace {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.components.join("."))?;
+        write!(
+            f,
+            "{}",
+            self.components
+                .iter()
+                .map(|component| component.original.as_str())
+                .collect::<Vec<_>>()
+                .join("."),
+        )?;
         Ok(())
     }
 }
@@ -230,7 +245,7 @@ mod tests {
             relativize_namespace(
                 &Namespace { components: vec![] },
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
             ),
             (Namespace { components: vec![] }, 2),
@@ -242,13 +257,13 @@ mod tests {
         assert_same!(
             relativize_namespace(
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 &Namespace { components: vec![] },
             ),
             (
                 Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 0,
             ),
@@ -260,15 +275,15 @@ mod tests {
         assert_same!(
             relativize_namespace(
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 &Namespace {
-                    components: vec!["baz".to_owned(), "qux".to_owned()],
+                    components: vec!["baz".into(), "qux".into()],
                 },
             ),
             (
                 Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 2,
             ),
@@ -280,15 +295,15 @@ mod tests {
         assert_same!(
             relativize_namespace(
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 &Namespace {
-                    components: vec!["foo".to_owned(), "baz".to_owned()],
+                    components: vec!["foo".into(), "baz".into()],
                 },
             ),
             (
                 Namespace {
-                    components: vec!["bar".to_owned()],
+                    components: vec!["bar".into()],
                 },
                 1,
             ),
@@ -300,10 +315,10 @@ mod tests {
         assert_same!(
             relativize_namespace(
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
             ),
             (Namespace { components: vec![] }, 0),
@@ -315,15 +330,15 @@ mod tests {
         assert_same!(
             relativize_namespace(
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned(), "baz".to_owned()],
+                    components: vec!["foo".into(), "bar".into(), "baz".into()],
                 },
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
             ),
             (
                 Namespace {
-                    components: vec!["baz".to_owned()],
+                    components: vec!["baz".into()],
                 },
                 0,
             ),
@@ -335,10 +350,10 @@ mod tests {
         assert_same!(
             relativize_namespace(
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
                 &Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned(), "baz".to_owned()],
+                    components: vec!["foo".into(), "bar".into(), "baz".into()],
                 },
             ),
             (Namespace { components: vec![] }, 1),
@@ -370,13 +385,13 @@ mod tests {
                             source_range: SourceRange { start: 0, end: 0 },
                             path: Path::new("foo.t").to_owned(),
                             namespace: None,
-                            name: "foo".to_owned(),
+                            name: "foo".into(),
                         },
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
                             path: Path::new("bar.t").to_owned(),
                             namespace: None,
-                            name: "bar".to_owned(),
+                            name: "bar".into(),
                         },
                     ],
                     declarations: vec![],
@@ -400,11 +415,11 @@ mod tests {
                         Declaration {
                             source_range: SourceRange { start: 0, end: 0 },
                             variant: DeclarationVariant::Struct(
-                                "Foo".to_owned(),
+                                "Foo".into(),
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".to_owned(),
+                                        name: "x".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -414,7 +429,7 @@ mod tests {
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".to_owned(),
+                                        name: "y".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -428,11 +443,11 @@ mod tests {
                         Declaration {
                             source_range: SourceRange { start: 0, end: 0 },
                             variant: DeclarationVariant::Choice(
-                                "Bar".to_owned(),
+                                "Bar".into(),
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".to_owned(),
+                                        name: "x".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -442,7 +457,7 @@ mod tests {
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".to_owned(),
+                                        name: "y".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -481,24 +496,24 @@ mod tests {
                             source_range: SourceRange { start: 0, end: 0 },
                             path: Path::new("foo.t").to_owned(),
                             namespace: None,
-                            name: "foo".to_owned(),
+                            name: "foo".into(),
                         },
                         Import {
                             source_range: SourceRange { start: 0, end: 0 },
                             path: Path::new("bar.t").to_owned(),
                             namespace: None,
-                            name: "bar".to_owned(),
+                            name: "bar".into(),
                         },
                     ],
                     declarations: vec![
                         Declaration {
                             source_range: SourceRange { start: 0, end: 0 },
                             variant: DeclarationVariant::Struct(
-                                "Foo".to_owned(),
+                                "Foo".into(),
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".to_owned(),
+                                        name: "x".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -508,7 +523,7 @@ mod tests {
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".to_owned(),
+                                        name: "y".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -522,11 +537,11 @@ mod tests {
                         Declaration {
                             source_range: SourceRange { start: 0, end: 0 },
                             variant: DeclarationVariant::Choice(
-                                "Bar".to_owned(),
+                                "Bar".into(),
                                 vec![
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".to_owned(),
+                                        name: "x".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -536,7 +551,7 @@ mod tests {
                                     },
                                     Field {
                                         source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".to_owned(),
+                                        name: "y".into(),
                                         transitional: false,
                                         r#type: Type {
                                             source_range: SourceRange { start: 0, end: 0 },
@@ -575,11 +590,11 @@ mod tests {
                 Declaration {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: DeclarationVariant::Struct(
-                        "Foo".to_owned(),
+                        "Foo".into(),
                         vec![
                             Field {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                name: "x".to_owned(),
+                                name: "x".into(),
                                 transitional: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
@@ -589,7 +604,7 @@ mod tests {
                             },
                             Field {
                                 source_range: SourceRange { start: 0, end: 0 },
-                                name: "y".to_owned(),
+                                name: "y".into(),
                                 transitional: false,
                                 r#type: Type {
                                     source_range: SourceRange { start: 0, end: 0 },
@@ -616,11 +631,11 @@ mod tests {
             format!(
                 "{}",
                 DeclarationVariant::Struct(
-                    "Foo".to_owned(),
+                    "Foo".into(),
                     vec![
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "x".to_owned(),
+                            name: "x".into(),
                             transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
@@ -630,7 +645,7 @@ mod tests {
                         },
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "y".to_owned(),
+                            name: "y".into(),
                             transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
@@ -656,11 +671,11 @@ mod tests {
             format!(
                 "{}",
                 DeclarationVariant::Choice(
-                    "Foo".to_owned(),
+                    "Foo".into(),
                     vec![
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "x".to_owned(),
+                            name: "x".into(),
                             transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
@@ -670,7 +685,7 @@ mod tests {
                         },
                         Field {
                             source_range: SourceRange { start: 0, end: 0 },
-                            name: "y".to_owned(),
+                            name: "y".into(),
                             transitional: false,
                             r#type: Type {
                                 source_range: SourceRange { start: 0, end: 0 },
@@ -697,7 +712,7 @@ mod tests {
                 "{}",
                 Field {
                     source_range: SourceRange { start: 0, end: 0 },
-                    name: "x".to_owned(),
+                    name: "x".into(),
                     transitional: false,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
@@ -717,7 +732,7 @@ mod tests {
                 "{}",
                 Field {
                     source_range: SourceRange { start: 0, end: 0 },
-                    name: "x".to_owned(),
+                    name: "x".into(),
                     transitional: true,
                     r#type: Type {
                         source_range: SourceRange { start: 0, end: 0 },
@@ -751,7 +766,7 @@ mod tests {
                 "{}",
                 Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Custom(None, "Int".to_owned()),
+                    variant: TypeVariant::Custom(None, "Int".into()),
                 },
             ),
             "Int",
@@ -765,7 +780,7 @@ mod tests {
                 "{}",
                 Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Custom(Some("foo".to_owned()), "Int".to_owned()),
+                    variant: TypeVariant::Custom(Some("foo".into()), "Int".into()),
                 },
             ),
             "foo.Int",
@@ -783,7 +798,7 @@ mod tests {
             format!(
                 "{}",
                 Namespace {
-                    components: vec!["foo".to_owned()],
+                    components: vec!["foo".into()],
                 },
             ),
             "foo",
@@ -796,7 +811,7 @@ mod tests {
             format!(
                 "{}",
                 Namespace {
-                    components: vec!["foo".to_owned(), "bar".to_owned()],
+                    components: vec!["foo".into(), "bar".into()],
                 },
             ),
             "foo.bar",
