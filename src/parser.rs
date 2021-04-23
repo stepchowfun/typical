@@ -1,8 +1,8 @@
 use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
+    identifier::Identifier,
     schema, token,
-    token::Identifier,
 };
 use std::path::Path;
 
