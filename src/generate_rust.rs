@@ -246,12 +246,14 @@ fn render_struct(
         .map(|flavor| {
             format!(
                 "\
+                    {}#[allow(clippy::module_name_repetitions)]\n\
                     {}#[allow(dead_code)]\n\
                     {}\
                     {}pub struct {} {{\n\
                     {}\
                     {}}}\n\
                 ",
+                indentation_str,
                 indentation_str,
                 if matches!(flavor, Flavor::InToOut) {
                     "".to_owned()
@@ -276,6 +278,7 @@ fn render_struct(
         })
         .chain(once(format!(
             "\
+                {}#[allow(clippy::useless_conversion)]\n\
                 {}impl From<self::{}> for self::{} {{\n\
                 {}{}fn from({}: self::{}) -> Self {{\n\
                 {}{}{}self::{} {{\n\
@@ -284,6 +287,7 @@ fn render_struct(
                 {}{}}}\n\
                 {}}}\n\
             ",
+            indentation_str,
             indentation_str,
             emit_name(&formatted_name, Some(Flavor::Out), true),
             emit_name(&formatted_name, Some(Flavor::In), true),
@@ -436,12 +440,16 @@ fn render_choice(
         .map(|flavor| {
             format!(
                 "\
+                    {}#[allow(clippy::empty_enum)]\n\
+                    {}#[allow(clippy::module_name_repetitions)]\n\
                     {}#[allow(dead_code)]\n\
                     {}\
                     {}pub {} {} {{\n\
                     {}\
                     {}}}\n\
                 ",
+                indentation_str,
+                indentation_str,
                 indentation_str,
                 if matches!(flavor, Flavor::InToOut) {
                     "".to_owned()
@@ -478,6 +486,7 @@ fn render_choice(
         })
         .chain(once(format!(
             "\
+                {}#[allow(clippy::useless_conversion)]\n\
                 {}impl From<self::{}> for self::{} {{\n\
                 {}{}fn from({}: self::{}) -> Self {{\n\
                 {}{}{}match {} {{\n\
@@ -486,6 +495,7 @@ fn render_choice(
                 {}{}}}\n\
                 {}}}\n\
             ",
+            indentation_str,
             indentation_str,
             emit_name(&formatted_name, Some(Flavor::Out), true),
             emit_name(&formatted_name, Some(Flavor::In), true),
@@ -810,20 +820,24 @@ mod tests {
             "\
 pub mod basic {
     pub mod unit {
+        #[allow(clippy::module_name_repetitions)]
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
         pub struct UnitIn {
         }
 
+        #[allow(clippy::module_name_repetitions)]
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
         pub struct UnitOut {
         }
 
+        #[allow(clippy::module_name_repetitions)]
         #[allow(dead_code)]
         pub struct UnitInToOut {
         }
 
+        #[allow(clippy::useless_conversion)]
         impl From<self::UnitOut> for self::UnitIn {
             fn from(_out: self::UnitOut) -> Self {
                 self::UnitIn {
@@ -840,20 +854,27 @@ pub mod basic {
     }
 
     pub mod void {
+        #[allow(clippy::empty_enum)]
+        #[allow(clippy::module_name_repetitions)]
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
         pub enum VoidIn {
         }
 
+        #[allow(clippy::empty_enum)]
+        #[allow(clippy::module_name_repetitions)]
         #[allow(dead_code)]
         #[derive(Clone, Debug)]
         pub enum VoidOut {
         }
 
+        #[allow(clippy::empty_enum)]
+        #[allow(clippy::module_name_repetitions)]
         #[allow(dead_code)]
         pub struct VoidInToOut {
         }
 
+        #[allow(clippy::useless_conversion)]
         impl From<self::VoidOut> for self::VoidIn {
             fn from(out: self::VoidOut) -> Self {
                 match out {
@@ -871,6 +892,7 @@ pub mod basic {
 }
 
 pub mod main {
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub struct FooIn {
@@ -879,6 +901,7 @@ pub mod main {
         s: super::basic::unit::UnitIn,
     }
 
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub struct FooOut {
@@ -890,6 +913,7 @@ pub mod main {
         t: super::basic::unit::UnitOut,
     }
 
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     pub struct FooInToOut {
         y: bool,
@@ -899,6 +923,7 @@ pub mod main {
         t: super::basic::unit::UnitOut,
     }
 
+    #[allow(clippy::useless_conversion)]
     impl From<self::FooOut> for self::FooIn {
         fn from(out: self::FooOut) -> Self {
             self::FooIn {
@@ -922,6 +947,8 @@ pub mod main {
         }
     }
 
+    #[allow(clippy::empty_enum)]
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub enum BarIn {
@@ -933,6 +960,8 @@ pub mod main {
         T(super::basic::unit::UnitIn),
     }
 
+    #[allow(clippy::empty_enum)]
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub enum BarOut {
@@ -941,6 +970,8 @@ pub mod main {
         S(super::basic::unit::UnitOut),
     }
 
+    #[allow(clippy::empty_enum)]
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     pub struct BarInToOut {
         y: Box<dyn FnOnce(bool) -> BarOut>,
@@ -950,6 +981,7 @@ pub mod main {
         t: Box<dyn FnOnce(super::basic::unit::UnitIn) -> BarOut>,
     }
 
+    #[allow(clippy::useless_conversion)]
     impl From<self::BarOut> for self::BarIn {
         fn from(out: self::BarOut) -> Self {
             match out {
@@ -973,6 +1005,7 @@ pub mod main {
         }
     }
 
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub struct FooAndBarIn {
@@ -980,6 +1013,7 @@ pub mod main {
         bar: BarIn,
     }
 
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub struct FooAndBarOut {
@@ -987,12 +1021,14 @@ pub mod main {
         bar: BarOut,
     }
 
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     pub struct FooAndBarInToOut {
         foo: FooInToOut,
         bar: BarInToOut,
     }
 
+    #[allow(clippy::useless_conversion)]
     impl From<self::FooAndBarOut> for self::FooAndBarIn {
         fn from(out: self::FooAndBarOut) -> Self {
             self::FooAndBarIn {
@@ -1011,6 +1047,8 @@ pub mod main {
         }
     }
 
+    #[allow(clippy::empty_enum)]
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub enum FooOrBarIn {
@@ -1018,6 +1056,8 @@ pub mod main {
         Bar(BarIn),
     }
 
+    #[allow(clippy::empty_enum)]
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     #[derive(Clone, Debug)]
     pub enum FooOrBarOut {
@@ -1025,12 +1065,15 @@ pub mod main {
         Bar(BarOut),
     }
 
+    #[allow(clippy::empty_enum)]
+    #[allow(clippy::module_name_repetitions)]
     #[allow(dead_code)]
     pub struct FooOrBarInToOut {
         foo: FooInToOut,
         bar: BarInToOut,
     }
 
+    #[allow(clippy::useless_conversion)]
     impl From<self::FooOrBarOut> for self::FooOrBarIn {
         fn from(out: self::FooOrBarOut) -> Self {
             match out {
