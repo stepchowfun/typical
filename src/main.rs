@@ -107,8 +107,8 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
     }
 }
 
-// Load a schema and its transitive dependencies. No validation is performed other than ensuring
-// the schemas are syntactically valid and that imports resolve.
+// Load a schema and its transitive dependencies. The imports in the returned schemas are guaranteed
+// to resolve.
 #[allow(clippy::too_many_lines)]
 #[allow(clippy::type_complexity)]
 fn load_schemas(
@@ -220,7 +220,7 @@ fn load_schemas(
         let parent_path = path.parent().unwrap();
 
         // Add the dependencies to the frontier.
-        for import in &mut schema.imports {
+        for import in schema.imports.values_mut() {
             // Compute the source listing for this import for error reporting.
             let origin_listing = listing(&contents, import.source_range);
 

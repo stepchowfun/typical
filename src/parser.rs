@@ -4,7 +4,7 @@ use crate::{
     identifier::Identifier,
     schema, token,
 };
-use std::path::Path;
+use std::{collections::BTreeMap, path::Path};
 
 // This function computes the source range for a token, or the empty range at the end of the source
 // file in the case where the given position is at the end of the token stream.
@@ -225,6 +225,7 @@ pub fn parse(
 }
 
 // Parse a schema.
+#[allow(clippy::too_many_lines)]
 fn parse_schema(
     source_path: &Path,
     source_contents: &str,
@@ -232,20 +233,29 @@ fn parse_schema(
     position: &mut usize,
     errors: &mut Vec<Error>,
 ) -> schema::Schema {
-    let mut imports = vec![];
-    let mut declarations = vec![];
+    let mut imports = BTreeMap::new();
+    let mut declarations = BTreeMap::new();
 
     // Parse the imports.
     while *position < tokens.len() {
         match tokens[*position].variant {
             token::Variant::Import => {
-                // Parse the path and name. This is guaranteed to advance the token position due to
+                // This is guaranteed to advance the token position due to
                 // [ref:parse_import_keyword_chomp].
-
-                if let Some(import) =
+                if let Some((name, import)) =
                     parse_import(source_path, source_contents, tokens, position, errors)
                 {
-                    imports.push(import);
+                    if imports.insert(name.clone(), import.clone()).is_some() {
+                        errors.push(throw::<Error>(
+                            &format!(
+                                "An import named {} already exists in this file.",
+                                name.code_str(),
+                            ),
+                            Some(source_path),
+                            Some(&listing(source_contents, import.source_range)),
+                            None,
+                        ));
+                    }
                 }
             }
             _ => {
@@ -271,10 +281,28 @@ fn parse_schema(
                     "a name for the struct",
                     errors,
                 ) {
-                    declarations.push(schema::Declaration {
-                        source_range: span_tokens(tokens, declaration_start, *position),
-                        variant: schema::DeclarationVariant::Struct(name, fields),
-                    });
+                    let source_range = span_tokens(tokens, declaration_start, *position);
+
+                    if declarations
+                        .insert(
+                            name.clone(),
+                            schema::Declaration {
+                                source_range,
+                                variant: schema::DeclarationVariant::Struct(fields),
+                            },
+                        )
+                        .is_some()
+                    {
+                        errors.push(throw::<Error>(
+                            &format!(
+                                "A declaration named {} already exists in this file.",
+                                name.code_str(),
+                            ),
+                            Some(source_path),
+                            Some(&listing(source_contents, source_range)),
+                            None,
+                        ));
+                    }
                 }
             }
             token::Variant::Choice => {
@@ -291,10 +319,28 @@ fn parse_schema(
                     "a name for the choice",
                     errors,
                 ) {
-                    declarations.push(schema::Declaration {
-                        source_range: span_tokens(tokens, declaration_start, *position),
-                        variant: schema::DeclarationVariant::Choice(name, fields),
-                    });
+                    let source_range = span_tokens(tokens, declaration_start, *position);
+
+                    if declarations
+                        .insert(
+                            name.clone(),
+                            schema::Declaration {
+                                source_range,
+                                variant: schema::DeclarationVariant::Choice(fields),
+                            },
+                        )
+                        .is_some()
+                    {
+                        errors.push(throw::<Error>(
+                            &format!(
+                                "A declaration named {} already exists in this file.",
+                                name.code_str(),
+                            ),
+                            Some(source_path),
+                            Some(&listing(source_contents, source_range)),
+                            None,
+                        ));
+                    }
                 }
             }
             _ => {
@@ -319,7 +365,7 @@ fn parse_import(
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
-) -> Option<schema::Import> {
+) -> Option<(Identifier, schema::Import)> {
     let start = *position;
 
     // Consume the `import` keyword.
@@ -369,12 +415,14 @@ fn parse_import(
     );
 
     // Construct and return the import.
-    Some(schema::Import {
-        source_range: span_tokens(tokens, start, *position),
-        path,
-        namespace: None,
+    Some((
         name,
-    })
+        schema::Import {
+            source_range: span_tokens(tokens, start, *position),
+            path,
+            namespace: None,
+        },
+    ))
 }
 
 // Parse a series of fields enclosed in curly braces and preceded by a name. If this function
@@ -387,9 +435,9 @@ fn parse_fields(
     position: &mut usize,
     name_expectation: &str,
     errors: &mut Vec<Error>,
-) -> Option<(Identifier, Vec<schema::Field>)> {
+) -> Option<(Identifier, BTreeMap<Identifier, schema::Field>)> {
     // Parse the name.
-    let name = consume_token_1!(
+    let declaration_name = consume_token_1!(
         source_path,
         source_contents,
         tokens,
@@ -412,16 +460,28 @@ fn parse_fields(
     );
 
     // Parse the fields.
-    let mut fields = vec![];
+    let mut fields = BTreeMap::new();
     while *position < tokens.len() {
         if let token::Variant::RightCurly = tokens[*position].variant {
             break;
         }
 
-        if let Some(field) = parse_field(source_path, source_contents, tokens, position, errors) {
+        if let Some((field_name, field)) =
+            parse_field(source_path, source_contents, tokens, position, errors)
+        {
             // In this case, [ref:parse_field_some_advance] guarantees that we will not loop
             // forever.
-            fields.push(field);
+            if fields.insert(field_name.clone(), field.clone()).is_some() {
+                errors.push(throw::<Error>(
+                    &format!(
+                        "A field named {} already exists in this declaration.",
+                        field_name.code_str(),
+                    ),
+                    Some(source_path),
+                    Some(&listing(source_contents, field.source_range)),
+                    None,
+                ));
+            }
         } else {
             // Jump past the closing curly brace, if it exists. Otherwise, jump to the end of the
             // source.
@@ -433,7 +493,7 @@ fn parse_fields(
                 }
             }
 
-            return Some((name, fields));
+            return Some((declaration_name, fields));
         }
     }
 
@@ -445,11 +505,11 @@ fn parse_fields(
         position,
         errors,
         RightCurly,
-        Some((name, fields)),
+        Some((declaration_name, fields)),
     );
 
     // Return the name and fields.
-    Some((name, fields))
+    Some((declaration_name, fields))
 }
 
 // Parse a field. If this function returns `None`, then at least one error was added to `errors`.
@@ -461,7 +521,7 @@ fn parse_field(
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
-) -> Option<schema::Field> {
+) -> Option<(Identifier, schema::Field)> {
     let start = *position;
 
     // Parse the name.
@@ -608,181 +668,23 @@ fn parse_field(
     );
 
     // Return the field.
-    Some(schema::Field {
-        source_range: span_tokens(tokens, start, *position),
+    Some((
         name,
-        transitional,
-        r#type,
-        index,
-    })
+        schema::Field {
+            source_range: span_tokens(tokens, start, *position),
+            transitional,
+            r#type,
+            index,
+        },
+    ))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_same, error::SourceRange, parser::parse, schema, tokenizer::tokenize};
-    use std::path::Path;
-
-    #[allow(clippy::too_many_lines)]
-    #[test]
-    fn parse_example() {
-        let source_path = Path::new("foo.t");
-        let source = "
-            import 'bar.t' as bar
-
-            # This is a struct.
-            struct Foo {
-              x: bar.Bar = 0
-              y: transitional int = 1
-              z: Bool = 2
-            }
-
-            # This is a choice.
-            choice Qux {
-              x: bar.Bar = 0
-              y: transitional int = 1
-              z: Bool = 2
-            }
-        ";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![schema::Import {
-                    source_range: SourceRange { start: 13, end: 34 },
-                    path: Path::new("bar.t").to_owned(),
-                    namespace: None,
-                    name: "bar".into(),
-                }],
-                declarations: vec![
-                    schema::Declaration {
-                        source_range: SourceRange {
-                            start: 80,
-                            end: 199,
-                        },
-                        variant: schema::DeclarationVariant::Struct(
-                            "Foo".into(),
-                            vec![
-                                schema::Field {
-                                    source_range: SourceRange {
-                                        start: 107,
-                                        end: 121,
-                                    },
-                                    name: "x".into(),
-                                    transitional: false,
-                                    r#type: schema::Type {
-                                        source_range: SourceRange {
-                                            start: 110,
-                                            end: 117,
-                                        },
-                                        variant: schema::TypeVariant::Custom(
-                                            Some("bar".into()),
-                                            "Bar".into(),
-                                        ),
-                                    },
-                                    index: 0,
-                                },
-                                schema::Field {
-                                    source_range: SourceRange {
-                                        start: 136,
-                                        end: 159,
-                                    },
-                                    name: "y".into(),
-                                    transitional: true,
-                                    r#type: schema::Type {
-                                        source_range: SourceRange {
-                                            start: 152,
-                                            end: 155,
-                                        },
-                                        variant: schema::TypeVariant::Custom(None, "int".into()),
-                                    },
-                                    index: 1,
-                                },
-                                schema::Field {
-                                    source_range: SourceRange {
-                                        start: 174,
-                                        end: 185,
-                                    },
-                                    name: "z".into(),
-                                    transitional: false,
-                                    r#type: schema::Type {
-                                        source_range: SourceRange {
-                                            start: 177,
-                                            end: 181,
-                                        },
-                                        variant: schema::TypeVariant::Bool,
-                                    },
-                                    index: 2,
-                                },
-                            ],
-                        ),
-                    },
-                    schema::Declaration {
-                        source_range: SourceRange {
-                            start: 245,
-                            end: 364,
-                        },
-                        variant: schema::DeclarationVariant::Choice(
-                            "Qux".into(),
-                            vec![
-                                schema::Field {
-                                    source_range: SourceRange {
-                                        start: 272,
-                                        end: 286,
-                                    },
-                                    name: "x".into(),
-                                    transitional: false,
-                                    r#type: schema::Type {
-                                        source_range: SourceRange {
-                                            start: 275,
-                                            end: 282,
-                                        },
-                                        variant: schema::TypeVariant::Custom(
-                                            Some("bar".into()),
-                                            "Bar".into(),
-                                        ),
-                                    },
-                                    index: 0,
-                                },
-                                schema::Field {
-                                    source_range: SourceRange {
-                                        start: 301,
-                                        end: 324,
-                                    },
-                                    name: "y".into(),
-                                    transitional: true,
-                                    r#type: schema::Type {
-                                        source_range: SourceRange {
-                                            start: 317,
-                                            end: 320,
-                                        },
-                                        variant: schema::TypeVariant::Custom(None, "int".into()),
-                                    },
-                                    index: 1,
-                                },
-                                schema::Field {
-                                    source_range: SourceRange {
-                                        start: 339,
-                                        end: 350,
-                                    },
-                                    name: "z".into(),
-                                    transitional: false,
-                                    r#type: schema::Type {
-                                        source_range: SourceRange {
-                                            start: 342,
-                                            end: 346,
-                                        },
-                                        variant: schema::TypeVariant::Bool,
-                                    },
-                                    index: 2,
-                                },
-                            ],
-                        ),
-                    },
-                ],
-            },
-        );
-    }
+    use crate::{
+        assert_fails, assert_same, error::SourceRange, parser::parse, schema, tokenizer::tokenize,
+    };
+    use std::{collections::BTreeMap, path::Path};
 
     #[test]
     fn parse_empty() {
@@ -791,274 +693,273 @@ mod tests {
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![],
+            parse(source_path, source, &tokens[..]),
+            Ok(schema::Schema {
+                imports: BTreeMap::new(),
+                declarations: BTreeMap::new(),
+            }),
+        );
+    }
+
+    #[allow(clippy::too_many_lines)]
+    #[test]
+    fn parse_example() {
+        let source_path = Path::new("foo.t");
+        let source = "
+            import 'baz.t' as baz
+            import 'qux.t' as qux
+
+            # This is a struct.
+            struct Foo {
+              x: baz.Baz = 0
+              y: transitional int = 1
+              z: Bool = 2
+            }
+
+            # This is a choice.
+            choice Bar {
+              x: qux.Qux = 0
+              y: transitional int = 1
+              z: Bool = 2
+            }
+        ";
+        let tokens = tokenize(source_path, source).unwrap();
+
+        let mut imports = BTreeMap::new();
+
+        imports.insert(
+            "baz".into(),
+            schema::Import {
+                source_range: SourceRange { start: 13, end: 34 },
+                path: Path::new("baz.t").to_owned(),
+                namespace: None,
             },
+        );
+
+        imports.insert(
+            "qux".into(),
+            schema::Import {
+                source_range: SourceRange { start: 47, end: 68 },
+                path: Path::new("qux.t").to_owned(),
+                namespace: None,
+            },
+        );
+
+        let mut foo_fields = BTreeMap::new();
+
+        foo_fields.insert(
+            "x".into(),
+            schema::Field {
+                source_range: SourceRange {
+                    start: 141,
+                    end: 155,
+                },
+                transitional: false,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 144,
+                        end: 151,
+                    },
+                    variant: schema::TypeVariant::Custom(Some("baz".into()), "Baz".into()),
+                },
+                index: 0,
+            },
+        );
+
+        foo_fields.insert(
+            "y".into(),
+            schema::Field {
+                source_range: SourceRange {
+                    start: 170,
+                    end: 193,
+                },
+                transitional: true,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 186,
+                        end: 189,
+                    },
+                    variant: schema::TypeVariant::Custom(None, "int".into()),
+                },
+                index: 1,
+            },
+        );
+
+        foo_fields.insert(
+            "z".into(),
+            schema::Field {
+                source_range: SourceRange {
+                    start: 208,
+                    end: 219,
+                },
+                transitional: false,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 211,
+                        end: 215,
+                    },
+                    variant: schema::TypeVariant::Bool,
+                },
+                index: 2,
+            },
+        );
+
+        let mut bar_fields = BTreeMap::new();
+
+        bar_fields.insert(
+            "x".into(),
+            schema::Field {
+                source_range: SourceRange {
+                    start: 306,
+                    end: 320,
+                },
+                transitional: false,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 309,
+                        end: 316,
+                    },
+                    variant: schema::TypeVariant::Custom(Some("qux".into()), "Qux".into()),
+                },
+                index: 0,
+            },
+        );
+
+        bar_fields.insert(
+            "y".into(),
+            schema::Field {
+                source_range: SourceRange {
+                    start: 335,
+                    end: 358,
+                },
+                transitional: true,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 351,
+                        end: 354,
+                    },
+                    variant: schema::TypeVariant::Custom(None, "int".into()),
+                },
+                index: 1,
+            },
+        );
+
+        bar_fields.insert(
+            "z".into(),
+            schema::Field {
+                source_range: SourceRange {
+                    start: 373,
+                    end: 384,
+                },
+                transitional: false,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 376,
+                        end: 380,
+                    },
+                    variant: schema::TypeVariant::Bool,
+                },
+                index: 2,
+            },
+        );
+
+        let mut declarations = BTreeMap::new();
+
+        declarations.insert(
+            "Foo".into(),
+            schema::Declaration {
+                source_range: SourceRange {
+                    start: 114,
+                    end: 233,
+                },
+                variant: schema::DeclarationVariant::Struct(foo_fields),
+            },
+        );
+
+        declarations.insert(
+            "Bar".into(),
+            schema::Declaration {
+                source_range: SourceRange {
+                    start: 279,
+                    end: 398,
+                },
+                variant: schema::DeclarationVariant::Choice(bar_fields),
+            },
+        );
+
+        assert_same!(
+            parse(source_path, source, &tokens[..]),
+            Ok(schema::Schema {
+                imports,
+                declarations,
+            }),
         );
     }
 
     #[test]
-    fn parse_import() {
+    fn parse_duplicate_import() {
         let source_path = Path::new("foo.t");
-        let source = "import 'bar.t' as bar";
+        let source = "
+            import 'foo.t' as qux
+            import 'bar.t' as qux
+        ";
         let tokens = tokenize(source_path, source).unwrap();
 
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![schema::Import {
-                    source_range: SourceRange { start: 0, end: 21 },
-                    path: Path::new("bar.t").to_owned(),
-                    namespace: None,
-                    name: "bar".into(),
-                }],
-                declarations: vec![],
-            },
+        assert_fails!(
+            parse(source_path, source, &tokens[..]),
+            "An import named `qux` already exists in this file.",
         );
     }
 
     #[test]
-    fn parse_struct_empty() {
+    fn parse_duplicate_declaration() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { }";
+        let source = "
+            struct Foo {
+            }
+
+            choice Foo {
+            }
+        ";
         let tokens = tokenize(source_path, source).unwrap();
 
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 14 },
-                    variant: schema::DeclarationVariant::Struct("Foo".into(), vec![]),
-                }],
-            },
+        assert_fails!(
+            parse(source_path, source, &tokens[..]),
+            "A declaration named `Foo` already exists in this file.",
         );
     }
 
     #[test]
-    fn parse_struct_single() {
+    fn parse_duplicate_struct_field() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { x: Bool = 0 }";
+        let source = "
+            struct Foo {
+              x: Bool = 0
+              x: Bool = 1
+            }
+        ";
         let tokens = tokenize(source_path, source).unwrap();
 
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 26 },
-                    variant: schema::DeclarationVariant::Struct(
-                        "Foo".into(),
-                        vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 24 },
-                            name: "x".into(),
-                            transitional: false,
-                            r#type: schema::Type {
-                                source_range: SourceRange { start: 16, end: 20 },
-                                variant: schema::TypeVariant::Bool,
-                            },
-                            index: 0,
-                        }],
-                    ),
-                }],
-            },
+        assert_fails!(
+            parse(source_path, source, &tokens[..]),
+            "A field named `x` already exists in this declaration.",
         );
     }
 
     #[test]
-    fn parse_struct_multi() {
+    fn parse_duplicate_choice_field() {
         let source_path = Path::new("foo.t");
-        let source = "struct Foo { x: Bool = 0 y: Bool = 1 }";
+        let source = "
+            choice Foo {
+              x: Bool = 0
+              x: Bool = 1
+            }
+        ";
         let tokens = tokenize(source_path, source).unwrap();
 
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 38 },
-                    variant: schema::DeclarationVariant::Struct(
-                        "Foo".into(),
-                        vec![
-                            schema::Field {
-                                source_range: SourceRange { start: 13, end: 24 },
-                                name: "x".into(),
-                                transitional: false,
-                                r#type: schema::Type {
-                                    source_range: SourceRange { start: 16, end: 20 },
-                                    variant: schema::TypeVariant::Bool,
-                                },
-                                index: 0,
-                            },
-                            schema::Field {
-                                source_range: SourceRange { start: 25, end: 36 },
-                                name: "y".into(),
-                                transitional: false,
-                                r#type: schema::Type {
-                                    source_range: SourceRange { start: 28, end: 32 },
-                                    variant: schema::TypeVariant::Bool,
-                                },
-                                index: 1,
-                            },
-                        ],
-                    ),
-                }],
-            },
-        );
-    }
-
-    #[test]
-    fn parse_choice_empty() {
-        let source_path = Path::new("foo.t");
-        let source = "choice Foo { }";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 14 },
-                    variant: schema::DeclarationVariant::Choice("Foo".into(), vec![]),
-                }],
-            },
-        );
-    }
-
-    #[test]
-    fn parse_choice_single() {
-        let source_path = Path::new("foo.t");
-        let source = "choice Foo { x: Bool = 0 }";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 26 },
-                    variant: schema::DeclarationVariant::Choice(
-                        "Foo".into(),
-                        vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 24 },
-                            name: "x".into(),
-                            transitional: false,
-                            r#type: schema::Type {
-                                source_range: SourceRange { start: 16, end: 20 },
-                                variant: schema::TypeVariant::Bool,
-                            },
-                            index: 0,
-                        }],
-                    ),
-                }],
-            },
-        );
-    }
-
-    #[test]
-    fn parse_choice_multi() {
-        let source_path = Path::new("foo.t");
-        let source = "choice Foo { x: Bool = 0 y: Bool = 1 }";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 38 },
-                    variant: schema::DeclarationVariant::Choice(
-                        "Foo".into(),
-                        vec![
-                            schema::Field {
-                                source_range: SourceRange { start: 13, end: 24 },
-                                name: "x".into(),
-                                transitional: false,
-                                r#type: schema::Type {
-                                    source_range: SourceRange { start: 16, end: 20 },
-                                    variant: schema::TypeVariant::Bool,
-                                },
-                                index: 0,
-                            },
-                            schema::Field {
-                                source_range: SourceRange { start: 25, end: 36 },
-                                name: "y".into(),
-                                transitional: false,
-                                r#type: schema::Type {
-                                    source_range: SourceRange { start: 28, end: 32 },
-                                    variant: schema::TypeVariant::Bool,
-                                },
-                                index: 1,
-                            },
-                        ],
-                    ),
-                }],
-            },
-        );
-    }
-
-    #[test]
-    fn parse_field_transitional() {
-        let source_path = Path::new("foo.t");
-        let source = "struct Foo { x: transitional Foo = 0 }";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 38 },
-                    variant: schema::DeclarationVariant::Struct(
-                        "Foo".into(),
-                        vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 36 },
-                            name: "x".into(),
-                            transitional: true,
-                            r#type: schema::Type {
-                                source_range: SourceRange { start: 29, end: 32 },
-                                variant: schema::TypeVariant::Custom(None, "Foo".into()),
-                            },
-                            index: 0,
-                        }],
-                    ),
-                }],
-            },
-        );
-    }
-
-    #[test]
-    fn parse_field_imported_type() {
-        let source_path = Path::new("foo.t");
-        let source = "struct Foo { x: bar.Bar = 0 }";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_same!(
-            parse(source_path, source, &tokens[..]).unwrap(),
-            schema::Schema {
-                imports: vec![],
-                declarations: vec![schema::Declaration {
-                    source_range: SourceRange { start: 0, end: 29 },
-                    variant: schema::DeclarationVariant::Struct(
-                        "Foo".into(),
-                        vec![schema::Field {
-                            source_range: SourceRange { start: 13, end: 27 },
-                            name: "x".into(),
-                            transitional: false,
-                            r#type: schema::Type {
-                                source_range: SourceRange { start: 16, end: 23 },
-                                variant: schema::TypeVariant::Custom(
-                                    Some("bar".into()),
-                                    "Bar".into(),
-                                ),
-                            },
-                            index: 0,
-                        }],
-                    ),
-                }],
-            },
+        assert_fails!(
+            parse(source_path, source, &tokens[..]),
+            "A field named `x` already exists in this declaration.",
         );
     }
 }
