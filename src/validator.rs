@@ -4,7 +4,7 @@ use crate::{
     schema,
 };
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{BTreeMap, HashSet},
     path::PathBuf,
 };
 
@@ -20,10 +20,9 @@ pub fn validate(
     let mut all_types = HashSet::new();
 
     for (namespace, (schema, _, _)) in schemas {
-        for declaration in &schema.declarations {
+        for (name, declaration) in &schema.declarations {
             match &declaration.variant {
-                schema::DeclarationVariant::Struct(name, _)
-                | schema::DeclarationVariant::Choice(name, _) => {
+                schema::DeclarationVariant::Struct(_) | schema::DeclarationVariant::Choice(_) => {
                     all_types.insert((namespace.clone(), name.clone()));
                 }
             }
@@ -32,65 +31,15 @@ pub fn validate(
 
     // Validate each file.
     for (namespace, (schema, source_path, source_contents)) in schemas {
-        // Check that the names of imports are unique within the file.
-        let mut imports = HashMap::new();
-
-        for import in &schema.imports {
-            // The `unwrap` is safe due to [ref:namespace_populated].
-            if imports
-                .insert(import.name.clone(), import.namespace.clone().unwrap())
-                .is_some()
-            {
-                errors.push(throw::<Error>(
-                    &format!(
-                        "An import named {} already exists in this file.",
-                        import.name.code_str(),
-                    ),
-                    Some(source_path),
-                    Some(&listing(source_contents, import.source_range)),
-                    None,
-                ));
-            }
-        }
-
         // Validate the declarations in the file.
-        let mut declaration_names = HashSet::new();
-
-        for declaration in &schema.declarations {
+        for declaration in schema.declarations.values() {
             match &declaration.variant {
-                schema::DeclarationVariant::Struct(name, fields)
-                | schema::DeclarationVariant::Choice(name, fields) => {
-                    // Check that the declaration is unique within the file.
-                    if !declaration_names.insert(name.clone()) {
-                        errors.push(throw::<Error>(
-                            &format!(
-                                "A declaration named {} already exists in this file.",
-                                name.code_str(),
-                            ),
-                            Some(source_path),
-                            Some(&listing(source_contents, declaration.source_range)),
-                            None,
-                        ));
-                    }
-
+                schema::DeclarationVariant::Struct(fields)
+                | schema::DeclarationVariant::Choice(fields) => {
                     // Validate the fields in the declaration.
-                    let mut field_names = HashSet::new();
                     let mut field_indices = HashSet::new();
 
-                    for field in fields {
-                        // Check that the name of the field is unique within the declaration.
-                        if !field_names.insert(field.name.clone()) {
-                            errors.push(throw::<Error>(
-                                &format!(
-                                    "A field named {} already exists in this declaration.",
-                                    field.name.code_str(),
-                                ),
-                                Some(source_path),
-                                Some(&listing(source_contents, field.source_range)),
-                                None,
-                            ));
-                        }
-
+                    for field in fields.values() {
                         // Check that the index of the field is unique within the declaration.
                         if !field_indices.insert(field.index) {
                             errors.push(throw::<Error>(
@@ -110,8 +59,9 @@ pub fn validate(
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
                                 let type_path = if let Some(import) = import {
-                                    if let Some(namespace) = imports.get(import) {
-                                        namespace
+                                    if let Some(import) = schema.imports.get(import) {
+                                        // The `unwrap` is safe due to [ref:namespace_populated].
+                                        import.namespace.clone().unwrap()
                                     } else {
                                         errors.push(throw::<Error>(
                                             &format!(
@@ -129,7 +79,7 @@ pub fn validate(
                                         continue;
                                     }
                                 } else {
-                                    namespace
+                                    namespace.clone()
                                 };
 
                                 // Check that the type exists in that file.
@@ -225,141 +175,17 @@ mod tests {
 
         let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
         let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
-        foo_schema.imports[0].namespace = Some(bar_namespace.clone());
+        foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
         let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
         let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
-        bar_schema.imports[0].namespace = Some(foo_namespace.clone());
+        bar_schema.imports.get_mut(&"foo".into()).unwrap().namespace = Some(foo_namespace.clone());
 
         let mut schemas = BTreeMap::new();
         schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
         schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
 
         assert_same!(validate(&schemas), Ok(()));
-    }
-
-    #[allow(clippy::similar_names)]
-    #[test]
-    fn validate_duplicate_imports() {
-        let foo_namespace = Namespace {
-            components: vec!["foo".into()],
-        };
-        let foo_path = Path::new("foo.t").to_owned();
-        let foo_contents = "
-            import 'bar.t' as bar
-            import 'baz.t' as bar
-
-            struct Foo {
-              x: bar.Bar = 0
-              y: bar.Bar = 1
-            }
-        "
-        .to_owned();
-
-        let bar_namespace = Namespace {
-            components: vec!["bar".into()],
-        };
-        let bar_path = Path::new("bar.t").to_owned();
-        let bar_contents = "
-            import 'foo.t' as foo
-
-            choice Bar {
-              x: foo.Foo = 0
-              y: foo.Foo = 1
-            }
-        "
-        .to_owned();
-
-        let baz_namespace = Namespace {
-            components: vec!["baz".into()],
-        };
-        let baz_path = Path::new("baz.t").to_owned();
-        let baz_contents = "
-            import 'foo.t' as foo
-
-            choice Baz {
-              x: foo.Foo = 0
-              y: foo.Foo = 1
-            }
-        "
-        .to_owned();
-
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
-        foo_schema.imports[0].namespace = Some(bar_namespace.clone());
-        foo_schema.imports[1].namespace = Some(baz_namespace.clone());
-
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
-        bar_schema.imports[0].namespace = Some(foo_namespace.clone());
-
-        let baz_tokens = tokenize(&baz_path, &baz_contents).unwrap();
-        let mut baz_schema = parse(&baz_path, &baz_contents, &baz_tokens).unwrap();
-        baz_schema.imports[0].namespace = Some(foo_namespace.clone());
-
-        let mut schemas = BTreeMap::new();
-        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
-        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
-        schemas.insert(baz_namespace, (baz_schema, baz_path, baz_contents));
-
-        assert_fails!(
-            validate(&schemas),
-            "An import named `bar` already exists in this file.",
-        );
-    }
-
-    #[test]
-    fn validate_duplicate_declarations() {
-        let namespace = Namespace {
-            components: vec!["foo".into()],
-        };
-        let path = Path::new("foo.t").to_owned();
-        let contents = "
-            struct Foo {
-            }
-
-            choice foo {
-            }
-        "
-        .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
-
-        let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
-
-        assert_fails!(
-            validate(&schemas),
-            "A declaration named `foo` already exists in this file.",
-        );
-    }
-
-    #[test]
-    fn validate_duplicate_struct_field_names() {
-        let namespace = Namespace {
-            components: vec!["foo".into()],
-        };
-        let path = Path::new("foo.t").to_owned();
-        let contents = "
-            struct Foo {
-            }
-
-            struct Bar {
-              X: Foo = 0
-              x: Foo = 1
-            }
-        "
-        .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
-
-        let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
-
-        assert_fails!(
-            validate(&schemas),
-            "A field named `x` already exists in this declaration.",
-        );
     }
 
     #[test]
@@ -387,34 +213,6 @@ mod tests {
         assert_fails!(
             validate(&schemas),
             "A field with index `0` already exists in this declaration.",
-        );
-    }
-
-    #[test]
-    fn validate_duplicate_choice_field_names() {
-        let namespace = Namespace {
-            components: vec!["foo".into()],
-        };
-        let path = Path::new("foo.t").to_owned();
-        let contents = "
-            struct Foo {
-            }
-
-            choice Bar {
-              X: Foo = 0
-              x: Foo = 1
-            }
-        "
-        .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
-
-        let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
-
-        assert_fails!(
-            validate(&schemas),
-            "A field named `x` already exists in this declaration.",
         );
     }
 
@@ -521,7 +319,7 @@ mod tests {
 
         let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
         let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
-        foo_schema.imports[0].namespace = Some(bar_namespace.clone());
+        foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
         let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
         let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();

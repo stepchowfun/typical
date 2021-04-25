@@ -1,22 +1,14 @@
 use crate::{error::SourceRange, identifier::Identifier};
 use std::{
-    fmt::{Display, Formatter},
+    collections::BTreeMap,
+    fmt::{self, Display, Formatter, Write},
     path::PathBuf,
 };
 
 #[derive(Clone, Debug)]
 pub struct Schema {
-    pub imports: Vec<Import>,
-    pub declarations: Vec<Declaration>,
-}
-
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct Namespace {
-    // This is a representation of a path to a schema, relative to the base directory, i.e., the
-    // parent of the schema path provided by the user. However, it differs from paths as follows:
-    // - It doesn't include the file extension in the final component.
-    // - It can only contain "normal" path components. For example, `.` and `..` are not allowed.
-    pub components: Vec<Identifier>,
+    pub imports: BTreeMap<Identifier, Import>,
+    pub declarations: BTreeMap<Identifier, Declaration>,
 }
 
 #[derive(Clone, Debug)]
@@ -24,7 +16,6 @@ pub struct Import {
     pub source_range: SourceRange,
     pub path: PathBuf, // The literal path as it appears in the source file
     pub namespace: Option<Namespace>, // A normalized form of the path
-    pub name: Identifier,
 }
 
 #[derive(Clone, Debug)]
@@ -35,14 +26,13 @@ pub struct Declaration {
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(Identifier, Vec<Field>), // (name, fields)
-    Choice(Identifier, Vec<Field>), // (name, cases)
+    Struct(BTreeMap<Identifier, Field>),
+    Choice(BTreeMap<Identifier, Field>),
 }
 
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub name: Identifier,
     pub transitional: bool,
     pub r#type: Type,
     pub index: usize,
@@ -58,6 +48,15 @@ pub struct Type {
 pub enum TypeVariant {
     Bool,
     Custom(Option<Identifier>, Identifier), // (import, name)
+}
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Namespace {
+    // This is a representation of a path to a schema, relative to the base directory, i.e., the
+    // parent of the schema path provided by the user. However, it differs from paths as follows:
+    // - It doesn't include the file extension in the final component.
+    // - It can only contain "normal" path components. For example, `.` and `..` are not allowed.
+    pub components: Vec<Identifier>,
 }
 
 // This function returns takes two namespaces and returns a version of the former relative to the
@@ -88,107 +87,87 @@ pub fn relativize_namespace(namespace1: &Namespace, namespace2: &Namespace) -> (
     )
 }
 
-impl Display for Schema {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        let mut skip_blank_line = true;
+impl Schema {
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
+        for (name, import) in &self.imports {
+            import.write(f, name)?;
+        }
 
-        for import in &self.imports {
+        let mut skip_blank_line = self.imports.is_empty();
+
+        for (name, declaration) in &self.declarations {
             if skip_blank_line {
                 skip_blank_line = false;
             } else {
                 writeln!(f)?;
             }
 
-            write!(
-                f,
-                "import '{}' as {}",
-                import.path.display(),
-                import.name.original(),
-            )?;
+            declaration.write(f, name)?;
         }
 
-        for declaration in &self.declarations {
-            if skip_blank_line {
-                skip_blank_line = false;
-            } else {
-                writeln!(f, "\n")?;
-            }
-
-            write!(f, "{}", declaration)?;
-        }
         Ok(())
     }
 }
 
-impl Display for Declaration {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.variant)?;
-        Ok(())
+impl Import {
+    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
+        writeln!(f, "import '{}' as {}", self.path.display(), name.original())
     }
 }
 
-impl Display for DeclarationVariant {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+impl Declaration {
+    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
+        self.variant.write(f, name)
+    }
+}
+
+impl DeclarationVariant {
+    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
         match self {
-            Self::Struct(name, fields) => {
+            Self::Struct(fields) => {
                 writeln!(f, "struct {} {{", name.original())?;
 
-                for field in fields.iter() {
-                    writeln!(f, "{}", field)?;
+                for (name, field) in fields.iter() {
+                    field.write(f, name)?;
                 }
 
-                write!(f, "}}")?;
-
-                Ok(())
+                writeln!(f, "}}")
             }
-            Self::Choice(name, fields) => {
+            Self::Choice(fields) => {
                 writeln!(f, "choice {} {{", name.original())?;
 
-                for field in fields.iter() {
-                    writeln!(f, "{}", field)?;
+                for (name, field) in fields.iter() {
+                    field.write(f, name)?;
                 }
 
-                write!(f, "}}")?;
-
-                Ok(())
+                writeln!(f, "}}")
             }
         }
     }
 }
 
-impl Display for Field {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+impl Field {
+    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
+        write!(f, "  {}: ", name.original())?;
+
         if self.transitional {
-            write!(
-                f,
-                "  {}: transitional {} = {}",
-                self.name.original(),
-                self.r#type,
-                self.index,
-            )?;
-        } else {
-            write!(
-                f,
-                "  {}: {} = {}",
-                self.name.original(),
-                self.r#type,
-                self.index,
-            )?;
+            write!(f, "transitional ")?;
         }
 
-        Ok(())
+        self.r#type.write(f)?;
+
+        writeln!(f, " = {}", self.index)
     }
 }
 
-impl Display for Type {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.variant)?;
-        Ok(())
+impl Type {
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
+        self.variant.write(f)
     }
 }
 
-impl Display for TypeVariant {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+impl TypeVariant {
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
             Self::Bool => {
                 write!(f, "Bool")?;
@@ -205,8 +184,8 @@ impl Display for TypeVariant {
     }
 }
 
-impl Display for Namespace {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+impl Namespace {
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         write!(
             f,
             "{}",
@@ -220,6 +199,24 @@ impl Display for Namespace {
     }
 }
 
+impl Display for Schema {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        self.write(f)
+    }
+}
+
+impl Display for Type {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        self.write(f)
+    }
+}
+
+impl Display for Namespace {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        self.write(f)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -230,7 +227,7 @@ mod tests {
             Schema, Type, TypeVariant,
         },
     };
-    use std::path::Path;
+    use std::{collections::BTreeMap, path::Path};
 
     #[test]
     fn relativize_namespace_both_empty() {
@@ -366,459 +363,331 @@ mod tests {
 
     #[test]
     fn schema_empty_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                Schema {
-                    imports: vec![],
-                    declarations: vec![],
-                },
-            ),
-            "",
-        );
+        let schema = Schema {
+            imports: BTreeMap::new(),
+            declarations: BTreeMap::new(),
+        };
+
+        let expected = "";
+
+        assert_eq!(schema.to_string(), expected);
     }
 
     #[test]
     fn schema_imports_only_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                Schema {
-                    imports: vec![
-                        Import {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            path: Path::new("foo.t").to_owned(),
-                            namespace: None,
-                            name: "foo".into(),
-                        },
-                        Import {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            path: Path::new("bar.t").to_owned(),
-                            namespace: None,
-                            name: "bar".into(),
-                        },
-                    ],
-                    declarations: vec![],
-                },
-            ),
-            "\
-                import 'foo.t' as foo\n\
-                import 'bar.t' as bar\
-            ",
+        let mut imports = BTreeMap::new();
+
+        imports.insert(
+            "foo".into(),
+            Import {
+                source_range: SourceRange { start: 0, end: 0 },
+                path: Path::new("foo.t").to_owned(),
+                namespace: None,
+            },
         );
+
+        imports.insert(
+            "bar".into(),
+            Import {
+                source_range: SourceRange { start: 0, end: 0 },
+                path: Path::new("bar.t").to_owned(),
+                namespace: None,
+            },
+        );
+
+        let schema = Schema {
+            imports,
+            declarations: BTreeMap::new(),
+        };
+
+        let expected = "\
+            import 'bar.t' as bar\n\
+            import 'foo.t' as foo\n\
+        ";
+
+        assert_eq!(schema.to_string(), expected);
     }
 
     #[test]
     fn schema_declarations_only_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                Schema {
-                    imports: vec![],
-                    declarations: vec![
-                        Declaration {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            variant: DeclarationVariant::Struct(
-                                "Foo".into(),
-                                vec![
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 0,
-                                    },
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 1,
-                                    },
-                                ],
-                            ),
-                        },
-                        Declaration {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            variant: DeclarationVariant::Choice(
-                                "Bar".into(),
-                                vec![
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 0,
-                                    },
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 1,
-                                    },
-                                ],
-                            ),
-                        },
-                    ],
+        let mut foo_fields = BTreeMap::new();
+
+        foo_fields.insert(
+            "x".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
+                    source_range: SourceRange { start: 0, end: 0 },
+                    variant: TypeVariant::Bool,
                 },
-            ),
-            "\
-                struct Foo {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\n\
-                \n\
-                choice Bar {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\
-            ",
+                index: 0,
+            },
         );
+
+        foo_fields.insert(
+            "y".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
+                    source_range: SourceRange { start: 0, end: 0 },
+                    variant: TypeVariant::Bool,
+                },
+                index: 1,
+            },
+        );
+
+        let mut bar_fields = BTreeMap::new();
+
+        bar_fields.insert(
+            "x".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
+                    source_range: SourceRange { start: 0, end: 0 },
+                    variant: TypeVariant::Bool,
+                },
+                index: 0,
+            },
+        );
+
+        bar_fields.insert(
+            "y".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
+                    source_range: SourceRange { start: 0, end: 0 },
+                    variant: TypeVariant::Bool,
+                },
+                index: 1,
+            },
+        );
+
+        let mut declarations = BTreeMap::new();
+
+        declarations.insert(
+            "Foo".into(),
+            Declaration {
+                source_range: SourceRange { start: 0, end: 0 },
+                variant: DeclarationVariant::Struct(foo_fields),
+            },
+        );
+
+        declarations.insert(
+            "Bar".into(),
+            Declaration {
+                source_range: SourceRange { start: 0, end: 0 },
+                variant: DeclarationVariant::Choice(bar_fields),
+            },
+        );
+
+        let schema = Schema {
+            imports: BTreeMap::new(),
+            declarations,
+        };
+
+        let expected = "\
+            choice Bar {\n\
+            \x20 x: Bool = 0\n\
+            \x20 y: Bool = 1\n\
+            }\n\
+            \n\
+            struct Foo {\n\
+            \x20 x: Bool = 0\n\
+            \x20 y: Bool = 1\n\
+            }\n\
+        ";
+
+        assert_eq!(schema.to_string(), expected);
     }
 
+    #[allow(clippy::too_many_lines)]
     #[test]
     fn schema_imports_and_declarations_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                Schema {
-                    imports: vec![
-                        Import {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            path: Path::new("foo.t").to_owned(),
-                            namespace: None,
-                            name: "foo".into(),
-                        },
-                        Import {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            path: Path::new("bar.t").to_owned(),
-                            namespace: None,
-                            name: "bar".into(),
-                        },
-                    ],
-                    declarations: vec![
-                        Declaration {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            variant: DeclarationVariant::Struct(
-                                "Foo".into(),
-                                vec![
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 0,
-                                    },
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 1,
-                                    },
-                                ],
-                            ),
-                        },
-                        Declaration {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            variant: DeclarationVariant::Choice(
-                                "Bar".into(),
-                                vec![
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "x".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 0,
-                                    },
-                                    Field {
-                                        source_range: SourceRange { start: 0, end: 0 },
-                                        name: "y".into(),
-                                        transitional: false,
-                                        r#type: Type {
-                                            source_range: SourceRange { start: 0, end: 0 },
-                                            variant: TypeVariant::Bool,
-                                        },
-                                        index: 1,
-                                    },
-                                ],
-                            ),
-                        },
-                    ],
-                },
-            ),
-            "\
-                import 'foo.t' as foo\n\
-                import 'bar.t' as bar\n\
-                \n\
-                struct Foo {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\n\
-                \n\
-                choice Bar {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\
-            ",
-        );
-    }
+        let mut imports = BTreeMap::new();
 
-    #[test]
-    fn declaration_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                Declaration {
+        imports.insert(
+            "foo".into(),
+            Import {
+                source_range: SourceRange { start: 0, end: 0 },
+                path: Path::new("foo.t").to_owned(),
+                namespace: None,
+            },
+        );
+
+        imports.insert(
+            "bar".into(),
+            Import {
+                source_range: SourceRange { start: 0, end: 0 },
+                path: Path::new("bar.t").to_owned(),
+                namespace: None,
+            },
+        );
+
+        let mut foo_fields = BTreeMap::new();
+
+        foo_fields.insert(
+            "x".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: DeclarationVariant::Struct(
-                        "Foo".into(),
-                        vec![
-                            Field {
-                                source_range: SourceRange { start: 0, end: 0 },
-                                name: "x".into(),
-                                transitional: false,
-                                r#type: Type {
-                                    source_range: SourceRange { start: 0, end: 0 },
-                                    variant: TypeVariant::Bool,
-                                },
-                                index: 0,
-                            },
-                            Field {
-                                source_range: SourceRange { start: 0, end: 0 },
-                                name: "y".into(),
-                                transitional: false,
-                                r#type: Type {
-                                    source_range: SourceRange { start: 0, end: 0 },
-                                    variant: TypeVariant::Bool,
-                                },
-                                index: 1,
-                            },
-                        ],
-                    ),
+                    variant: TypeVariant::Bool,
                 },
-            ),
-            "\
-                struct Foo {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\
-            ",
+                index: 0,
+            },
         );
-    }
 
-    #[test]
-    fn declaration_variant_struct_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                DeclarationVariant::Struct(
-                    "Foo".into(),
-                    vec![
-                        Field {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            name: "x".into(),
-                            transitional: false,
-                            r#type: Type {
-                                source_range: SourceRange { start: 0, end: 0 },
-                                variant: TypeVariant::Bool,
-                            },
-                            index: 0,
-                        },
-                        Field {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            name: "y".into(),
-                            transitional: false,
-                            r#type: Type {
-                                source_range: SourceRange { start: 0, end: 0 },
-                                variant: TypeVariant::Bool,
-                            },
-                            index: 1,
-                        },
-                    ],
-                ),
-            ),
-            "\
-                struct Foo {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\
-            ",
-        );
-    }
-
-    #[test]
-    fn declaration_variant_choice_display() {
-        assert_eq!(
-            format!(
-                "{}",
-                DeclarationVariant::Choice(
-                    "Foo".into(),
-                    vec![
-                        Field {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            name: "x".into(),
-                            transitional: false,
-                            r#type: Type {
-                                source_range: SourceRange { start: 0, end: 0 },
-                                variant: TypeVariant::Bool,
-                            },
-                            index: 0,
-                        },
-                        Field {
-                            source_range: SourceRange { start: 0, end: 0 },
-                            name: "y".into(),
-                            transitional: false,
-                            r#type: Type {
-                                source_range: SourceRange { start: 0, end: 0 },
-                                variant: TypeVariant::Bool,
-                            },
-                            index: 1,
-                        },
-                    ],
-                ),
-            ),
-            "\
-                choice Foo {\n\
-                \x20 x: Bool = 0\n\
-                \x20 y: Bool = 1\n\
-                }\
-            ",
-        );
-    }
-
-    #[test]
-    fn field_display_non_transitional() {
-        assert_eq!(
-            format!(
-                "{}",
-                Field {
+        foo_fields.insert(
+            "y".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    name: "x".into(),
-                    transitional: false,
-                    r#type: Type {
-                        source_range: SourceRange { start: 0, end: 0 },
-                        variant: TypeVariant::Bool,
-                    },
-                    index: 0,
+                    variant: TypeVariant::Bool,
                 },
-            ),
-            "  x: Bool = 0",
+                index: 1,
+            },
         );
-    }
 
-    #[test]
-    fn field_display_transitional() {
-        assert_eq!(
-            format!(
-                "{}",
-                Field {
+        let mut bar_fields = BTreeMap::new();
+
+        bar_fields.insert(
+            "x".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    name: "x".into(),
-                    transitional: true,
-                    r#type: Type {
-                        source_range: SourceRange { start: 0, end: 0 },
-                        variant: TypeVariant::Bool,
-                    },
-                    index: 0,
+                    variant: TypeVariant::Bool,
                 },
-            ),
-            "  x: transitional Bool = 0",
+                index: 0,
+            },
         );
+
+        bar_fields.insert(
+            "y".into(),
+            Field {
+                source_range: SourceRange { start: 0, end: 0 },
+                transitional: false,
+                r#type: Type {
+                    source_range: SourceRange { start: 0, end: 0 },
+                    variant: TypeVariant::Bool,
+                },
+                index: 1,
+            },
+        );
+
+        let mut declarations = BTreeMap::new();
+
+        declarations.insert(
+            "Foo".into(),
+            Declaration {
+                source_range: SourceRange { start: 0, end: 0 },
+                variant: DeclarationVariant::Struct(foo_fields),
+            },
+        );
+
+        declarations.insert(
+            "Bar".into(),
+            Declaration {
+                source_range: SourceRange { start: 0, end: 0 },
+                variant: DeclarationVariant::Choice(bar_fields),
+            },
+        );
+
+        let schema = Schema {
+            imports,
+            declarations,
+        };
+
+        let expected = "\
+            import 'bar.t' as bar\n\
+            import 'foo.t' as foo\n\
+            \n\
+            choice Bar {\n\
+            \x20 x: Bool = 0\n\
+            \x20 y: Bool = 1\n\
+            }\n\
+            \n\
+            struct Foo {\n\
+            \x20 x: Bool = 0\n\
+            \x20 y: Bool = 1\n\
+            }\n\
+        ";
+
+        assert_eq!(schema.to_string(), expected);
     }
 
     #[test]
     fn type_display_bool() {
-        assert_eq!(
-            format!(
-                "{}",
-                Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
-                },
-            ),
-            "Bool",
-        );
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Bool,
+        };
+
+        let expected = "Bool";
+
+        assert_eq!(r#type.to_string(), expected);
     }
 
     #[test]
     fn type_display_custom_no_import() {
-        assert_eq!(
-            format!(
-                "{}",
-                Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Custom(None, "Int".into()),
-                },
-            ),
-            "Int",
-        );
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Custom(None, "Int".into()),
+        };
+
+        let expected = "Int";
+
+        assert_eq!(r#type.to_string(), expected);
     }
 
     #[test]
     fn type_display_custom_import() {
-        assert_eq!(
-            format!(
-                "{}",
-                Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Custom(Some("foo".into()), "Int".into()),
-                },
-            ),
-            "foo.Int",
-        );
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Custom(Some("foo".into()), "Int".into()),
+        };
+
+        let expected = "foo.Int";
+
+        assert_eq!(r#type.to_string(), expected);
     }
 
     #[test]
     fn namespace_display_empty() {
-        assert_eq!(format!("{}", Namespace { components: vec![] }), "");
+        let namespace = Namespace { components: vec![] };
+
+        let expected = "";
+
+        assert_eq!(namespace.to_string(), expected);
     }
 
     #[test]
     fn namespace_display_single() {
-        assert_eq!(
-            format!(
-                "{}",
-                Namespace {
-                    components: vec!["foo".into()],
-                },
-            ),
-            "foo",
-        );
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+
+        let expected = "foo";
+
+        assert_eq!(namespace.to_string(), expected);
     }
 
     #[test]
     fn namespace_display_multiple() {
-        assert_eq!(
-            format!(
-                "{}",
-                Namespace {
-                    components: vec!["foo".into(), "bar".into()],
-                },
-            ),
-            "foo.bar",
-        );
+        let namespace = Namespace {
+            components: vec!["foo".into(), "bar".into()],
+        };
+
+        let expected = "foo.bar";
+
+        assert_eq!(namespace.to_string(), expected);
     }
 }

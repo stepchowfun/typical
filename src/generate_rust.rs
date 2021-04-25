@@ -89,8 +89,8 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: sch
             let mut child = Module {
                 children: BTreeMap::new(),
                 schema: schema::Schema {
-                    imports: vec![],
-                    declarations: vec![],
+                    imports: BTreeMap::new(),
+                    declarations: BTreeMap::new(),
                 },
             };
 
@@ -115,8 +115,8 @@ pub fn generate(schemas: BTreeMap<schema::Namespace, (schema::Schema, PathBuf, S
     let mut tree = Module {
         children: BTreeMap::new(),
         schema: schema::Schema {
-            imports: vec![],
-            declarations: vec![],
+            imports: BTreeMap::new(),
+            declarations: BTreeMap::new(),
         },
     };
 
@@ -199,20 +199,20 @@ fn render_schema(
 ) -> String {
     // Construct a map from import name to namespace.
     let mut imports = BTreeMap::new();
-    for import in &schema.imports {
+    for (name, import) in &schema.imports {
         // The unwrap is safe due to [ref:namespace_populated].
-        imports.insert(import.name.clone(), import.namespace.clone().unwrap());
+        imports.insert(name.clone(), import.namespace.clone().unwrap());
     }
 
     // Combine the results from rendering each declaration.
     schema
         .declarations
         .iter()
-        .map(|declaration| match &declaration.variant {
-            schema::DeclarationVariant::Struct(name, fields) => {
+        .map(|(name, declaration)| match &declaration.variant {
+            schema::DeclarationVariant::Struct(fields) => {
                 render_struct(&imports, namespace, name, fields, indentation)
             }
-            schema::DeclarationVariant::Choice(name, fields) => {
+            schema::DeclarationVariant::Choice(fields) => {
                 render_choice(&imports, namespace, name, fields, indentation)
             }
         })
@@ -226,7 +226,7 @@ fn render_struct(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &Identifier,
-    fields: &[schema::Field],
+    fields: &BTreeMap<Identifier, schema::Field>,
     indentation: u64,
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
@@ -254,8 +254,15 @@ fn render_struct(
                 render_identifier(name, Pascal, Some(*flavor)),
                 fields
                     .iter()
-                    .map(|field| {
-                        render_struct_field(imports, namespace, field, *flavor, indentation + 1)
+                    .map(|(field_name, field)| {
+                        render_struct_field(
+                            imports,
+                            namespace,
+                            field_name,
+                            field,
+                            *flavor,
+                            indentation + 1,
+                        )
                     })
                     .collect::<Vec<_>>()
                     .join(""),
@@ -285,7 +292,7 @@ fn render_struct(
             render_identifier(name, Pascal, Some(Flavor::In)),
             fields
                 .iter()
-                .filter_map(|field| {
+                .filter_map(|(field_name, field)| {
                     if field.transitional {
                         None
                     } else {
@@ -295,9 +302,9 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                             render_identifier(&(OUT_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                         ))
                     }
                 })
@@ -336,7 +343,7 @@ fn render_struct(
             render_identifier(name, Pascal, Some(Flavor::Out)),
             fields
                 .iter()
-                .map(|field| {
+                .map(|(field_name, field)| {
                     if field.transitional {
                         format!(
                             "{}{}{}{}{}: {}.{},\n",
@@ -344,9 +351,9 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                             render_identifier(&(IN_TO_OUT_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                         )
                     } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
                         format!(
@@ -355,11 +362,11 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                             render_identifier(&(IN_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                             render_identifier(&(IN_TO_OUT_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                         )
                     } else {
                         format!(
@@ -368,9 +375,9 @@ fn render_struct(
                             INDENTATION,
                             INDENTATION,
                             INDENTATION,
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                             render_identifier(&(IN_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                         )
                     }
                 })
@@ -393,7 +400,7 @@ fn render_choice(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &Identifier,
-    fields: &[schema::Field],
+    fields: &BTreeMap<Identifier, schema::Field>,
     indentation: u64,
 ) -> String {
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
@@ -426,11 +433,12 @@ fn render_choice(
                 render_identifier(name, Pascal, Some(*flavor)),
                 fields
                     .iter()
-                    .map(|field| {
+                    .map(|(field_name, field)| {
                         render_choice_field(
                             imports,
                             namespace,
                             name,
+                            field_name,
                             field,
                             *flavor,
                             indentation + 1,
@@ -464,7 +472,7 @@ fn render_choice(
             render_identifier(&(OUT_VARIABLE.into()), Snake, None),
             fields
                 .iter()
-                .filter_map(|field| {
+                .filter_map(|(field_name, field)| {
                     if field.transitional {
                         None
                     } else {
@@ -475,10 +483,10 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             render_identifier(name, Pascal, Some(Flavor::Out)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                             render_identifier(name, Pascal, Some(Flavor::In)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                         ))
                     }
@@ -518,7 +526,7 @@ fn render_choice(
             render_identifier(&(IN_VARIABLE.into()), Snake, None),
             fields
                 .iter()
-                .map(|field| {
+                .map(|(field_name, field)| {
                     if field.transitional {
                         format!(
                             "{}{}{}{}self::{}::{}({}) => ({}.{})({}),\n",
@@ -527,10 +535,10 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             render_identifier(name, Pascal, Some(Flavor::In)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                             render_identifier(&(IN_TO_OUT_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                         )
                     } else if matches!(field.r#type.variant, schema::TypeVariant::Custom(_, _)) {
@@ -541,13 +549,13 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             render_identifier(name, Pascal, Some(Flavor::In)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                             render_identifier(name, Pascal, Some(Flavor::Out)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                             render_identifier(&(IN_TO_OUT_VARIABLE.into()), Snake, None),
-                            render_identifier(&field.name, Snake, None),
+                            render_identifier(field_name, Snake, None),
                         )
                     } else {
                         format!(
@@ -557,10 +565,10 @@ fn render_choice(
                             INDENTATION,
                             INDENTATION,
                             render_identifier(name, Pascal, Some(Flavor::In)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                             render_identifier(name, Pascal, Some(Flavor::Out)),
-                            render_identifier(&field.name, Pascal, None),
+                            render_identifier(field_name, Pascal, None),
                             render_identifier(&(PAYLOAD_VARIABLE.into()), Snake, None),
                         )
                     }
@@ -582,6 +590,7 @@ fn render_choice(
 fn render_struct_field(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
+    name: &Identifier,
     field: &schema::Field,
     flavor: Flavor,
     indentation: u64,
@@ -602,7 +611,7 @@ fn render_struct_field(
         format!(
             "{}{}: {},\n",
             indentation_str,
-            render_identifier(&field.name, Snake, None),
+            render_identifier(name, Snake, None),
             render_type(
                 imports,
                 namespace,
@@ -628,6 +637,7 @@ fn render_choice_field(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     choice_name: &Identifier,
+    name: &Identifier,
     field: &schema::Field,
     flavor: Flavor,
     indentation: u64,
@@ -640,7 +650,7 @@ fn render_choice_field(
                 format!(
                     "{}{}({}),\n",
                     indentation_str,
-                    render_identifier(&field.name, Pascal, None),
+                    render_identifier(name, Pascal, None),
                     render_type(imports, namespace, &field.r#type, flavor),
                 )
             } else {
@@ -654,7 +664,7 @@ fn render_choice_field(
                 format!(
                     "{}{}: Box<dyn FnOnce({}) -> {}{}>,\n",
                     indentation_str,
-                    render_identifier(&field.name, Snake, None),
+                    render_identifier(name, Snake, None),
                     render_type(imports, namespace, &field.r#type, Flavor::In),
                     render_identifier(choice_name, Pascal, None),
                     Flavor::Out,
@@ -663,7 +673,7 @@ fn render_choice_field(
                 format!(
                     "{}{}: {},\n",
                     indentation_str,
-                    render_identifier(&field.name, Snake, None),
+                    render_identifier(name, Snake, None),
                     render_type(imports, namespace, &field.r#type, Flavor::InToOut),
                 )
             } else {
@@ -776,8 +786,16 @@ mod tests {
 
         let main_tokens = tokenize(&main_path, &main_contents).unwrap();
         let mut main_schema = parse(&main_path, &main_contents, &main_tokens).unwrap();
-        main_schema.imports[0].namespace = Some(unit_namespace.clone());
-        main_schema.imports[1].namespace = Some(void_namespace.clone());
+        main_schema
+            .imports
+            .get_mut(&"unit".into())
+            .unwrap()
+            .namespace = Some(unit_namespace.clone());
+        main_schema
+            .imports
+            .get_mut(&"void".into())
+            .unwrap()
+            .namespace = Some(void_namespace.clone());
 
         let mut schemas = BTreeMap::new();
         schemas.insert(unit_namespace, (unit_schema, unit_path, unit_contents));
@@ -848,84 +866,36 @@ pub mod basic {
 
 pub mod main {
     #[derive(Clone, Debug)]
-    pub struct FooIn {
-        x: bool,
-        z: super::basic::void::VoidIn,
-        s: super::basic::unit::UnitIn,
-    }
-
-    #[derive(Clone, Debug)]
-    pub struct FooOut {
-        x: bool,
-        y: bool,
-        z: super::basic::void::VoidOut,
-        w: super::basic::void::VoidOut,
-        s: super::basic::unit::UnitOut,
-        t: super::basic::unit::UnitOut,
-    }
-
-    pub struct FooInToOut {
-        y: bool,
-        z: super::basic::void::VoidInToOut,
-        w: super::basic::void::VoidOut,
-        s: super::basic::unit::UnitInToOut,
-        t: super::basic::unit::UnitOut,
-    }
-
-    impl From<self::FooOut> for self::FooIn {
-        fn from(out: self::FooOut) -> Self {
-            self::FooIn {
-                x: out.x.into(),
-                z: out.z.into(),
-                s: out.s.into(),
-            }
-        }
-    }
-
-    impl From<(self::FooIn, self::FooInToOut)> for self::FooOut {
-        fn from((r#in, in_to_out): (self::FooIn, self::FooInToOut)) -> Self {
-            self::FooOut {
-                x: r#in.x,
-                y: in_to_out.y,
-                z: (r#in.z, in_to_out.z).into(),
-                w: in_to_out.w,
-                s: (r#in.s, in_to_out.s).into(),
-                t: in_to_out.t,
-            }
-        }
-    }
-
-    #[derive(Clone, Debug)]
     pub enum BarIn {
+        S(super::basic::unit::UnitIn),
+        T(super::basic::unit::UnitIn),
+        W(super::basic::void::VoidIn),
         X(bool),
         Y(bool),
         Z(super::basic::void::VoidIn),
-        W(super::basic::void::VoidIn),
-        S(super::basic::unit::UnitIn),
-        T(super::basic::unit::UnitIn),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarOut {
+        S(super::basic::unit::UnitOut),
         X(bool),
         Z(super::basic::void::VoidOut),
-        S(super::basic::unit::UnitOut),
     }
 
     pub struct BarInToOut {
-        y: Box<dyn FnOnce(bool) -> BarOut>,
-        z: super::basic::void::VoidInToOut,
-        w: Box<dyn FnOnce(super::basic::void::VoidIn) -> BarOut>,
         s: super::basic::unit::UnitInToOut,
         t: Box<dyn FnOnce(super::basic::unit::UnitIn) -> BarOut>,
+        w: Box<dyn FnOnce(super::basic::void::VoidIn) -> BarOut>,
+        y: Box<dyn FnOnce(bool) -> BarOut>,
+        z: super::basic::void::VoidInToOut,
     }
 
     impl From<self::BarOut> for self::BarIn {
         fn from(out: self::BarOut) -> Self {
             match out {
+                self::BarOut::S(payload) => self::BarIn::S(payload.into()),
                 self::BarOut::X(payload) => self::BarIn::X(payload.into()),
                 self::BarOut::Z(payload) => self::BarIn::Z(payload.into()),
-                self::BarOut::S(payload) => self::BarIn::S(payload.into()),
             }
         }
     }
@@ -933,38 +903,86 @@ pub mod main {
     impl From<(self::BarIn, self::BarInToOut)> for self::BarOut {
         fn from((r#in, in_to_out): (self::BarIn, self::BarInToOut)) -> Self {
             match r#in {
+                self::BarIn::S(payload) => self::BarOut::S((payload, in_to_out.s).into()),
+                self::BarIn::T(payload) => (in_to_out.t)(payload),
+                self::BarIn::W(payload) => (in_to_out.w)(payload),
                 self::BarIn::X(payload) => self::BarOut::X(payload),
                 self::BarIn::Y(payload) => (in_to_out.y)(payload),
                 self::BarIn::Z(payload) => self::BarOut::Z((payload, in_to_out.z).into()),
-                self::BarIn::W(payload) => (in_to_out.w)(payload),
-                self::BarIn::S(payload) => self::BarOut::S((payload, in_to_out.s).into()),
-                self::BarIn::T(payload) => (in_to_out.t)(payload),
+            }
+        }
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct FooIn {
+        s: super::basic::unit::UnitIn,
+        x: bool,
+        z: super::basic::void::VoidIn,
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct FooOut {
+        s: super::basic::unit::UnitOut,
+        t: super::basic::unit::UnitOut,
+        w: super::basic::void::VoidOut,
+        x: bool,
+        y: bool,
+        z: super::basic::void::VoidOut,
+    }
+
+    pub struct FooInToOut {
+        s: super::basic::unit::UnitInToOut,
+        t: super::basic::unit::UnitOut,
+        w: super::basic::void::VoidOut,
+        y: bool,
+        z: super::basic::void::VoidInToOut,
+    }
+
+    impl From<self::FooOut> for self::FooIn {
+        fn from(out: self::FooOut) -> Self {
+            self::FooIn {
+                s: out.s.into(),
+                x: out.x.into(),
+                z: out.z.into(),
+            }
+        }
+    }
+
+    impl From<(self::FooIn, self::FooInToOut)> for self::FooOut {
+        fn from((r#in, in_to_out): (self::FooIn, self::FooInToOut)) -> Self {
+            self::FooOut {
+                s: (r#in.s, in_to_out.s).into(),
+                t: in_to_out.t,
+                w: in_to_out.w,
+                x: r#in.x,
+                y: in_to_out.y,
+                z: (r#in.z, in_to_out.z).into(),
             }
         }
     }
 
     #[derive(Clone, Debug)]
     pub struct FooAndBarIn {
-        foo: FooIn,
         bar: BarIn,
+        foo: FooIn,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooAndBarOut {
-        foo: FooOut,
         bar: BarOut,
+        foo: FooOut,
     }
 
     pub struct FooAndBarInToOut {
-        foo: FooInToOut,
         bar: BarInToOut,
+        foo: FooInToOut,
     }
 
     impl From<self::FooAndBarOut> for self::FooAndBarIn {
         fn from(out: self::FooAndBarOut) -> Self {
             self::FooAndBarIn {
-                foo: out.foo.into(),
                 bar: out.bar.into(),
+                foo: out.foo.into(),
             }
         }
     }
@@ -972,34 +990,34 @@ pub mod main {
     impl From<(self::FooAndBarIn, self::FooAndBarInToOut)> for self::FooAndBarOut {
         fn from((r#in, in_to_out): (self::FooAndBarIn, self::FooAndBarInToOut)) -> Self {
             self::FooAndBarOut {
-                foo: (r#in.foo, in_to_out.foo).into(),
                 bar: (r#in.bar, in_to_out.bar).into(),
+                foo: (r#in.foo, in_to_out.foo).into(),
             }
         }
     }
 
     #[derive(Clone, Debug)]
     pub enum FooOrBarIn {
-        Foo(FooIn),
         Bar(BarIn),
+        Foo(FooIn),
     }
 
     #[derive(Clone, Debug)]
     pub enum FooOrBarOut {
-        Foo(FooOut),
         Bar(BarOut),
+        Foo(FooOut),
     }
 
     pub struct FooOrBarInToOut {
-        foo: FooInToOut,
         bar: BarInToOut,
+        foo: FooInToOut,
     }
 
     impl From<self::FooOrBarOut> for self::FooOrBarIn {
         fn from(out: self::FooOrBarOut) -> Self {
             match out {
-                self::FooOrBarOut::Foo(payload) => self::FooOrBarIn::Foo(payload.into()),
                 self::FooOrBarOut::Bar(payload) => self::FooOrBarIn::Bar(payload.into()),
+                self::FooOrBarOut::Foo(payload) => self::FooOrBarIn::Foo(payload.into()),
             }
         }
     }
@@ -1007,10 +1025,10 @@ pub mod main {
     impl From<(self::FooOrBarIn, self::FooOrBarInToOut)> for self::FooOrBarOut {
         fn from((r#in, in_to_out): (self::FooOrBarIn, self::FooOrBarInToOut)) -> Self {
             match r#in {
-                self::FooOrBarIn::Foo(payload) => \
-                    self::FooOrBarOut::Foo((payload, in_to_out.foo).into()),
                 self::FooOrBarIn::Bar(payload) => \
                     self::FooOrBarOut::Bar((payload, in_to_out.bar).into()),
+                self::FooOrBarIn::Foo(payload) => \
+                    self::FooOrBarOut::Foo((payload, in_to_out.foo).into()),
             }
         }
     }
