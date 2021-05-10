@@ -1,10 +1,11 @@
 use crate::{
     error::{listing, throw, Error},
     format::CodeStr,
+    identifier::Identifier,
     schema,
 };
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     path::PathBuf,
 };
 
@@ -16,14 +17,15 @@ pub fn validate(
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
 
-    // For the purpose of validating types, construct a complete set of (path, declaration) pairs.
-    let mut all_types = HashSet::new();
+    // For the purpose of validating types, construct a map from (namespace, name) to
+    // (schema, declaration).
+    let mut all_types = HashMap::new();
 
     for (namespace, (schema, _, _)) in schemas {
         for (name, declaration) in &schema.declarations {
             match &declaration.variant {
                 schema::DeclarationVariant::Struct(_) | schema::DeclarationVariant::Choice(_) => {
-                    all_types.insert((namespace.clone(), name.clone()));
+                    all_types.insert((namespace.clone(), name.clone()), (schema, declaration));
                 }
             }
         }
@@ -58,7 +60,7 @@ pub fn validate(
                             schema::TypeVariant::Bool => {}
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
-                                let type_path = if let Some(import) = import {
+                                let type_namespace = if let Some(import) = import {
                                     if let Some(import) = schema.imports.get(import) {
                                         // The `unwrap` is safe due to [ref:namespace_populated].
                                         import.namespace.clone().unwrap()
@@ -83,7 +85,8 @@ pub fn validate(
                                 };
 
                                 // Check that the type exists in that file.
-                                if !all_types.contains(&(type_path.clone(), name.clone())) {
+                                if !all_types.contains_key(&(type_namespace.clone(), name.clone()))
+                                {
                                     errors.push(throw::<Error>(
                                         &if let Some(import) = import {
                                             format!(
@@ -110,12 +113,125 @@ pub fn validate(
         }
     }
 
+    // Check for cycles if the schemas are otherwise valid.
+    // [tag:schemas_valid_except_possible_cycles]
+    if errors.is_empty() {
+        let mut types_checked = HashSet::new();
+        let mut types_visited_set = HashSet::new();
+        let mut types_visited_vec = vec![];
+
+        for (namespace, (schema, _, _)) in schemas {
+            for name in schema.declarations.keys() {
+                check_type_for_cycles(
+                    &all_types,
+                    &mut types_checked,
+                    &mut types_visited_set,
+                    &mut types_visited_vec,
+                    &mut errors,
+                    namespace,
+                    name,
+                );
+            }
+        }
+    }
+
     // Return a success or report any errors.
     if errors.is_empty() {
         Ok(())
     } else {
         Err(errors)
     }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn check_type_for_cycles(
+    all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
+    types_checked: &mut HashSet<(schema::Namespace, Identifier)>,
+    types_visited_set: &mut HashSet<(schema::Namespace, Identifier)>,
+    types_visited_vec: &mut Vec<(schema::Namespace, Identifier)>,
+    errors: &mut Vec<Error>,
+    namespace: &schema::Namespace,
+    name: &Identifier,
+) {
+    // Compute this once here so we don't have to compute it in multiple places below.
+    let qualified_type = (namespace.clone(), name.clone());
+
+    // Stop if we've already checked this type.
+    if types_checked.contains(&qualified_type) {
+        return;
+    }
+
+    // Visit this type or report a cycle if the type has already been visited.
+    types_visited_vec.push(qualified_type.clone());
+    if !types_visited_set.insert(qualified_type.clone()) {
+        errors.push(throw::<Error>(
+            &format!(
+                "Cycle detected: {}.",
+                types_visited_vec
+                    .iter()
+                    .map(|(namespace, name)| {
+                        let mut namespace = namespace.clone();
+                        namespace.components.push(name.clone());
+                        namespace.to_string().code_str().to_string()
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" \u{2192} "),
+            ),
+            None,
+            None,
+            None,
+        ));
+
+        types_visited_vec.pop();
+        return;
+    }
+
+    // Check the type of each field. The `unwrap` is safe due to
+    // [ref:schemas_valid_except_possible_cycles].
+    let (schema, declaration) = all_types.get(&qualified_type).unwrap();
+
+    match &declaration.variant {
+        schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
+            for field in fields.values() {
+                match &field.r#type.variant {
+                    schema::TypeVariant::Bool => {}
+                    schema::TypeVariant::Custom(import, type_name) => {
+                        let type_namespace = import.as_ref().map_or_else(
+                            || namespace.clone(),
+                            |import|
+                                // The first `unwrap` is safe due to
+                                // [ref:schemas_valid_except_possible_cycles]. The second `unwrap`
+                                // is safe due to [ref:namespace_populated].
+                                schema
+                                .imports
+                                .get(import)
+                                .unwrap()
+                                .namespace
+                                .clone()
+                                .unwrap(),
+                        );
+
+                        check_type_for_cycles(
+                            all_types,
+                            types_checked,
+                            types_visited_set,
+                            types_visited_vec,
+                            errors,
+                            &type_namespace,
+                            type_name,
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    // Un-visit this type.
+    types_visited_set.remove(&qualified_type);
+    types_visited_vec.pop();
+
+    // Record that the type has been checked.
+    types_checked.insert(qualified_type);
 }
 
 #[cfg(test)]
@@ -164,11 +280,9 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            import 'foo.t' as foo
-
             choice Bar {
-              x: foo.Foo = 0
-              y: foo.Foo = 1
+              x: Bool = 0
+              y: Bool = 1
             }
         "
         .to_owned();
@@ -178,8 +292,7 @@ mod tests {
         foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
         let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
-        bar_schema.imports.get_mut(&"foo".into()).unwrap().namespace = Some(foo_namespace.clone());
+        let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
         schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
@@ -331,6 +444,52 @@ mod tests {
         assert_fails!(
             validate(&schemas),
             "There is no type named `Bar` in import `bar`.",
+        );
+    }
+
+    #[test]
+    fn validate_cycle() {
+        let foo_namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let foo_path = Path::new("foo.t").to_owned();
+        let foo_contents = "
+            import 'bar.t' as bar
+
+            struct Foo {
+              x: bar.Bar = 0
+            }
+        "
+        .to_owned();
+
+        let bar_namespace = Namespace {
+            components: vec!["bar".into()],
+        };
+        let bar_path = Path::new("bar.t").to_owned();
+        let bar_contents = "
+            import 'foo.t' as foo
+
+            choice Bar {
+              x: foo.Foo = 0
+            }
+        "
+        .to_owned();
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
+        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        bar_schema.imports.get_mut(&"foo".into()).unwrap().namespace = Some(foo_namespace.clone());
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
+        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "Cycle detected: `bar.Bar` \u{2192} `foo.Foo` \u{2192} `bar.Bar`.",
         );
     }
 }
