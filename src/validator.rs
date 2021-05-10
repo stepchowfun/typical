@@ -182,7 +182,15 @@ fn check_type_for_cycles(
             None,
         ));
 
+        // Un-visit this type.
         types_visited_vec.pop();
+
+        // Record that the type has been checked to avoid reporting this cycle multiple times. Note
+        // that we haven't necessarily checked all the fields of this type (and the fields of the
+        // types of those fields, etc.), but we know they are being checked by a call higher in the
+        // stack (since this is the second time we've seen this type in this call stack).
+        types_checked.insert(qualified_type);
+
         return;
     }
 
