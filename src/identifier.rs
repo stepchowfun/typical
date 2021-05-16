@@ -73,7 +73,7 @@ impl Identifier {
 
     // This function returns a `snake_case` version of an identifier.
     pub fn snake_case(&self) -> String {
-        self.snake_case.to_owned()
+        self.snake_case.clone()
     }
 
     // This function returns a `PascalCase` version of an identifier.

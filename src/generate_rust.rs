@@ -102,7 +102,7 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: sch
                 schema,
             );
 
-            module.children.insert(head.to_owned(), child);
+            module.children.insert(head.clone(), child);
         }
     } else {
         module.schema = schema;
@@ -150,7 +150,7 @@ fn render_module(
     let indentation_str = (0..indentation).map(|_| INDENTATION).collect::<String>();
 
     let mut new_namespace = namespace.clone();
-    new_namespace.components.push(name.to_owned());
+    new_namespace.components.push(name.clone());
 
     format!(
         "{}pub mod {} {{\n{}{}}}\n",
