@@ -34,9 +34,9 @@ pub enum Variant {
     Integer(usize),
     LeftCurly,
     Path(PathBuf),
-    Transitional,
     RightCurly,
     Struct,
+    Transitional,
 }
 
 impl Display for Token {
@@ -59,9 +59,9 @@ impl Display for Variant {
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
             Self::Path(path) => write!(f, "'{}'", path.display()),
-            Self::Transitional => write!(f, "{}", TRANSITIONAL_KEYWORD),
             Self::RightCurly => write!(f, "}}"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
+            Self::Transitional => write!(f, "{}", TRANSITIONAL_KEYWORD),
         }
     }
 }
@@ -150,11 +150,6 @@ mod tests {
     }
 
     #[test]
-    fn variant_transitional_display() {
-        assert_eq!(format!("{}", Variant::Transitional), TRANSITIONAL_KEYWORD);
-    }
-
-    #[test]
     fn variant_right_curly_display() {
         assert_eq!(format!("{}", Variant::RightCurly), "}");
     }
@@ -162,5 +157,10 @@ mod tests {
     #[test]
     fn variant_struct_display() {
         assert_eq!(format!("{}", Variant::Struct), STRUCT_KEYWORD);
+    }
+
+    #[test]
+    fn variant_transitional_display() {
+        assert_eq!(format!("{}", Variant::Transitional), TRANSITIONAL_KEYWORD);
     }
 }

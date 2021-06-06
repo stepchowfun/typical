@@ -112,15 +112,15 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Import,
                     });
-                } else if &schema_contents[i..end] == TRANSITIONAL_KEYWORD {
-                    tokens.push(Token {
-                        source_range: SourceRange { start: i, end },
-                        variant: Variant::Transitional,
-                    });
                 } else if &schema_contents[i..end] == STRUCT_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Struct,
+                    });
+                } else if &schema_contents[i..end] == TRANSITIONAL_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Transitional,
                     });
                 } else {
                     let start = if c == RAW_IDENTIFIER_SIGIL { i + 1 } else { i };
@@ -744,20 +744,6 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_transitional() {
-        assert_same!(
-            tokenize(Path::new("foo.t"), TRANSITIONAL_KEYWORD).unwrap(),
-            vec![Token {
-                source_range: SourceRange {
-                    start: 0,
-                    end: TRANSITIONAL_KEYWORD.len(),
-                },
-                variant: Variant::Transitional,
-            }],
-        );
-    }
-
-    #[test]
     fn tokenize_right_curly() {
         assert_same!(
             tokenize(Path::new("foo.t"), "}").unwrap(),
@@ -778,6 +764,20 @@ mod tests {
                     end: STRUCT_KEYWORD.len(),
                 },
                 variant: Variant::Struct,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_transitional() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), TRANSITIONAL_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: TRANSITIONAL_KEYWORD.len(),
+                },
+                variant: Variant::Transitional,
             }],
         );
     }
