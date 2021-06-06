@@ -84,7 +84,7 @@ tasks:
       - build
     user: user
     input_paths:
-      - integration
+      - integration-tests
     command: |
       set -euo pipefail
       . $HOME/.cargo/env
@@ -96,16 +96,16 @@ tasks:
       - build
     user: user
     input_paths:
-      - integration/rust/Cargo.lock
-      - integration/rust/Cargo.toml
-      - integration/rust/src
-      - integration/types
+      - integration-tests/rust/Cargo.lock
+      - integration-tests/rust/Cargo.toml
+      - integration-tests/rust/src
+      - integration-tests/types
     command: |
       set -euo pipefail
       . $HOME/.cargo/env
-      cargo run -- generate integration/types/main.t --rust-out-file integration/rust/src/types.rs
+      cargo run -- generate integration-tests/types/main.t --rust-out-file integration-tests/rust/src/types.rs
       (
-        cd integration/rust && \
+        cd integration-tests/rust && \
         cargo check && \
         cargo clippy --all-targets --all-features -- \
           --deny warnings --deny clippy::all --deny clippy::pedantic

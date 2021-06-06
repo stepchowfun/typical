@@ -763,19 +763,19 @@ mod tests {
         let unit_namespace = schema::Namespace {
             components: vec!["basic".into(), "unit".into()],
         };
-        let unit_path = Path::new("integration/types/basic/unit.t").to_owned();
+        let unit_path = Path::new("integration-tests/types/basic/unit.t").to_owned();
         let unit_contents = read_to_string(&unit_path).unwrap();
 
         let void_namespace = schema::Namespace {
             components: vec!["basic".into(), "void".into()],
         };
-        let void_path = Path::new("integration/types/basic/void.t").to_owned();
+        let void_path = Path::new("integration-tests/types/basic/void.t").to_owned();
         let void_contents = read_to_string(&void_path).unwrap();
 
         let main_namespace = schema::Namespace {
             components: vec!["main".into()],
         };
-        let main_path = Path::new("integration/types/main.t").to_owned();
+        let main_path = Path::new("integration-tests/types/main.t").to_owned();
         let main_contents = read_to_string(&main_path).unwrap();
 
         let unit_tokens = tokenize(&unit_path, &unit_contents).unwrap();
