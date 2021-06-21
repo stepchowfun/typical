@@ -1,6 +1,4 @@
-# Keep this file in sync with `.ignore`.
 /artifacts/
 /integration-tests/rust/src/types.rs
 /integration-tests/rust/target/
-/release/
 /target/

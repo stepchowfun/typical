@@ -13,9 +13,9 @@ A clear description of what the bug is.
 **Instructions to reproduce the bug**
 A clear explanation of how to reproduce the bug.
 
-**System information:**
- - OS: [e.g. macOS Mojave 10.14.5]
+**Environment information:**
  - Typical version: [e.g. 0.0.0]
+ - OS: [e.g. macOS Big Sur 11.4 (20F71)]
 
 **Additional context**
 Add any other context about the problem here.

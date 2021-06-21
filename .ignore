@@ -1,6 +1,0 @@
-# Keep this file in sync with `.gitignore`.
-/artifacts/
-/integration-tests/rust/src/types.rs
-/integration-tests/rust/target/
-/release/
-/target/
