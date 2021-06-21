@@ -45,17 +45,3 @@ macro_rules! my_macro {
     }};
 }
 ```
-
-When the arguments in the definition of the macro span multiple lines, you will need a comment with a trailing comma to satisfy the linter as follows:
-
-```rust
-macro_rules! my_macro {
-    (
-        $foo:expr,
-        $bar:expr,
-        $baz:expr $(,)? // This comma is needed to satisfy the trailing commas check: ,
-    ) => {{
-        ...
-    }};
-}
-```
