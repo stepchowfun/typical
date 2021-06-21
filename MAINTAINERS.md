@@ -13,12 +13,12 @@ When setting up the repository on GitHub, configure the following settings:
   - Enable `Require status checks to pass before merging`.
     - Enable `Require branches to be up to date before merging`.
     - Add the following status checks:
-      - `Build and test on Linux`
-      - `Build and test on Windows`
-      - `Build and test on macOS`
-      - `Create a release on GitHub if applicable`
-      - `Run the installer script on Ubuntu to validate it`
-      - `Run the installer script on macOS to validate it`
+      - `Build for Linux`
+      - `Build for Windows`
+      - `Build for macOS`
+      - `Install on Ubuntu`
+      - `Install on macOS`
+      - `Publish a release if applicable`
   - Enable `Include administrators`.
 - Under `Options`, enable `Automatically delete head branches`.
 
