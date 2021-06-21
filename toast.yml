@@ -196,15 +196,15 @@ tasks:
 
       # Check code formatting with Rustfmt. We temporarily convert macro invocations into function
       # calls so that Rustfmt's `trailing_comma` feature applies to macro arguments. [ref:format]
-      rg '!\(' --type rust --files-with-matches | xargs sed -i 's/!(/_(/g'
+      rg '!\(' --type rust --files-with-matches src | xargs sed -i 's/!(/_(/g'
       if ! cargo +nightly-2021-06-09 fmt --all -- --check; then
         echo 'ERROR: Please correct the formatting errors above.' 1>&2
         exit 1
       fi
-      rg '_\(' --type rust --files-with-matches | xargs sed -i 's/_(/!(/g'
+      rg '_\(' --type rust --files-with-matches src | xargs sed -i 's/_(/!(/g'
 
       # Enforce that lines span no more than 100 columns.
-      if rg --line-number --type rust '.{101}'; then
+      if rg --line-number --type rust '.{101}' src; then
         echo "There are lines spanning more than 100 columns." >&2
         exit 1
       fi
@@ -242,9 +242,9 @@ tasks:
 
       # Format the code with Rustfmt. We temporarily convert macro invocations into function calls
       # so that Rustfmt's `trailing_comma` feature applies to macro arguments. [tag:format]
-      rg '!\(' --type rust --files-with-matches | xargs sed -i 's/!(/_(/g'
+      rg '!\(' --type rust --files-with-matches src | xargs sed -i 's/!(/_(/g'
       cargo +nightly-2021-06-09 fmt --all
-      rg '_\(' --type rust --files-with-matches | xargs sed -i 's/_(/!(/g'
+      rg '_\(' --type rust --files-with-matches src | xargs sed -i 's/_(/!(/g'
 
   release:
     description: Build and output the release binaries for Linux.
