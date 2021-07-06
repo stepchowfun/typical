@@ -92,7 +92,7 @@ macro_rules! consume_token_0 {
         $position:expr,
         $errors:ident,
         $variant:ident,
-        $error_value:expr $(,)? // This comma is needed to satisfy the trailing commas check: ,
+        $error_value:expr $(,)?
     ) => {{
         // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
@@ -143,7 +143,7 @@ macro_rules! consume_token_1 {
         $errors:ident,
         $variant:ident,
         $expectation:expr,
-        $error_value:expr $(,)? // This comma is needed to satisfy the trailing commas check: ,
+        $error_value:expr $(,)?
     ) => {{
         // Macros are call-by-name, but we want call-by-value (or at least call-by-need) to avoid
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
