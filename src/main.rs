@@ -316,13 +316,12 @@ fn merge_errors(errors: &[Error]) -> Error {
                 format!(
                     "{}\n{}{}",
                     acc,
-                    // Only render an empty line between errors here if the previous line
-                    // doesn't already visually look like an empty line. See
-                    // [ref:overline_u203e].
+                    // Only render an empty line between errors here if the previous line doesn't
+                    // already visually look like an empty line. See [ref:overline_u203e].
                     if acc
                         .split('\n')
                         .last()
-                        .unwrap()
+                        .unwrap() // Safe since `split` always results in at least one item
                         .chars()
                         .all(|c| c == ' ' || c == '\u{203e}')
                     {
