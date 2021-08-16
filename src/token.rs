@@ -9,8 +9,8 @@ pub const AS_KEYWORD: &str = "as";
 pub const BOOL_KEYWORD: &str = "Bool";
 pub const CHOICE_KEYWORD: &str = "choice";
 pub const IMPORT_KEYWORD: &str = "import";
-pub const TRANSITIONAL_KEYWORD: &str = "transitional";
 pub const STRUCT_KEYWORD: &str = "struct";
+pub const UNSTABLE_KEYWORD: &str = "unstable";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
 // represents a single token.
@@ -36,7 +36,7 @@ pub enum Variant {
     Path(PathBuf),
     RightCurly,
     Struct,
-    Transitional,
+    Unstable,
 }
 
 impl Display for Token {
@@ -61,7 +61,7 @@ impl Display for Variant {
             Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::RightCurly => write!(f, "}}"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
-            Self::Transitional => write!(f, "{}", TRANSITIONAL_KEYWORD),
+            Self::Unstable => write!(f, "{}", UNSTABLE_KEYWORD),
         }
     }
 }
@@ -72,7 +72,7 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-            STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
+            STRUCT_KEYWORD, UNSTABLE_KEYWORD,
         },
     };
     use std::path::Path;
@@ -160,7 +160,7 @@ mod tests {
     }
 
     #[test]
-    fn variant_transitional_display() {
-        assert_eq!(format!("{}", Variant::Transitional), TRANSITIONAL_KEYWORD);
+    fn variant_unstable_display() {
+        assert_eq!(format!("{}", Variant::Unstable), UNSTABLE_KEYWORD);
     }
 }
