@@ -33,7 +33,7 @@ pub enum DeclarationVariant {
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub transitional: bool,
+    pub unstable: bool,
     pub r#type: Type,
     pub index: usize,
 }
@@ -150,8 +150,8 @@ impl Field {
     fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
         write!(f, "  {}: ", name.original())?;
 
-        if self.transitional {
-            write!(f, "transitional ")?;
+        if self.unstable {
+            write!(f, "unstable ")?;
         }
 
         self.r#type.write(f)?;
@@ -416,7 +416,7 @@ mod tests {
             "x".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -429,7 +429,7 @@ mod tests {
             "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -444,7 +444,7 @@ mod tests {
             "x".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -457,7 +457,7 @@ mod tests {
             "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -533,7 +533,7 @@ mod tests {
             "x".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -546,7 +546,7 @@ mod tests {
             "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -561,7 +561,7 @@ mod tests {
             "x".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -574,7 +574,7 @@ mod tests {
             "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                transitional: false,
+                unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,

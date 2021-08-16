@@ -3,7 +3,7 @@ use crate::{
     format::CodeStr,
     token::{
         Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD,
-        TRANSITIONAL_KEYWORD,
+        UNSTABLE_KEYWORD,
     },
 };
 use std::path::Path;
@@ -117,10 +117,10 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Struct,
                     });
-                } else if &schema_contents[i..end] == TRANSITIONAL_KEYWORD {
+                } else if &schema_contents[i..end] == UNSTABLE_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Transitional,
+                        variant: Variant::Unstable,
                     });
                 } else {
                     let start = if c == RAW_IDENTIFIER_SIGIL { i + 1 } else { i };
@@ -273,7 +273,7 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-            STRUCT_KEYWORD, TRANSITIONAL_KEYWORD,
+            STRUCT_KEYWORD, UNSTABLE_KEYWORD,
         },
         tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
     };
@@ -288,13 +288,13 @@ mod tests {
             # This is a struct.
             struct plugh {
               qux: bar.Foo = 0
-              corge: transitional int = 1
+              corge: unstable int = 1
             }
 
             # This is a choice.
             choice zyzzy {
               grault: bar.Bar = 0
-              garply: transitional int = 1
+              garply: unstable int = 1
             }
         ";
 
@@ -395,154 +395,154 @@ mod tests {
                 Token {
                     source_range: SourceRange {
                         start: 147,
-                        end: 159,
+                        end: 155,
                     },
-                    variant: Variant::Transitional,
+                    variant: Variant::Unstable,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 160,
-                        end: 163,
+                        start: 156,
+                        end: 159,
                     },
                     variant: Variant::Identifier("int".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 164,
-                        end: 165,
+                        start: 160,
+                        end: 161,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 166,
-                        end: 167,
+                        start: 162,
+                        end: 163,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 180,
-                        end: 181,
+                        start: 176,
+                        end: 177,
                     },
                     variant: Variant::RightCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 227,
-                        end: 233,
+                        start: 223,
+                        end: 229,
                     },
                     variant: Variant::Choice,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 234,
-                        end: 239,
+                        start: 230,
+                        end: 235,
                     },
                     variant: Variant::Identifier("zyzzy".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 240,
-                        end: 241,
+                        start: 236,
+                        end: 237,
                     },
                     variant: Variant::LeftCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 256,
-                        end: 262,
+                        start: 252,
+                        end: 258,
                     },
                     variant: Variant::Identifier("grault".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 262,
-                        end: 263,
+                        start: 258,
+                        end: 259,
                     },
                     variant: Variant::Colon,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 260,
+                        end: 263,
+                    },
+                    variant: Variant::Identifier("bar".into()),
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 263,
+                        end: 264,
+                    },
+                    variant: Variant::Dot,
                 },
                 Token {
                     source_range: SourceRange {
                         start: 264,
                         end: 267,
                     },
-                    variant: Variant::Identifier("bar".into()),
-                },
-                Token {
-                    source_range: SourceRange {
-                        start: 267,
-                        end: 268,
-                    },
-                    variant: Variant::Dot,
-                },
-                Token {
-                    source_range: SourceRange {
-                        start: 268,
-                        end: 271,
-                    },
                     variant: Variant::Identifier("Bar".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 272,
-                        end: 273,
+                        start: 268,
+                        end: 269,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 274,
-                        end: 275,
+                        start: 270,
+                        end: 271,
                     },
                     variant: Variant::Integer(0),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 290,
-                        end: 296,
+                        start: 286,
+                        end: 292,
                     },
                     variant: Variant::Identifier("garply".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 296,
-                        end: 297,
+                        start: 292,
+                        end: 293,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 298,
-                        end: 310,
+                        start: 294,
+                        end: 302,
                     },
-                    variant: Variant::Transitional,
+                    variant: Variant::Unstable,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 311,
-                        end: 314,
+                        start: 303,
+                        end: 306,
                     },
                     variant: Variant::Identifier("int".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 315,
-                        end: 316,
+                        start: 307,
+                        end: 308,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 317,
-                        end: 318,
+                        start: 309,
+                        end: 310,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 331,
-                        end: 332,
+                        start: 323,
+                        end: 324,
                     },
                     variant: Variant::RightCurly,
                 },
@@ -769,15 +769,15 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_transitional() {
+    fn tokenize_unstable() {
         assert_same!(
-            tokenize(Path::new("foo.t"), TRANSITIONAL_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), UNSTABLE_KEYWORD).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
-                    end: TRANSITIONAL_KEYWORD.len(),
+                    end: UNSTABLE_KEYWORD.len(),
                 },
-                variant: Variant::Transitional,
+                variant: Variant::Unstable,
             }],
         );
     }

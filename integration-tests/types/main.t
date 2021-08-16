@@ -3,20 +3,20 @@ import 'basic/void.t' as void
 
 struct Foo {
   x: Bool = 0
-  y: transitional Bool = 1
+  y: unstable Bool = 1
   z: void.Void = 2
-  w: transitional void.Void = 3
+  w: unstable void.Void = 3
   s: unit.Unit = 4
-  t: transitional unit.Unit = 5
+  t: unstable unit.Unit = 5
 }
 
 choice Bar {
   x: Bool = 0
-  y: transitional Bool = 1
+  y: unstable Bool = 1
   z: void.Void = 2
-  w: transitional void.Void = 3
+  w: unstable void.Void = 3
   s: unit.Unit = 4
-  t: transitional unit.Unit = 5
+  t: unstable unit.Unit = 5
 }
 
 struct FooAndBar {
