@@ -298,14 +298,23 @@ fn write_struct<T: Write>(
     writeln!(buffer, " {{")?;
 
     for field in fields {
-        write_struct_field(
+        write_indentation(buffer, indentation + 1)?;
+        write_identifier(buffer, &field.name, Snake)?;
+        write!(buffer, ": ")?;
+        if field.unstable && in_or_out == InOrOut::In {
+            write!(buffer, "Option<")?;
+        }
+        write_type(
             buffer,
-            indentation + 1,
             imports,
             namespace,
-            field,
-            in_or_out,
+            &field.r#type,
+            InOrOutOrStable::InOrOut(in_or_out),
         )?;
+        if field.unstable && in_or_out == InOrOut::In {
+            write!(buffer, ">")?;
+        }
+        writeln!(buffer, ",")?;
     }
 
     write_indentation(buffer, indentation)?;
@@ -338,86 +347,33 @@ fn write_choice<T: Write>(
 
     for field in fields {
         if !(in_or_out_or_stable == InOrOutOrStable::Stable && field.unstable) {
-            write_choice_field(
+            let in_or_out = match in_or_out_or_stable {
+                InOrOutOrStable::InOrOut(in_or_out) => in_or_out,
+                InOrOutOrStable::Stable => InOrOut::Out,
+            };
+            write_indentation(buffer, indentation + 1)?;
+            write_identifier(buffer, &field.name, Pascal)?;
+            write!(buffer, "(")?;
+            write_type(
                 buffer,
-                indentation + 1,
                 imports,
                 namespace,
-                name,
-                field,
-                match in_or_out_or_stable {
-                    InOrOutOrStable::InOrOut(in_or_out) => InOrOutOrStable::InOrOut(in_or_out),
-                    InOrOutOrStable::Stable => InOrOutOrStable::InOrOut(InOrOut::Out),
-                },
+                &field.r#type,
+                InOrOutOrStable::InOrOut(in_or_out),
             )?;
+            if in_or_out == InOrOut::Out && field.unstable {
+                write!(buffer, ", Vec<")?;
+                write_identifier(buffer, name, Pascal)?;
+                write!(buffer, "Out>, ")?;
+                write_identifier(buffer, name, Pascal)?;
+                write!(buffer, "Stable")?;
+            }
+            writeln!(buffer, "),")?;
         }
     }
 
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "}}")?;
-
-    Ok(())
-}
-
-// Write a field of a struct, including a trailing line break.
-fn write_struct_field<T: Write>(
-    buffer: &mut T,
-    indentation: u64,
-    imports: &BTreeMap<Identifier, schema::Namespace>,
-    namespace: &schema::Namespace,
-    field: &schema::Field,
-    in_or_out: InOrOut,
-) -> Result<(), fmt::Error> {
-    write_indentation(buffer, indentation)?;
-    write_identifier(buffer, &field.name, Snake)?;
-    write!(buffer, ": ")?;
-    if field.unstable && in_or_out == InOrOut::In {
-        write!(buffer, "Option<")?;
-    }
-    write_type(
-        buffer,
-        imports,
-        namespace,
-        &field.r#type,
-        InOrOutOrStable::InOrOut(in_or_out),
-    )?;
-    if field.unstable && in_or_out == InOrOut::In {
-        write!(buffer, ">")?;
-    }
-    writeln!(buffer, ",")?;
-
-    Ok(())
-}
-
-// Write a field of a choice, including a trailing line break.
-#[allow(clippy::too_many_arguments)]
-fn write_choice_field<T: Write>(
-    buffer: &mut T,
-    indentation: u64,
-    imports: &BTreeMap<Identifier, schema::Namespace>,
-    namespace: &schema::Namespace,
-    choice_name: &Identifier,
-    field: &schema::Field,
-    in_or_out_or_stable: InOrOutOrStable,
-) -> Result<(), fmt::Error> {
-    write_indentation(buffer, indentation)?;
-    write_identifier(buffer, &field.name, Pascal)?;
-    write!(buffer, "(")?;
-    write_type(
-        buffer,
-        imports,
-        namespace,
-        &field.r#type,
-        in_or_out_or_stable,
-    )?;
-    if in_or_out_or_stable == InOrOutOrStable::InOrOut(InOrOut::Out) && field.unstable {
-        write!(buffer, ", Vec<")?;
-        write_identifier(buffer, choice_name, Pascal)?;
-        write!(buffer, "Out>, ")?;
-        write_identifier(buffer, choice_name, Pascal)?;
-        write!(buffer, "Stable")?;
-    }
-    writeln!(buffer, "),")?;
 
     Ok(())
 }
