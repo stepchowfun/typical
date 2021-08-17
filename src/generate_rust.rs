@@ -283,7 +283,7 @@ fn write_struct<T: Write>(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &Identifier,
-    fields: &BTreeMap<Identifier, schema::Field>,
+    fields: &[schema::Field],
     in_or_out: InOrOut,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
@@ -297,13 +297,12 @@ fn write_struct<T: Write>(
     }
     writeln!(buffer, " {{")?;
 
-    for (field_name, field) in fields {
+    for field in fields {
         write_struct_field(
             buffer,
             indentation + 1,
             imports,
             namespace,
-            field_name,
             field,
             in_or_out,
         )?;
@@ -322,7 +321,7 @@ fn write_choice<T: Write>(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &Identifier,
-    fields: &BTreeMap<Identifier, schema::Field>,
+    fields: &[schema::Field],
     in_or_out_or_stable: InOrOutOrStable,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
@@ -337,7 +336,7 @@ fn write_choice<T: Write>(
     }
     writeln!(buffer, " {{")?;
 
-    for (field_name, field) in fields {
+    for field in fields {
         if !(in_or_out_or_stable == InOrOutOrStable::Stable && field.unstable) {
             write_choice_field(
                 buffer,
@@ -345,7 +344,6 @@ fn write_choice<T: Write>(
                 imports,
                 namespace,
                 name,
-                field_name,
                 field,
                 match in_or_out_or_stable {
                     InOrOutOrStable::InOrOut(in_or_out) => InOrOutOrStable::InOrOut(in_or_out),
@@ -367,12 +365,11 @@ fn write_struct_field<T: Write>(
     indentation: u64,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
-    name: &Identifier,
     field: &schema::Field,
     in_or_out: InOrOut,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
-    write_identifier(buffer, name, Snake)?;
+    write_identifier(buffer, &field.name, Snake)?;
     write!(buffer, ": ")?;
     if field.unstable && in_or_out == InOrOut::In {
         write!(buffer, "Option<")?;
@@ -400,12 +397,11 @@ fn write_choice_field<T: Write>(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     choice_name: &Identifier,
-    name: &Identifier,
     field: &schema::Field,
     in_or_out_or_stable: InOrOutOrStable,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
-    write_identifier(buffer, name, Pascal)?;
+    write_identifier(buffer, &field.name, Pascal)?;
     write!(buffer, "(")?;
     write_type(
         buffer,
@@ -596,79 +592,79 @@ pub mod basic {
 pub mod main {
     #[derive(Clone, Debug)]
     pub enum BarStable {
-        S(super::basic::unit::UnitOut),
         X(bool),
         Z(super::basic::void::VoidOut),
+        S(super::basic::unit::UnitOut),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarIn {
-        S(super::basic::unit::UnitIn),
-        T(super::basic::unit::UnitIn),
-        W(super::basic::void::VoidIn),
         X(bool),
         Y(bool),
         Z(super::basic::void::VoidIn),
+        W(super::basic::void::VoidIn),
+        S(super::basic::unit::UnitIn),
+        T(super::basic::unit::UnitIn),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarOut {
-        S(super::basic::unit::UnitOut),
-        T(super::basic::unit::UnitOut, Vec<BarOut>, BarStable),
-        W(super::basic::void::VoidOut, Vec<BarOut>, BarStable),
         X(bool),
         Y(bool, Vec<BarOut>, BarStable),
         Z(super::basic::void::VoidOut),
+        W(super::basic::void::VoidOut, Vec<BarOut>, BarStable),
+        S(super::basic::unit::UnitOut),
+        T(super::basic::unit::UnitOut, Vec<BarOut>, BarStable),
     }
 
     #[derive(Clone, Debug)]
     pub struct FooIn {
-        s: super::basic::unit::UnitIn,
-        t: Option<super::basic::unit::UnitIn>,
-        w: Option<super::basic::void::VoidIn>,
         x: bool,
         y: Option<bool>,
         z: super::basic::void::VoidIn,
+        w: Option<super::basic::void::VoidIn>,
+        s: super::basic::unit::UnitIn,
+        t: Option<super::basic::unit::UnitIn>,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooOut {
-        s: super::basic::unit::UnitOut,
-        t: super::basic::unit::UnitOut,
-        w: super::basic::void::VoidOut,
         x: bool,
         y: bool,
         z: super::basic::void::VoidOut,
+        w: super::basic::void::VoidOut,
+        s: super::basic::unit::UnitOut,
+        t: super::basic::unit::UnitOut,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooAndBarIn {
-        bar: BarIn,
         foo: FooIn,
+        bar: BarIn,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooAndBarOut {
-        bar: BarOut,
         foo: FooOut,
+        bar: BarOut,
     }
 
     #[derive(Clone, Debug)]
     pub enum FooOrBarStable {
-        Bar(BarOut),
         Foo(FooOut),
+        Bar(BarOut),
     }
 
     #[derive(Clone, Debug)]
     pub enum FooOrBarIn {
-        Bar(BarIn),
         Foo(FooIn),
+        Bar(BarIn),
     }
 
     #[derive(Clone, Debug)]
     pub enum FooOrBarOut {
-        Bar(BarOut),
         Foo(FooOut),
+        Bar(BarOut),
     }
 }
 ",

@@ -26,13 +26,14 @@ pub struct Declaration {
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(BTreeMap<Identifier, Field>),
-    Choice(BTreeMap<Identifier, Field>),
+    Struct(Vec<Field>),
+    Choice(Vec<Field>),
 }
 
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
+    pub name: Identifier,
     pub unstable: bool,
     pub r#type: Type,
     pub index: usize,
@@ -127,8 +128,8 @@ impl DeclarationVariant {
             Self::Struct(fields) => {
                 writeln!(f, "struct {} {{", name.original())?;
 
-                for (name, field) in fields.iter() {
-                    field.write(f, name)?;
+                for field in fields {
+                    field.write(f)?;
                 }
 
                 writeln!(f, "}}")
@@ -136,8 +137,8 @@ impl DeclarationVariant {
             Self::Choice(fields) => {
                 writeln!(f, "choice {} {{", name.original())?;
 
-                for (name, field) in fields.iter() {
-                    field.write(f, name)?;
+                for field in fields {
+                    field.write(f)?;
                 }
 
                 writeln!(f, "}}")
@@ -147,8 +148,8 @@ impl DeclarationVariant {
 }
 
 impl Field {
-    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
-        write!(f, "  {}: ", name.original())?;
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
+        write!(f, "  {}: ", self.name.original())?;
 
         if self.unstable {
             write!(f, "unstable ")?;
@@ -410,12 +411,10 @@ mod tests {
 
     #[test]
     fn schema_declarations_only_display() {
-        let mut foo_fields = BTreeMap::new();
-
-        foo_fields.insert(
-            "x".into(),
+        let foo_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "x".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -423,12 +422,9 @@ mod tests {
                 },
                 index: 0,
             },
-        );
-
-        foo_fields.insert(
-            "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "y".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -436,14 +432,12 @@ mod tests {
                 },
                 index: 1,
             },
-        );
+        ];
 
-        let mut bar_fields = BTreeMap::new();
-
-        bar_fields.insert(
-            "x".into(),
+        let bar_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "x".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -451,12 +445,9 @@ mod tests {
                 },
                 index: 0,
             },
-        );
-
-        bar_fields.insert(
-            "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "y".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -464,7 +455,7 @@ mod tests {
                 },
                 index: 1,
             },
-        );
+        ];
 
         let mut declarations = BTreeMap::new();
 
@@ -527,12 +518,10 @@ mod tests {
             },
         );
 
-        let mut foo_fields = BTreeMap::new();
-
-        foo_fields.insert(
-            "x".into(),
+        let foo_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "x".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -540,12 +529,9 @@ mod tests {
                 },
                 index: 0,
             },
-        );
-
-        foo_fields.insert(
-            "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "y".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -553,14 +539,12 @@ mod tests {
                 },
                 index: 1,
             },
-        );
+        ];
 
-        let mut bar_fields = BTreeMap::new();
-
-        bar_fields.insert(
-            "x".into(),
+        let bar_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "x".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -568,12 +552,9 @@ mod tests {
                 },
                 index: 0,
             },
-        );
-
-        bar_fields.insert(
-            "y".into(),
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
+                name: "y".into(),
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -581,7 +562,7 @@ mod tests {
                 },
                 index: 1,
             },
-        );
+        ];
 
         let mut declarations = BTreeMap::new();
 

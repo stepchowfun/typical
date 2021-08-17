@@ -39,9 +39,23 @@ pub fn validate(
                 schema::DeclarationVariant::Struct(fields)
                 | schema::DeclarationVariant::Choice(fields) => {
                     // Validate the fields in the declaration.
+                    let mut field_names = HashSet::new();
                     let mut field_indices = HashSet::new();
 
-                    for field in fields.values() {
+                    for field in fields {
+                        // Check that the name of the field is unique within the declaration.
+                        if !field_names.insert(field.name.clone()) {
+                            errors.push(throw::<Error>(
+                                &format!(
+                                    "A field named {} already exists in this declaration.",
+                                    field.name.code_str(),
+                                ),
+                                Some(source_path),
+                                Some(&listing(source_contents, field.source_range)),
+                                None,
+                            ));
+                        }
+
                         // Check that the index of the field is unique within the declaration.
                         if !field_indices.insert(field.index) {
                             errors.push(throw::<Error>(
@@ -200,7 +214,7 @@ fn check_type_for_cycles(
 
     match &declaration.variant {
         schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
-            for field in fields.values() {
+            for field in fields {
                 match &field.r#type.variant {
                     schema::TypeVariant::Bool => {}
                     schema::TypeVariant::Custom(import, type_name) => {
@@ -310,6 +324,34 @@ mod tests {
     }
 
     #[test]
+    fn validate_duplicate_struct_field_names() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct Foo {
+            }
+
+            struct Bar {
+              x: Foo = 0
+              x: Foo = 1
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "A field named `x` already exists in this declaration.",
+        );
+    }
+
+    #[test]
     fn validate_duplicate_struct_field_indices() {
         let namespace = Namespace {
             components: vec!["foo".into()],
@@ -334,6 +376,34 @@ mod tests {
         assert_fails!(
             validate(&schemas),
             "A field with index `0` already exists in this declaration.",
+        );
+    }
+
+    #[test]
+    fn validate_duplicate_choice_field_names() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct Foo {
+            }
+
+            choice Bar {
+              x: Foo = 0
+              x: Foo = 1
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "A field named `x` already exists in this declaration.",
         );
     }
 
