@@ -31,13 +31,27 @@ struct Module {
 }
 
 // This enum represents a case convention for the `write_identifier` function below.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum CaseConvention {
     Pascal,
     Snake,
 }
 
 use CaseConvention::{Pascal, Snake};
+
+// This enum is used to distinguish between the flavors of a struct type.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum InOrOut {
+    In,
+    Out,
+}
+
+// This enum is used to distinguish between the flavors of a choice type.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum InOrOutOrStable {
+    InOrOut(InOrOut),
+    Stable,
+}
 
 // Generate Rust code from a schema and its transitive dependencies.
 pub fn generate(schemas: BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>) -> String {
@@ -194,10 +208,56 @@ fn write_schema<T: Write>(
     while let Some((name, declaration)) = iter.next() {
         match &declaration.variant {
             schema::DeclarationVariant::Struct(fields) => {
-                write_struct(buffer, indentation, &imports, namespace, &name, fields)?;
+                write_struct(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &name,
+                    fields,
+                    InOrOut::In,
+                )?;
+                writeln!(buffer)?;
+                write_struct(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &name,
+                    fields,
+                    InOrOut::Out,
+                )?;
             }
             schema::DeclarationVariant::Choice(fields) => {
-                write_choice(buffer, indentation, &imports, namespace, &name, fields)?;
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &name,
+                    fields,
+                    InOrOutOrStable::Stable,
+                )?;
+                writeln!(buffer)?;
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &name,
+                    fields,
+                    InOrOutOrStable::InOrOut(InOrOut::In),
+                )?;
+                writeln!(buffer)?;
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &name,
+                    fields,
+                    InOrOutOrStable::InOrOut(InOrOut::Out),
+                )?;
             }
         }
 
@@ -217,16 +277,29 @@ fn write_struct<T: Write>(
     namespace: &schema::Namespace,
     name: &Identifier,
     fields: &BTreeMap<Identifier, schema::Field>,
+    in_or_out: InOrOut,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub struct ")?;
     write_identifier(buffer, name, Pascal)?;
+    match in_or_out {
+        InOrOut::In => write!(buffer, "In")?,
+        InOrOut::Out => write!(buffer, "Out")?,
+    }
     writeln!(buffer, " {{")?;
 
-    for (name, field) in fields {
-        write_struct_field(buffer, indentation + 1, imports, namespace, name, field)?;
+    for (field_name, field) in fields {
+        write_struct_field(
+            buffer,
+            indentation + 1,
+            imports,
+            namespace,
+            field_name,
+            field,
+            in_or_out,
+        )?;
     }
 
     write_indentation(buffer, indentation)?;
@@ -243,16 +316,36 @@ fn write_choice<T: Write>(
     namespace: &schema::Namespace,
     name: &Identifier,
     fields: &BTreeMap<Identifier, schema::Field>,
+    in_or_out_or_stable: InOrOutOrStable,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub enum ")?;
     write_identifier(buffer, name, Pascal)?;
+    match in_or_out_or_stable {
+        InOrOutOrStable::InOrOut(InOrOut::In) => write!(buffer, "In")?,
+        InOrOutOrStable::InOrOut(InOrOut::Out) => write!(buffer, "Out")?,
+        InOrOutOrStable::Stable => write!(buffer, "Stable")?,
+    }
     writeln!(buffer, " {{")?;
 
-    for (name, field) in fields {
-        write_choice_field(buffer, indentation + 1, imports, namespace, name, field)?;
+    for (field_name, field) in fields {
+        if !(in_or_out_or_stable == InOrOutOrStable::Stable && field.unstable) {
+            write_choice_field(
+                buffer,
+                indentation + 1,
+                imports,
+                namespace,
+                name,
+                field_name,
+                field,
+                match in_or_out_or_stable {
+                    InOrOutOrStable::InOrOut(in_or_out) => InOrOutOrStable::InOrOut(in_or_out),
+                    InOrOutOrStable::Stable => InOrOutOrStable::InOrOut(InOrOut::Out),
+                },
+            )?;
+        }
     }
 
     write_indentation(buffer, indentation)?;
@@ -269,29 +362,58 @@ fn write_struct_field<T: Write>(
     namespace: &schema::Namespace,
     name: &Identifier,
     field: &schema::Field,
+    in_or_out: InOrOut,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     write_identifier(buffer, name, Snake)?;
     write!(buffer, ": ")?;
-    write_type(buffer, imports, namespace, &field.r#type)?;
+    if field.unstable && in_or_out == InOrOut::In {
+        write!(buffer, "Option<")?;
+    }
+    write_type(
+        buffer,
+        imports,
+        namespace,
+        &field.r#type,
+        InOrOutOrStable::InOrOut(in_or_out),
+    )?;
+    if field.unstable && in_or_out == InOrOut::In {
+        write!(buffer, ">")?;
+    }
     writeln!(buffer, ",")?;
 
     Ok(())
 }
 
 // Write a field of a choice, including a trailing line break.
+#[allow(clippy::too_many_arguments)]
 fn write_choice_field<T: Write>(
     buffer: &mut T,
     indentation: u64,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
+    choice_name: &Identifier,
     name: &Identifier,
     field: &schema::Field,
+    in_or_out_or_stable: InOrOutOrStable,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     write_identifier(buffer, name, Pascal)?;
     write!(buffer, "(")?;
-    write_type(buffer, imports, namespace, &field.r#type)?;
+    write_type(
+        buffer,
+        imports,
+        namespace,
+        &field.r#type,
+        in_or_out_or_stable,
+    )?;
+    if in_or_out_or_stable == InOrOutOrStable::InOrOut(InOrOut::Out) && field.unstable {
+        write!(buffer, ", Vec<")?;
+        write_identifier(buffer, choice_name, Pascal)?;
+        write!(buffer, "Out>, ")?;
+        write_identifier(buffer, choice_name, Pascal)?;
+        write!(buffer, "Stable")?;
+    }
     writeln!(buffer, "),")?;
 
     Ok(())
@@ -303,6 +425,7 @@ fn write_type<T: Write>(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     r#type: &schema::Type,
+    in_or_out_or_stable: InOrOutOrStable,
 ) -> Result<(), fmt::Error> {
     match &r#type.variant {
         schema::TypeVariant::Bool => {
@@ -329,6 +452,11 @@ fn write_type<T: Write>(
             }
 
             write_identifier(buffer, name, Pascal)?;
+            match in_or_out_or_stable {
+                InOrOutOrStable::InOrOut(InOrOut::In) => write!(buffer, "In")?,
+                InOrOutOrStable::InOrOut(InOrOut::Out) => write!(buffer, "Out")?,
+                InOrOutOrStable::Stable => write!(buffer, "Stable")?,
+            }
         }
     }
 
@@ -431,14 +559,26 @@ pub mod basic {
     #[rustfmt::skip]
     pub mod unit {
         #[derive(Clone, Debug)]
-        pub struct Unit {
+        pub struct UnitIn {
+        }
+
+        #[derive(Clone, Debug)]
+        pub struct UnitOut {
         }
     }
 
     #[rustfmt::skip]
     pub mod void {
         #[derive(Clone, Debug)]
-        pub enum Void {
+        pub enum VoidStable {
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum VoidIn {
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum VoidOut {
         }
     }
 }
@@ -446,35 +586,80 @@ pub mod basic {
 #[rustfmt::skip]
 pub mod main {
     #[derive(Clone, Debug)]
-    pub enum Bar {
-        S(super::basic::unit::Unit),
-        T(super::basic::unit::Unit),
-        W(super::basic::void::Void),
+    pub enum BarStable {
+        S(super::basic::unit::UnitOut),
+        X(bool),
+        Z(super::basic::void::VoidOut),
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum BarIn {
+        S(super::basic::unit::UnitIn),
+        T(super::basic::unit::UnitIn),
+        W(super::basic::void::VoidIn),
         X(bool),
         Y(bool),
-        Z(super::basic::void::Void),
+        Z(super::basic::void::VoidIn),
     }
 
     #[derive(Clone, Debug)]
-    pub struct Foo {
-        s: super::basic::unit::Unit,
-        t: super::basic::unit::Unit,
-        w: super::basic::void::Void,
+    pub enum BarOut {
+        S(super::basic::unit::UnitOut),
+        T(super::basic::unit::UnitOut, Vec<BarOut>, BarStable),
+        W(super::basic::void::VoidOut, Vec<BarOut>, BarStable),
+        X(bool),
+        Y(bool, Vec<BarOut>, BarStable),
+        Z(super::basic::void::VoidOut),
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct FooIn {
+        s: super::basic::unit::UnitIn,
+        t: Option<super::basic::unit::UnitIn>,
+        w: Option<super::basic::void::VoidIn>,
+        x: bool,
+        y: Option<bool>,
+        z: super::basic::void::VoidIn,
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct FooOut {
+        s: super::basic::unit::UnitOut,
+        t: super::basic::unit::UnitOut,
+        w: super::basic::void::VoidOut,
         x: bool,
         y: bool,
-        z: super::basic::void::Void,
+        z: super::basic::void::VoidOut,
     }
 
     #[derive(Clone, Debug)]
-    pub struct FooAndBar {
-        bar: Bar,
-        foo: Foo,
+    pub struct FooAndBarIn {
+        bar: BarIn,
+        foo: FooIn,
     }
 
     #[derive(Clone, Debug)]
-    pub enum FooOrBar {
-        Bar(Bar),
-        Foo(Foo),
+    pub struct FooAndBarOut {
+        bar: BarOut,
+        foo: FooOut,
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum FooOrBarStable {
+        Bar(BarOut),
+        Foo(FooOut),
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum FooOrBarIn {
+        Bar(BarIn),
+        Foo(FooIn),
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum FooOrBarOut {
+        Bar(BarOut),
+        Foo(FooOut),
     }
 }
 ",
