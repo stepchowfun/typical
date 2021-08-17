@@ -330,12 +330,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Foo {
-            }
-
             struct Bar {
-              x: Foo = 0
-              x: Foo = 1
+              x: Bool = 0
+              x: Bool = 1
             }
         "
         .to_owned();
@@ -358,12 +355,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Foo {
-            }
-
             struct Bar {
-              x: Foo = 0
-              y: Foo = 0
+              x: Bool = 0
+              y: Bool = 0
             }
         "
         .to_owned();
@@ -386,12 +380,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Foo {
-            }
-
             choice Bar {
-              x: Foo = 0
-              x: Foo = 1
+              x: Bool = 0
+              x: Bool = 1
             }
         "
         .to_owned();
@@ -414,12 +405,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Foo {
-            }
-
             choice Bar {
-              x: Foo = 0
-              y: Foo = 0
+              x: Bool = 0
+              y: Bool = 0
             }
         "
         .to_owned();
