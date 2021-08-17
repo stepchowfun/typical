@@ -93,6 +93,11 @@ impl Identifier {
             .collect::<Vec<_>>()
             .join("")
     }
+
+    // This function concatenates two identifiers.
+    pub fn join(&self, other: &Identifier) -> Identifier {
+        AsRef::<str>::as_ref(&format!("{}_{}", self.original, other.original)).into()
+    }
 }
 
 // This function splits a name into words using underscore delimiters and word case.

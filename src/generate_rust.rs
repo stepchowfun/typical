@@ -153,7 +153,7 @@ fn write_module<T: Write>(
     writeln!(buffer, "#[rustfmt::skip]")?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub mod ")?;
-    write_identifier(buffer, name, Snake)?;
+    write_identifier(buffer, name, Snake, None)?;
     writeln!(buffer, " {{")?;
 
     let mut new_namespace = namespace.clone();
@@ -290,16 +290,17 @@ fn write_struct<T: Write>(
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub struct ")?;
-    write_identifier(buffer, name, Pascal)?;
-    match in_or_out {
-        InOrOut::In => write!(buffer, "In")?,
-        InOrOut::Out => write!(buffer, "Out")?,
-    }
+    write_identifier(
+        buffer,
+        &name,
+        Pascal,
+        Some(InOrOutOrStable::InOrOut(in_or_out)),
+    )?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
-        write_identifier(buffer, &field.name, Snake)?;
+        write_identifier(buffer, &field.name, Snake, None)?;
         write!(buffer, ": ")?;
         if field.unstable && in_or_out == InOrOut::In {
             write!(buffer, "Option<")?;
@@ -337,12 +338,7 @@ fn write_choice<T: Write>(
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub enum ")?;
-    write_identifier(buffer, name, Pascal)?;
-    match in_or_out_or_stable {
-        InOrOutOrStable::InOrOut(InOrOut::In) => write!(buffer, "In")?,
-        InOrOutOrStable::InOrOut(InOrOut::Out) => write!(buffer, "Out")?,
-        InOrOutOrStable::Stable => write!(buffer, "Stable")?,
-    }
+    write_identifier(buffer, &name, Pascal, Some(in_or_out_or_stable))?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
@@ -352,7 +348,7 @@ fn write_choice<T: Write>(
                 InOrOutOrStable::Stable => InOrOut::Out,
             };
             write_indentation(buffer, indentation + 1)?;
-            write_identifier(buffer, &field.name, Pascal)?;
+            write_identifier(buffer, &field.name, Pascal, None)?;
             write!(buffer, "(")?;
             write_type(
                 buffer,
@@ -363,10 +359,14 @@ fn write_choice<T: Write>(
             )?;
             if in_or_out == InOrOut::Out && field.unstable {
                 write!(buffer, ", Vec<")?;
-                write_identifier(buffer, name, Pascal)?;
-                write!(buffer, "Out>, ")?;
-                write_identifier(buffer, name, Pascal)?;
-                write!(buffer, "Stable")?;
+                write_identifier(
+                    buffer,
+                    &name,
+                    Pascal,
+                    Some(InOrOutOrStable::InOrOut(InOrOut::Out)),
+                )?;
+                write!(buffer, ">, ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOutOrStable::Stable))?;
             }
             writeln!(buffer, "),")?;
         }
@@ -406,16 +406,11 @@ fn write_type<T: Write>(
             }
 
             for component in relative_type_namespace.components {
-                write_identifier(buffer, &component, Snake)?;
+                write_identifier(buffer, &component, Snake, None)?;
                 write!(buffer, "::")?;
             }
 
-            write_identifier(buffer, name, Pascal)?;
-            match in_or_out_or_stable {
-                InOrOutOrStable::InOrOut(InOrOut::In) => write!(buffer, "In")?,
-                InOrOutOrStable::InOrOut(InOrOut::Out) => write!(buffer, "Out")?,
-                InOrOutOrStable::Stable => write!(buffer, "Stable")?,
-            }
+            write_identifier(buffer, &name, Pascal, Some(in_or_out_or_stable))?;
         }
     }
 
@@ -427,21 +422,36 @@ fn write_identifier<T: Write>(
     buffer: &mut T,
     identifier: &Identifier,
     case: CaseConvention,
+    suffix: Option<InOrOutOrStable>,
 ) -> Result<(), fmt::Error> {
-    let converted_name = match case {
-        CaseConvention::Pascal => identifier.pascal_case(),
-        CaseConvention::Snake => identifier.snake_case(),
+    let identifier_with_suffix = suffix.map_or_else(
+        || identifier.clone(),
+        |suffix| {
+            identifier.join(
+                &match suffix {
+                    InOrOutOrStable::InOrOut(InOrOut::In) => "In",
+                    InOrOutOrStable::InOrOut(InOrOut::Out) => "Out",
+                    InOrOutOrStable::Stable => "Stable",
+                }
+                .into(),
+            )
+        },
+    );
+
+    let converted_identifier = match case {
+        CaseConvention::Pascal => identifier_with_suffix.pascal_case(),
+        CaseConvention::Snake => identifier_with_suffix.snake_case(),
     };
 
-    if !converted_name.starts_with("r#")
+    if !converted_identifier.starts_with("r#")
         && RUST_KEYWORDS
             .iter()
-            .any(|keyword| converted_name == *keyword)
+            .any(|keyword| converted_identifier == *keyword)
     {
         write!(buffer, "r#")?;
     }
 
-    write!(buffer, "{}", converted_name)?;
+    write!(buffer, "{}", converted_identifier)?;
 
     Ok(())
 }
