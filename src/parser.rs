@@ -435,7 +435,7 @@ fn parse_fields(
     position: &mut usize,
     name_expectation: &str,
     errors: &mut Vec<Error>,
-) -> Option<(Identifier, BTreeMap<Identifier, schema::Field>)> {
+) -> Option<(Identifier, Vec<schema::Field>)> {
     // Parse the name.
     let declaration_name = consume_token_1!(
         source_path,
@@ -460,28 +460,16 @@ fn parse_fields(
     );
 
     // Parse the fields.
-    let mut fields = BTreeMap::new();
+    let mut fields = vec![];
     while *position < tokens.len() {
         if let token::Variant::RightCurly = tokens[*position].variant {
             break;
         }
 
-        if let Some((field_name, field)) =
-            parse_field(source_path, source_contents, tokens, position, errors)
-        {
+        if let Some(field) = parse_field(source_path, source_contents, tokens, position, errors) {
             // In this case, [ref:parse_field_some_advance] guarantees that we will not loop
             // forever.
-            if fields.insert(field_name.clone(), field.clone()).is_some() {
-                errors.push(throw::<Error>(
-                    &format!(
-                        "A field named {} already exists in this declaration.",
-                        field_name.code_str(),
-                    ),
-                    Some(source_path),
-                    Some(&listing(source_contents, field.source_range)),
-                    None,
-                ));
-            }
+            fields.push(field.clone());
         } else {
             // Jump past the closing curly brace, if it exists. Otherwise, jump to the end of the
             // source.
@@ -521,7 +509,7 @@ fn parse_field(
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
-) -> Option<(Identifier, schema::Field)> {
+) -> Option<schema::Field> {
     let start = *position;
 
     // Parse the name.
@@ -668,15 +656,13 @@ fn parse_field(
     );
 
     // Return the field.
-    Some((
+    Some(schema::Field {
+        source_range: span_tokens(tokens, start, *position),
         name,
-        schema::Field {
-            source_range: span_tokens(tokens, start, *position),
-            unstable,
-            r#type,
-            index,
-        },
-    ))
+        unstable,
+        r#type,
+        index,
+    })
 }
 
 #[cfg(test)]
@@ -745,15 +731,13 @@ mod tests {
             },
         );
 
-        let mut foo_fields = BTreeMap::new();
-
-        foo_fields.insert(
-            "x".into(),
+        let foo_fields = vec![
             schema::Field {
                 source_range: SourceRange {
                     start: 141,
                     end: 155,
                 },
+                name: "x".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -764,15 +748,12 @@ mod tests {
                 },
                 index: 0,
             },
-        );
-
-        foo_fields.insert(
-            "y".into(),
             schema::Field {
                 source_range: SourceRange {
                     start: 170,
                     end: 189,
                 },
+                name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -783,15 +764,12 @@ mod tests {
                 },
                 index: 1,
             },
-        );
-
-        foo_fields.insert(
-            "z".into(),
             schema::Field {
                 source_range: SourceRange {
                     start: 204,
                     end: 215,
                 },
+                name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -802,17 +780,15 @@ mod tests {
                 },
                 index: 2,
             },
-        );
+        ];
 
-        let mut bar_fields = BTreeMap::new();
-
-        bar_fields.insert(
-            "x".into(),
+        let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
                     start: 302,
                     end: 316,
                 },
+                name: "x".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -823,15 +799,12 @@ mod tests {
                 },
                 index: 0,
             },
-        );
-
-        bar_fields.insert(
-            "y".into(),
             schema::Field {
                 source_range: SourceRange {
                     start: 331,
                     end: 350,
                 },
+                name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -842,15 +815,12 @@ mod tests {
                 },
                 index: 1,
             },
-        );
-
-        bar_fields.insert(
-            "z".into(),
             schema::Field {
                 source_range: SourceRange {
                     start: 365,
                     end: 376,
                 },
+                name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -861,7 +831,7 @@ mod tests {
                 },
                 index: 2,
             },
-        );
+        ];
 
         let mut declarations = BTreeMap::new();
 
@@ -926,40 +896,6 @@ mod tests {
         assert_fails!(
             parse(source_path, source, &tokens[..]),
             "A declaration named `Foo` already exists in this file.",
-        );
-    }
-
-    #[test]
-    fn parse_duplicate_struct_field() {
-        let source_path = Path::new("foo.t");
-        let source = "
-            struct Foo {
-              x: Bool = 0
-              x: Bool = 1
-            }
-        ";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_fails!(
-            parse(source_path, source, &tokens[..]),
-            "A field named `x` already exists in this declaration.",
-        );
-    }
-
-    #[test]
-    fn parse_duplicate_choice_field() {
-        let source_path = Path::new("foo.t");
-        let source = "
-            choice Foo {
-              x: Bool = 0
-              x: Bool = 1
-            }
-        ";
-        let tokens = tokenize(source_path, source).unwrap();
-
-        assert_fails!(
-            parse(source_path, source, &tokens[..]),
-            "A field named `x` already exists in this declaration.",
         );
     }
 }
