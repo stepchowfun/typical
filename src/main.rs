@@ -370,7 +370,7 @@ fn generate_code(schema_path: &Path, rust_out_file: Option<&Path>) -> Result<(),
             "Writing {}\u{2026}",
             rust_out_file.to_string_lossy().code_str(),
         );
-        write(rust_out_file, generate_rust::generate(schemas)).map_err(|error| {
+        write(rust_out_file, generate_rust::generate(VERSION, schemas)).map_err(|error| {
             throw(
                 &format!(
                     "Unable to write {}.",
