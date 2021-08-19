@@ -46,12 +46,16 @@ enum StructFlavor {
     Out,
 }
 
+use StructFlavor::{In, Out};
+
 // This enum is used to distinguish between the flavors of a choice type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum ChoiceFlavor {
     InOrOut(StructFlavor),
     OutStable,
 }
+
+use ChoiceFlavor::{InOrOut, OutStable};
 
 // Generate Rust code from a schema and its transitive dependencies.
 pub fn generate(
@@ -225,62 +229,26 @@ fn write_schema<T: Write>(
     while let Some((name, declaration)) = iter.next() {
         match &declaration.variant {
             schema::DeclarationVariant::Struct(fields) => {
-                write_struct(
-                    buffer,
-                    indentation,
-                    &imports,
-                    namespace,
-                    &name,
-                    fields,
-                    StructFlavor::In,
-                )?;
+                write_struct(buffer, indentation, &imports, namespace, &name, fields, In)?;
 
                 writeln!(buffer)?;
 
-                write_struct(
-                    buffer,
-                    indentation,
-                    &imports,
-                    namespace,
-                    &name,
-                    fields,
-                    StructFlavor::Out,
-                )?;
+                write_struct(buffer, indentation, &imports, namespace, &name, fields, Out)?;
 
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::Out)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 write!(buffer, "> for ")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::In)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::Out)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::In)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
@@ -312,7 +280,7 @@ fn write_schema<T: Write>(
                     namespace,
                     &name,
                     fields,
-                    ChoiceFlavor::InOrOut(StructFlavor::In),
+                    InOrOut(In),
                 )?;
 
                 writeln!(buffer)?;
@@ -324,7 +292,7 @@ fn write_schema<T: Write>(
                     namespace,
                     &name,
                     fields,
-                    ChoiceFlavor::InOrOut(StructFlavor::Out),
+                    InOrOut(Out),
                 )?;
 
                 writeln!(buffer)?;
@@ -336,46 +304,26 @@ fn write_schema<T: Write>(
                     namespace,
                     &name,
                     fields,
-                    ChoiceFlavor::OutStable,
+                    OutStable,
                 )?;
 
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::Out)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 write!(buffer, "> for ")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::In)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::Out)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match message {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(
-                        buffer,
-                        &name,
-                        Pascal,
-                        Some(ChoiceFlavor::InOrOut(StructFlavor::Out)),
-                    )?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     write!(buffer, "(payload")?;
@@ -383,12 +331,7 @@ fn write_schema<T: Write>(
                         write!(buffer, ", _, _")?;
                     }
                     write!(buffer, ") => ")?;
-                    write_identifier(
-                        buffer,
-                        &name,
-                        Pascal,
-                        Some(ChoiceFlavor::InOrOut(StructFlavor::In)),
-                    )?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     writeln!(buffer, "(payload.into()),")?;
@@ -424,24 +367,18 @@ fn write_struct<T: Write>(
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub struct ")?;
-    write_identifier(buffer, &name, Pascal, Some(ChoiceFlavor::InOrOut(flavor)))?;
+    write_identifier(buffer, &name, Pascal, Some(InOrOut(flavor)))?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
         write_identifier(buffer, &field.name, Snake, None)?;
         write!(buffer, ": ")?;
-        if field.unstable && flavor == StructFlavor::In {
+        if field.unstable && flavor == In {
             write!(buffer, "Option<")?;
         }
-        write_type(
-            buffer,
-            imports,
-            namespace,
-            &field.r#type,
-            ChoiceFlavor::InOrOut(flavor),
-        )?;
-        if field.unstable && flavor == StructFlavor::In {
+        write_type(buffer, imports, namespace, &field.r#type, InOrOut(flavor))?;
+        if field.unstable && flavor == In {
             write!(buffer, ">")?;
         }
         writeln!(buffer, ",")?;
@@ -471,31 +408,20 @@ fn write_choice<T: Write>(
     writeln!(buffer, " {{")?;
 
     for field in fields {
-        if !(flavor == ChoiceFlavor::OutStable && field.unstable) {
+        if !(flavor == OutStable && field.unstable) {
             let flavor = match flavor {
                 ChoiceFlavor::InOrOut(flavor) => flavor,
-                ChoiceFlavor::OutStable => StructFlavor::Out,
+                ChoiceFlavor::OutStable => Out,
             };
             write_indentation(buffer, indentation + 1)?;
             write_identifier(buffer, &field.name, Pascal, None)?;
             write!(buffer, "(")?;
-            write_type(
-                buffer,
-                imports,
-                namespace,
-                &field.r#type,
-                ChoiceFlavor::InOrOut(flavor),
-            )?;
-            if flavor == StructFlavor::Out && field.unstable {
+            write_type(buffer, imports, namespace, &field.r#type, InOrOut(flavor))?;
+            if flavor == Out && field.unstable {
                 write!(buffer, ", Vec<")?;
-                write_identifier(
-                    buffer,
-                    &name,
-                    Pascal,
-                    Some(ChoiceFlavor::InOrOut(StructFlavor::Out)),
-                )?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 write!(buffer, ">, ")?;
-                write_identifier(buffer, &name, Pascal, Some(ChoiceFlavor::OutStable))?;
+                write_identifier(buffer, &name, Pascal, Some(OutStable))?;
             }
             writeln!(buffer, "),")?;
         }
