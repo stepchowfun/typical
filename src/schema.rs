@@ -47,7 +47,7 @@ pub struct Type {
 
 #[derive(Clone, Debug)]
 pub enum TypeVariant {
-    Bool,
+    Boolean,
     Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
@@ -170,8 +170,8 @@ impl Type {
 impl TypeVariant {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
-            Self::Bool => {
-                write!(f, "Bool")?;
+            Self::Boolean => {
+                write!(f, "Boolean")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -418,7 +418,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 0,
             },
@@ -428,7 +428,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 1,
             },
@@ -441,7 +441,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 0,
             },
@@ -451,7 +451,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 1,
             },
@@ -482,13 +482,13 @@ mod tests {
 
         let expected = "\
             choice Bar {\n\
-            \x20 x: Bool = 0\n\
-            \x20 y: Bool = 1\n\
+            \x20 x: Boolean = 0\n\
+            \x20 y: Boolean = 1\n\
             }\n\
             \n\
             struct Foo {\n\
-            \x20 x: Bool = 0\n\
-            \x20 y: Bool = 1\n\
+            \x20 x: Boolean = 0\n\
+            \x20 y: Boolean = 1\n\
             }\n\
         ";
 
@@ -525,7 +525,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 0,
             },
@@ -535,7 +535,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 1,
             },
@@ -548,7 +548,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 0,
             },
@@ -558,7 +558,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
+                    variant: TypeVariant::Boolean,
                 },
                 index: 1,
             },
@@ -592,13 +592,13 @@ mod tests {
             import 'foo.t' as foo\n\
             \n\
             choice Bar {\n\
-            \x20 x: Bool = 0\n\
-            \x20 y: Bool = 1\n\
+            \x20 x: Boolean = 0\n\
+            \x20 y: Boolean = 1\n\
             }\n\
             \n\
             struct Foo {\n\
-            \x20 x: Bool = 0\n\
-            \x20 y: Bool = 1\n\
+            \x20 x: Boolean = 0\n\
+            \x20 y: Boolean = 1\n\
             }\n\
         ";
 
@@ -609,10 +609,10 @@ mod tests {
     fn type_display_bool() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Bool,
+            variant: TypeVariant::Boolean,
         };
 
-        let expected = "Bool";
+        let expected = "Boolean";
 
         assert_eq!(r#type.to_string(), expected);
     }

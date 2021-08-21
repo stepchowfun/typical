@@ -89,12 +89,57 @@ pub fn generate(
 
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
-pub trait Serialize {{
-    fn serialize(&self) -> Vec<u8>;
+use std::io::{{BufRead, Error, Write}};
+
+#[rustfmt::skip]
+pub enum SerializeError {{
+    WriteError(Error),
 }}
 
+#[rustfmt::skip]
+pub enum DeserializeError {{
+    ReadError(Error),
+}}
+
+#[rustfmt::skip]
+pub trait Serialize {{
+    fn size(&self) -> usize;
+
+    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError>;
+}}
+
+#[rustfmt::skip]
 pub trait Deserialize {{
-    fn deserialize(buffer: &[u8]) -> Self;
+    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    where
+        Self: Sized;
+}}
+
+#[rustfmt::skip]
+impl Serialize for bool {{
+    fn size(&self) -> usize {{
+        1
+    }}
+
+    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {{
+        writer
+            .write_all(&[if *self {{ 1 }} else {{ 0 }}])
+            .map_err(SerializeError::WriteError)
+    }}
+}}
+
+#[rustfmt::skip]
+impl Deserialize for bool {{
+    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    where
+        Self: Sized,
+    {{
+        let mut buffer = [0];
+        reader
+            .read_exact(&mut buffer)
+            .map_err(DeserializeError::ReadError)?;
+        Ok(buffer[0] != 0)
+    }}
 }}",
             typical_version,
         )
@@ -442,7 +487,7 @@ fn write_type<T: Write>(
     flavor: ChoiceFlavor,
 ) -> Result<(), fmt::Error> {
     match &r#type.variant {
-        schema::TypeVariant::Bool => {
+        schema::TypeVariant::Boolean => {
             write!(buffer, "bool")?;
         }
         schema::TypeVariant::Custom(import, name) => {
@@ -581,12 +626,57 @@ mod tests {
 
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
-pub trait Serialize {
-    fn serialize(&self) -> Vec<u8>;
+use std::io::{BufRead, Error, Write};
+
+#[rustfmt::skip]
+pub enum SerializeError {
+    WriteError(Error),
 }
 
+#[rustfmt::skip]
+pub enum DeserializeError {
+    ReadError(Error),
+}
+
+#[rustfmt::skip]
+pub trait Serialize {
+    fn size(&self) -> usize;
+
+    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError>;
+}
+
+#[rustfmt::skip]
 pub trait Deserialize {
-    fn deserialize(buffer: &[u8]) -> Self;
+    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    where
+        Self: Sized;
+}
+
+#[rustfmt::skip]
+impl Serialize for bool {
+    fn size(&self) -> usize {
+        1
+    }
+
+    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {
+        writer
+            .write_all(&[if *self { 1 } else { 0 }])
+            .map_err(SerializeError::WriteError)
+    }
+}
+
+#[rustfmt::skip]
+impl Deserialize for bool {
+    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    where
+        Self: Sized,
+    {
+        let mut buffer = [0];
+        reader
+            .read_exact(&mut buffer)
+            .map_err(DeserializeError::ReadError)?;
+        Ok(buffer[0] != 0)
+    }
 }
 
 #[rustfmt::skip]

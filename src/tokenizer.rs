@@ -100,7 +100,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 } else if &schema_contents[i..end] == BOOL_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Bool,
+                        variant: Variant::Boolean,
                     });
                 } else if &schema_contents[i..end] == CHOICE_KEYWORD {
                     tokens.push(Token {
@@ -591,7 +591,7 @@ mod tests {
                     start: 0,
                     end: BOOL_KEYWORD.len(),
                 },
-                variant: Variant::Bool,
+                variant: Variant::Boolean,
             }],
         );
     }
