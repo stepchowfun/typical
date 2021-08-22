@@ -1,12 +1,12 @@
 image: ubuntu:20.04
 default: build
+user: user
+command_prefix: set -euo pipefail
 tasks:
   install_packages:
     description: Install system packages.
+    user: root
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Install the following packages:
       #
       # - build-essential - Used for linking the binary
@@ -20,19 +20,15 @@ tasks:
     description: Install Tagref, a reference checking tool.
     dependencies:
       - install_packages
+    user: root
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Install Tagref using the official installer script.
       curl https://raw.githubusercontent.com/stepchowfun/tagref/main/install.sh -LSfs | sh
 
   create_user:
     description: Create a user who doesn't have root privileges.
+    user: root
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Create a user named `user` with a home directory.
       adduser --disabled-password --gecos '' user
 
@@ -41,11 +37,7 @@ tasks:
     dependencies:
       - install_packages
       - create_user
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Install stable Rust. [tag:rust_1_53_0]
       curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
         -y \
@@ -72,11 +64,7 @@ tasks:
     input_paths:
       - Cargo.lock
       - Cargo.toml
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -105,11 +93,7 @@ tasks:
       - fetch_crates
     input_paths:
       - src
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -120,13 +104,9 @@ tasks:
     description: Run the unit test suite.
     dependencies:
       - build
-    user: user
     input_paths:
       - integration-tests
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -138,16 +118,12 @@ tasks:
     description: Run an integration test for the Rust code generator.
     dependencies:
       - build
-    user: user
     input_paths:
       - integration-tests/rust/Cargo.lock
       - integration-tests/rust/Cargo.toml
       - integration-tests/rust/src
       - integration-tests/types
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -178,11 +154,7 @@ tasks:
       - integration-tests/rust/src/types.rs
       - integration-tests/rust/target
       - target
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -219,11 +191,7 @@ tasks:
     description: Run the program.
     dependencies:
       - build
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -238,11 +206,7 @@ tasks:
       - src
     output_paths:
       - src
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -260,11 +224,7 @@ tasks:
       - src
     output_paths:
       - artifacts
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
@@ -294,11 +254,7 @@ tasks:
     input_paths:
       - README.md
       - src
-    user: user
     command: |
-      # Make Bash not silently ignore errors.
-      set -euo pipefail
-
       # Add Rust tools to `$PATH`.
       . $HOME/.cargo/env
 
