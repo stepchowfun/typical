@@ -48,6 +48,7 @@ pub struct Type {
 #[derive(Clone, Debug)]
 pub enum TypeVariant {
     Boolean,
+    Float64,
     Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
@@ -172,6 +173,9 @@ impl TypeVariant {
         match self {
             Self::Boolean => {
                 write!(f, "Boolean")?;
+            }
+            Self::Float64 => {
+                write!(f, "Float64")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -428,7 +432,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Float64,
                 },
                 index: 1,
             },
@@ -451,7 +455,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Float64,
                 },
                 index: 1,
             },
@@ -483,12 +487,12 @@ mod tests {
         let expected = "\
             choice Bar {\n\
             \x20 x: Boolean = 0\n\
-            \x20 y: Boolean = 1\n\
+            \x20 y: Float64 = 1\n\
             }\n\
             \n\
             struct Foo {\n\
             \x20 x: Boolean = 0\n\
-            \x20 y: Boolean = 1\n\
+            \x20 y: Float64 = 1\n\
             }\n\
         ";
 
@@ -535,7 +539,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Float64,
                 },
                 index: 1,
             },
@@ -558,7 +562,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Float64,
                 },
                 index: 1,
             },
@@ -593,12 +597,12 @@ mod tests {
             \n\
             choice Bar {\n\
             \x20 x: Boolean = 0\n\
-            \x20 y: Boolean = 1\n\
+            \x20 y: Float64 = 1\n\
             }\n\
             \n\
             struct Foo {\n\
             \x20 x: Boolean = 0\n\
-            \x20 y: Boolean = 1\n\
+            \x20 y: Float64 = 1\n\
             }\n\
         ";
 
@@ -606,13 +610,25 @@ mod tests {
     }
 
     #[test]
-    fn type_display_bool() {
+    fn type_display_boolean() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
             variant: TypeVariant::Boolean,
         };
 
         let expected = "Boolean";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
+    fn type_display_float64() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Float64,
+        };
+
+        let expected = "Float64";
 
         assert_eq!(r#type.to_string(), expected);
     }

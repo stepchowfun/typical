@@ -2,8 +2,8 @@ use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
     token::{
-        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD,
-        UNSTABLE_KEYWORD,
+        Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
+        IMPORT_KEYWORD, STRUCT_KEYWORD, UNSTABLE_KEYWORD,
     },
 };
 use std::path::Path;
@@ -97,7 +97,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         source_range: SourceRange { start: i, end },
                         variant: Variant::As,
                     });
-                } else if &schema_contents[i..end] == BOOL_KEYWORD {
+                } else if &schema_contents[i..end] == BOOLEAN_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Boolean,
@@ -106,6 +106,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Choice,
+                    });
+                } else if &schema_contents[i..end] == FLOAT64_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Float64,
                     });
                 } else if &schema_contents[i..end] == IMPORT_KEYWORD {
                     tokens.push(Token {
@@ -272,8 +277,8 @@ mod tests {
         assert_fails, assert_same,
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-            STRUCT_KEYWORD, UNSTABLE_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
+            IMPORT_KEYWORD, STRUCT_KEYWORD, UNSTABLE_KEYWORD,
         },
         tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
     };
@@ -288,13 +293,13 @@ mod tests {
             # This is a struct.
             struct plugh {
               qux: bar.Foo = 0
-              corge: unstable int = 1
+              corge: unstable Boolean = 1
             }
 
             # This is a choice.
             choice zyzzy {
               grault: bar.Bar = 0
-              garply: unstable int = 1
+              garply: unstable Float64 = 1
             }
         ";
 
@@ -402,147 +407,147 @@ mod tests {
                 Token {
                     source_range: SourceRange {
                         start: 156,
-                        end: 159,
+                        end: 163,
                     },
-                    variant: Variant::Identifier("int".into()),
+                    variant: Variant::Boolean,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 160,
-                        end: 161,
+                        start: 164,
+                        end: 165,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 162,
-                        end: 163,
+                        start: 166,
+                        end: 167,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 176,
-                        end: 177,
+                        start: 180,
+                        end: 181,
                     },
                     variant: Variant::RightCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 223,
-                        end: 229,
+                        start: 227,
+                        end: 233,
                     },
                     variant: Variant::Choice,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 230,
-                        end: 235,
+                        start: 234,
+                        end: 239,
                     },
                     variant: Variant::Identifier("zyzzy".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 236,
-                        end: 237,
+                        start: 240,
+                        end: 241,
                     },
                     variant: Variant::LeftCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 252,
-                        end: 258,
+                        start: 256,
+                        end: 262,
                     },
                     variant: Variant::Identifier("grault".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 258,
-                        end: 259,
-                    },
-                    variant: Variant::Colon,
-                },
-                Token {
-                    source_range: SourceRange {
-                        start: 260,
+                        start: 262,
                         end: 263,
                     },
-                    variant: Variant::Identifier("bar".into()),
-                },
-                Token {
-                    source_range: SourceRange {
-                        start: 263,
-                        end: 264,
-                    },
-                    variant: Variant::Dot,
+                    variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
                         start: 264,
                         end: 267,
                     },
-                    variant: Variant::Identifier("Bar".into()),
+                    variant: Variant::Identifier("bar".into()),
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 267,
+                        end: 268,
+                    },
+                    variant: Variant::Dot,
                 },
                 Token {
                     source_range: SourceRange {
                         start: 268,
-                        end: 269,
+                        end: 271,
+                    },
+                    variant: Variant::Identifier("Bar".into()),
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 272,
+                        end: 273,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 270,
-                        end: 271,
+                        start: 274,
+                        end: 275,
                     },
                     variant: Variant::Integer(0),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 286,
-                        end: 292,
+                        start: 290,
+                        end: 296,
                     },
                     variant: Variant::Identifier("garply".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 292,
-                        end: 293,
+                        start: 296,
+                        end: 297,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 294,
-                        end: 302,
+                        start: 298,
+                        end: 306,
                     },
                     variant: Variant::Unstable,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 303,
-                        end: 306,
+                        start: 307,
+                        end: 314,
                     },
-                    variant: Variant::Identifier("int".into()),
+                    variant: Variant::Float64,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 307,
-                        end: 308,
+                        start: 315,
+                        end: 316,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 309,
-                        end: 310,
+                        start: 317,
+                        end: 318,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 323,
-                        end: 324,
+                        start: 331,
+                        end: 332,
                     },
                     variant: Variant::RightCurly,
                 },
@@ -583,13 +588,13 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_bool() {
+    fn tokenize_boolean() {
         assert_same!(
-            tokenize(Path::new("foo.t"), BOOL_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), BOOLEAN_KEYWORD).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
-                    end: BOOL_KEYWORD.len(),
+                    end: BOOLEAN_KEYWORD.len(),
                 },
                 variant: Variant::Boolean,
             }],
@@ -639,6 +644,20 @@ mod tests {
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Equals,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_float64() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), FLOAT64_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: FLOAT64_KEYWORD.len(),
+                },
+                variant: Variant::Float64,
             }],
         );
     }

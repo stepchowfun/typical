@@ -6,8 +6,9 @@ use std::{
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
-pub const BOOL_KEYWORD: &str = "Boolean";
+pub const BOOLEAN_KEYWORD: &str = "Boolean";
 pub const CHOICE_KEYWORD: &str = "choice";
+pub const FLOAT64_KEYWORD: &str = "Float64";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const STRUCT_KEYWORD: &str = "struct";
 pub const UNSTABLE_KEYWORD: &str = "unstable";
@@ -29,6 +30,7 @@ pub enum Variant {
     Colon,
     Dot,
     Equals,
+    Float64,
     Identifier(Identifier),
     Import,
     Integer(usize),
@@ -49,11 +51,12 @@ impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
-            Self::Boolean => write!(f, "{}", BOOL_KEYWORD),
+            Self::Boolean => write!(f, "{}", BOOLEAN_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
+            Self::Float64 => write!(f, "{}", FLOAT64_KEYWORD),
             Self::Identifier(name) => write!(f, "{}", name.original()),
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
@@ -71,8 +74,8 @@ mod tests {
     use crate::{
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, CHOICE_KEYWORD, IMPORT_KEYWORD,
-            STRUCT_KEYWORD, UNSTABLE_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
+            IMPORT_KEYWORD, STRUCT_KEYWORD, UNSTABLE_KEYWORD,
         },
     };
     use std::path::Path;
@@ -98,7 +101,7 @@ mod tests {
 
     #[test]
     fn variant_bool_display() {
-        assert_eq!(format!("{}", Variant::Boolean), BOOL_KEYWORD);
+        assert_eq!(format!("{}", Variant::Boolean), BOOLEAN_KEYWORD);
     }
 
     #[test]
@@ -119,6 +122,11 @@ mod tests {
     #[test]
     fn variant_equals_display() {
         assert_eq!(format!("{}", Variant::Equals), "=");
+    }
+
+    #[test]
+    fn variant_float64_display() {
+        assert_eq!(format!("{}", Variant::Float64), FLOAT64_KEYWORD);
     }
 
     #[test]

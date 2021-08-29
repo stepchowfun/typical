@@ -71,7 +71,7 @@ pub fn validate(
 
                         // Validate the type.
                         match &field.r#type.variant {
-                            schema::TypeVariant::Boolean => {}
+                            schema::TypeVariant::Boolean | schema::TypeVariant::Float64 => {}
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
                                 let type_namespace = if let Some(import) = import {
@@ -216,7 +216,7 @@ fn check_type_for_cycles(
         schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
             for field in fields {
                 match &field.r#type.variant {
-                    schema::TypeVariant::Boolean => {}
+                    schema::TypeVariant::Boolean | schema::TypeVariant::Float64 => {}
                     schema::TypeVariant::Custom(import, type_name) => {
                         let type_namespace = import.as_ref().map_or_else(
                             || namespace.clone(),
@@ -304,7 +304,7 @@ mod tests {
         let bar_contents = "
             choice Bar {
               x: Boolean = 0
-              y: Boolean = 1
+              y: Float64 = 1
             }
         "
         .to_owned();
@@ -332,7 +332,7 @@ mod tests {
         let contents = "
             struct Bar {
               x: Boolean = 0
-              x: Boolean = 1
+              x: Float64 = 1
             }
         "
         .to_owned();
@@ -357,7 +357,7 @@ mod tests {
         let contents = "
             struct Bar {
               x: Boolean = 0
-              y: Boolean = 0
+              y: Float64 = 0
             }
         "
         .to_owned();
@@ -382,7 +382,7 @@ mod tests {
         let contents = "
             choice Bar {
               x: Boolean = 0
-              x: Boolean = 1
+              x: Float64 = 1
             }
         "
         .to_owned();
@@ -407,7 +407,7 @@ mod tests {
         let contents = "
             choice Bar {
               x: Boolean = 0
-              y: Boolean = 0
+              y: Float64 = 0
             }
         "
         .to_owned();
