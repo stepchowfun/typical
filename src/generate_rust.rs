@@ -92,21 +92,21 @@ pub fn generate(
 
 #[rustfmt::skip]
 use std::{{
-    error,
+    error::Error,
     fmt::{{self, Display, Formatter}},
-    io::{{BufRead, Error, Write}},
+    io::{{self, BufRead, Write}},
 }};
 
 #[rustfmt::skip]
 #[derive(Debug)]
 pub enum SerializeError {{
-    WriteError(Error),
+    WriteError(io::Error),
 }}
 
 #[rustfmt::skip]
 #[derive(Debug)]
 pub enum DeserializeError {{
-    ReadError(Error),
+    ReadError(io::Error),
 }}
 
 #[rustfmt::skip]
@@ -121,7 +121,15 @@ impl Display for SerializeError {{
 }}
 
 #[rustfmt::skip]
-impl error::Error for SerializeError {{}}
+impl Error for SerializeError {{
+    fn source(&self) -> Option<&(dyn Error + 'static)> {{
+        match self {{
+            SerializeError::WriteError(err) => {{
+                Some(err)
+            }}
+        }}
+    }}
+}}
 
 #[rustfmt::skip]
 impl Display for DeserializeError {{
@@ -135,7 +143,15 @@ impl Display for DeserializeError {{
 }}
 
 #[rustfmt::skip]
-impl error::Error for DeserializeError {{}}
+impl Error for DeserializeError {{
+    fn source(&self) -> Option<&(dyn Error + 'static)> {{
+        match self {{
+            DeserializeError::ReadError(err) => {{
+                Some(err)
+            }}
+        }}
+    }}
+}}
 
 #[rustfmt::skip]
 pub trait Serialize {{
@@ -694,21 +710,21 @@ mod tests {
 
 #[rustfmt::skip]
 use std::{
-    error,
+    error::Error,
     fmt::{self, Display, Formatter},
-    io::{BufRead, Error, Write},
+    io::{self, BufRead, Write},
 };
 
 #[rustfmt::skip]
 #[derive(Debug)]
 pub enum SerializeError {
-    WriteError(Error),
+    WriteError(io::Error),
 }
 
 #[rustfmt::skip]
 #[derive(Debug)]
 pub enum DeserializeError {
-    ReadError(Error),
+    ReadError(io::Error),
 }
 
 #[rustfmt::skip]
@@ -723,7 +739,15 @@ impl Display for SerializeError {
 }
 
 #[rustfmt::skip]
-impl error::Error for SerializeError {}
+impl Error for SerializeError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            SerializeError::WriteError(err) => {
+                Some(err)
+            }
+        }
+    }
+}
 
 #[rustfmt::skip]
 impl Display for DeserializeError {
@@ -737,7 +761,15 @@ impl Display for DeserializeError {
 }
 
 #[rustfmt::skip]
-impl error::Error for DeserializeError {}
+impl Error for DeserializeError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            DeserializeError::ReadError(err) => {
+                Some(err)
+            }
+        }
+    }
+}
 
 #[rustfmt::skip]
 pub trait Serialize {
