@@ -132,7 +132,8 @@ tasks:
         cargo check --locked && \
         cargo clippy --all-targets --all-features -- \
           --deny warnings --deny clippy::all --deny clippy::pedantic && \
-        cargo +nightly-2021-06-09 fmt --all -- --check
+        cargo +nightly-2021-06-09 fmt --all -- --check && \
+        cargo run --locked
       )
 
   lint:

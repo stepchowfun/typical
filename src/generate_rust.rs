@@ -58,6 +58,7 @@ enum ChoiceFlavor {
 use ChoiceFlavor::{InOrOut, OutStable};
 
 // Generate Rust code from a schema and its transitive dependencies.
+#[allow(clippy::too_many_lines)]
 pub fn generate(
     typical_version: &str,
     schemas: BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
@@ -89,17 +90,52 @@ pub fn generate(
 
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
-use std::io::{{BufRead, Error, Write}};
+#[rustfmt::skip]
+use std::{{
+    error,
+    fmt::{{self, Display, Formatter}},
+    io::{{BufRead, Error, Write}},
+}};
 
 #[rustfmt::skip]
+#[derive(Debug)]
 pub enum SerializeError {{
     WriteError(Error),
 }}
 
 #[rustfmt::skip]
+#[derive(Debug)]
 pub enum DeserializeError {{
     ReadError(Error),
 }}
+
+#[rustfmt::skip]
+impl Display for SerializeError {{
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {{
+        match self {{
+            SerializeError::WriteError(err) => {{
+                write!(f, \"{{}}\", err)
+            }}
+        }}
+    }}
+}}
+
+#[rustfmt::skip]
+impl error::Error for SerializeError {{}}
+
+#[rustfmt::skip]
+impl Display for DeserializeError {{
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {{
+        match self {{
+            DeserializeError::ReadError(err) => {{
+                write!(f, \"{{}}\", err)
+            }}
+        }}
+    }}
+}}
+
+#[rustfmt::skip]
+impl error::Error for DeserializeError {{}}
 
 #[rustfmt::skip]
 pub trait Serialize {{
@@ -656,17 +692,52 @@ mod tests {
 
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
-use std::io::{BufRead, Error, Write};
+#[rustfmt::skip]
+use std::{
+    error,
+    fmt::{self, Display, Formatter},
+    io::{BufRead, Error, Write},
+};
 
 #[rustfmt::skip]
+#[derive(Debug)]
 pub enum SerializeError {
     WriteError(Error),
 }
 
 #[rustfmt::skip]
+#[derive(Debug)]
 pub enum DeserializeError {
     ReadError(Error),
 }
+
+#[rustfmt::skip]
+impl Display for SerializeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            SerializeError::WriteError(err) => {
+                write!(f, \"{}\", err)
+            }
+        }
+    }
+}
+
+#[rustfmt::skip]
+impl error::Error for SerializeError {}
+
+#[rustfmt::skip]
+impl Display for DeserializeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            DeserializeError::ReadError(err) => {
+                write!(f, \"{}\", err)
+            }
+        }
+    }
+}
+
+#[rustfmt::skip]
+impl error::Error for DeserializeError {}
 
 #[rustfmt::skip]
 pub trait Serialize {
