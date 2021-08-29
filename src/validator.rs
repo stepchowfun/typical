@@ -71,7 +71,7 @@ pub fn validate(
 
                         // Validate the type.
                         match &field.r#type.variant {
-                            schema::TypeVariant::Bool => {}
+                            schema::TypeVariant::Boolean => {}
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
                                 let type_namespace = if let Some(import) = import {
@@ -216,7 +216,7 @@ fn check_type_for_cycles(
         schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
             for field in fields {
                 match &field.r#type.variant {
-                    schema::TypeVariant::Bool => {}
+                    schema::TypeVariant::Boolean => {}
                     schema::TypeVariant::Custom(import, type_name) => {
                         let type_namespace = import.as_ref().map_or_else(
                             || namespace.clone(),
@@ -303,8 +303,8 @@ mod tests {
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
             choice Bar {
-              x: Bool = 0
-              y: Bool = 1
+              x: Boolean = 0
+              y: Boolean = 1
             }
         "
         .to_owned();
@@ -331,8 +331,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Bar {
-              x: Bool = 0
-              x: Bool = 1
+              x: Boolean = 0
+              x: Boolean = 1
             }
         "
         .to_owned();
@@ -356,8 +356,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Bar {
-              x: Bool = 0
-              y: Bool = 0
+              x: Boolean = 0
+              y: Boolean = 0
             }
         "
         .to_owned();
@@ -381,8 +381,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             choice Bar {
-              x: Bool = 0
-              x: Bool = 1
+              x: Boolean = 0
+              x: Boolean = 1
             }
         "
         .to_owned();
@@ -406,8 +406,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             choice Bar {
-              x: Bool = 0
-              y: Bool = 0
+              x: Boolean = 0
+              y: Boolean = 0
             }
         "
         .to_owned();

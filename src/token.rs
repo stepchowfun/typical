@@ -6,7 +6,7 @@ use std::{
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
-pub const BOOL_KEYWORD: &str = "Bool";
+pub const BOOL_KEYWORD: &str = "Boolean";
 pub const CHOICE_KEYWORD: &str = "choice";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const STRUCT_KEYWORD: &str = "struct";
@@ -24,7 +24,7 @@ pub struct Token {
 #[derive(Clone, Debug)]
 pub enum Variant {
     As,
-    Bool,
+    Boolean,
     Choice,
     Colon,
     Dot,
@@ -49,7 +49,7 @@ impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
-            Self::Bool => write!(f, "{}", BOOL_KEYWORD),
+            Self::Boolean => write!(f, "{}", BOOL_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn variant_bool_display() {
-        assert_eq!(format!("{}", Variant::Bool), BOOL_KEYWORD);
+        assert_eq!(format!("{}", Variant::Boolean), BOOL_KEYWORD);
     }
 
     #[test]
