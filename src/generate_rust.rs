@@ -140,6 +140,33 @@ impl Deserialize for bool {{
             .map_err(DeserializeError::ReadError)?;
         Ok(buffer[0] != 0)
     }}
+}}
+
+#[rustfmt::skip]
+impl Serialize for f64 {{
+    fn size(&self) -> usize {{
+        8
+    }}
+
+    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {{
+        writer
+            .write_all(&self.to_le_bytes())
+            .map_err(SerializeError::WriteError)
+    }}
+}}
+
+#[rustfmt::skip]
+impl Deserialize for f64 {{
+    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    where
+        Self: Sized,
+    {{
+        let mut buffer = [0; 8];
+        reader
+            .read_exact(&mut buffer)
+            .map_err(DeserializeError::ReadError)?;
+        Ok(f64::from_le_bytes(buffer))
+    }}
 }}",
             typical_version,
         )
@@ -490,6 +517,9 @@ fn write_type<T: Write>(
         schema::TypeVariant::Boolean => {
             write!(buffer, "bool")?;
         }
+        schema::TypeVariant::Float64 => {
+            write!(buffer, "f64")?;
+        }
         schema::TypeVariant::Custom(import, name) => {
             let type_namespace = schema::Namespace {
                 components: import.as_ref().map_or_else(
@@ -680,6 +710,33 @@ impl Deserialize for bool {
 }
 
 #[rustfmt::skip]
+impl Serialize for f64 {
+    fn size(&self) -> usize {
+        8
+    }
+
+    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {
+        writer
+            .write_all(&self.to_le_bytes())
+            .map_err(SerializeError::WriteError)
+    }
+}
+
+#[rustfmt::skip]
+impl Deserialize for f64 {
+    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    where
+        Self: Sized,
+    {
+        let mut buffer = [0; 8];
+        reader
+            .read_exact(&mut buffer)
+            .map_err(DeserializeError::ReadError)?;
+        Ok(f64::from_le_bytes(buffer))
+    }
+}
+
+#[rustfmt::skip]
 pub mod basic {
     #[rustfmt::skip]
     pub mod unit {
@@ -727,7 +784,7 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub enum BarIn {
         X(bool),
-        Y(bool),
+        Y(f64),
         Z(super::basic::void::VoidIn),
         W(super::basic::void::VoidIn),
         S(super::basic::unit::UnitIn),
@@ -737,7 +794,7 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub enum BarOut {
         X(bool),
-        Y(bool, Vec<BarOut>, BarOutStable),
+        Y(f64, Vec<BarOut>, BarOutStable),
         Z(super::basic::void::VoidOut),
         W(super::basic::void::VoidOut, Vec<BarOut>, BarOutStable),
         S(super::basic::unit::UnitOut),

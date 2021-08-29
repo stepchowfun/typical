@@ -568,6 +568,13 @@ fn parse_field(
             source_range: span_tokens(tokens, type_start, *position),
             variant: schema::TypeVariant::Boolean,
         }
+    } else if let token::Variant::Float64 = tokens[*position].variant {
+        *position += 1;
+
+        schema::Type {
+            source_range: span_tokens(tokens, type_start, *position),
+            variant: schema::TypeVariant::Float64,
+        }
     } else {
         let (import_name, r#type_name) = if *position < tokens.len() - 2 {
             if let Some(token::Variant::Dot) = tokens.get(*position + 1).map(|token| &token.variant)
@@ -706,7 +713,7 @@ mod tests {
             choice Bar {
               x: qux.Qux = 0
               y: unstable int = 1
-              z: Boolean = 2
+              z: Float64 = 2
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
@@ -827,7 +834,7 @@ mod tests {
                         start: 371,
                         end: 378,
                     },
-                    variant: schema::TypeVariant::Boolean,
+                    variant: schema::TypeVariant::Float64,
                 },
                 index: 2,
             },
