@@ -97,6 +97,8 @@ use std::io::{{self, BufRead, Write}};
 pub trait Serialize {{
     fn size(&self) -> usize;
 
+    fn varint_encoded(&self) -> bool;
+
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
 }}
 
@@ -111,6 +113,10 @@ pub trait Deserialize {{
 impl Serialize for bool {{
     fn size(&self) -> usize {{
         1
+    }}
+
+    fn varint_encoded(&self) -> bool {{
+        true
     }}
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
@@ -134,6 +140,10 @@ impl Deserialize for bool {{
 impl Serialize for f64 {{
     fn size(&self) -> usize {{
         8
+    }}
+
+    fn varint_encoded(&self) -> bool {{
+        false
     }}
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
@@ -647,6 +657,8 @@ use std::io::{self, BufRead, Write};
 pub trait Serialize {
     fn size(&self) -> usize;
 
+    fn varint_encoded(&self) -> bool;
+
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
 }
 
@@ -661,6 +673,10 @@ pub trait Deserialize {
 impl Serialize for bool {
     fn size(&self) -> usize {
         1
+    }
+
+    fn varint_encoded(&self) -> bool {
+        true
     }
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
@@ -684,6 +700,10 @@ impl Deserialize for bool {
 impl Serialize for f64 {
     fn size(&self) -> usize {
         8
+    }
+
+    fn varint_encoded(&self) -> bool {
+        false
     }
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
