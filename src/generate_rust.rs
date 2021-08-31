@@ -91,7 +91,56 @@ pub fn generate(
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::io::{{self, BufRead, Write}};
+use std::{{
+    io::{{self, BufRead, Write}},
+    mem::size_of,
+}};
+
+#[rustfmt::skip]
+macro_rules! write_varint {{
+    ($writer:expr, $x:expr, $type:ty $(,)?) => {{{{
+        let writer = $writer;
+        let mut x: $type = $x;
+
+        loop {{
+            let septet = x as u8;
+            x >>= 7;
+
+            if x == 0 {{
+                writer.write_all(&[septet & 0b01111111])?;
+                break;
+            }}
+
+            writer.write_all(&[septet | 0b10000000])?;
+        }}
+
+        io::Result::Ok(())
+    }}}};
+}}
+
+#[rustfmt::skip]
+macro_rules! read_varint {{
+    ($reader:expr, $type:ty $(,)?) => {{{{
+        let reader = $reader;
+        let mut x: $type = 0;
+        let mut bits: usize = 0;
+        let max_bits: usize = size_of::<$type>() * 8;
+
+        while bits < max_bits {{
+            let mut buffer = [0];
+            reader.read_exact(&mut buffer)?;
+            let septet = buffer[0];
+            x |= ((septet & 0b01111111) as $type) << bits;
+            bits += 7;
+
+            if septet & 0b10000000 == 0 {{
+                break;
+            }}
+        }}
+
+        io::Result::Ok(x)
+    }}}};
+}}
 
 #[rustfmt::skip]
 pub trait Serialize {{
@@ -120,7 +169,7 @@ impl Serialize for bool {{
     }}
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
-        writer.write_all(&[if *self {{ 1 }} else {{ 0 }}])
+        write_varint!(writer, if *self {{ 1 }} else {{ 0 }}, u8)
     }}
 }}
 
@@ -130,9 +179,7 @@ impl Deserialize for bool {{
     where
         Self: Sized,
     {{
-        let mut buffer = [0];
-        reader.read_exact(&mut buffer)?;
-        Ok(buffer[0] != 0)
+        Ok(read_varint!(reader, u8)? != 0)
     }}
 }}
 
@@ -651,7 +698,56 @@ mod tests {
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::io::{self, BufRead, Write};
+use std::{
+    io::{self, BufRead, Write},
+    mem::size_of,
+};
+
+#[rustfmt::skip]
+macro_rules! write_varint {
+    ($writer:expr, $x:expr, $type:ty $(,)?) => {{
+        let writer = $writer;
+        let mut x: $type = $x;
+
+        loop {
+            let septet = x as u8;
+            x >>= 7;
+
+            if x == 0 {
+                writer.write_all(&[septet & 0b01111111])?;
+                break;
+            }
+
+            writer.write_all(&[septet | 0b10000000])?;
+        }
+
+        io::Result::Ok(())
+    }};
+}
+
+#[rustfmt::skip]
+macro_rules! read_varint {
+    ($reader:expr, $type:ty $(,)?) => {{
+        let reader = $reader;
+        let mut x: $type = 0;
+        let mut bits: usize = 0;
+        let max_bits: usize = size_of::<$type>() * 8;
+
+        while bits < max_bits {
+            let mut buffer = [0];
+            reader.read_exact(&mut buffer)?;
+            let septet = buffer[0];
+            x |= ((septet & 0b01111111) as $type) << bits;
+            bits += 7;
+
+            if septet & 0b10000000 == 0 {
+                break;
+            }
+        }
+
+        io::Result::Ok(x)
+    }};
+}
 
 #[rustfmt::skip]
 pub trait Serialize {
@@ -680,7 +776,7 @@ impl Serialize for bool {
     }
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
-        writer.write_all(&[if *self { 1 } else { 0 }])
+        write_varint!(writer, if *self { 1 } else { 0 }, u8)
     }
 }
 
@@ -690,9 +786,7 @@ impl Deserialize for bool {
     where
         Self: Sized,
     {
-        let mut buffer = [0];
-        reader.read_exact(&mut buffer)?;
-        Ok(buffer[0] != 0)
+        Ok(read_varint!(reader, u8)? != 0)
     }
 }
 
