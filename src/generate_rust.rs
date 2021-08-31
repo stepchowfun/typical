@@ -91,78 +91,18 @@ pub fn generate(
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::{{
-    error::Error,
-    fmt::{{self, Display, Formatter}},
-    io::{{self, BufRead, Write}},
-}};
-
-#[rustfmt::skip]
-#[derive(Debug)]
-pub enum SerializeError {{
-    WriteError(io::Error),
-}}
-
-#[rustfmt::skip]
-#[derive(Debug)]
-pub enum DeserializeError {{
-    ReadError(io::Error),
-}}
-
-#[rustfmt::skip]
-impl Display for SerializeError {{
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {{
-        match self {{
-            SerializeError::WriteError(err) => {{
-                write!(f, \"{{}}\", err)
-            }}
-        }}
-    }}
-}}
-
-#[rustfmt::skip]
-impl Error for SerializeError {{
-    fn source(&self) -> Option<&(dyn Error + 'static)> {{
-        match self {{
-            SerializeError::WriteError(err) => {{
-                Some(err)
-            }}
-        }}
-    }}
-}}
-
-#[rustfmt::skip]
-impl Display for DeserializeError {{
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {{
-        match self {{
-            DeserializeError::ReadError(err) => {{
-                write!(f, \"{{}}\", err)
-            }}
-        }}
-    }}
-}}
-
-#[rustfmt::skip]
-impl Error for DeserializeError {{
-    fn source(&self) -> Option<&(dyn Error + 'static)> {{
-        match self {{
-            DeserializeError::ReadError(err) => {{
-                Some(err)
-            }}
-        }}
-    }}
-}}
+use std::io::{{self, BufRead, Write}};
 
 #[rustfmt::skip]
 pub trait Serialize {{
     fn size(&self) -> usize;
 
-    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError>;
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
 }}
 
 #[rustfmt::skip]
 pub trait Deserialize {{
-    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
     where
         Self: Sized;
 }}
@@ -173,23 +113,19 @@ impl Serialize for bool {{
         1
     }}
 
-    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {{
-        writer
-            .write_all(&[if *self {{ 1 }} else {{ 0 }}])
-            .map_err(SerializeError::WriteError)
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
+        writer.write_all(&[if *self {{ 1 }} else {{ 0 }}])
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for bool {{
-    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {{
         let mut buffer = [0];
-        reader
-            .read_exact(&mut buffer)
-            .map_err(DeserializeError::ReadError)?;
+        reader.read_exact(&mut buffer)?;
         Ok(buffer[0] != 0)
     }}
 }}
@@ -200,23 +136,19 @@ impl Serialize for f64 {{
         8
     }}
 
-    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {{
-        writer
-            .write_all(&self.to_le_bytes())
-            .map_err(SerializeError::WriteError)
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
+        writer.write_all(&self.to_le_bytes())
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for f64 {{
-    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {{
         let mut buffer = [0; 8];
-        reader
-            .read_exact(&mut buffer)
-            .map_err(DeserializeError::ReadError)?;
+        reader.read_exact(&mut buffer)?;
         Ok(f64::from_le_bytes(buffer))
     }}
 }}",
@@ -709,78 +641,18 @@ mod tests {
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::{
-    error::Error,
-    fmt::{self, Display, Formatter},
-    io::{self, BufRead, Write},
-};
-
-#[rustfmt::skip]
-#[derive(Debug)]
-pub enum SerializeError {
-    WriteError(io::Error),
-}
-
-#[rustfmt::skip]
-#[derive(Debug)]
-pub enum DeserializeError {
-    ReadError(io::Error),
-}
-
-#[rustfmt::skip]
-impl Display for SerializeError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            SerializeError::WriteError(err) => {
-                write!(f, \"{}\", err)
-            }
-        }
-    }
-}
-
-#[rustfmt::skip]
-impl Error for SerializeError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            SerializeError::WriteError(err) => {
-                Some(err)
-            }
-        }
-    }
-}
-
-#[rustfmt::skip]
-impl Display for DeserializeError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            DeserializeError::ReadError(err) => {
-                write!(f, \"{}\", err)
-            }
-        }
-    }
-}
-
-#[rustfmt::skip]
-impl Error for DeserializeError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            DeserializeError::ReadError(err) => {
-                Some(err)
-            }
-        }
-    }
-}
+use std::io::{self, BufRead, Write};
 
 #[rustfmt::skip]
 pub trait Serialize {
     fn size(&self) -> usize;
 
-    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError>;
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
 }
 
 #[rustfmt::skip]
 pub trait Deserialize {
-    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
     where
         Self: Sized;
 }
@@ -791,23 +663,19 @@ impl Serialize for bool {
         1
     }
 
-    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {
-        writer
-            .write_all(&[if *self { 1 } else { 0 }])
-            .map_err(SerializeError::WriteError)
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
+        writer.write_all(&[if *self { 1 } else { 0 }])
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for bool {
-    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {
         let mut buffer = [0];
-        reader
-            .read_exact(&mut buffer)
-            .map_err(DeserializeError::ReadError)?;
+        reader.read_exact(&mut buffer)?;
         Ok(buffer[0] != 0)
     }
 }
@@ -818,23 +686,19 @@ impl Serialize for f64 {
         8
     }
 
-    fn serialize(&self, writer: &mut impl Write) -> Result<(), SerializeError> {
-        writer
-            .write_all(&self.to_le_bytes())
-            .map_err(SerializeError::WriteError)
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
+        writer.write_all(&self.to_le_bytes())
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for f64 {
-    fn deserialize(reader: &mut impl BufRead) -> Result<Self, DeserializeError>
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {
         let mut buffer = [0; 8];
-        reader
-            .read_exact(&mut buffer)
-            .map_err(DeserializeError::ReadError)?;
+        reader.read_exact(&mut buffer)?;
         Ok(f64::from_le_bytes(buffer))
     }
 }
