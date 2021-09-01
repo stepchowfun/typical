@@ -91,56 +91,7 @@ pub fn generate(
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::{{
-    io::{{self, BufRead, Write}},
-    mem::size_of,
-}};
-
-#[rustfmt::skip]
-macro_rules! write_varint {{
-    ($writer:expr, $x:expr, $type:ty $(,)?) => {{{{
-        let writer = $writer;
-        let mut x: $type = $x;
-
-        loop {{
-            let septet = x as u8;
-            x >>= 7;
-
-            if x == 0 {{
-                writer.write_all(&[septet & 0b01111111])?;
-                break;
-            }}
-
-            writer.write_all(&[septet | 0b10000000])?;
-        }}
-
-        io::Result::Ok(())
-    }}}};
-}}
-
-#[rustfmt::skip]
-macro_rules! read_varint {{
-    ($reader:expr, $type:ty $(,)?) => {{{{
-        let reader = $reader;
-        let mut x: $type = 0;
-        let mut bits: usize = 0;
-        let max_bits: usize = size_of::<$type>() * 8;
-
-        while bits < max_bits {{
-            let mut buffer = [0];
-            reader.read_exact(&mut buffer)?;
-            let septet = buffer[0];
-            x |= ((septet & 0b01111111) as $type) << bits;
-            bits += 7;
-
-            if septet & 0b10000000 == 0 {{
-                break;
-            }}
-        }}
-
-        io::Result::Ok(x)
-    }}}};
-}}
+use std::io::{{self, BufRead, Error, ErrorKind, Write}};
 
 #[rustfmt::skip]
 pub trait Serialize {{
@@ -169,7 +120,7 @@ impl Serialize for bool {{
     }}
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
-        write_varint!(writer, if *self {{ 1 }} else {{ 0 }}, u8)
+        (if *self {{ 1u64 }} else {{ 0u64 }}).serialize(writer)
     }}
 }}
 
@@ -179,7 +130,82 @@ impl Deserialize for bool {{
     where
         Self: Sized,
     {{
-        Ok(read_varint!(reader, u8)? != 0)
+        Ok(u64::deserialize(reader)? != 0)
+    }}
+}}
+
+#[rustfmt::skip]
+impl Serialize for u64 {{
+    fn size(&self) -> usize {{
+        let mut size = 1u64;
+        let mut upper_bound_exclusive = 0u64;
+
+        while size < 9u64 {{
+            upper_bound_exclusive += 1u64 << (size * 7u64);
+
+            if *self < upper_bound_exclusive {{
+                break;
+            }}
+
+            size += 1u64;
+        }}
+
+        size as usize
+    }}
+
+    fn varint_encoded(&self) -> bool {{
+        true
+    }}
+
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
+        let size = self.size();
+        let size_minus_one = size - 1;
+
+        let mut x = *self;
+        for i in 1..size {{
+            x -= 1u64 << (i * 7);
+        }}
+
+        writer.write_all(&[((x << size) | (1u64 << size_minus_one)) as u8])?;
+        x >>= 8usize.saturating_sub(size);
+
+        for i in 0..size_minus_one {{
+            writer.write_all(&[x as u8])?;
+            x >>= 8;
+        }}
+
+        Ok(())
+    }}
+}}
+
+#[rustfmt::skip]
+impl Deserialize for u64 {{
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    where
+        Self: Sized,
+    {{
+        let mut buffer = [0; 9];
+        reader.read_exact(&mut buffer[0..1])?;
+        let first_byte = buffer[0];
+        let size = first_byte.trailing_zeros() as usize + 1;
+
+        reader.read_exact(&mut buffer[1..size])?;
+
+        let mut x = (first_byte as u64) >> size;
+        let mut bits_read = 8usize.saturating_sub(size);
+
+        for i in 1..size {{
+            x |= (buffer[i] as u64) << bits_read;
+            bits_read += 8;
+        }}
+
+        for i in 1..size {{
+            x = x
+                .checked_add(1u64 << (i * 7))
+                .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Invalid 64-bit integer.\"))?;
+        }}
+
+        Ok(x)
     }}
 }}
 
@@ -698,56 +724,7 @@ mod tests {
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::{
-    io::{self, BufRead, Write},
-    mem::size_of,
-};
-
-#[rustfmt::skip]
-macro_rules! write_varint {
-    ($writer:expr, $x:expr, $type:ty $(,)?) => {{
-        let writer = $writer;
-        let mut x: $type = $x;
-
-        loop {
-            let septet = x as u8;
-            x >>= 7;
-
-            if x == 0 {
-                writer.write_all(&[septet & 0b01111111])?;
-                break;
-            }
-
-            writer.write_all(&[septet | 0b10000000])?;
-        }
-
-        io::Result::Ok(())
-    }};
-}
-
-#[rustfmt::skip]
-macro_rules! read_varint {
-    ($reader:expr, $type:ty $(,)?) => {{
-        let reader = $reader;
-        let mut x: $type = 0;
-        let mut bits: usize = 0;
-        let max_bits: usize = size_of::<$type>() * 8;
-
-        while bits < max_bits {
-            let mut buffer = [0];
-            reader.read_exact(&mut buffer)?;
-            let septet = buffer[0];
-            x |= ((septet & 0b01111111) as $type) << bits;
-            bits += 7;
-
-            if septet & 0b10000000 == 0 {
-                break;
-            }
-        }
-
-        io::Result::Ok(x)
-    }};
-}
+use std::io::{self, BufRead, Error, ErrorKind, Write};
 
 #[rustfmt::skip]
 pub trait Serialize {
@@ -776,7 +753,7 @@ impl Serialize for bool {
     }
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
-        write_varint!(writer, if *self { 1 } else { 0 }, u8)
+        (if *self { 1u64 } else { 0u64 }).serialize(writer)
     }
 }
 
@@ -786,7 +763,82 @@ impl Deserialize for bool {
     where
         Self: Sized,
     {
-        Ok(read_varint!(reader, u8)? != 0)
+        Ok(u64::deserialize(reader)? != 0)
+    }
+}
+
+#[rustfmt::skip]
+impl Serialize for u64 {
+    fn size(&self) -> usize {
+        let mut size = 1u64;
+        let mut upper_bound_exclusive = 0u64;
+
+        while size < 9u64 {
+            upper_bound_exclusive += 1u64 << (size * 7u64);
+
+            if *self < upper_bound_exclusive {
+                break;
+            }
+
+            size += 1u64;
+        }
+
+        size as usize
+    }
+
+    fn varint_encoded(&self) -> bool {
+        true
+    }
+
+    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
+        let size = self.size();
+        let size_minus_one = size - 1;
+
+        let mut x = *self;
+        for i in 1..size {
+            x -= 1u64 << (i * 7);
+        }
+
+        writer.write_all(&[((x << size) | (1u64 << size_minus_one)) as u8])?;
+        x >>= 8usize.saturating_sub(size);
+
+        for i in 0..size_minus_one {
+            writer.write_all(&[x as u8])?;
+            x >>= 8;
+        }
+
+        Ok(())
+    }
+}
+
+#[rustfmt::skip]
+impl Deserialize for u64 {
+    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    where
+        Self: Sized,
+    {
+        let mut buffer = [0; 9];
+        reader.read_exact(&mut buffer[0..1])?;
+        let first_byte = buffer[0];
+        let size = first_byte.trailing_zeros() as usize + 1;
+
+        reader.read_exact(&mut buffer[1..size])?;
+
+        let mut x = (first_byte as u64) >> size;
+        let mut bits_read = 8usize.saturating_sub(size);
+
+        for i in 1..size {
+            x |= (buffer[i] as u64) << bits_read;
+            bits_read += 8;
+        }
+
+        for i in 1..size {
+            x = x
+                .checked_add(1u64 << (i * 7))
+                .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Invalid 64-bit integer.\"))?;
+        }
+
+        Ok(x)
     }
 }
 
