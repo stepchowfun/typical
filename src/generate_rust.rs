@@ -130,7 +130,14 @@ impl Deserialize for bool {{
     where
         Self: Sized,
     {{
-        Ok(u64::deserialize(reader)? != 0)
+        match u64::deserialize(reader)? {{
+            0 => Ok(false),
+            1 => Ok(true),
+            _ => Err(Error::new(
+                ErrorKind::InvalidData,
+                \"Error decoding Boolean.\",
+            )),
+        }}
     }}
 }}
 
@@ -200,9 +207,9 @@ impl Deserialize for u64 {{
         }}
 
         for i in 1..size {{
-            x = x
-                .checked_add(1u64 << (i * 7))
-                .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Invalid 64-bit integer.\"))?;
+            x = x.checked_add(1u64 << (i * 7)).ok_or_else(|| {{
+                Error::new(ErrorKind::InvalidData, \"Error decoding 64-bit integer.\")
+            }})?;
         }}
 
         Ok(x)
@@ -763,7 +770,14 @@ impl Deserialize for bool {
     where
         Self: Sized,
     {
-        Ok(u64::deserialize(reader)? != 0)
+        match u64::deserialize(reader)? {
+            0 => Ok(false),
+            1 => Ok(true),
+            _ => Err(Error::new(
+                ErrorKind::InvalidData,
+                \"Error decoding Boolean.\",
+            )),
+        }
     }
 }
 
@@ -833,9 +847,9 @@ impl Deserialize for u64 {
         }
 
         for i in 1..size {
-            x = x
-                .checked_add(1u64 << (i * 7))
-                .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Invalid 64-bit integer.\"))?;
+            x = x.checked_add(1u64 << (i * 7)).ok_or_else(|| {
+                Error::new(ErrorKind::InvalidData, \"Error decoding 64-bit integer.\")
+            })?;
         }
 
         Ok(x)
