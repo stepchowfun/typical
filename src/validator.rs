@@ -9,6 +9,10 @@ use std::{
     path::PathBuf,
 };
 
+// The index will be encoded as a 64-bit integer, but two of the bits are used to help encode the
+// size of the field. So the maximum index is 2^62 - 1.
+const MAX_FIELD_INDEX: usize = (1 << 62) - 1;
+
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
 pub fn validate(
@@ -62,6 +66,20 @@ pub fn validate(
                                 &format!(
                                     "A field with index {} already exists in this declaration.",
                                     field.index.to_string().code_str(),
+                                ),
+                                Some(source_path),
+                                Some(&listing(source_contents, field.source_range)),
+                                None,
+                            ));
+                        }
+
+                        // Check that the index isn't too big.
+                        if field.index > MAX_FIELD_INDEX {
+                            errors.push(throw::<Error>(
+                                &format!(
+                                    "Field index {} is too large. The maximum field index is {}.",
+                                    field.index.to_string().code_str(),
+                                    MAX_FIELD_INDEX.to_string().code_str(),
                                 ),
                                 Some(source_path),
                                 Some(&listing(source_contents, field.source_range)),

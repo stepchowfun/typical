@@ -95,9 +95,9 @@ use std::io::{{self, BufRead, Error, ErrorKind, Write}};
 
 #[rustfmt::skip]
 pub trait Serialize {{
-    fn size(&self) -> usize;
+    const VARINT_ENCODED: bool;
 
-    fn varint_encoded(&self) -> bool;
+    fn size(&self) -> u64;
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
 }}
@@ -111,16 +111,14 @@ pub trait Deserialize {{
 
 #[rustfmt::skip]
 impl Serialize for bool {{
-    fn size(&self) -> usize {{
+    const VARINT_ENCODED: bool = true;
+
+    fn size(&self) -> u64 {{
         1
     }}
 
-    fn varint_encoded(&self) -> bool {{
-        true
-    }}
-
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
-        (if *self {{ 1u64 }} else {{ 0u64 }}).serialize(writer)
+        (if *self {{ 1_u64 }} else {{ 0_u64 }}).serialize(writer)
     }}
 }}
 
@@ -143,25 +141,23 @@ impl Deserialize for bool {{
 
 #[rustfmt::skip]
 impl Serialize for u64 {{
-    fn size(&self) -> usize {{
-        let mut size = 1u64;
-        let mut upper_bound_exclusive = 0u64;
+    const VARINT_ENCODED: bool = true;
 
-        while size < 9u64 {{
-            upper_bound_exclusive += 1u64 << (size * 7u64);
+    fn size(&self) -> u64 {{
+        let mut size = 1_u64;
+        let mut upper_bound_exclusive = 0_u64;
+
+        while size < 9_u64 {{
+            upper_bound_exclusive += 1_u64 << (size * 7_u64);
 
             if *self < upper_bound_exclusive {{
                 break;
             }}
 
-            size += 1u64;
+            size += 1_u64;
         }}
 
-        size as usize
-    }}
-
-    fn varint_encoded(&self) -> bool {{
-        true
+        size
     }}
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
@@ -170,13 +166,13 @@ impl Serialize for u64 {{
 
         let mut x = *self;
         for i in 1..size {{
-            x -= 1u64 << (i * 7);
+            x -= 1_u64 << (i * 7);
         }}
 
-        writer.write_all(&[((x << size) | (1u64 << size_minus_one)) as u8])?;
-        x >>= 8usize.saturating_sub(size);
+        writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
+        x >>= 8_u64.saturating_sub(size);
 
-        for i in 0..size_minus_one {{
+        for _ in 0..size_minus_one {{
             writer.write_all(&[x as u8])?;
             x >>= 8;
         }}
@@ -198,16 +194,16 @@ impl Deserialize for u64 {{
 
         reader.read_exact(&mut buffer[1..size])?;
 
-        let mut x = (first_byte as u64) >> size;
-        let mut bits_read = 8usize.saturating_sub(size);
+        let mut x = u64::from(first_byte) >> size;
+        let mut bits_read = 8_usize.saturating_sub(size);
 
-        for i in 1..size {{
-            x |= (buffer[i] as u64) << bits_read;
+        for byte in buffer.iter().skip(1) {{
+            x |= u64::from(*byte) << bits_read;
             bits_read += 8;
         }}
 
         for i in 1..size {{
-            x = x.checked_add(1u64 << (i * 7)).ok_or_else(|| {{
+            x = x.checked_add(1_u64 << (i * 7)).ok_or_else(|| {{
                 Error::new(ErrorKind::InvalidData, \"Error decoding 64-bit integer.\")
             }})?;
         }}
@@ -218,12 +214,10 @@ impl Deserialize for u64 {{
 
 #[rustfmt::skip]
 impl Serialize for f64 {{
-    fn size(&self) -> usize {{
-        8
-    }}
+    const VARINT_ENCODED: bool = false;
 
-    fn varint_encoded(&self) -> bool {{
-        false
+    fn size(&self) -> u64 {{
+        8
     }}
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
@@ -241,6 +235,41 @@ impl Deserialize for f64 {{
         reader.read_exact(&mut buffer)?;
         Ok(f64::from_le_bytes(buffer))
     }}
+}}
+
+#[rustfmt::skip]
+fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
+    if T::VARINT_ENCODED {{
+        ((tag << 2) | 0b00).size() + value.size()
+    }} else {{
+        (match value.size() {{
+            0 => ((tag << 2) | 0b01).size(),
+            8 => ((tag << 2) | 0b10).size(),
+            size => ((tag << 2) | 0b11).size() + size.size(),
+        }}) + value.size()
+    }}
+}}
+
+#[rustfmt::skip]
+fn serialize_field<T: Serialize>(writer: &mut impl Write, tag: u64, value: &T) -> io::Result<()> {{
+    if T::VARINT_ENCODED {{
+        ((tag << 2) | 0b00).serialize(writer)?;
+    }} else {{
+        match value.size() {{
+            0 => {{
+                ((tag << 2) | 0b01).serialize(writer)?;
+            }}
+            8 => {{
+                ((tag << 2) | 0b10).serialize(writer)?;
+            }}
+            size => {{
+                ((tag << 2) | 0b11).serialize(writer)?;
+                size.serialize(writer)?;
+            }}
+        }}
+    }}
+
+    value.serialize(writer)
 }}",
             typical_version,
         )
@@ -308,8 +337,11 @@ fn write_module<T: Write>(
     name: &Identifier,
     module: &Module,
 ) -> Result<(), fmt::Error> {
-    write_indentation(buffer, indentation)?;
-    writeln!(buffer, "#[rustfmt::skip]")?;
+    if indentation == 0 {
+        write_indentation(buffer, indentation)?;
+        writeln!(buffer, "#[rustfmt::skip]")?;
+    }
+
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub mod ")?;
     write_identifier(buffer, name, Snake, None)?;
@@ -417,6 +449,74 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                for _ in 0..indentation {
+                    write!(buffer, "super::")?;
+                }
+                write!(buffer, "Serialize for ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "fn size(&self) -> u64 {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                if fields.is_empty() {
+                    writeln!(buffer, "0")?;
+                } else {
+                    for _ in 0..indentation {
+                        write!(buffer, "super::")?;
+                    }
+                    write!(buffer, "field_size(")?;
+                    write!(buffer, "{}", fields[0].index)?;
+                    write!(buffer, ", &self.")?;
+                    write_identifier(buffer, &fields[0].name, Snake, None)?;
+                    writeln!(buffer, ")")?;
+
+                    for field in fields.iter().skip(1) {
+                        write_indentation(buffer, indentation + 3)?;
+                        write!(buffer, "+ ")?;
+                        for _ in 0..indentation {
+                            write!(buffer, "super::")?;
+                        }
+                        write!(buffer, "field_size(")?;
+                        write!(buffer, "{}", field.index)?;
+                        write!(buffer, ", &self.")?;
+                        write_identifier(buffer, &field.name, Snake, None)?;
+                        writeln!(buffer, ")")?;
+                    }
+                }
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "fn serialize(&self, writer: &mut impl std::io::Write) -> \
+                        std::io::Result<()> {{",
+                )?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 2)?;
+                    for _ in 0..indentation {
+                        write!(buffer, "super::")?;
+                    }
+                    write!(buffer, "serialize_field(writer, ")?;
+                    write!(buffer, "{}", field.index)?;
+                    write!(buffer, ", &self.")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    writeln!(buffer, ")?;")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "Ok(())")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
             }
             schema::DeclarationVariant::Choice(fields) => {
                 write_choice(
@@ -484,6 +584,52 @@ fn write_schema<T: Write>(
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                for _ in 0..indentation {
+                    write!(buffer, "super::")?;
+                }
+                write!(buffer, "Serialize for ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "fn size(&self) -> u64 {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "match *self {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    write!(buffer, "(ref payload")?;
+                    if field.unstable {
+                        write!(buffer, ", _, _")?;
+                    }
+                    writeln!(buffer, ") => payload.size(),")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "fn serialize(&self, writer: &mut impl std::io::Write) -> \
+                        std::io::Result<()> {{",
+                )?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "Ok(())")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -735,9 +881,9 @@ use std::io::{self, BufRead, Error, ErrorKind, Write};
 
 #[rustfmt::skip]
 pub trait Serialize {
-    fn size(&self) -> usize;
+    const VARINT_ENCODED: bool;
 
-    fn varint_encoded(&self) -> bool;
+    fn size(&self) -> u64;
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
 }
@@ -751,16 +897,14 @@ pub trait Deserialize {
 
 #[rustfmt::skip]
 impl Serialize for bool {
-    fn size(&self) -> usize {
+    const VARINT_ENCODED: bool = true;
+
+    fn size(&self) -> u64 {
         1
     }
 
-    fn varint_encoded(&self) -> bool {
-        true
-    }
-
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
-        (if *self { 1u64 } else { 0u64 }).serialize(writer)
+        (if *self { 1_u64 } else { 0_u64 }).serialize(writer)
     }
 }
 
@@ -783,25 +927,23 @@ impl Deserialize for bool {
 
 #[rustfmt::skip]
 impl Serialize for u64 {
-    fn size(&self) -> usize {
-        let mut size = 1u64;
-        let mut upper_bound_exclusive = 0u64;
+    const VARINT_ENCODED: bool = true;
 
-        while size < 9u64 {
-            upper_bound_exclusive += 1u64 << (size * 7u64);
+    fn size(&self) -> u64 {
+        let mut size = 1_u64;
+        let mut upper_bound_exclusive = 0_u64;
+
+        while size < 9_u64 {
+            upper_bound_exclusive += 1_u64 << (size * 7_u64);
 
             if *self < upper_bound_exclusive {
                 break;
             }
 
-            size += 1u64;
+            size += 1_u64;
         }
 
-        size as usize
-    }
-
-    fn varint_encoded(&self) -> bool {
-        true
+        size
     }
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
@@ -810,13 +952,13 @@ impl Serialize for u64 {
 
         let mut x = *self;
         for i in 1..size {
-            x -= 1u64 << (i * 7);
+            x -= 1_u64 << (i * 7);
         }
 
-        writer.write_all(&[((x << size) | (1u64 << size_minus_one)) as u8])?;
-        x >>= 8usize.saturating_sub(size);
+        writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
+        x >>= 8_u64.saturating_sub(size);
 
-        for i in 0..size_minus_one {
+        for _ in 0..size_minus_one {
             writer.write_all(&[x as u8])?;
             x >>= 8;
         }
@@ -838,16 +980,16 @@ impl Deserialize for u64 {
 
         reader.read_exact(&mut buffer[1..size])?;
 
-        let mut x = (first_byte as u64) >> size;
-        let mut bits_read = 8usize.saturating_sub(size);
+        let mut x = u64::from(first_byte) >> size;
+        let mut bits_read = 8_usize.saturating_sub(size);
 
-        for i in 1..size {
-            x |= (buffer[i] as u64) << bits_read;
+        for byte in buffer.iter().skip(1) {
+            x |= u64::from(*byte) << bits_read;
             bits_read += 8;
         }
 
         for i in 1..size {
-            x = x.checked_add(1u64 << (i * 7)).ok_or_else(|| {
+            x = x.checked_add(1_u64 << (i * 7)).ok_or_else(|| {
                 Error::new(ErrorKind::InvalidData, \"Error decoding 64-bit integer.\")
             })?;
         }
@@ -858,12 +1000,10 @@ impl Deserialize for u64 {
 
 #[rustfmt::skip]
 impl Serialize for f64 {
-    fn size(&self) -> usize {
-        8
-    }
+    const VARINT_ENCODED: bool = false;
 
-    fn varint_encoded(&self) -> bool {
-        false
+    fn size(&self) -> u64 {
+        8
     }
 
     fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
@@ -884,8 +1024,42 @@ impl Deserialize for f64 {
 }
 
 #[rustfmt::skip]
+fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
+    if T::VARINT_ENCODED {
+        ((tag << 2) | 0b00).size() + value.size()
+    } else {
+        (match value.size() {
+            0 => ((tag << 2) | 0b01).size(),
+            8 => ((tag << 2) | 0b10).size(),
+            size => ((tag << 2) | 0b11).size() + size.size(),
+        }) + value.size()
+    }
+}
+
+#[rustfmt::skip]
+fn serialize_field<T: Serialize>(writer: &mut impl Write, tag: u64, value: &T) -> io::Result<()> {
+    if T::VARINT_ENCODED {
+        ((tag << 2) | 0b00).serialize(writer)?;
+    } else {
+        match value.size() {
+            0 => {
+                ((tag << 2) | 0b01).serialize(writer)?;
+            }
+            8 => {
+                ((tag << 2) | 0b10).serialize(writer)?;
+            }
+            size => {
+                ((tag << 2) | 0b11).serialize(writer)?;
+                size.serialize(writer)?;
+            }
+        }
+    }
+
+    value.serialize(writer)
+}
+
+#[rustfmt::skip]
 pub mod basic {
-    #[rustfmt::skip]
     pub mod unit {
         #[derive(Clone, Debug)]
         pub struct UnitIn {
@@ -901,9 +1075,20 @@ pub mod basic {
                 }
             }
         }
+
+        impl super::super::Serialize for UnitOut {
+            const VARINT_ENCODED: bool = false;
+
+            fn size(&self) -> u64 {
+                0
+            }
+
+            fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+                Ok(())
+            }
+        }
     }
 
-    #[rustfmt::skip]
     pub mod void {
         #[derive(Clone, Debug)]
         pub enum VoidIn {
@@ -921,6 +1106,19 @@ pub mod basic {
             fn from(message: VoidOut) -> Self {
                 match message {
                 }
+            }
+        }
+
+        impl super::super::Serialize for VoidOut {
+            const VARINT_ENCODED: bool = false;
+
+            fn size(&self) -> u64 {
+                match *self {
+                }
+            }
+
+            fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+                Ok(())
             }
         }
     }
@@ -968,6 +1166,25 @@ pub mod main {
         }
     }
 
+    impl super::Serialize for BarOut {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            match *self {
+                BarOut::X(ref payload) => payload.size(),
+                BarOut::Y(ref payload, _, _) => payload.size(),
+                BarOut::Z(ref payload) => payload.size(),
+                BarOut::W(ref payload, _, _) => payload.size(),
+                BarOut::S(ref payload) => payload.size(),
+                BarOut::T(ref payload, _, _) => payload.size(),
+            }
+        }
+
+        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
     #[derive(Clone, Debug)]
     pub struct FooIn {
         x: bool,
@@ -1001,6 +1218,29 @@ pub mod main {
         }
     }
 
+    impl super::Serialize for FooOut {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            super::field_size(0, &self.x)
+                + super::field_size(1, &self.y)
+                + super::field_size(2, &self.z)
+                + super::field_size(3, &self.w)
+                + super::field_size(4, &self.s)
+                + super::field_size(5, &self.t)
+        }
+
+        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+            super::serialize_field(writer, 0, &self.x)?;
+            super::serialize_field(writer, 1, &self.y)?;
+            super::serialize_field(writer, 2, &self.z)?;
+            super::serialize_field(writer, 3, &self.w)?;
+            super::serialize_field(writer, 4, &self.s)?;
+            super::serialize_field(writer, 5, &self.t)?;
+            Ok(())
+        }
+    }
+
     #[derive(Clone, Debug)]
     pub struct FooAndBarIn {
         foo: FooIn,
@@ -1019,6 +1259,21 @@ pub mod main {
                 foo: message.foo.into(),
                 bar: message.bar.into(),
             }
+        }
+    }
+
+    impl super::Serialize for FooAndBarOut {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            super::field_size(0, &self.foo)
+                + super::field_size(1, &self.bar)
+        }
+
+        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+            super::serialize_field(writer, 0, &self.foo)?;
+            super::serialize_field(writer, 1, &self.bar)?;
+            Ok(())
         }
     }
 
@@ -1046,6 +1301,21 @@ pub mod main {
                 FooOrBarOut::Foo(payload) => FooOrBarIn::Foo(payload.into()),
                 FooOrBarOut::Bar(payload) => FooOrBarIn::Bar(payload.into()),
             }
+        }
+    }
+
+    impl super::Serialize for FooOrBarOut {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            match *self {
+                FooOrBarOut::Foo(ref payload) => payload.size(),
+                FooOrBarOut::Bar(ref payload) => payload.size(),
+            }
+        }
+
+        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+            Ok(())
         }
     }
 }
