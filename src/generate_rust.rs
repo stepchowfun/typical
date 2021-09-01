@@ -468,9 +468,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "0")?;
                 } else {
                     write_supers(buffer, indentation)?;
-                    write!(buffer, "field_size(")?;
-                    write!(buffer, "{}", fields[0].index)?;
-                    write!(buffer, ", &self.")?;
+                    write!(buffer, "field_size({}, &self.", fields[0].index)?;
                     write_identifier(buffer, &fields[0].name, Snake, None)?;
                     writeln!(buffer, ")")?;
 
@@ -478,9 +476,7 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "+ ")?;
                         write_supers(buffer, indentation)?;
-                        write!(buffer, "field_size(")?;
-                        write!(buffer, "{}", field.index)?;
-                        write!(buffer, ", &self.")?;
+                        write!(buffer, "field_size({}, &self.", field.index)?;
                         write_identifier(buffer, &field.name, Snake, None)?;
                         writeln!(buffer, ")")?;
                     }
@@ -497,9 +493,7 @@ fn write_schema<T: Write>(
                 for field in fields {
                     write_indentation(buffer, indentation + 2)?;
                     write_supers(buffer, indentation)?;
-                    write!(buffer, "serialize_field(writer, ")?;
-                    write!(buffer, "{}", field.index)?;
-                    write!(buffer, ", &self.")?;
+                    write!(buffer, "serialize_field(writer, {}, &self.", field.index)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     writeln!(buffer, ")?;")?;
                 }
@@ -601,11 +595,31 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    write!(buffer, "(ref payload")?;
                     if field.unstable {
-                        write!(buffer, ", _, _")?;
+                        writeln!(
+                            buffer,
+                            "(ref payload, ref alternatives, ref fallback) => {{",
+                        )?;
+                        write_indentation(buffer, indentation + 4)?;
+                        write_supers(buffer, indentation)?;
+                        writeln!(buffer, "field_size({}, payload)", field.index)?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "+ alternatives")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        writeln!(buffer, ".iter()")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        writeln!(buffer, ".map(|alternative| alternative.size())")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        writeln!(buffer, ".sum::<u64>()")?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "+ fallback.size()")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "}}")?;
+                    } else {
+                        write!(buffer, "(ref payload) => ")?;
+                        write_supers(buffer, indentation)?;
+                        writeln!(buffer, "field_size({}, payload),", field.index)?;
                     }
-                    writeln!(buffer, ") => payload.size(),")?;
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
@@ -619,7 +633,101 @@ fn write_schema<T: Write>(
                 write_supers(buffer, indentation)?;
                 writeln!(buffer, "io::Result<()> {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "Ok(())")?;
+                writeln!(buffer, "match *self {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    if field.unstable {
+                        writeln!(
+                            buffer,
+                            "(ref payload, ref alternatives, ref fallback) => {{",
+                        )?;
+                        write_indentation(buffer, indentation + 4)?;
+                        write_supers(buffer, indentation)?;
+                        writeln!(
+                            buffer,
+                            "serialize_field(writer, {}, payload)?;",
+                            field.index,
+                        )?;
+                        writeln!(buffer)?;
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "for alternative in alternatives {{")?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "alternative.serialize(writer)?;")?;
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "}}")?;
+                        writeln!(buffer)?;
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "fallback.serialize(writer)")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "}}")?;
+                    } else {
+                        write!(buffer, "(ref payload) => ")?;
+                        write_supers(buffer, indentation)?;
+                        writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
+                    }
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_supers(buffer, indentation)?;
+                write!(buffer, "Serialize for ")?;
+                write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "fn size(&self) -> u64 {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "match *self {{")?;
+                for field in fields {
+                    if !field.unstable {
+                        write_indentation(buffer, indentation + 3)?;
+                        write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                        write!(buffer, "::")?;
+                        write_identifier(buffer, &field.name, Pascal, None)?;
+                        write!(buffer, "(ref payload) => ")?;
+                        write_supers(buffer, indentation)?;
+                        writeln!(buffer, "field_size({}, payload),", field.index)?;
+                    }
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "fn serialize(&self, writer: &mut impl ")?;
+                write_supers(buffer, indentation)?;
+                write!(buffer, "io::Write) -> ")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "io::Result<()> {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "match *self {{")?;
+                for field in fields {
+                    if !field.unstable {
+                        write_indentation(buffer, indentation + 3)?;
+                        write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                        write!(buffer, "::")?;
+                        write_identifier(buffer, &field.name, Pascal, None)?;
+                        write!(buffer, "(ref payload) => ")?;
+                        write_supers(buffer, indentation)?;
+                        writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
+                    }
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -1117,7 +1225,23 @@ pub mod basic {
 
             fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
                 super::super::io::Result<()> {
-                Ok(())
+                match *self {
+                }
+            }
+        }
+
+        impl super::super::Serialize for VoidOutStable {
+            const VARINT_ENCODED: bool = false;
+
+            fn size(&self) -> u64 {
+                match *self {
+                }
+            }
+
+            fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
+                super::super::io::Result<()> {
+                match *self {
+                }
             }
         }
     }
@@ -1170,17 +1294,89 @@ pub mod main {
 
         fn size(&self) -> u64 {
             match *self {
-                BarOut::X(ref payload) => payload.size(),
-                BarOut::Y(ref payload, _, _) => payload.size(),
-                BarOut::Z(ref payload) => payload.size(),
-                BarOut::W(ref payload, _, _) => payload.size(),
-                BarOut::S(ref payload) => payload.size(),
-                BarOut::T(ref payload, _, _) => payload.size(),
+                BarOut::X(ref payload) => super::field_size(0, payload),
+                BarOut::Y(ref payload, ref alternatives, ref fallback) => {
+                    super::field_size(1, payload)
+                        + alternatives
+                            .iter()
+                            .map(|alternative| alternative.size())
+                            .sum::<u64>()
+                        + fallback.size()
+                }
+                BarOut::Z(ref payload) => super::field_size(2, payload),
+                BarOut::W(ref payload, ref alternatives, ref fallback) => {
+                    super::field_size(3, payload)
+                        + alternatives
+                            .iter()
+                            .map(|alternative| alternative.size())
+                            .sum::<u64>()
+                        + fallback.size()
+                }
+                BarOut::S(ref payload) => super::field_size(4, payload),
+                BarOut::T(ref payload, ref alternatives, ref fallback) => {
+                    super::field_size(5, payload)
+                        + alternatives
+                            .iter()
+                            .map(|alternative| alternative.size())
+                            .sum::<u64>()
+                        + fallback.size()
+                }
             }
         }
 
         fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
-            Ok(())
+            match *self {
+                BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
+                BarOut::Y(ref payload, ref alternatives, ref fallback) => {
+                    super::serialize_field(writer, 1, payload)?;
+
+                    for alternative in alternatives {
+                        alternative.serialize(writer)?;
+                    }
+
+                    fallback.serialize(writer)
+                }
+                BarOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
+                BarOut::W(ref payload, ref alternatives, ref fallback) => {
+                    super::serialize_field(writer, 3, payload)?;
+
+                    for alternative in alternatives {
+                        alternative.serialize(writer)?;
+                    }
+
+                    fallback.serialize(writer)
+                }
+                BarOut::S(ref payload) => super::serialize_field(writer, 4, payload),
+                BarOut::T(ref payload, ref alternatives, ref fallback) => {
+                    super::serialize_field(writer, 5, payload)?;
+
+                    for alternative in alternatives {
+                        alternative.serialize(writer)?;
+                    }
+
+                    fallback.serialize(writer)
+                }
+            }
+        }
+    }
+
+    impl super::Serialize for BarOutStable {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            match *self {
+                BarOutStable::X(ref payload) => super::field_size(0, payload),
+                BarOutStable::Z(ref payload) => super::field_size(2, payload),
+                BarOutStable::S(ref payload) => super::field_size(4, payload),
+            }
+        }
+
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+            match *self {
+                BarOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
+                BarOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
+                BarOutStable::S(ref payload) => super::serialize_field(writer, 4, payload),
+            }
         }
     }
 
@@ -1308,13 +1504,34 @@ pub mod main {
 
         fn size(&self) -> u64 {
             match *self {
-                FooOrBarOut::Foo(ref payload) => payload.size(),
-                FooOrBarOut::Bar(ref payload) => payload.size(),
+                FooOrBarOut::Foo(ref payload) => super::field_size(0, payload),
+                FooOrBarOut::Bar(ref payload) => super::field_size(1, payload),
             }
         }
 
         fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
-            Ok(())
+            match *self {
+                FooOrBarOut::Foo(ref payload) => super::serialize_field(writer, 0, payload),
+                FooOrBarOut::Bar(ref payload) => super::serialize_field(writer, 1, payload),
+            }
+        }
+    }
+
+    impl super::Serialize for FooOrBarOutStable {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            match *self {
+                FooOrBarOutStable::Foo(ref payload) => super::field_size(0, payload),
+                FooOrBarOutStable::Bar(ref payload) => super::field_size(1, payload),
+            }
+        }
+
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+            match *self {
+                FooOrBarOutStable::Foo(ref payload) => super::serialize_field(writer, 0, payload),
+                FooOrBarOutStable::Bar(ref payload) => super::serialize_field(writer, 1, payload),
+            }
         }
     }
 }
