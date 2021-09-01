@@ -332,7 +332,7 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: sch
 // Write a module, including a trailing line break.
 fn write_module<T: Write>(
     buffer: &mut T,
-    indentation: u64,
+    indentation: usize,
     namespace: &schema::Namespace,
     name: &Identifier,
     module: &Module,
@@ -367,7 +367,7 @@ fn write_module<T: Write>(
 // Write the contents of a module, including a trailing line break if there was anything to render.
 fn write_module_contents<T: Write>(
     buffer: &mut T,
-    indentation: u64,
+    indentation: usize,
     namespace: &schema::Namespace,
     children: &BTreeMap<Identifier, Module>,
     schema: &schema::Schema,
@@ -391,7 +391,7 @@ fn write_module_contents<T: Write>(
 #[allow(clippy::too_many_lines)]
 fn write_schema<T: Write>(
     buffer: &mut T,
-    indentation: u64,
+    indentation: usize,
     namespace: &schema::Namespace,
     schema: &schema::Schema,
 ) -> Result<(), fmt::Error> {
@@ -454,9 +454,7 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl ")?;
-                for _ in 0..indentation {
-                    write!(buffer, "super::")?;
-                }
+                write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
                 write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, " {{")?;
@@ -469,9 +467,7 @@ fn write_schema<T: Write>(
                 if fields.is_empty() {
                     writeln!(buffer, "0")?;
                 } else {
-                    for _ in 0..indentation {
-                        write!(buffer, "super::")?;
-                    }
+                    write_supers(buffer, indentation)?;
                     write!(buffer, "field_size(")?;
                     write!(buffer, "{}", fields[0].index)?;
                     write!(buffer, ", &self.")?;
@@ -481,9 +477,7 @@ fn write_schema<T: Write>(
                     for field in fields.iter().skip(1) {
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "+ ")?;
-                        for _ in 0..indentation {
-                            write!(buffer, "super::")?;
-                        }
+                        write_supers(buffer, indentation)?;
                         write!(buffer, "field_size(")?;
                         write!(buffer, "{}", field.index)?;
                         write!(buffer, ", &self.")?;
@@ -495,16 +489,14 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn serialize(&self, writer: &mut impl std::io::Write) -> \
-                        std::io::Result<()> {{",
-                )?;
+                write!(buffer, "fn serialize(&self, writer: &mut impl ")?;
+                write_supers(buffer, indentation)?;
+                write!(buffer, "io::Write) -> ")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "io::Result<()> {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 2)?;
-                    for _ in 0..indentation {
-                        write!(buffer, "super::")?;
-                    }
+                    write_supers(buffer, indentation)?;
                     write!(buffer, "serialize_field(writer, ")?;
                     write!(buffer, "{}", field.index)?;
                     write!(buffer, ", &self.")?;
@@ -593,9 +585,7 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl ")?;
-                for _ in 0..indentation {
-                    write!(buffer, "super::")?;
-                }
+                write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
                 write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, " {{")?;
@@ -623,11 +613,11 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn serialize(&self, writer: &mut impl std::io::Write) -> \
-                        std::io::Result<()> {{",
-                )?;
+                write!(buffer, "fn serialize(&self, writer: &mut impl ")?;
+                write_supers(buffer, indentation)?;
+                write!(buffer, "io::Write) -> ")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "io::Result<()> {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "Ok(())")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -648,7 +638,7 @@ fn write_schema<T: Write>(
 // Write a struct, including a trailing line break.
 fn write_struct<T: Write>(
     buffer: &mut T,
-    indentation: u64,
+    indentation: usize,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &Identifier,
@@ -685,7 +675,7 @@ fn write_struct<T: Write>(
 // Write a choice, including a trailing line break.
 fn write_choice<T: Write>(
     buffer: &mut T,
-    indentation: u64,
+    indentation: usize,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     name: &Identifier,
@@ -751,9 +741,7 @@ fn write_type<T: Write>(
             let (relative_type_namespace, ancestors) =
                 relativize_namespace(&type_namespace, namespace);
 
-            for _ in 0..ancestors {
-                write!(buffer, "super::")?;
-            }
+            write_supers(buffer, ancestors)?;
 
             for component in relative_type_namespace.components {
                 write_identifier(buffer, &component, Snake, None)?;
@@ -807,9 +795,18 @@ fn write_identifier<T: Write>(
 }
 
 // Write the given level of indentation.
-fn write_indentation<T: Write>(buffer: &mut T, indentation: u64) -> Result<(), fmt::Error> {
+fn write_indentation<T: Write>(buffer: &mut T, indentation: usize) -> Result<(), fmt::Error> {
     for _ in 0..indentation {
         write!(buffer, "{}", INDENTATION)?;
+    }
+
+    Ok(())
+}
+
+// Write a series of `super::super::...`.
+fn write_supers<T: Write>(buffer: &mut T, count: usize) -> Result<(), fmt::Error> {
+    for _ in 0..count {
+        write!(buffer, "super::")?;
     }
 
     Ok(())
@@ -1083,7 +1080,8 @@ pub mod basic {
                 0
             }
 
-            fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+            fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
+                super::super::io::Result<()> {
                 Ok(())
             }
         }
@@ -1117,7 +1115,8 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+            fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
+                super::super::io::Result<()> {
                 Ok(())
             }
         }
@@ -1180,7 +1179,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
             Ok(())
         }
     }
@@ -1230,7 +1229,7 @@ pub mod main {
                 + super::field_size(5, &self.t)
         }
 
-        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
             super::serialize_field(writer, 0, &self.x)?;
             super::serialize_field(writer, 1, &self.y)?;
             super::serialize_field(writer, 2, &self.z)?;
@@ -1270,7 +1269,7 @@ pub mod main {
                 + super::field_size(1, &self.bar)
         }
 
-        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
             super::serialize_field(writer, 0, &self.foo)?;
             super::serialize_field(writer, 1, &self.bar)?;
             Ok(())
@@ -1314,7 +1313,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
             Ok(())
         }
     }
