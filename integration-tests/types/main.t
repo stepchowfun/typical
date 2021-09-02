@@ -28,3 +28,13 @@ choice FooOrBar {
   foo: Foo = 0
   bar: Bar = 1
 }
+
+struct Baz {
+  x: Boolean = 0
+  y: Float64 = 1
+}
+
+choice Qux {
+  x: Boolean = 0
+  y: Float64 = 1
+}

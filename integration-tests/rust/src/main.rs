@@ -8,7 +8,10 @@ use {
         fmt::Debug,
         io::{self, Error, ErrorKind},
     },
-    types::{basic::unit::UnitOut, Deserialize, Serialize},
+    types::{
+        main::{BazOut, QuxOut},
+        Deserialize, Serialize,
+    },
 };
 
 fn round_trip<T: Debug + Deserialize + PartialEq + Serialize>(x: &T) -> io::Result<()> {
@@ -41,11 +44,19 @@ fn main() -> io::Result<()> {
 
     println!();
 
-    let unit = UnitOut {};
+    let message = BazOut { x: true, y: PI };
     let mut buffer = Vec::<u8>::new();
-    unit.serialize(&mut buffer)?;
-    println!("Unit size: {:?}", unit.size());
-    println!("Unit bytes: {:?}", buffer);
+    message.serialize(&mut buffer)?;
+    println!("Struct size: {:?}", message.size());
+    println!("Struct bytes: {:?}", buffer);
+
+    println!();
+
+    let message = QuxOut::X(true);
+    let mut buffer = Vec::<u8>::new();
+    message.serialize(&mut buffer)?;
+    println!("Choice size: {:?}", message.size());
+    println!("Choice bytes: {:?}", buffer);
 
     Ok(())
 }
