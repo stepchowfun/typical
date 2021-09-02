@@ -762,6 +762,7 @@ fn write_struct<T: Write>(
 
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
+        write!(buffer, "pub ")?;
         write_identifier(buffer, &field.name, Snake, None)?;
         write!(buffer, ": ")?;
         if field.unstable && flavor == In {
@@ -1381,23 +1382,59 @@ pub mod main {
     }
 
     #[derive(Clone, Debug)]
+    pub struct BazIn {
+        pub x: bool,
+        pub y: f64,
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct BazOut {
+        pub x: bool,
+        pub y: f64,
+    }
+
+    impl From<BazOut> for BazIn {
+        fn from(message: BazOut) -> Self {
+            BazIn {
+                x: message.x.into(),
+                y: message.y.into(),
+            }
+        }
+    }
+
+    impl super::Serialize for BazOut {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            super::field_size(0, &self.x)
+                + super::field_size(1, &self.y)
+        }
+
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+            super::serialize_field(writer, 0, &self.x)?;
+            super::serialize_field(writer, 1, &self.y)?;
+            Ok(())
+        }
+    }
+
+    #[derive(Clone, Debug)]
     pub struct FooIn {
-        x: bool,
-        y: Option<bool>,
-        z: super::basic::void::VoidIn,
-        w: Option<super::basic::void::VoidIn>,
-        s: super::basic::unit::UnitIn,
-        t: Option<super::basic::unit::UnitIn>,
+        pub x: bool,
+        pub y: Option<bool>,
+        pub z: super::basic::void::VoidIn,
+        pub w: Option<super::basic::void::VoidIn>,
+        pub s: super::basic::unit::UnitIn,
+        pub t: Option<super::basic::unit::UnitIn>,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooOut {
-        x: bool,
-        y: bool,
-        z: super::basic::void::VoidOut,
-        w: super::basic::void::VoidOut,
-        s: super::basic::unit::UnitOut,
-        t: super::basic::unit::UnitOut,
+        pub x: bool,
+        pub y: bool,
+        pub z: super::basic::void::VoidOut,
+        pub w: super::basic::void::VoidOut,
+        pub s: super::basic::unit::UnitOut,
+        pub t: super::basic::unit::UnitOut,
     }
 
     impl From<FooOut> for FooIn {
@@ -1438,14 +1475,14 @@ pub mod main {
 
     #[derive(Clone, Debug)]
     pub struct FooAndBarIn {
-        foo: FooIn,
-        bar: BarIn,
+        pub foo: FooIn,
+        pub bar: BarIn,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooAndBarOut {
-        foo: FooOut,
-        bar: BarOut,
+        pub foo: FooOut,
+        pub bar: BarOut,
     }
 
     impl From<FooAndBarOut> for FooAndBarIn {
@@ -1531,6 +1568,69 @@ pub mod main {
             match *self {
                 FooOrBarOutStable::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOutStable::Bar(ref payload) => super::serialize_field(writer, 1, payload),
+            }
+        }
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum QuxIn {
+        X(bool),
+        Y(f64),
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum QuxOut {
+        X(bool),
+        Y(f64),
+    }
+
+    #[derive(Clone, Debug)]
+    pub enum QuxOutStable {
+        X(bool),
+        Y(f64),
+    }
+
+    impl From<QuxOut> for QuxIn {
+        fn from(message: QuxOut) -> Self {
+            match message {
+                QuxOut::X(payload) => QuxIn::X(payload.into()),
+                QuxOut::Y(payload) => QuxIn::Y(payload.into()),
+            }
+        }
+    }
+
+    impl super::Serialize for QuxOut {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            match *self {
+                QuxOut::X(ref payload) => super::field_size(0, payload),
+                QuxOut::Y(ref payload) => super::field_size(1, payload),
+            }
+        }
+
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+            match *self {
+                QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
+                QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
+            }
+        }
+    }
+
+    impl super::Serialize for QuxOutStable {
+        const VARINT_ENCODED: bool = false;
+
+        fn size(&self) -> u64 {
+            match *self {
+                QuxOutStable::X(ref payload) => super::field_size(0, payload),
+                QuxOutStable::Y(ref payload) => super::field_size(1, payload),
+            }
+        }
+
+        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+            match *self {
+                QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
+                QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
             }
         }
     }
