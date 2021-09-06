@@ -190,7 +190,7 @@ impl Deserialize for u64 {{
         let mut buffer = [0; 9];
         reader.read_exact(&mut buffer[0..1])?;
         let first_byte = buffer[0];
-        let size = first_byte.trailing_zeros() as usize + 1;
+        let size = u64_size(first_byte) as usize;
 
         reader.read_exact(&mut buffer[1..size])?;
 
@@ -235,6 +235,11 @@ impl Deserialize for f64 {{
         reader.read_exact(&mut buffer)?;
         Ok(f64::from_le_bytes(buffer))
     }}
+}}
+
+#[rustfmt::skip]
+fn u64_size(first_byte: u8) -> u32 {{
+    first_byte.trailing_zeros() + 1
 }}
 
 #[rustfmt::skip]
@@ -407,48 +412,11 @@ fn write_schema<T: Write>(
     while let Some((name, declaration)) = iter.next() {
         match &declaration.variant {
             schema::DeclarationVariant::Struct(fields) => {
-                write_struct(buffer, indentation, &imports, namespace, &name, fields, In)?;
-
-                writeln!(buffer)?;
-
                 write_struct(buffer, indentation, &imports, namespace, &name, fields, Out)?;
 
                 writeln!(buffer)?;
 
-                write_indentation(buffer, indentation)?;
-                write!(buffer, "impl From<")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
-                write!(buffer, "> for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
-                writeln!(buffer, ") -> Self {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
-                writeln!(buffer, " {{")?;
-                for field in fields {
-                    write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ": ")?;
-                    if field.unstable {
-                        write!(buffer, "Some(")?;
-                    }
-                    write!(buffer, "message.")?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ".into()")?;
-                    if field.unstable {
-                        write!(buffer, ")")?;
-                    }
-                    writeln!(buffer, ",")?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}}")?;
+                write_struct(buffer, indentation, &imports, namespace, &name, fields, In)?;
 
                 writeln!(buffer)?;
 
@@ -507,20 +475,227 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
-            }
-            schema::DeclarationVariant::Choice(fields) => {
-                write_choice(
-                    buffer,
-                    indentation,
-                    &imports,
-                    namespace,
-                    &name,
-                    fields,
-                    InOrOut(In),
-                )?;
 
                 writeln!(buffer)?;
 
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_supers(buffer, indentation)?;
+                write!(buffer, "Deserialize for ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "fn deserialize(mut reader: impl ::std::io::BufRead) -> \
+                       ::std::io::Result<Self>",
+                )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "where")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "Self: Sized,")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 2)?;
+                    write!(buffer, "let mut ")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ": Option<")?;
+                    write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
+                    writeln!(buffer, "> = None;")?;
+                }
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "loop {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "let header = match u64::deserialize(reader.by_ref()) {{",
+                )?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "Ok(header) => header,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "Err(err) => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(
+                    buffer,
+                    "if let std::io::ErrorKind::UnexpectedEof = err.kind() {{",
+                )?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "return Err(err);")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}};")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "let index = header >> 2;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "let size = match header & 0b11 {{")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b00 => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "let buffer = reader.fill_buf()?;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "if buffer.is_empty() {{")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "return Err(::std::io::Error::new(")?;
+                write_indentation(buffer, indentation + 7)?;
+                writeln!(buffer, "::std::io::ErrorKind::UnexpectedEof,")?;
+                write_indentation(buffer, indentation + 7)?;
+                writeln!(buffer, "\"Error decoding field.\",")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "));")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 5)?;
+                write!(buffer, "u64::from(")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "u64_size(buffer[0]))")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b01 => 0,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b10 => 8,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b11 => u64::deserialize(reader.by_ref())?,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "_ => panic!(),")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}};")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);",
+                )?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "match index {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "{} => {{", field.index)?;
+                    write_indentation(buffer, indentation + 5)?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ".get_or_insert(")?;
+                    write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
+                    writeln!(buffer, "::deserialize(sub_reader)?);")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "_ => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "for _ in 0..size {{")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "let mut buffer = [0];")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(
+                    buffer,
+                    "::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;",
+                )?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                if !fields.is_empty() {
+                    write_indentation(buffer, indentation + 2)?;
+                    write!(buffer, "if ")?;
+                    write_identifier(buffer, &fields[0].name, Snake, None)?;
+                    write!(buffer, ".is_none()")?;
+                    for field in fields.iter().skip(1) {
+                        if !field.unstable {
+                            write!(buffer, " || ")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ".is_none()")?;
+                        }
+                    }
+                    writeln!(buffer, "{{")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "return Err(::std::io::Error::new(")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "::std::io::ErrorKind::InvalidData,")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "\"Struct missing one or more field(s).\",")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "));")?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                    writeln!(buffer)?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                write!(buffer, "Ok(")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                writeln!(buffer, " {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    if !field.unstable {
+                        write!(buffer, ": ")?;
+                        write_identifier(buffer, &field.name, Snake, None)?;
+                        write!(buffer, ".unwrap()")?;
+                    }
+                    writeln!(buffer, ",")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}})")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl From<")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write!(buffer, "> for ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "fn from(message: ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                writeln!(buffer, ") -> Self {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                writeln!(buffer, " {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ": ")?;
+                    if field.unstable {
+                        write!(buffer, "Some(")?;
+                    }
+                    write!(buffer, "message.")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ".into()")?;
+                    if field.unstable {
+                        write!(buffer, ")")?;
+                    }
+                    writeln!(buffer, ",")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+            }
+            schema::DeclarationVariant::Choice(fields) => {
                 write_choice(
                     buffer,
                     indentation,
@@ -545,39 +720,15 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
-                write_indentation(buffer, indentation)?;
-                write!(buffer, "impl From<")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
-                write!(buffer, "> for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
-                writeln!(buffer, ") -> Self {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match message {{")?;
-                for field in fields {
-                    write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
-                    write!(buffer, "::")?;
-                    write_identifier(buffer, &field.name, Pascal, None)?;
-                    write!(buffer, "(payload")?;
-                    if field.unstable {
-                        write!(buffer, ", _, _")?;
-                    }
-                    write!(buffer, ") => ")?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
-                    write!(buffer, "::")?;
-                    write_identifier(buffer, &field.name, Pascal, None)?;
-                    writeln!(buffer, "(payload.into()),")?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}}")?;
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &name,
+                    fields,
+                    InOrOut(In),
+                )?;
 
                 writeln!(buffer)?;
 
@@ -729,6 +880,153 @@ fn write_schema<T: Write>(
                         write_supers(buffer, indentation)?;
                         writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
                     }
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_supers(buffer, indentation)?;
+                write!(buffer, "Deserialize for ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "fn deserialize(mut reader: impl ::std::io::BufRead) -> \
+                       ::std::io::Result<Self>",
+                )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "where")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "Self: Sized,")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "loop {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "let header = u64::deserialize(reader.by_ref())?;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "let index = header >> 2;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "let size = match header & 0b11 {{")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b00 => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "let buffer = reader.fill_buf()?;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "if buffer.is_empty() {{")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "return Err(::std::io::Error::new(")?;
+                write_indentation(buffer, indentation + 7)?;
+                writeln!(buffer, "::std::io::ErrorKind::UnexpectedEof,")?;
+                write_indentation(buffer, indentation + 7)?;
+                writeln!(buffer, "\"Error decoding field.\",")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "));")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 5)?;
+                write!(buffer, "u64::from(")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "u64_size(buffer[0]))")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b01 => 0,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b10 => 8,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "0b11 => u64::deserialize(reader.by_ref())?,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "_ => panic!(),")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}};")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);",
+                )?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "match index {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "{} => {{", field.index)?;
+                    write_indentation(buffer, indentation + 5)?;
+                    write!(buffer, "return Ok(")?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    write!(buffer, "(")?;
+                    write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
+                    writeln!(buffer, "::deserialize(sub_reader)?));")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "_ => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "for _ in 0..size {{")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "let mut buffer = [0];")?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(
+                    buffer,
+                    "::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;",
+                )?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl From<")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write!(buffer, "> for ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "fn from(message: ")?;
+                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                writeln!(buffer, ") -> Self {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "match message {{")?;
+                for field in fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    write!(buffer, "(payload")?;
+                    if field.unstable {
+                        write!(buffer, ", _, _")?;
+                    }
+                    write!(buffer, ") => ")?;
+                    write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    writeln!(buffer, "(payload.into()),")?;
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
@@ -1086,7 +1384,7 @@ impl Deserialize for u64 {
         let mut buffer = [0; 9];
         reader.read_exact(&mut buffer[0..1])?;
         let first_byte = buffer[0];
-        let size = first_byte.trailing_zeros() as usize + 1;
+        let size = u64_size(first_byte) as usize;
 
         reader.read_exact(&mut buffer[1..size])?;
 
@@ -1134,6 +1432,11 @@ impl Deserialize for f64 {
 }
 
 #[rustfmt::skip]
+fn u64_size(first_byte: u8) -> u32 {
+    first_byte.trailing_zeros() + 1
+}
+
+#[rustfmt::skip]
 fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
     if T::VARINT_ENCODED {
         ((tag << 2) | 0b00).size() + value.size()
@@ -1172,18 +1475,11 @@ fn serialize_field<T: Serialize>(mut writer: impl Write, tag: u64, value: &T) ->
 pub mod basic {
     pub mod unit {
         #[derive(Clone, Debug)]
-        pub struct UnitIn {
-        }
-
-        #[derive(Clone, Debug)]
         pub struct UnitOut {
         }
 
-        impl From<UnitOut> for UnitIn {
-            fn from(message: UnitOut) -> Self {
-                UnitIn {
-                }
-            }
+        #[derive(Clone, Debug)]
+        pub struct UnitIn {
         }
 
         impl super::super::Serialize for UnitOut {
@@ -1197,13 +1493,72 @@ pub mod basic {
                 Ok(())
             }
         }
+
+        impl super::super::Deserialize for UnitIn {
+            fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+            {
+
+                loop {
+                    let header = match u64::deserialize(reader.by_ref()) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let index = header >> 2;
+
+                    let size = match header & 0b11 {
+                        0b00 => {
+                            let buffer = reader.fill_buf()?;
+
+                            if buffer.is_empty() {
+                                return Err(::std::io::Error::new(
+                                    ::std::io::ErrorKind::UnexpectedEof,
+                                    \"Error decoding field.\",
+                                ));
+                            }
+
+                            u64::from(super::super::u64_size(buffer[0]))
+                        }
+                        0b01 => 0,
+                        0b10 => 8,
+                        0b11 => u64::deserialize(reader.by_ref())?,
+                        _ => panic!(),
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                    match index {
+                        _ => {
+                            for _ in 0..size {
+                                let mut buffer = [0];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                            }
+                        }
+                    }
+                }
+
+                Ok(UnitIn {
+                })
+            }
+        }
+
+        impl From<UnitOut> for UnitIn {
+            fn from(message: UnitOut) -> Self {
+                UnitIn {
+                }
+            }
+        }
     }
 
     pub mod void {
-        #[derive(Clone, Debug)]
-        pub enum VoidIn {
-        }
-
         #[derive(Clone, Debug)]
         pub enum VoidOut {
         }
@@ -1212,11 +1567,8 @@ pub mod basic {
         pub enum VoidOutStable {
         }
 
-        impl From<VoidOut> for VoidIn {
-            fn from(message: VoidOut) -> Self {
-                match message {
-                }
-            }
+        #[derive(Clone, Debug)]
+        pub enum VoidIn {
         }
 
         impl super::super::Serialize for VoidOut {
@@ -1246,21 +1598,61 @@ pub mod basic {
                 }
             }
         }
+
+        impl super::super::Deserialize for VoidIn {
+            fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+            {
+                loop {
+                    let header = u64::deserialize(reader.by_ref())?;
+
+                    let index = header >> 2;
+
+                    let size = match header & 0b11 {
+                        0b00 => {
+                            let buffer = reader.fill_buf()?;
+
+                            if buffer.is_empty() {
+                                return Err(::std::io::Error::new(
+                                    ::std::io::ErrorKind::UnexpectedEof,
+                                    \"Error decoding field.\",
+                                ));
+                            }
+
+                            u64::from(super::super::u64_size(buffer[0]))
+                        }
+                        0b01 => 0,
+                        0b10 => 8,
+                        0b11 => u64::deserialize(reader.by_ref())?,
+                        _ => panic!(),
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                    match index {
+                        _ => {
+                            for _ in 0..size {
+                                let mut buffer = [0];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        impl From<VoidOut> for VoidIn {
+            fn from(message: VoidOut) -> Self {
+                match message {
+                }
+            }
+        }
     }
 }
 
 #[rustfmt::skip]
 pub mod main {
-    #[derive(Clone, Debug)]
-    pub enum BarIn {
-        X(bool),
-        Y(f64),
-        Z(super::basic::void::VoidIn),
-        W(super::basic::void::VoidIn),
-        S(super::basic::unit::UnitIn),
-        T(super::basic::unit::UnitIn),
-    }
-
     #[derive(Clone, Debug)]
     pub enum BarOut {
         X(bool),
@@ -1278,17 +1670,14 @@ pub mod main {
         S(super::basic::unit::UnitOut),
     }
 
-    impl From<BarOut> for BarIn {
-        fn from(message: BarOut) -> Self {
-            match message {
-                BarOut::X(payload) => BarIn::X(payload.into()),
-                BarOut::Y(payload, _, _) => BarIn::Y(payload.into()),
-                BarOut::Z(payload) => BarIn::Z(payload.into()),
-                BarOut::W(payload, _, _) => BarIn::W(payload.into()),
-                BarOut::S(payload) => BarIn::S(payload.into()),
-                BarOut::T(payload, _, _) => BarIn::T(payload.into()),
-            }
-        }
+    #[derive(Clone, Debug)]
+    pub enum BarIn {
+        X(bool),
+        Y(f64),
+        Z(super::basic::void::VoidIn),
+        W(super::basic::void::VoidIn),
+        S(super::basic::unit::UnitIn),
+        T(super::basic::unit::UnitIn),
     }
 
     impl super::Serialize for BarOut {
@@ -1382,10 +1771,78 @@ pub mod main {
         }
     }
 
-    #[derive(Clone, Debug)]
-    pub struct BazIn {
-        pub x: bool,
-        pub y: f64,
+    impl super::Deserialize for BarIn {
+        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        where
+            Self: Sized,
+        {
+            loop {
+                let header = u64::deserialize(reader.by_ref())?;
+
+                let index = header >> 2;
+
+                let size = match header & 0b11 {
+                    0b00 => {
+                        let buffer = reader.fill_buf()?;
+
+                        if buffer.is_empty() {
+                            return Err(::std::io::Error::new(
+                                ::std::io::ErrorKind::UnexpectedEof,
+                                \"Error decoding field.\",
+                            ));
+                        }
+
+                        u64::from(super::u64_size(buffer[0]))
+                    }
+                    0b01 => 0,
+                    0b10 => 8,
+                    0b11 => u64::deserialize(reader.by_ref())?,
+                    _ => panic!(),
+                };
+
+                let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                match index {
+                    0 => {
+                        return Ok(BarIn::X(bool::deserialize(sub_reader)?));
+                    }
+                    1 => {
+                        return Ok(BarIn::Y(f64::deserialize(sub_reader)?));
+                    }
+                    2 => {
+                        return Ok(BarIn::Z(super::basic::void::VoidIn::deserialize(sub_reader)?));
+                    }
+                    3 => {
+                        return Ok(BarIn::W(super::basic::void::VoidIn::deserialize(sub_reader)?));
+                    }
+                    4 => {
+                        return Ok(BarIn::S(super::basic::unit::UnitIn::deserialize(sub_reader)?));
+                    }
+                    5 => {
+                        return Ok(BarIn::T(super::basic::unit::UnitIn::deserialize(sub_reader)?));
+                    }
+                    _ => {
+                        for _ in 0..size {
+                            let mut buffer = [0];
+                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    impl From<BarOut> for BarIn {
+        fn from(message: BarOut) -> Self {
+            match message {
+                BarOut::X(payload) => BarIn::X(payload.into()),
+                BarOut::Y(payload, _, _) => BarIn::Y(payload.into()),
+                BarOut::Z(payload) => BarIn::Z(payload.into()),
+                BarOut::W(payload, _, _) => BarIn::W(payload.into()),
+                BarOut::S(payload) => BarIn::S(payload.into()),
+                BarOut::T(payload, _, _) => BarIn::T(payload.into()),
+            }
+        }
     }
 
     #[derive(Clone, Debug)]
@@ -1394,13 +1851,10 @@ pub mod main {
         pub y: f64,
     }
 
-    impl From<BazOut> for BazIn {
-        fn from(message: BazOut) -> Self {
-            BazIn {
-                x: message.x.into(),
-                y: message.y.into(),
-            }
-        }
+    #[derive(Clone, Debug)]
+    pub struct BazIn {
+        pub x: bool,
+        pub y: f64,
     }
 
     impl super::Serialize for BazOut {
@@ -1418,14 +1872,86 @@ pub mod main {
         }
     }
 
-    #[derive(Clone, Debug)]
-    pub struct FooIn {
-        pub x: bool,
-        pub y: Option<bool>,
-        pub z: super::basic::void::VoidIn,
-        pub w: Option<super::basic::void::VoidIn>,
-        pub s: super::basic::unit::UnitIn,
-        pub t: Option<super::basic::unit::UnitIn>,
+    impl super::Deserialize for BazIn {
+        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        where
+            Self: Sized,
+        {
+            let mut x: Option<bool> = None;
+            let mut y: Option<f64> = None;
+
+            loop {
+                let header = match u64::deserialize(reader.by_ref()) {
+                    Ok(header) => header,
+                    Err(err) => {
+                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                            break;
+                        }
+
+                        return Err(err);
+                    }
+                };
+
+                let index = header >> 2;
+
+                let size = match header & 0b11 {
+                    0b00 => {
+                        let buffer = reader.fill_buf()?;
+
+                        if buffer.is_empty() {
+                            return Err(::std::io::Error::new(
+                                ::std::io::ErrorKind::UnexpectedEof,
+                                \"Error decoding field.\",
+                            ));
+                        }
+
+                        u64::from(super::u64_size(buffer[0]))
+                    }
+                    0b01 => 0,
+                    0b10 => 8,
+                    0b11 => u64::deserialize(reader.by_ref())?,
+                    _ => panic!(),
+                };
+
+                let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                match index {
+                    0 => {
+                        x.get_or_insert(bool::deserialize(sub_reader)?);
+                    }
+                    1 => {
+                        y.get_or_insert(f64::deserialize(sub_reader)?);
+                    }
+                    _ => {
+                        for _ in 0..size {
+                            let mut buffer = [0];
+                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        }
+                    }
+                }
+            }
+
+            if x.is_none() || y.is_none(){
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::InvalidData,
+                    \"Struct missing one or more field(s).\",
+                ));
+            }
+
+            Ok(BazIn {
+                x: x.unwrap(),
+                y: y.unwrap(),
+            })
+        }
+    }
+
+    impl From<BazOut> for BazIn {
+        fn from(message: BazOut) -> Self {
+            BazIn {
+                x: message.x.into(),
+                y: message.y.into(),
+            }
+        }
     }
 
     #[derive(Clone, Debug)]
@@ -1438,17 +1964,14 @@ pub mod main {
         pub t: super::basic::unit::UnitOut,
     }
 
-    impl From<FooOut> for FooIn {
-        fn from(message: FooOut) -> Self {
-            FooIn {
-                x: message.x.into(),
-                y: Some(message.y.into()),
-                z: message.z.into(),
-                w: Some(message.w.into()),
-                s: message.s.into(),
-                t: Some(message.t.into()),
-            }
-        }
+    #[derive(Clone, Debug)]
+    pub struct FooIn {
+        pub x: bool,
+        pub y: Option<bool>,
+        pub z: super::basic::void::VoidIn,
+        pub w: Option<super::basic::void::VoidIn>,
+        pub s: super::basic::unit::UnitIn,
+        pub t: Option<super::basic::unit::UnitIn>,
     }
 
     impl super::Serialize for FooOut {
@@ -1474,10 +1997,110 @@ pub mod main {
         }
     }
 
-    #[derive(Clone, Debug)]
-    pub struct FooAndBarIn {
-        pub foo: FooIn,
-        pub bar: BarIn,
+    impl super::Deserialize for FooIn {
+        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        where
+            Self: Sized,
+        {
+            let mut x: Option<bool> = None;
+            let mut y: Option<bool> = None;
+            let mut z: Option<super::basic::void::VoidIn> = None;
+            let mut w: Option<super::basic::void::VoidIn> = None;
+            let mut s: Option<super::basic::unit::UnitIn> = None;
+            let mut t: Option<super::basic::unit::UnitIn> = None;
+
+            loop {
+                let header = match u64::deserialize(reader.by_ref()) {
+                    Ok(header) => header,
+                    Err(err) => {
+                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                            break;
+                        }
+
+                        return Err(err);
+                    }
+                };
+
+                let index = header >> 2;
+
+                let size = match header & 0b11 {
+                    0b00 => {
+                        let buffer = reader.fill_buf()?;
+
+                        if buffer.is_empty() {
+                            return Err(::std::io::Error::new(
+                                ::std::io::ErrorKind::UnexpectedEof,
+                                \"Error decoding field.\",
+                            ));
+                        }
+
+                        u64::from(super::u64_size(buffer[0]))
+                    }
+                    0b01 => 0,
+                    0b10 => 8,
+                    0b11 => u64::deserialize(reader.by_ref())?,
+                    _ => panic!(),
+                };
+
+                let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                match index {
+                    0 => {
+                        x.get_or_insert(bool::deserialize(sub_reader)?);
+                    }
+                    1 => {
+                        y.get_or_insert(bool::deserialize(sub_reader)?);
+                    }
+                    2 => {
+                        z.get_or_insert(super::basic::void::VoidIn::deserialize(sub_reader)?);
+                    }
+                    3 => {
+                        w.get_or_insert(super::basic::void::VoidIn::deserialize(sub_reader)?);
+                    }
+                    4 => {
+                        s.get_or_insert(super::basic::unit::UnitIn::deserialize(sub_reader)?);
+                    }
+                    5 => {
+                        t.get_or_insert(super::basic::unit::UnitIn::deserialize(sub_reader)?);
+                    }
+                    _ => {
+                        for _ in 0..size {
+                            let mut buffer = [0];
+                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        }
+                    }
+                }
+            }
+
+            if x.is_none() || z.is_none() || s.is_none(){
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::InvalidData,
+                    \"Struct missing one or more field(s).\",
+                ));
+            }
+
+            Ok(FooIn {
+                x: x.unwrap(),
+                y,
+                z: z.unwrap(),
+                w,
+                s: s.unwrap(),
+                t,
+            })
+        }
+    }
+
+    impl From<FooOut> for FooIn {
+        fn from(message: FooOut) -> Self {
+            FooIn {
+                x: message.x.into(),
+                y: Some(message.y.into()),
+                z: message.z.into(),
+                w: Some(message.w.into()),
+                s: message.s.into(),
+                t: Some(message.t.into()),
+            }
+        }
     }
 
     #[derive(Clone, Debug)]
@@ -1486,13 +2109,10 @@ pub mod main {
         pub bar: BarOut,
     }
 
-    impl From<FooAndBarOut> for FooAndBarIn {
-        fn from(message: FooAndBarOut) -> Self {
-            FooAndBarIn {
-                foo: message.foo.into(),
-                bar: message.bar.into(),
-            }
-        }
+    #[derive(Clone, Debug)]
+    pub struct FooAndBarIn {
+        pub foo: FooIn,
+        pub bar: BarIn,
     }
 
     impl super::Serialize for FooAndBarOut {
@@ -1510,10 +2130,86 @@ pub mod main {
         }
     }
 
-    #[derive(Clone, Debug)]
-    pub enum FooOrBarIn {
-        Foo(FooIn),
-        Bar(BarIn),
+    impl super::Deserialize for FooAndBarIn {
+        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        where
+            Self: Sized,
+        {
+            let mut foo: Option<FooIn> = None;
+            let mut bar: Option<BarIn> = None;
+
+            loop {
+                let header = match u64::deserialize(reader.by_ref()) {
+                    Ok(header) => header,
+                    Err(err) => {
+                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                            break;
+                        }
+
+                        return Err(err);
+                    }
+                };
+
+                let index = header >> 2;
+
+                let size = match header & 0b11 {
+                    0b00 => {
+                        let buffer = reader.fill_buf()?;
+
+                        if buffer.is_empty() {
+                            return Err(::std::io::Error::new(
+                                ::std::io::ErrorKind::UnexpectedEof,
+                                \"Error decoding field.\",
+                            ));
+                        }
+
+                        u64::from(super::u64_size(buffer[0]))
+                    }
+                    0b01 => 0,
+                    0b10 => 8,
+                    0b11 => u64::deserialize(reader.by_ref())?,
+                    _ => panic!(),
+                };
+
+                let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                match index {
+                    0 => {
+                        foo.get_or_insert(FooIn::deserialize(sub_reader)?);
+                    }
+                    1 => {
+                        bar.get_or_insert(BarIn::deserialize(sub_reader)?);
+                    }
+                    _ => {
+                        for _ in 0..size {
+                            let mut buffer = [0];
+                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        }
+                    }
+                }
+            }
+
+            if foo.is_none() || bar.is_none(){
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::InvalidData,
+                    \"Struct missing one or more field(s).\",
+                ));
+            }
+
+            Ok(FooAndBarIn {
+                foo: foo.unwrap(),
+                bar: bar.unwrap(),
+            })
+        }
+    }
+
+    impl From<FooAndBarOut> for FooAndBarIn {
+        fn from(message: FooAndBarOut) -> Self {
+            FooAndBarIn {
+                foo: message.foo.into(),
+                bar: message.bar.into(),
+            }
+        }
     }
 
     #[derive(Clone, Debug)]
@@ -1528,13 +2224,10 @@ pub mod main {
         Bar(BarOut),
     }
 
-    impl From<FooOrBarOut> for FooOrBarIn {
-        fn from(message: FooOrBarOut) -> Self {
-            match message {
-                FooOrBarOut::Foo(payload) => FooOrBarIn::Foo(payload.into()),
-                FooOrBarOut::Bar(payload) => FooOrBarIn::Bar(payload.into()),
-            }
-        }
+    #[derive(Clone, Debug)]
+    pub enum FooOrBarIn {
+        Foo(FooIn),
+        Bar(BarIn),
     }
 
     impl super::Serialize for FooOrBarOut {
@@ -1573,10 +2266,62 @@ pub mod main {
         }
     }
 
-    #[derive(Clone, Debug)]
-    pub enum QuxIn {
-        X(bool),
-        Y(f64),
+    impl super::Deserialize for FooOrBarIn {
+        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        where
+            Self: Sized,
+        {
+            loop {
+                let header = u64::deserialize(reader.by_ref())?;
+
+                let index = header >> 2;
+
+                let size = match header & 0b11 {
+                    0b00 => {
+                        let buffer = reader.fill_buf()?;
+
+                        if buffer.is_empty() {
+                            return Err(::std::io::Error::new(
+                                ::std::io::ErrorKind::UnexpectedEof,
+                                \"Error decoding field.\",
+                            ));
+                        }
+
+                        u64::from(super::u64_size(buffer[0]))
+                    }
+                    0b01 => 0,
+                    0b10 => 8,
+                    0b11 => u64::deserialize(reader.by_ref())?,
+                    _ => panic!(),
+                };
+
+                let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                match index {
+                    0 => {
+                        return Ok(FooOrBarIn::Foo(FooIn::deserialize(sub_reader)?));
+                    }
+                    1 => {
+                        return Ok(FooOrBarIn::Bar(BarIn::deserialize(sub_reader)?));
+                    }
+                    _ => {
+                        for _ in 0..size {
+                            let mut buffer = [0];
+                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    impl From<FooOrBarOut> for FooOrBarIn {
+        fn from(message: FooOrBarOut) -> Self {
+            match message {
+                FooOrBarOut::Foo(payload) => FooOrBarIn::Foo(payload.into()),
+                FooOrBarOut::Bar(payload) => FooOrBarIn::Bar(payload.into()),
+            }
+        }
     }
 
     #[derive(Clone, Debug)]
@@ -1591,13 +2336,10 @@ pub mod main {
         Y(f64),
     }
 
-    impl From<QuxOut> for QuxIn {
-        fn from(message: QuxOut) -> Self {
-            match message {
-                QuxOut::X(payload) => QuxIn::X(payload.into()),
-                QuxOut::Y(payload) => QuxIn::Y(payload.into()),
-            }
-        }
+    #[derive(Clone, Debug)]
+    pub enum QuxIn {
+        X(bool),
+        Y(f64),
     }
 
     impl super::Serialize for QuxOut {
@@ -1632,6 +2374,64 @@ pub mod main {
             match *self {
                 QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
+            }
+        }
+    }
+
+    impl super::Deserialize for QuxIn {
+        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        where
+            Self: Sized,
+        {
+            loop {
+                let header = u64::deserialize(reader.by_ref())?;
+
+                let index = header >> 2;
+
+                let size = match header & 0b11 {
+                    0b00 => {
+                        let buffer = reader.fill_buf()?;
+
+                        if buffer.is_empty() {
+                            return Err(::std::io::Error::new(
+                                ::std::io::ErrorKind::UnexpectedEof,
+                                \"Error decoding field.\",
+                            ));
+                        }
+
+                        u64::from(super::u64_size(buffer[0]))
+                    }
+                    0b01 => 0,
+                    0b10 => 8,
+                    0b11 => u64::deserialize(reader.by_ref())?,
+                    _ => panic!(),
+                };
+
+                let mut sub_reader = ::std::io::Read::take(reader.by_ref(), size);
+
+                match index {
+                    0 => {
+                        return Ok(QuxIn::X(bool::deserialize(sub_reader)?));
+                    }
+                    1 => {
+                        return Ok(QuxIn::Y(f64::deserialize(sub_reader)?));
+                    }
+                    _ => {
+                        for _ in 0..size {
+                            let mut buffer = [0];
+                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    impl From<QuxOut> for QuxIn {
+        fn from(message: QuxOut) -> Self {
+            match message {
+                QuxOut::X(payload) => QuxIn::X(payload.into()),
+                QuxOut::Y(payload) => QuxIn::Y(payload.into()),
             }
         }
     }
