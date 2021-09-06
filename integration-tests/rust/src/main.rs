@@ -9,7 +9,7 @@ use {
         io::{self, Error, ErrorKind},
     },
     types::{
-        main::{BazOut, QuxOut},
+        main::{BazIn, BazOut, QuxIn, QuxOut},
         Deserialize, Serialize,
     },
 };
@@ -49,6 +49,8 @@ fn main() -> io::Result<()> {
     message.serialize(&mut buffer)?;
     println!("Struct size: {:?}", message.size());
     println!("Struct bytes: {:?}", buffer);
+    let message = BazIn::deserialize(&mut buffer.as_slice())?;
+    println!("Deserialized struct: {:?}", message);
 
     println!();
 
@@ -57,6 +59,8 @@ fn main() -> io::Result<()> {
     message.serialize(&mut buffer)?;
     println!("Choice size: {:?}", message.size());
     println!("Choice bytes: {:?}", buffer);
+    let message = QuxIn::deserialize(&mut buffer.as_slice())?;
+    println!("Deserialized choice: {:?}", message);
 
     Ok(())
 }
