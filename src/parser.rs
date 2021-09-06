@@ -575,6 +575,13 @@ fn parse_field(
             source_range: span_tokens(tokens, type_start, *position),
             variant: schema::TypeVariant::Float64,
         }
+    } else if let token::Variant::Unsigned64 = tokens[*position].variant {
+        *position += 1;
+
+        schema::Type {
+            source_range: span_tokens(tokens, type_start, *position),
+            variant: schema::TypeVariant::Unsigned64,
+        }
     } else {
         let (import_name, r#type_name) = if *position < tokens.len() - 2 {
             if let Some(token::Variant::Dot) = tokens.get(*position + 1).map(|token| &token.variant)
@@ -705,14 +712,14 @@ mod tests {
             # This is a struct.
             struct Foo {
               x: baz.Baz = 0
-              y: unstable int = 1
+              y: unstable Unsigned64 = 1
               z: Boolean = 2
             }
 
             # This is a choice.
             choice Bar {
               x: qux.Qux = 0
-              y: unstable int = 1
+              y: unstable Unsigned64 = 1
               z: Float64 = 2
             }
         ";
@@ -758,30 +765,30 @@ mod tests {
             schema::Field {
                 source_range: SourceRange {
                     start: 170,
-                    end: 189,
+                    end: 196,
                 },
                 name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 182,
-                        end: 185,
+                        end: 192,
                     },
-                    variant: schema::TypeVariant::Custom(None, "int".into()),
+                    variant: schema::TypeVariant::Unsigned64,
                 },
                 index: 1,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 204,
-                    end: 218,
+                    start: 211,
+                    end: 225,
                 },
                 name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 207,
-                        end: 214,
+                        start: 214,
+                        end: 221,
                     },
                     variant: schema::TypeVariant::Boolean,
                 },
@@ -792,15 +799,15 @@ mod tests {
         let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 305,
-                    end: 319,
+                    start: 312,
+                    end: 326,
                 },
                 name: "x".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 308,
-                        end: 315,
+                        start: 315,
+                        end: 322,
                     },
                     variant: schema::TypeVariant::Custom(Some("qux".into()), "Qux".into()),
                 },
@@ -808,31 +815,31 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 334,
-                    end: 353,
+                    start: 341,
+                    end: 367,
                 },
                 name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 346,
-                        end: 349,
+                        start: 353,
+                        end: 363,
                     },
-                    variant: schema::TypeVariant::Custom(None, "int".into()),
+                    variant: schema::TypeVariant::Unsigned64,
                 },
                 index: 1,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 368,
-                    end: 382,
+                    start: 382,
+                    end: 396,
                 },
                 name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 371,
-                        end: 378,
+                        start: 385,
+                        end: 392,
                     },
                     variant: schema::TypeVariant::Float64,
                 },
@@ -847,7 +854,7 @@ mod tests {
             schema::Declaration {
                 source_range: SourceRange {
                     start: 114,
-                    end: 232,
+                    end: 239,
                 },
                 variant: schema::DeclarationVariant::Struct(foo_fields),
             },
@@ -857,8 +864,8 @@ mod tests {
             "Bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 278,
-                    end: 396,
+                    start: 285,
+                    end: 410,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },

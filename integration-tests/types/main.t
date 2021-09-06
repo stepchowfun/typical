@@ -31,7 +31,8 @@ choice FooOrBar {
 
 struct Baz {
   x: Boolean = 0
-  y: Float64 = 1
+  y: unstable Unsigned64 = 1
+  z: Float64 = 2
 }
 
 choice Qux {

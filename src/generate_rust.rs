@@ -624,7 +624,7 @@ fn write_schema<T: Write>(
                             write!(buffer, ".is_none()")?;
                         }
                     }
-                    writeln!(buffer, "{{")?;
+                    writeln!(buffer, " {{")?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "return Err(::std::io::Error::new(")?;
                     write_indentation(buffer, indentation + 4)?;
@@ -1140,6 +1140,9 @@ fn write_type<T: Write>(
         }
         schema::TypeVariant::Float64 => {
             write!(buffer, "f64")?;
+        }
+        schema::TypeVariant::Unsigned64 => {
+            write!(buffer, "u64")?;
         }
         schema::TypeVariant::Custom(import, name) => {
             let type_namespace = schema::Namespace {
@@ -1848,13 +1851,15 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub struct BazOut {
         pub x: bool,
-        pub y: f64,
+        pub y: u64,
+        pub z: f64,
     }
 
     #[derive(Clone, Debug)]
     pub struct BazIn {
         pub x: bool,
-        pub y: f64,
+        pub y: Option<u64>,
+        pub z: f64,
     }
 
     impl super::Serialize for BazOut {
@@ -1863,11 +1868,13 @@ pub mod main {
         fn size(&self) -> u64 {
             super::field_size(0, &self.x)
                 + super::field_size(1, &self.y)
+                + super::field_size(2, &self.z)
         }
 
         fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.x)?;
             super::serialize_field(writer.by_ref(), 1, &self.y)?;
+            super::serialize_field(writer.by_ref(), 2, &self.z)?;
             Ok(())
         }
     }
@@ -1878,7 +1885,8 @@ pub mod main {
             Self: Sized,
         {
             let mut x: Option<bool> = None;
-            let mut y: Option<f64> = None;
+            let mut y: Option<u64> = None;
+            let mut z: Option<f64> = None;
 
             loop {
                 let header = match u64::deserialize(reader.by_ref()) {
@@ -1920,7 +1928,10 @@ pub mod main {
                         x.get_or_insert(bool::deserialize(sub_reader)?);
                     }
                     1 => {
-                        y.get_or_insert(f64::deserialize(sub_reader)?);
+                        y.get_or_insert(u64::deserialize(sub_reader)?);
+                    }
+                    2 => {
+                        z.get_or_insert(f64::deserialize(sub_reader)?);
                     }
                     _ => {
                         for _ in 0..size {
@@ -1931,7 +1942,7 @@ pub mod main {
                 }
             }
 
-            if x.is_none() || y.is_none(){
+            if x.is_none() || z.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",
@@ -1940,7 +1951,8 @@ pub mod main {
 
             Ok(BazIn {
                 x: x.unwrap(),
-                y: y.unwrap(),
+                y,
+                z: z.unwrap(),
             })
         }
     }
@@ -1949,7 +1961,8 @@ pub mod main {
         fn from(message: BazOut) -> Self {
             BazIn {
                 x: message.x.into(),
-                y: message.y.into(),
+                y: Some(message.y.into()),
+                z: message.z.into(),
             }
         }
     }
@@ -2072,7 +2085,7 @@ pub mod main {
                 }
             }
 
-            if x.is_none() || z.is_none() || s.is_none(){
+            if x.is_none() || z.is_none() || s.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",
@@ -2189,7 +2202,7 @@ pub mod main {
                 }
             }
 
-            if foo.is_none() || bar.is_none(){
+            if foo.is_none() || bar.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",

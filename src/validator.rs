@@ -89,7 +89,9 @@ pub fn validate(
 
                         // Validate the type.
                         match &field.r#type.variant {
-                            schema::TypeVariant::Boolean | schema::TypeVariant::Float64 => {}
+                            schema::TypeVariant::Boolean
+                            | schema::TypeVariant::Float64
+                            | schema::TypeVariant::Unsigned64 => {}
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
                                 let type_namespace = if let Some(import) = import {
@@ -234,7 +236,9 @@ fn check_type_for_cycles(
         schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
             for field in fields {
                 match &field.r#type.variant {
-                    schema::TypeVariant::Boolean | schema::TypeVariant::Float64 => {}
+                    schema::TypeVariant::Boolean
+                    | schema::TypeVariant::Float64
+                    | schema::TypeVariant::Unsigned64 => {}
                     schema::TypeVariant::Custom(import, type_name) => {
                         let type_namespace = import.as_ref().map_or_else(
                             || namespace.clone(),
