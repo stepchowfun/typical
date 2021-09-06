@@ -485,11 +485,11 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn serialize(&self, mut writer: impl ")?;
-                write_supers(buffer, indentation)?;
-                write!(buffer, "io::Write) -> ")?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "io::Result<()> {{")?;
+                writeln!(
+                    buffer,
+                    "fn serialize(&self, mut writer: impl ::std::io::Write) -> \
+                       ::std::io::Result<()> {{",
+                )?;
                 for field in fields {
                     write_indentation(buffer, indentation + 2)?;
                     write_supers(buffer, indentation)?;
@@ -631,11 +631,11 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn serialize(&self, mut writer: impl ")?;
-                write_supers(buffer, indentation)?;
-                write!(buffer, "io::Write) -> ")?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "io::Result<()> {{")?;
+                writeln!(
+                    buffer,
+                    "fn serialize(&self, mut writer: impl ::std::io::Write) -> \
+                       ::std::io::Result<()> {{",
+                )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
@@ -712,11 +712,11 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn serialize(&self, writer: impl ")?;
-                write_supers(buffer, indentation)?;
-                write!(buffer, "io::Write) -> ")?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "io::Result<()> {{")?;
+                writeln!(
+                    buffer,
+                    "fn serialize(&self, writer: impl ::std::io::Write) -> \
+                       ::std::io::Result<()> {{",
+                )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
@@ -1193,8 +1193,7 @@ pub mod basic {
                 0
             }
 
-            fn serialize(&self, mut writer: impl super::super::io::Write) -> \
-                super::super::io::Result<()> {
+            fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
                 Ok(())
             }
         }
@@ -1228,8 +1227,7 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, mut writer: impl super::super::io::Write) -> \
-                super::super::io::Result<()> {
+            fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
                 match *self {
                 }
             }
@@ -1243,8 +1241,7 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, writer: impl super::super::io::Write) -> \
-                super::super::io::Result<()> {
+            fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
                 match *self {
                 }
             }
@@ -1329,7 +1326,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             match *self {
                 BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOut::Y(ref payload, ref alternatives, ref fallback) => {
@@ -1376,7 +1373,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             match *self {
                 BarOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
@@ -1414,7 +1411,7 @@ pub mod main {
                 + super::field_size(1, &self.y)
         }
 
-        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.x)?;
             super::serialize_field(writer.by_ref(), 1, &self.y)?;
             Ok(())
@@ -1466,7 +1463,7 @@ pub mod main {
                 + super::field_size(5, &self.t)
         }
 
-        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.x)?;
             super::serialize_field(writer.by_ref(), 1, &self.y)?;
             super::serialize_field(writer.by_ref(), 2, &self.z)?;
@@ -1506,7 +1503,7 @@ pub mod main {
                 + super::field_size(1, &self.bar)
         }
 
-        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.foo)?;
             super::serialize_field(writer.by_ref(), 1, &self.bar)?;
             Ok(())
@@ -1550,7 +1547,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             match *self {
                 FooOrBarOut::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOut::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -1568,7 +1565,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             match *self {
                 FooOrBarOutStable::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOutStable::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -1613,7 +1610,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             match *self {
                 QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
@@ -1631,7 +1628,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
             match *self {
                 QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
