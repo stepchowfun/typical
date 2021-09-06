@@ -3,7 +3,7 @@ use crate::{
     format::CodeStr,
     token::{
         Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
-        IMPORT_KEYWORD, STRUCT_KEYWORD, UNSTABLE_KEYWORD,
+        IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
     },
 };
 use std::path::Path;
@@ -121,6 +121,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Struct,
+                    });
+                } else if &schema_contents[i..end] == UNSIGNED64_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Unsigned64,
                     });
                 } else if &schema_contents[i..end] == UNSTABLE_KEYWORD {
                     tokens.push(Token {
@@ -278,7 +283,7 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
-            IMPORT_KEYWORD, STRUCT_KEYWORD, UNSTABLE_KEYWORD,
+            IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
         },
         tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
     };
@@ -300,6 +305,7 @@ mod tests {
             choice zyzzy {
               grault: bar.Bar = 0
               garply: unstable Float64 = 1
+              wobble: Unsigned64 = 2
             }
         ";
 
@@ -546,8 +552,43 @@ mod tests {
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 331,
-                        end: 332,
+                        start: 333,
+                        end: 339,
+                    },
+                    variant: Variant::Identifier("wobble".into()),
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 339,
+                        end: 340,
+                    },
+                    variant: Variant::Colon,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 341,
+                        end: 351,
+                    },
+                    variant: Variant::Unsigned64,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 352,
+                        end: 353,
+                    },
+                    variant: Variant::Equals,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 354,
+                        end: 355,
+                    },
+                    variant: Variant::Integer(2),
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 368,
+                        end: 369,
                     },
                     variant: Variant::RightCurly,
                 },
@@ -783,6 +824,20 @@ mod tests {
                     end: STRUCT_KEYWORD.len(),
                 },
                 variant: Variant::Struct,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_unsigned64() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), UNSIGNED64_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: UNSIGNED64_KEYWORD.len(),
+                },
+                variant: Variant::Unsigned64,
             }],
         );
     }

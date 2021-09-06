@@ -49,6 +49,7 @@ pub struct Type {
 pub enum TypeVariant {
     Boolean,
     Float64,
+    Unsigned64,
     Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
@@ -176,6 +177,9 @@ impl TypeVariant {
             }
             Self::Float64 => {
                 write!(f, "Float64")?;
+            }
+            Self::Unsigned64 => {
+                write!(f, "Unsigned64")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -432,7 +436,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Float64,
+                    variant: TypeVariant::Unsigned64,
                 },
                 index: 1,
             },
@@ -492,7 +496,7 @@ mod tests {
             \n\
             struct Foo {\n\
             \x20 x: Boolean = 0\n\
-            \x20 y: Float64 = 1\n\
+            \x20 y: Unsigned64 = 1\n\
             }\n\
         ";
 
@@ -539,7 +543,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Float64,
+                    variant: TypeVariant::Unsigned64,
                 },
                 index: 1,
             },
@@ -602,7 +606,7 @@ mod tests {
             \n\
             struct Foo {\n\
             \x20 x: Boolean = 0\n\
-            \x20 y: Float64 = 1\n\
+            \x20 y: Unsigned64 = 1\n\
             }\n\
         ";
 
@@ -629,6 +633,18 @@ mod tests {
         };
 
         let expected = "Float64";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
+    fn type_display_unsigned64() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Unsigned64,
+        };
+
+        let expected = "Unsigned64";
 
         assert_eq!(r#type.to_string(), expected);
     }

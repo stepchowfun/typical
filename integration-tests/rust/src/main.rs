@@ -44,7 +44,11 @@ fn main() -> io::Result<()> {
 
     println!();
 
-    let message = BazOut { x: true, y: PI };
+    let message = BazOut {
+        x: true,
+        y: 42,
+        z: PI,
+    };
     let mut buffer = Vec::<u8>::new();
     message.serialize(&mut buffer)?;
     println!("Struct size: {:?}", message.size());
