@@ -99,12 +99,12 @@ pub trait Serialize {{
 
     fn size(&self) -> u64;
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
+    fn serialize(&self, writer: impl Write) -> io::Result<()>;
 }}
 
 #[rustfmt::skip]
 pub trait Deserialize {{
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized;
 }}
@@ -117,14 +117,14 @@ impl Serialize for bool {{
         1
     }}
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
+    fn serialize(&self, writer: impl Write) -> io::Result<()> {{
         (if *self {{ 1_u64 }} else {{ 0_u64 }}).serialize(writer)
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for bool {{
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {{
@@ -160,7 +160,7 @@ impl Serialize for u64 {{
         size
     }}
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
+    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {{
         let size = self.size();
         let size_minus_one = size - 1;
 
@@ -183,7 +183,7 @@ impl Serialize for u64 {{
 
 #[rustfmt::skip]
 impl Deserialize for u64 {{
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {{
@@ -220,14 +220,14 @@ impl Serialize for f64 {{
         8
     }}
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {{
+    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {{
         writer.write_all(&self.to_le_bytes())
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for f64 {{
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {{
@@ -251,20 +251,20 @@ fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
 }}
 
 #[rustfmt::skip]
-fn serialize_field<T: Serialize>(writer: &mut impl Write, tag: u64, value: &T) -> io::Result<()> {{
+fn serialize_field<T: Serialize>(mut writer: impl Write, tag: u64, value: &T) -> io::Result<()> {{
     if T::VARINT_ENCODED {{
-        ((tag << 2) | 0b00).serialize(writer)?;
+        ((tag << 2) | 0b00).serialize(writer.by_ref())?;
     }} else {{
         match value.size() {{
             0 => {{
-                ((tag << 2) | 0b01).serialize(writer)?;
+                ((tag << 2) | 0b01).serialize(writer.by_ref())?;
             }}
             8 => {{
-                ((tag << 2) | 0b10).serialize(writer)?;
+                ((tag << 2) | 0b10).serialize(writer.by_ref())?;
             }}
             size => {{
-                ((tag << 2) | 0b11).serialize(writer)?;
-                size.serialize(writer)?;
+                ((tag << 2) | 0b11).serialize(writer.by_ref())?;
+                size.serialize(writer.by_ref())?;
             }}
         }}
     }}
@@ -485,7 +485,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn serialize(&self, writer: &mut impl ")?;
+                write!(buffer, "fn serialize(&self, mut writer: impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "io::Write) -> ")?;
                 write_supers(buffer, indentation)?;
@@ -493,7 +493,11 @@ fn write_schema<T: Write>(
                 for field in fields {
                     write_indentation(buffer, indentation + 2)?;
                     write_supers(buffer, indentation)?;
-                    write!(buffer, "serialize_field(writer, {}, &self.", field.index)?;
+                    write!(
+                        buffer,
+                        "serialize_field(writer.by_ref(), {}, &self.",
+                        field.index,
+                    )?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     writeln!(buffer, ")?;")?;
                 }
@@ -627,7 +631,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn serialize(&self, writer: &mut impl ")?;
+                write!(buffer, "fn serialize(&self, mut writer: impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "io::Write) -> ")?;
                 write_supers(buffer, indentation)?;
@@ -648,14 +652,14 @@ fn write_schema<T: Write>(
                         write_supers(buffer, indentation)?;
                         writeln!(
                             buffer,
-                            "serialize_field(writer, {}, payload)?;",
+                            "serialize_field(writer.by_ref(), {}, payload)?;",
                             field.index,
                         )?;
                         writeln!(buffer)?;
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "for alternative in alternatives {{")?;
                         write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, "alternative.serialize(writer)?;")?;
+                        writeln!(buffer, "alternative.serialize(writer.by_ref())?;")?;
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "}}")?;
                         writeln!(buffer)?;
@@ -708,7 +712,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "fn serialize(&self, writer: &mut impl ")?;
+                write!(buffer, "fn serialize(&self, writer: impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "io::Write) -> ")?;
                 write_supers(buffer, indentation)?;
@@ -991,12 +995,12 @@ pub trait Serialize {
 
     fn size(&self) -> u64;
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()>;
+    fn serialize(&self, writer: impl Write) -> io::Result<()>;
 }
 
 #[rustfmt::skip]
 pub trait Deserialize {
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized;
 }
@@ -1009,14 +1013,14 @@ impl Serialize for bool {
         1
     }
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
+    fn serialize(&self, writer: impl Write) -> io::Result<()> {
         (if *self { 1_u64 } else { 0_u64 }).serialize(writer)
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for bool {
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {
@@ -1052,7 +1056,7 @@ impl Serialize for u64 {
         size
     }
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
+    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {
         let size = self.size();
         let size_minus_one = size - 1;
 
@@ -1075,7 +1079,7 @@ impl Serialize for u64 {
 
 #[rustfmt::skip]
 impl Deserialize for u64 {
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {
@@ -1112,14 +1116,14 @@ impl Serialize for f64 {
         8
     }
 
-    fn serialize(&self, writer: &mut impl Write) -> io::Result<()> {
+    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {
         writer.write_all(&self.to_le_bytes())
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for f64 {
-    fn deserialize(reader: &mut impl BufRead) -> io::Result<Self>
+    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
     where
         Self: Sized,
     {
@@ -1143,20 +1147,20 @@ fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
 }
 
 #[rustfmt::skip]
-fn serialize_field<T: Serialize>(writer: &mut impl Write, tag: u64, value: &T) -> io::Result<()> {
+fn serialize_field<T: Serialize>(mut writer: impl Write, tag: u64, value: &T) -> io::Result<()> {
     if T::VARINT_ENCODED {
-        ((tag << 2) | 0b00).serialize(writer)?;
+        ((tag << 2) | 0b00).serialize(writer.by_ref())?;
     } else {
         match value.size() {
             0 => {
-                ((tag << 2) | 0b01).serialize(writer)?;
+                ((tag << 2) | 0b01).serialize(writer.by_ref())?;
             }
             8 => {
-                ((tag << 2) | 0b10).serialize(writer)?;
+                ((tag << 2) | 0b10).serialize(writer.by_ref())?;
             }
             size => {
-                ((tag << 2) | 0b11).serialize(writer)?;
-                size.serialize(writer)?;
+                ((tag << 2) | 0b11).serialize(writer.by_ref())?;
+                size.serialize(writer.by_ref())?;
             }
         }
     }
@@ -1189,7 +1193,7 @@ pub mod basic {
                 0
             }
 
-            fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
+            fn serialize(&self, mut writer: impl super::super::io::Write) -> \
                 super::super::io::Result<()> {
                 Ok(())
             }
@@ -1224,7 +1228,7 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
+            fn serialize(&self, mut writer: impl super::super::io::Write) -> \
                 super::super::io::Result<()> {
                 match *self {
                 }
@@ -1239,7 +1243,7 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, writer: &mut impl super::super::io::Write) -> \
+            fn serialize(&self, writer: impl super::super::io::Write) -> \
                 super::super::io::Result<()> {
                 match *self {
                 }
@@ -1325,34 +1329,34 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
             match *self {
                 BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOut::Y(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer, 1, payload)?;
+                    super::serialize_field(writer.by_ref(), 1, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(writer)?;
+                        alternative.serialize(writer.by_ref())?;
                     }
 
                     fallback.serialize(writer)
                 }
                 BarOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
                 BarOut::W(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer, 3, payload)?;
+                    super::serialize_field(writer.by_ref(), 3, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(writer)?;
+                        alternative.serialize(writer.by_ref())?;
                     }
 
                     fallback.serialize(writer)
                 }
                 BarOut::S(ref payload) => super::serialize_field(writer, 4, payload),
                 BarOut::T(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer, 5, payload)?;
+                    super::serialize_field(writer.by_ref(), 5, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(writer)?;
+                        alternative.serialize(writer.by_ref())?;
                     }
 
                     fallback.serialize(writer)
@@ -1372,7 +1376,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, writer: impl super::io::Write) -> super::io::Result<()> {
             match *self {
                 BarOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
@@ -1410,9 +1414,9 @@ pub mod main {
                 + super::field_size(1, &self.y)
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
-            super::serialize_field(writer, 0, &self.x)?;
-            super::serialize_field(writer, 1, &self.y)?;
+        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+            super::serialize_field(writer.by_ref(), 0, &self.x)?;
+            super::serialize_field(writer.by_ref(), 1, &self.y)?;
             Ok(())
         }
     }
@@ -1462,13 +1466,13 @@ pub mod main {
                 + super::field_size(5, &self.t)
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
-            super::serialize_field(writer, 0, &self.x)?;
-            super::serialize_field(writer, 1, &self.y)?;
-            super::serialize_field(writer, 2, &self.z)?;
-            super::serialize_field(writer, 3, &self.w)?;
-            super::serialize_field(writer, 4, &self.s)?;
-            super::serialize_field(writer, 5, &self.t)?;
+        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+            super::serialize_field(writer.by_ref(), 0, &self.x)?;
+            super::serialize_field(writer.by_ref(), 1, &self.y)?;
+            super::serialize_field(writer.by_ref(), 2, &self.z)?;
+            super::serialize_field(writer.by_ref(), 3, &self.w)?;
+            super::serialize_field(writer.by_ref(), 4, &self.s)?;
+            super::serialize_field(writer.by_ref(), 5, &self.t)?;
             Ok(())
         }
     }
@@ -1502,9 +1506,9 @@ pub mod main {
                 + super::field_size(1, &self.bar)
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
-            super::serialize_field(writer, 0, &self.foo)?;
-            super::serialize_field(writer, 1, &self.bar)?;
+        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
+            super::serialize_field(writer.by_ref(), 0, &self.foo)?;
+            super::serialize_field(writer.by_ref(), 1, &self.bar)?;
             Ok(())
         }
     }
@@ -1546,7 +1550,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
             match *self {
                 FooOrBarOut::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOut::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -1564,7 +1568,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, writer: impl super::io::Write) -> super::io::Result<()> {
             match *self {
                 FooOrBarOutStable::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOutStable::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -1609,7 +1613,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, mut writer: impl super::io::Write) -> super::io::Result<()> {
             match *self {
                 QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
@@ -1627,7 +1631,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: &mut impl super::io::Write) -> super::io::Result<()> {
+        fn serialize(&self, writer: impl super::io::Write) -> super::io::Result<()> {
             match *self {
                 QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
