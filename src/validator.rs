@@ -90,6 +90,7 @@ pub fn validate(
                         // Validate the type.
                         match &field.r#type.variant {
                             schema::TypeVariant::Boolean
+                            | schema::TypeVariant::Bytes
                             | schema::TypeVariant::Float64
                             | schema::TypeVariant::Unsigned64 => {}
                             schema::TypeVariant::Custom(import, name) => {
@@ -237,6 +238,7 @@ fn check_type_for_cycles(
             for field in fields {
                 match &field.r#type.variant {
                     schema::TypeVariant::Boolean
+                    | schema::TypeVariant::Bytes
                     | schema::TypeVariant::Float64
                     | schema::TypeVariant::Unsigned64 => {}
                     schema::TypeVariant::Custom(import, type_name) => {

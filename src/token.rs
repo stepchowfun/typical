@@ -7,6 +7,7 @@ use std::{
 // Keywords
 pub const AS_KEYWORD: &str = "as";
 pub const BOOLEAN_KEYWORD: &str = "Boolean";
+pub const BYTES_KEYWORD: &str = "Bytes";
 pub const CHOICE_KEYWORD: &str = "choice";
 pub const FLOAT64_KEYWORD: &str = "Float64";
 pub const IMPORT_KEYWORD: &str = "import";
@@ -27,6 +28,7 @@ pub struct Token {
 pub enum Variant {
     As,
     Boolean,
+    Bytes,
     Choice,
     Colon,
     Dot,
@@ -54,6 +56,7 @@ impl Display for Variant {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
             Self::Boolean => write!(f, "{}", BOOLEAN_KEYWORD),
+            Self::Bytes => write!(f, "{}", BYTES_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
@@ -77,8 +80,8 @@ mod tests {
     use crate::{
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
-            IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            FLOAT64_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
         },
     };
     use std::path::Path;
@@ -105,6 +108,11 @@ mod tests {
     #[test]
     fn variant_bool_display() {
         assert_eq!(format!("{}", Variant::Boolean), BOOLEAN_KEYWORD);
+    }
+
+    #[test]
+    fn variant_bytes_display() {
+        assert_eq!(format!("{}", Variant::Bytes), BYTES_KEYWORD);
     }
 
     #[test]
