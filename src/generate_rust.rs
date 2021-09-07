@@ -118,7 +118,7 @@ impl Serialize for bool {{
     }}
 
     fn serialize(&self, writer: impl Write) -> io::Result<()> {{
-        (if *self {{ 1_u64 }} else {{ 0_u64 }}).serialize(writer)
+        (*self as u64).serialize(writer)
     }}
 }}
 
@@ -1315,7 +1315,7 @@ impl Serialize for bool {
     }
 
     fn serialize(&self, writer: impl Write) -> io::Result<()> {
-        (if *self { 1_u64 } else { 0_u64 }).serialize(writer)
+        (*self as u64).serialize(writer)
     }
 }
 
