@@ -256,6 +256,18 @@ fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
 }}
 
 #[rustfmt::skip]
+fn skip(mut reader: impl BufRead, mut amount: usize) -> io::Result<()> {{
+    while amount > 0 {{
+        let buffer = ::std::io::BufRead::fill_buf(reader.by_ref())?;
+        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
+        ::std::io::BufRead::consume(reader.by_ref(), num_bytes_to_consume);
+        amount -= num_bytes_to_consume;
+    }}
+
+    Ok(())
+}}
+
+#[rustfmt::skip]
 fn serialize_field<T: Serialize>(mut writer: impl Write, tag: u64, value: &T) -> io::Result<()> {{
     if T::VARINT_ENCODED {{
         ((tag << 2) | 0b00).serialize(writer.by_ref())?;
@@ -597,16 +609,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "_ => {{")?;
                 write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "for _ in 0..size {{")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "let mut buffer = [0];")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(
-                    buffer,
-                    "::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;",
-                )?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "}}")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "skip(&mut sub_reader, size as usize)?;")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -980,16 +984,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "_ => {{")?;
                 write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "for _ in 0..size {{")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "let mut buffer = [0];")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(
-                    buffer,
-                    "::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;",
-                )?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "}}")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "skip(&mut sub_reader, size as usize)?;")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -1455,6 +1451,18 @@ fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
 }
 
 #[rustfmt::skip]
+fn skip(mut reader: impl BufRead, mut amount: usize) -> io::Result<()> {
+    while amount > 0 {
+        let buffer = ::std::io::BufRead::fill_buf(reader.by_ref())?;
+        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
+        ::std::io::BufRead::consume(reader.by_ref(), num_bytes_to_consume);
+        amount -= num_bytes_to_consume;
+    }
+
+    Ok(())
+}
+
+#[rustfmt::skip]
 fn serialize_field<T: Serialize>(mut writer: impl Write, tag: u64, value: &T) -> io::Result<()> {
     if T::VARINT_ENCODED {
         ((tag << 2) | 0b00).serialize(writer.by_ref())?;
@@ -1541,10 +1549,7 @@ pub mod basic {
 
                     match index {
                         _ => {
-                            for _ in 0..size {
-                                let mut buffer = [0];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                            }
+                            super::super::skip(&mut sub_reader, size as usize)?;
                         }
                     }
                 }
@@ -1636,10 +1641,7 @@ pub mod basic {
 
                     match index {
                         _ => {
-                            for _ in 0..size {
-                                let mut buffer = [0];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                            }
+                            super::super::skip(&mut sub_reader, size as usize)?;
                         }
                     }
                 }
@@ -1826,10 +1828,7 @@ pub mod main {
                         return Ok(BarIn::T(super::basic::unit::UnitIn::deserialize(sub_reader)?));
                     }
                     _ => {
-                        for _ in 0..size {
-                            let mut buffer = [0];
-                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        }
+                        super::skip(&mut sub_reader, size as usize)?;
                     }
                 }
             }
@@ -1935,10 +1934,7 @@ pub mod main {
                         z.get_or_insert(f64::deserialize(sub_reader)?);
                     }
                     _ => {
-                        for _ in 0..size {
-                            let mut buffer = [0];
-                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        }
+                        super::skip(&mut sub_reader, size as usize)?;
                     }
                 }
             }
@@ -2078,10 +2074,7 @@ pub mod main {
                         t.get_or_insert(super::basic::unit::UnitIn::deserialize(sub_reader)?);
                     }
                     _ => {
-                        for _ in 0..size {
-                            let mut buffer = [0];
-                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        }
+                        super::skip(&mut sub_reader, size as usize)?;
                     }
                 }
             }
@@ -2195,10 +2188,7 @@ pub mod main {
                         bar.get_or_insert(BarIn::deserialize(sub_reader)?);
                     }
                     _ => {
-                        for _ in 0..size {
-                            let mut buffer = [0];
-                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        }
+                        super::skip(&mut sub_reader, size as usize)?;
                     }
                 }
             }
@@ -2319,10 +2309,7 @@ pub mod main {
                         return Ok(FooOrBarIn::Bar(BarIn::deserialize(sub_reader)?));
                     }
                     _ => {
-                        for _ in 0..size {
-                            let mut buffer = [0];
-                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        }
+                        super::skip(&mut sub_reader, size as usize)?;
                     }
                 }
             }
@@ -2431,10 +2418,7 @@ pub mod main {
                         return Ok(QuxIn::Y(f64::deserialize(sub_reader)?));
                     }
                     _ => {
-                        for _ in 0..size {
-                            let mut buffer = [0];
-                            ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        }
+                        super::skip(&mut sub_reader, size as usize)?;
                     }
                 }
             }
