@@ -504,7 +504,9 @@ fn write_schema<T: Write>(
                     write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
                     writeln!(buffer, "> = None;")?;
                 }
-                writeln!(buffer)?;
+                if !fields.is_empty() {
+                    writeln!(buffer)?;
+                }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -1502,7 +1504,6 @@ pub mod basic {
             where
                 Self: Sized,
             {
-
                 loop {
                     let header = match u64::deserialize(reader.by_ref()) {
                         Ok(header) => header,
