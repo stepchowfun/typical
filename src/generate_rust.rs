@@ -424,11 +424,11 @@ fn write_schema<T: Write>(
     while let Some((name, declaration)) = iter.next() {
         match &declaration.variant {
             schema::DeclarationVariant::Struct(fields) => {
-                write_struct(buffer, indentation, &imports, namespace, &name, fields, Out)?;
+                write_struct(buffer, indentation, &imports, namespace, name, fields, Out)?;
 
                 writeln!(buffer)?;
 
-                write_struct(buffer, indentation, &imports, namespace, &name, fields, In)?;
+                write_struct(buffer, indentation, &imports, namespace, name, fields, In)?;
 
                 writeln!(buffer)?;
 
@@ -436,7 +436,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
@@ -494,7 +494,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Deserialize for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
@@ -645,7 +645,7 @@ fn write_schema<T: Write>(
                 }
                 write_indentation(buffer, indentation + 2)?;
                 write!(buffer, "Ok(")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
@@ -668,16 +668,16 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 write!(buffer, "> for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
@@ -707,7 +707,7 @@ fn write_schema<T: Write>(
                     indentation,
                     &imports,
                     namespace,
-                    &name,
+                    name,
                     fields,
                     InOrOut(Out),
                 )?;
@@ -719,7 +719,7 @@ fn write_schema<T: Write>(
                     indentation,
                     &imports,
                     namespace,
-                    &name,
+                    name,
                     fields,
                     OutStable,
                 )?;
@@ -731,7 +731,7 @@ fn write_schema<T: Write>(
                     indentation,
                     &imports,
                     namespace,
-                    &name,
+                    name,
                     fields,
                     InOrOut(In),
                 )?;
@@ -742,7 +742,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
@@ -753,7 +753,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                    write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     if field.unstable {
@@ -797,7 +797,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                    write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     if field.unstable {
@@ -843,7 +843,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                write_identifier(buffer, name, Pascal, Some(OutStable))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
@@ -855,7 +855,7 @@ fn write_schema<T: Write>(
                 for field in fields {
                     if !field.unstable {
                         write_indentation(buffer, indentation + 3)?;
-                        write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                        write_identifier(buffer, name, Pascal, Some(OutStable))?;
                         write!(buffer, "::")?;
                         write_identifier(buffer, &field.name, Pascal, None)?;
                         write!(buffer, "(ref payload) => ")?;
@@ -879,7 +879,7 @@ fn write_schema<T: Write>(
                 for field in fields {
                     if !field.unstable {
                         write_indentation(buffer, indentation + 3)?;
-                        write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                        write_identifier(buffer, name, Pascal, Some(OutStable))?;
                         write!(buffer, "::")?;
                         write_identifier(buffer, &field.name, Pascal, None)?;
                         write!(buffer, "(ref payload) => ")?;
@@ -900,7 +900,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Deserialize for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
@@ -972,7 +972,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "{} => {{", field.index)?;
                     write_indentation(buffer, indentation + 5)?;
                     write!(buffer, "return Ok(")?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                    write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     write!(buffer, "(")?;
@@ -1001,19 +1001,19 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 write!(buffer, "> for ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match message {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                    write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     write!(buffer, "(payload")?;
@@ -1021,7 +1021,7 @@ fn write_schema<T: Write>(
                         write!(buffer, ", _, _")?;
                     }
                     write!(buffer, ") => ")?;
-                    write_identifier(buffer, &name, Pascal, Some(InOrOut(In)))?;
+                    write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     writeln!(buffer, "(payload.into()),")?;
@@ -1057,7 +1057,7 @@ fn write_struct<T: Write>(
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub struct ")?;
-    write_identifier(buffer, &name, Pascal, Some(InOrOut(flavor)))?;
+    write_identifier(buffer, name, Pascal, Some(InOrOut(flavor)))?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
@@ -1095,7 +1095,7 @@ fn write_choice<T: Write>(
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub enum ")?;
-    write_identifier(buffer, &name, Pascal, Some(flavor))?;
+    write_identifier(buffer, name, Pascal, Some(flavor))?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
@@ -1110,9 +1110,9 @@ fn write_choice<T: Write>(
             write_type(buffer, imports, namespace, &field.r#type, InOrOut(flavor))?;
             if flavor == Out && field.unstable {
                 write!(buffer, ", Vec<")?;
-                write_identifier(buffer, &name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
                 write!(buffer, ">, ")?;
-                write_identifier(buffer, &name, Pascal, Some(OutStable))?;
+                write_identifier(buffer, name, Pascal, Some(OutStable))?;
             }
             writeln!(buffer, "),")?;
         }
@@ -1160,7 +1160,7 @@ fn write_type<T: Write>(
                 write!(buffer, "::")?;
             }
 
-            write_identifier(buffer, &name, Pascal, Some(flavor))?;
+            write_identifier(buffer, name, Pascal, Some(flavor))?;
         }
     }
 
