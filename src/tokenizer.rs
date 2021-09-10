@@ -192,7 +192,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
             '\'' => {
                 let mut end = i;
 
-                while let Some((j, d)) = iter.next() {
+                for (j, d) in &mut iter {
                     if d == '\'' {
                         end = j;
                         break;
