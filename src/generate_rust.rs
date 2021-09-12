@@ -601,8 +601,11 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 5)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     write!(buffer, ".get_or_insert(")?;
+                    write!(buffer, "<")?;
                     write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
-                    writeln!(buffer, "::deserialize(sub_reader)?);")?;
+                    write!(buffer, " as ")?;
+                    write_supers(buffer, indentation)?;
+                    writeln!(buffer, "Deserialize>::deserialize(sub_reader)?);")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -975,9 +978,11 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    write!(buffer, "(")?;
+                    write!(buffer, "(<")?;
                     write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
-                    writeln!(buffer, "::deserialize(sub_reader)?));")?;
+                    write!(buffer, " as ")?;
+                    write_supers(buffer, indentation)?;
+                    writeln!(buffer, "Deserialize>::deserialize(sub_reader)?));")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -1810,22 +1815,28 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(BarIn::X(bool::deserialize(sub_reader)?));
+                        return Ok(BarIn::X(<bool as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     1 => {
-                        return Ok(BarIn::Y(f64::deserialize(sub_reader)?));
+                        return Ok(BarIn::Y(<f64 as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     2 => {
-                        return Ok(BarIn::Z(super::basic::void::VoidIn::deserialize(sub_reader)?));
+                        return Ok(BarIn::Z(<super::basic::void::VoidIn as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     3 => {
-                        return Ok(BarIn::W(super::basic::void::VoidIn::deserialize(sub_reader)?));
+                        return Ok(BarIn::W(<super::basic::void::VoidIn as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     4 => {
-                        return Ok(BarIn::S(super::basic::unit::UnitIn::deserialize(sub_reader)?));
+                        return Ok(BarIn::S(<super::basic::unit::UnitIn as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     5 => {
-                        return Ok(BarIn::T(super::basic::unit::UnitIn::deserialize(sub_reader)?));
+                        return Ok(BarIn::T(<super::basic::unit::UnitIn as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -1925,13 +1936,13 @@ pub mod main {
 
                 match index {
                     0 => {
-                        x.get_or_insert(bool::deserialize(sub_reader)?);
+                        x.get_or_insert(<bool as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     1 => {
-                        y.get_or_insert(u64::deserialize(sub_reader)?);
+                        y.get_or_insert(<u64 as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     2 => {
-                        z.get_or_insert(f64::deserialize(sub_reader)?);
+                        z.get_or_insert(<f64 as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2056,22 +2067,26 @@ pub mod main {
 
                 match index {
                     0 => {
-                        x.get_or_insert(bool::deserialize(sub_reader)?);
+                        x.get_or_insert(<bool as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     1 => {
-                        y.get_or_insert(bool::deserialize(sub_reader)?);
+                        y.get_or_insert(<bool as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     2 => {
-                        z.get_or_insert(super::basic::void::VoidIn::deserialize(sub_reader)?);
+                        z.get_or_insert(<super::basic::void::VoidIn as super::Deserialize>::\
+                            deserialize(sub_reader)?);
                     }
                     3 => {
-                        w.get_or_insert(super::basic::void::VoidIn::deserialize(sub_reader)?);
+                        w.get_or_insert(<super::basic::void::VoidIn as super::Deserialize>::\
+                            deserialize(sub_reader)?);
                     }
                     4 => {
-                        s.get_or_insert(super::basic::unit::UnitIn::deserialize(sub_reader)?);
+                        s.get_or_insert(<super::basic::unit::UnitIn as super::Deserialize>::\
+                            deserialize(sub_reader)?);
                     }
                     5 => {
-                        t.get_or_insert(super::basic::unit::UnitIn::deserialize(sub_reader)?);
+                        t.get_or_insert(<super::basic::unit::UnitIn as super::Deserialize>::\
+                            deserialize(sub_reader)?);
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2182,10 +2197,10 @@ pub mod main {
 
                 match index {
                     0 => {
-                        foo.get_or_insert(FooIn::deserialize(sub_reader)?);
+                        foo.get_or_insert(<FooIn as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     1 => {
-                        bar.get_or_insert(BarIn::deserialize(sub_reader)?);
+                        bar.get_or_insert(<BarIn as super::Deserialize>::deserialize(sub_reader)?);
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2303,10 +2318,12 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(FooOrBarIn::Foo(FooIn::deserialize(sub_reader)?));
+                        return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     1 => {
-                        return Ok(FooOrBarIn::Bar(BarIn::deserialize(sub_reader)?));
+                        return Ok(FooOrBarIn::Bar(<BarIn as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2412,10 +2429,12 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(QuxIn::X(bool::deserialize(sub_reader)?));
+                        return Ok(QuxIn::X(<bool as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     1 => {
-                        return Ok(QuxIn::Y(f64::deserialize(sub_reader)?));
+                        return Ok(QuxIn::Y(<f64 as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
