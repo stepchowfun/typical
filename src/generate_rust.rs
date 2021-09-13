@@ -99,14 +99,15 @@ pub trait Serialize {{
 
     fn size(&self) -> u64;
 
-    fn serialize(&self, writer: impl Write) -> io::Result<()>;
+    fn serialize<T: Write>(&self, writer: T) -> io::Result<()>;
 }}
 
 #[rustfmt::skip]
 pub trait Deserialize {{
-    fn deserialize(reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(reader: T) -> io::Result<Self>
     where
-        Self: Sized;
+        Self: Sized,
+        T: BufRead;
 }}
 
 #[rustfmt::skip]
@@ -117,16 +118,17 @@ impl Serialize for bool {{
         1
     }}
 
-    fn serialize(&self, writer: impl Write) -> io::Result<()> {{
+    fn serialize<T: Write>(&self, writer: T) -> io::Result<()> {{
         (*self as u64).serialize(writer)
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for bool {{
-    fn deserialize(reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {{
         match u64::deserialize(reader)? {{
             0 => Ok(false),
@@ -160,7 +162,7 @@ impl Serialize for u64 {{
         size
     }}
 
-    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {{
+    fn serialize<T: Write>(&self, mut writer: T) -> io::Result<()> {{
         let size = self.size();
         let size_minus_one = size - 1;
 
@@ -183,9 +185,10 @@ impl Serialize for u64 {{
 
 #[rustfmt::skip]
 impl Deserialize for u64 {{
-    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(mut reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {{
         let mut buffer = [0; 9];
         reader.read_exact(&mut buffer[0..1])?;
@@ -220,16 +223,17 @@ impl Serialize for f64 {{
         8
     }}
 
-    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {{
+    fn serialize<T: Write>(&self, mut writer: T) -> io::Result<()> {{
         writer.write_all(&self.to_le_bytes())
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for f64 {{
-    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(mut reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {{
         let mut buffer = [0; 8];
         reader.read_exact(&mut buffer)?;
@@ -245,16 +249,17 @@ impl Serialize for Vec<u8> {{
         self.len() as u64
     }}
 
-    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {{
+    fn serialize<T: Write>(&self, mut writer: T) -> io::Result<()> {{
         writer.write_all(self)
     }}
 }}
 
 #[rustfmt::skip]
 impl Deserialize for Vec<u8> {{
-    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(mut reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {{
         let mut buffer = vec![];
         reader.read_to_end(&mut buffer)?;
@@ -492,8 +497,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn serialize(&self, mut writer: impl ::std::io::Write) -> \
-                       ::std::io::Result<()> {{",
+                    "fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> \
+                        ::std::io::Result<()> {{",
                 )?;
                 for field in fields {
                     write_indentation(buffer, indentation + 2)?;
@@ -524,13 +529,14 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn deserialize(mut reader: impl ::std::io::BufRead) -> \
-                       ::std::io::Result<Self>",
+                    "fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>",
                 )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "where")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "Self: Sized,")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "T: ::std::io::BufRead,")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
                 for field in fields {
@@ -818,8 +824,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn serialize(&self, mut writer: impl ::std::io::Write) -> \
-                       ::std::io::Result<()> {{",
+                    "fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> \
+                        ::std::io::Result<()> {{",
                 )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match *self {{")?;
@@ -844,7 +850,16 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "for alternative in alternatives {{")?;
                         write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, "alternative.serialize(writer.by_ref())?;")?;
+                        writeln!(buffer, "alternative.serialize(")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        // The `Box` is needed due to an apparent bug in Rust which prevents the
+                        // code from compiling without it.
+                        writeln!(
+                            buffer,
+                            "Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,",
+                        )?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, ")?;")?;
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "}}")?;
                         writeln!(buffer)?;
@@ -899,8 +914,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn serialize(&self, writer: impl ::std::io::Write) -> \
-                       ::std::io::Result<()> {{",
+                    "fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> \
+                        ::std::io::Result<()> {{",
                 )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match *self {{")?;
@@ -933,13 +948,14 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn deserialize(mut reader: impl ::std::io::BufRead) -> \
-                       ::std::io::Result<Self>",
+                    "fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>",
                 )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "where")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "Self: Sized,")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "T: ::std::io::BufRead,")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1327,14 +1343,15 @@ pub trait Serialize {
 
     fn size(&self) -> u64;
 
-    fn serialize(&self, writer: impl Write) -> io::Result<()>;
+    fn serialize<T: Write>(&self, writer: T) -> io::Result<()>;
 }
 
 #[rustfmt::skip]
 pub trait Deserialize {
-    fn deserialize(reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(reader: T) -> io::Result<Self>
     where
-        Self: Sized;
+        Self: Sized,
+        T: BufRead;
 }
 
 #[rustfmt::skip]
@@ -1345,16 +1362,17 @@ impl Serialize for bool {
         1
     }
 
-    fn serialize(&self, writer: impl Write) -> io::Result<()> {
+    fn serialize<T: Write>(&self, writer: T) -> io::Result<()> {
         (*self as u64).serialize(writer)
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for bool {
-    fn deserialize(reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {
         match u64::deserialize(reader)? {
             0 => Ok(false),
@@ -1388,7 +1406,7 @@ impl Serialize for u64 {
         size
     }
 
-    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {
+    fn serialize<T: Write>(&self, mut writer: T) -> io::Result<()> {
         let size = self.size();
         let size_minus_one = size - 1;
 
@@ -1411,9 +1429,10 @@ impl Serialize for u64 {
 
 #[rustfmt::skip]
 impl Deserialize for u64 {
-    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(mut reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {
         let mut buffer = [0; 9];
         reader.read_exact(&mut buffer[0..1])?;
@@ -1448,16 +1467,17 @@ impl Serialize for f64 {
         8
     }
 
-    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {
+    fn serialize<T: Write>(&self, mut writer: T) -> io::Result<()> {
         writer.write_all(&self.to_le_bytes())
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for f64 {
-    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(mut reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {
         let mut buffer = [0; 8];
         reader.read_exact(&mut buffer)?;
@@ -1473,16 +1493,17 @@ impl Serialize for Vec<u8> {
         self.len() as u64
     }
 
-    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {
+    fn serialize<T: Write>(&self, mut writer: T) -> io::Result<()> {
         writer.write_all(self)
     }
 }
 
 #[rustfmt::skip]
 impl Deserialize for Vec<u8> {
-    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    fn deserialize<T>(mut reader: T) -> io::Result<Self>
     where
         Self: Sized,
+        T: BufRead,
     {
         let mut buffer = vec![];
         reader.read_to_end(&mut buffer)?;
@@ -1560,15 +1581,16 @@ pub mod basic {
                 0
             }
 
-            fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 Ok(())
             }
         }
 
         impl super::super::Deserialize for UnitIn {
-            fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+            fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
             where
                 Self: Sized,
+                T: ::std::io::BufRead,
             {
                 loop {
                     let header = match u64::deserialize(reader.by_ref()) {
@@ -1646,7 +1668,7 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 match *self {
                 }
             }
@@ -1660,16 +1682,17 @@ pub mod basic {
                 }
             }
 
-            fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 match *self {
                 }
             }
         }
 
         impl super::super::Deserialize for VoidIn {
-            fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+            fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
             where
                 Self: Sized,
+                T: ::std::io::BufRead,
             {
                 loop {
                     let header = u64::deserialize(reader.by_ref())?;
@@ -1779,14 +1802,16 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             match *self {
                 BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOut::Y(ref payload, ref alternatives, ref fallback) => {
                     super::serialize_field(writer.by_ref(), 1, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(writer.by_ref())?;
+                        alternative.serialize(
+                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
+                        )?;
                     }
 
                     fallback.serialize(writer)
@@ -1796,7 +1821,9 @@ pub mod main {
                     super::serialize_field(writer.by_ref(), 3, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(writer.by_ref())?;
+                        alternative.serialize(
+                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
+                        )?;
                     }
 
                     fallback.serialize(writer)
@@ -1806,7 +1833,9 @@ pub mod main {
                     super::serialize_field(writer.by_ref(), 5, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(writer.by_ref())?;
+                        alternative.serialize(
+                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
+                        )?;
                     }
 
                     fallback.serialize(writer)
@@ -1826,7 +1855,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             match *self {
                 BarOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
@@ -1836,9 +1865,10 @@ pub mod main {
     }
 
     impl super::Deserialize for BarIn {
-        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
         where
             Self: Sized,
+            T: ::std::io::BufRead,
         {
             loop {
                 let header = u64::deserialize(reader.by_ref())?;
@@ -1933,7 +1963,7 @@ pub mod main {
                 + super::field_size(2, &self.z)
         }
 
-        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.x)?;
             super::serialize_field(writer.by_ref(), 1, &self.y)?;
             super::serialize_field(writer.by_ref(), 2, &self.z)?;
@@ -1942,9 +1972,10 @@ pub mod main {
     }
 
     impl super::Deserialize for BazIn {
-        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
         where
             Self: Sized,
+            T: ::std::io::BufRead,
         {
             let mut x: Option<bool> = None;
             let mut y: Option<u64> = None;
@@ -2058,7 +2089,7 @@ pub mod main {
                 + super::field_size(5, &self.t)
         }
 
-        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.x)?;
             super::serialize_field(writer.by_ref(), 1, &self.y)?;
             super::serialize_field(writer.by_ref(), 2, &self.z)?;
@@ -2070,9 +2101,10 @@ pub mod main {
     }
 
     impl super::Deserialize for FooIn {
-        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
         where
             Self: Sized,
+            T: ::std::io::BufRead,
         {
             let mut x: Option<bool> = None;
             let mut y: Option<bool> = None;
@@ -2196,7 +2228,7 @@ pub mod main {
                 + super::field_size(1, &self.bar)
         }
 
-        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             super::serialize_field(writer.by_ref(), 0, &self.foo)?;
             super::serialize_field(writer.by_ref(), 1, &self.bar)?;
             Ok(())
@@ -2204,9 +2236,10 @@ pub mod main {
     }
 
     impl super::Deserialize for FooAndBarIn {
-        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
         where
             Self: Sized,
+            T: ::std::io::BufRead,
         {
             let mut foo: Option<FooIn> = None;
             let mut bar: Option<BarIn> = None;
@@ -2310,7 +2343,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             match *self {
                 FooOrBarOut::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOut::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -2328,7 +2361,7 @@ pub mod main {
             }
         }
 
-        fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             match *self {
                 FooOrBarOutStable::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOutStable::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -2337,9 +2370,10 @@ pub mod main {
     }
 
     impl super::Deserialize for FooOrBarIn {
-        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
         where
             Self: Sized,
+            T: ::std::io::BufRead,
         {
             loop {
                 let header = u64::deserialize(reader.by_ref())?;
@@ -2397,14 +2431,13 @@ pub mod main {
     pub enum QuxOut {
         X(bool),
         Y(Vec<u8>),
-        Z(f64),
+        Z(f64, Vec<QuxOut>, QuxOutStable),
     }
 
     #[derive(Clone, Debug)]
     pub enum QuxOutStable {
         X(bool),
         Y(Vec<u8>),
-        Z(f64),
     }
 
     #[derive(Clone, Debug)]
@@ -2421,15 +2454,32 @@ pub mod main {
             match *self {
                 QuxOut::X(ref payload) => super::field_size(0, payload),
                 QuxOut::Y(ref payload) => super::field_size(1, payload),
-                QuxOut::Z(ref payload) => super::field_size(2, payload),
+                QuxOut::Z(ref payload, ref alternatives, ref fallback) => {
+                    super::field_size(2, payload)
+                        + alternatives
+                            .iter()
+                            .map(|alternative| alternative.size())
+                            .sum::<u64>()
+                        + fallback.size()
+                }
             }
         }
 
-        fn serialize(&self, mut writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             match *self {
                 QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
-                QuxOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
+                QuxOut::Z(ref payload, ref alternatives, ref fallback) => {
+                    super::serialize_field(writer.by_ref(), 2, payload)?;
+
+                    for alternative in alternatives {
+                        alternative.serialize(
+                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
+                        )?;
+                    }
+
+                    fallback.serialize(writer)
+                }
             }
         }
     }
@@ -2441,23 +2491,22 @@ pub mod main {
             match *self {
                 QuxOutStable::X(ref payload) => super::field_size(0, payload),
                 QuxOutStable::Y(ref payload) => super::field_size(1, payload),
-                QuxOutStable::Z(ref payload) => super::field_size(2, payload),
             }
         }
 
-        fn serialize(&self, writer: impl ::std::io::Write) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
             match *self {
                 QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
-                QuxOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
             }
         }
     }
 
     impl super::Deserialize for QuxIn {
-        fn deserialize(mut reader: impl ::std::io::BufRead) -> ::std::io::Result<Self>
+        fn deserialize<T>(mut reader: T) -> ::std::io::Result<Self>
         where
             Self: Sized,
+            T: ::std::io::BufRead,
         {
             loop {
                 let header = u64::deserialize(reader.by_ref())?;
@@ -2509,7 +2558,7 @@ pub mod main {
             match message {
                 QuxOut::X(payload) => QuxIn::X(payload.into()),
                 QuxOut::Y(payload) => QuxIn::Y(payload.into()),
-                QuxOut::Z(payload) => QuxIn::Z(payload.into()),
+                QuxOut::Z(payload, _, _) => QuxIn::Z(payload.into()),
             }
         }
     }

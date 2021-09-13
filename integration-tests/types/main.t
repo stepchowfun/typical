@@ -38,5 +38,5 @@ struct Baz {
 choice Qux {
   x: Boolean = 0
   y: Bytes = 1
-  z: Float64 = 2
+  z: unstable Float64 = 2
 }
