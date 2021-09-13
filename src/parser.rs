@@ -568,6 +568,13 @@ fn parse_field(
             source_range: span_tokens(tokens, type_start, *position),
             variant: schema::TypeVariant::Boolean,
         }
+    } else if let token::Variant::Bytes = tokens[*position].variant {
+        *position += 1;
+
+        schema::Type {
+            source_range: span_tokens(tokens, type_start, *position),
+            variant: schema::TypeVariant::Bytes,
+        }
     } else if let token::Variant::Float64 = tokens[*position].variant {
         *position += 1;
 
@@ -719,7 +726,7 @@ mod tests {
             # This is a choice.
             choice Bar {
               x: qux.Qux = 0
-              y: unstable Unsigned64 = 1
+              y: unstable Bytes = 1
               z: Float64 = 2
             }
         ";
@@ -816,30 +823,30 @@ mod tests {
             schema::Field {
                 source_range: SourceRange {
                     start: 341,
-                    end: 367,
+                    end: 362,
                 },
                 name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 353,
-                        end: 363,
+                        end: 358,
                     },
-                    variant: schema::TypeVariant::Unsigned64,
+                    variant: schema::TypeVariant::Bytes,
                 },
                 index: 1,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 382,
-                    end: 396,
+                    start: 377,
+                    end: 391,
                 },
                 name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 385,
-                        end: 392,
+                        start: 380,
+                        end: 387,
                     },
                     variant: schema::TypeVariant::Float64,
                 },
@@ -865,7 +872,7 @@ mod tests {
             schema::Declaration {
                 source_range: SourceRange {
                     start: 285,
-                    end: 410,
+                    end: 405,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },

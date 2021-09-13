@@ -2,8 +2,8 @@ use crate::{
     error::{listing, throw, Error, SourceRange},
     format::CodeStr,
     token::{
-        Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
-        IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
+        Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+        FLOAT64_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
     },
 };
 use std::path::Path;
@@ -101,6 +101,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Boolean,
+                    });
+                } else if &schema_contents[i..end] == BYTES_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Bytes,
                     });
                 } else if &schema_contents[i..end] == CHOICE_KEYWORD {
                     tokens.push(Token {
@@ -282,8 +287,8 @@ mod tests {
         assert_fails, assert_same,
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, CHOICE_KEYWORD, FLOAT64_KEYWORD,
-            IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            FLOAT64_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
         },
         tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
     };
@@ -638,6 +643,20 @@ mod tests {
                     end: BOOLEAN_KEYWORD.len(),
                 },
                 variant: Variant::Boolean,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_bytes() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), BYTES_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: BYTES_KEYWORD.len(),
+                },
+                variant: Variant::Bytes,
             }],
         );
     }

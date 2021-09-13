@@ -48,6 +48,7 @@ pub struct Type {
 #[derive(Clone, Debug)]
 pub enum TypeVariant {
     Boolean,
+    Bytes,
     Float64,
     Unsigned64,
     Custom(Option<Identifier>, Identifier), // (import, name)
@@ -174,6 +175,9 @@ impl TypeVariant {
         match self {
             Self::Boolean => {
                 write!(f, "Boolean")?;
+            }
+            Self::Bytes => {
+                write!(f, "Bytes")?;
             }
             Self::Float64 => {
                 write!(f, "Float64")?;
@@ -621,6 +625,18 @@ mod tests {
         };
 
         let expected = "Boolean";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
+    fn type_display_bytes() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Bytes,
+        };
+
+        let expected = "Bytes";
 
         assert_eq!(r#type.to_string(), expected);
     }

@@ -31,7 +31,7 @@ fn main() -> io::Result<()> {
         z: PI,
     })?;
     println!();
-    out_to_in::<QuxOut, QuxIn>(QuxOut::X(true))?;
+    out_to_in::<QuxOut, QuxIn>(QuxOut::Y(vec![0, 42, 255]))?;
 
     Ok(())
 }

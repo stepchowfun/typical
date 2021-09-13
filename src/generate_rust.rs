@@ -238,6 +238,31 @@ impl Deserialize for f64 {{
 }}
 
 #[rustfmt::skip]
+impl Serialize for Vec<u8> {{
+    const VARINT_ENCODED: bool = false;
+
+    fn size(&self) -> u64 {{
+        self.len() as u64
+    }}
+
+    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {{
+        writer.write_all(self)
+    }}
+}}
+
+#[rustfmt::skip]
+impl Deserialize for Vec<u8> {{
+    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    where
+        Self: Sized,
+    {{
+        let mut buffer = vec![];
+        reader.read_to_end(&mut buffer)?;
+        Ok(buffer)
+    }}
+}}
+
+#[rustfmt::skip]
 fn u64_size(first_byte: u8) -> u32 {{
     first_byte.trailing_zeros() + 1
 }}
@@ -1144,6 +1169,9 @@ fn write_type<T: Write>(
         schema::TypeVariant::Float64 => {
             write!(buffer, "f64")?;
         }
+        schema::TypeVariant::Bytes => {
+            write!(buffer, "Vec<u8>")?;
+        }
         schema::TypeVariant::Unsigned64 => {
             write!(buffer, "u64")?;
         }
@@ -1434,6 +1462,31 @@ impl Deserialize for f64 {
         let mut buffer = [0; 8];
         reader.read_exact(&mut buffer)?;
         Ok(f64::from_le_bytes(buffer))
+    }
+}
+
+#[rustfmt::skip]
+impl Serialize for Vec<u8> {
+    const VARINT_ENCODED: bool = false;
+
+    fn size(&self) -> u64 {
+        self.len() as u64
+    }
+
+    fn serialize(&self, mut writer: impl Write) -> io::Result<()> {
+        writer.write_all(self)
+    }
+}
+
+#[rustfmt::skip]
+impl Deserialize for Vec<u8> {
+    fn deserialize(mut reader: impl BufRead) -> io::Result<Self>
+    where
+        Self: Sized,
+    {
+        let mut buffer = vec![];
+        reader.read_to_end(&mut buffer)?;
+        Ok(buffer)
     }
 }
 
@@ -1815,12 +1868,10 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(BarIn::X(<bool as super::Deserialize>::\
-                            deserialize(sub_reader)?));
+                        return Ok(BarIn::X(<bool as super::Deserialize>::deserialize(sub_reader)?));
                     }
                     1 => {
-                        return Ok(BarIn::Y(<f64 as super::Deserialize>::\
-                            deserialize(sub_reader)?));
+                        return Ok(BarIn::Y(<f64 as super::Deserialize>::deserialize(sub_reader)?));
                     }
                     2 => {
                         return Ok(BarIn::Z(<super::basic::void::VoidIn as super::Deserialize>::\
@@ -1869,7 +1920,7 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub struct BazIn {
         pub x: bool,
-        pub y: Option<u64>,
+        pub y: u64,
         pub z: f64,
     }
 
@@ -1950,7 +2001,7 @@ pub mod main {
                 }
             }
 
-            if x.is_none() || z.is_none() {
+            if x.is_none() || y.is_none() || z.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",
@@ -1959,7 +2010,7 @@ pub mod main {
 
             Ok(BazIn {
                 x: x.unwrap(),
-                y,
+                y: y.unwrap(),
                 z: z.unwrap(),
             })
         }
@@ -1969,7 +2020,7 @@ pub mod main {
         fn from(message: BazOut) -> Self {
             BazIn {
                 x: message.x.into(),
-                y: Some(message.y.into()),
+                y: message.y.into(),
                 z: message.z.into(),
             }
         }
@@ -2345,19 +2396,22 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub enum QuxOut {
         X(bool),
-        Y(f64),
+        Y(Vec<u8>),
+        Z(f64),
     }
 
     #[derive(Clone, Debug)]
     pub enum QuxOutStable {
         X(bool),
-        Y(f64),
+        Y(Vec<u8>),
+        Z(f64),
     }
 
     #[derive(Clone, Debug)]
     pub enum QuxIn {
         X(bool),
-        Y(f64),
+        Y(Vec<u8>),
+        Z(f64),
     }
 
     impl super::Serialize for QuxOut {
@@ -2367,6 +2421,7 @@ pub mod main {
             match *self {
                 QuxOut::X(ref payload) => super::field_size(0, payload),
                 QuxOut::Y(ref payload) => super::field_size(1, payload),
+                QuxOut::Z(ref payload) => super::field_size(2, payload),
             }
         }
 
@@ -2374,6 +2429,7 @@ pub mod main {
             match *self {
                 QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
+                QuxOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
             }
         }
     }
@@ -2385,6 +2441,7 @@ pub mod main {
             match *self {
                 QuxOutStable::X(ref payload) => super::field_size(0, payload),
                 QuxOutStable::Y(ref payload) => super::field_size(1, payload),
+                QuxOutStable::Z(ref payload) => super::field_size(2, payload),
             }
         }
 
@@ -2392,6 +2449,7 @@ pub mod main {
             match *self {
                 QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
+                QuxOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
             }
         }
     }
@@ -2429,12 +2487,14 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(QuxIn::X(<bool as super::Deserialize>::\
-                            deserialize(sub_reader)?));
+                        return Ok(QuxIn::X(<bool as super::Deserialize>::deserialize(sub_reader)?));
                     }
                     1 => {
-                        return Ok(QuxIn::Y(<f64 as super::Deserialize>::\
+                        return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>::\
                             deserialize(sub_reader)?));
+                    }
+                    2 => {
+                        return Ok(QuxIn::Z(<f64 as super::Deserialize>::deserialize(sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2449,6 +2509,7 @@ pub mod main {
             match message {
                 QuxOut::X(payload) => QuxIn::X(payload.into()),
                 QuxOut::Y(payload) => QuxIn::Y(payload.into()),
+                QuxOut::Z(payload) => QuxIn::Z(payload.into()),
             }
         }
     }
