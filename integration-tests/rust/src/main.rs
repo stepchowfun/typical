@@ -9,7 +9,7 @@ use {
         io::{self, Error, ErrorKind},
     },
     types::{
-        main::{BazIn, BazOut, QuxIn, QuxOut},
+        main::{BazIn, BazOut, QuxIn, QuxOut, QuxOutStable},
         Deserialize, Serialize,
     },
 };
@@ -31,7 +31,7 @@ fn main() -> io::Result<()> {
         z: PI,
     })?;
     println!();
-    out_to_in::<QuxOut, QuxIn>(QuxOut::Y(vec![0, 42, 255]))?;
+    out_to_in::<QuxOut, QuxIn>(QuxOut::Z(0.5_f64, vec![], QuxOutStable::X(true)))?;
 
     Ok(())
 }
