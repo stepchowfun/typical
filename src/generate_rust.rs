@@ -852,8 +852,8 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 5)?;
                         writeln!(buffer, "alternative.serialize(")?;
                         write_indentation(buffer, indentation + 6)?;
-                        // The `Box` is needed due to an apparent bug in Rust which prevents the
-                        // code from compiling without it.
+                        // The `Box` is needed due to
+                        // https://github.com/rust-lang/rust/issues/88925.
                         writeln!(
                             buffer,
                             "Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,",
