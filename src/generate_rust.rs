@@ -824,9 +824,16 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> \
+                    "fn serialize<T: ::std::io::Write>(&self, writer: T) -> \
                         ::std::io::Result<()> {{",
                 )?;
+                write_indentation(buffer, indentation + 2)?;
+                // This is needed due to https://github.com/rust-lang/rust/issues/88925.
+                writeln!(
+                    buffer,
+                    "let mut writer: Box<dyn ::std::io::Write> = Box::new(writer);",
+                )?;
+                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
@@ -843,23 +850,14 @@ fn write_schema<T: Write>(
                         write_supers(buffer, indentation)?;
                         writeln!(
                             buffer,
-                            "serialize_field(writer.by_ref(), {}, payload)?;",
+                            "serialize_field(&mut writer, {}, payload)?;",
                             field.index,
                         )?;
                         writeln!(buffer)?;
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "for alternative in alternatives {{")?;
                         write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, "alternative.serialize(")?;
-                        write_indentation(buffer, indentation + 6)?;
-                        // The `Box` is needed due to
-                        // https://github.com/rust-lang/rust/issues/88925.
-                        writeln!(
-                            buffer,
-                            "Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,",
-                        )?;
-                        write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, ")?;")?;
+                        writeln!(buffer, "alternative.serialize(&mut writer)?;")?;
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "}}")?;
                         writeln!(buffer)?;
@@ -1668,7 +1666,9 @@ pub mod basic {
                 }
             }
 
-            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, writer: T) -> ::std::io::Result<()> {
+                let mut writer: Box<dyn ::std::io::Write> = Box::new(writer);
+
                 match *self {
                 }
             }
@@ -1802,40 +1802,36 @@ pub mod main {
             }
         }
 
-        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, writer: T) -> ::std::io::Result<()> {
+            let mut writer: Box<dyn ::std::io::Write> = Box::new(writer);
+
             match *self {
                 BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOut::Y(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer.by_ref(), 1, payload)?;
+                    super::serialize_field(&mut writer, 1, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(
-                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
-                        )?;
+                        alternative.serialize(&mut writer)?;
                     }
 
                     fallback.serialize(writer)
                 }
                 BarOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
                 BarOut::W(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer.by_ref(), 3, payload)?;
+                    super::serialize_field(&mut writer, 3, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(
-                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
-                        )?;
+                        alternative.serialize(&mut writer)?;
                     }
 
                     fallback.serialize(writer)
                 }
                 BarOut::S(ref payload) => super::serialize_field(writer, 4, payload),
                 BarOut::T(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer.by_ref(), 5, payload)?;
+                    super::serialize_field(&mut writer, 5, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(
-                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
-                        )?;
+                        alternative.serialize(&mut writer)?;
                     }
 
                     fallback.serialize(writer)
@@ -2343,7 +2339,9 @@ pub mod main {
             }
         }
 
-        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, writer: T) -> ::std::io::Result<()> {
+            let mut writer: Box<dyn ::std::io::Write> = Box::new(writer);
+
             match *self {
                 FooOrBarOut::Foo(ref payload) => super::serialize_field(writer, 0, payload),
                 FooOrBarOut::Bar(ref payload) => super::serialize_field(writer, 1, payload),
@@ -2465,17 +2463,17 @@ pub mod main {
             }
         }
 
-        fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
+        fn serialize<T: ::std::io::Write>(&self, writer: T) -> ::std::io::Result<()> {
+            let mut writer: Box<dyn ::std::io::Write> = Box::new(writer);
+
             match *self {
                 QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
                 QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
                 QuxOut::Z(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer.by_ref(), 2, payload)?;
+                    super::serialize_field(&mut writer, 2, payload)?;
 
                     for alternative in alternatives {
-                        alternative.serialize(
-                            Box::new(writer.by_ref()) as Box<dyn ::std::io::Write>,
-                        )?;
+                        alternative.serialize(&mut writer)?;
                     }
 
                     fallback.serialize(writer)
@@ -2536,7 +2534,8 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(QuxIn::X(<bool as super::Deserialize>::deserialize(sub_reader)?));
+                        return Ok(QuxIn::X(<bool as super::Deserialize>::\
+                            deserialize(sub_reader)?));
                     }
                     1 => {
                         return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>::\
