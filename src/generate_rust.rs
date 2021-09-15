@@ -82,6 +82,12 @@ pub fn generate(
 
     if !tree.children.is_empty() || !tree.schema.declarations.is_empty() {
         // The `unwrap` is safe because the `std::fmt::Write` impl for `String` is infallible.
+        // For functions that take abstract parameters which implement `std::io::Read` or
+        // `std::io::Write`, it's idiomatic to consume the reader or writer rather than borrowing
+        // them (https://rust-lang.github.io/api-guidelines/interoperability.html
+        // #generic-readerwriter-functions-take-r-read-and-w-write-by-value-c-rw-value). However,
+        // we borrow them anyway since that allows us to pass the reference (after reborrowing)
+        // to recursive calls, rather than building up and following chains of references.
         writeln!(
             &mut buffer,
             "\
@@ -780,6 +786,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 write_indentation(buffer, indentation + 2)?;
+                // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
+                // https://github.com/rust-lang/rust/issues/78123.
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
@@ -824,7 +832,7 @@ fn write_schema<T: Write>(
                         ::std::io::Result<()> {{",
                 )?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match *self {{")?;
+                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
@@ -881,7 +889,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match *self {{")?;
+                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
                 for field in fields {
                     if !field.unstable {
                         write_indentation(buffer, indentation + 3)?;
@@ -905,7 +913,7 @@ fn write_schema<T: Write>(
                         ::std::io::Result<()> {{",
                 )?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match *self {{")?;
+                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
                 for field in fields {
                     if !field.unstable {
                         write_indentation(buffer, indentation + 3)?;
