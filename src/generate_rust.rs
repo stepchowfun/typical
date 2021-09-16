@@ -120,32 +120,33 @@ pub trait Deserialize {{
 }}
 
 #[rustfmt::skip]
-fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
+fn field_size<T: Serialize>(index: u64, value: &T) -> u64 {{
     if T::VARINT_ENCODED {{
-        ((tag << 2) | 0b00).size() + value.size()
+        ((index << 2) | 0b00).size() + value.size()
     }} else {{
         (match value.size() {{
-            0 => ((tag << 2) | 0b01).size(),
-            8 => ((tag << 2) | 0b10).size(),
-            size => ((tag << 2) | 0b11).size() + size.size(),
+            0 => ((index << 2) | 0b01).size(),
+            8 => ((index << 2) | 0b10).size(),
+            size => ((index << 2) | 0b11).size() + size.size(),
         }}) + value.size()
     }}
 }}
 
 #[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) -> io::Result<()> {{
+fn serialize_field<T: Write, U: Serialize>(writer: &mut T, index: u64, value: &U) -> \
+    io::Result<()> {{
     if U::VARINT_ENCODED {{
-        ((tag << 2) | 0b00).serialize(writer)?;
+        ((index << 2) | 0b00).serialize(writer)?;
     }} else {{
         match value.size() {{
             0 => {{
-                ((tag << 2) | 0b01).serialize(writer)?;
+                ((index << 2) | 0b01).serialize(writer)?;
             }}
             8 => {{
-                ((tag << 2) | 0b10).serialize(writer)?;
+                ((index << 2) | 0b10).serialize(writer)?;
             }}
             size => {{
-                ((tag << 2) | 0b11).serialize(writer)?;
+                ((index << 2) | 0b11).serialize(writer)?;
                 size.serialize(writer)?;
             }}
         }}
@@ -579,7 +580,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
-                write!(buffer, "let (tag, size) = match ")?;
+                write!(buffer, "let (index, size) = match ")?;
                 write_supers(buffer, indentation)?;
                 writeln!(buffer, "deserialize_field_header(&mut *reader) {{")?;
                 write_indentation(buffer, indentation + 4)?;
@@ -610,7 +611,7 @@ fn write_schema<T: Write>(
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match tag {{")?;
+                writeln!(buffer, "match index {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
@@ -939,7 +940,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
-                write!(buffer, "let (tag, size) = ")?;
+                write!(buffer, "let (index, size) = ")?;
                 write_supers(buffer, indentation)?;
                 writeln!(buffer, "deserialize_field_header(&mut *reader)?;")?;
                 writeln!(buffer)?;
@@ -950,7 +951,7 @@ fn write_schema<T: Write>(
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match tag {{")?;
+                writeln!(buffer, "match index {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
@@ -1298,32 +1299,33 @@ pub trait Deserialize {
 }
 
 #[rustfmt::skip]
-fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
+fn field_size<T: Serialize>(index: u64, value: &T) -> u64 {
     if T::VARINT_ENCODED {
-        ((tag << 2) | 0b00).size() + value.size()
+        ((index << 2) | 0b00).size() + value.size()
     } else {
         (match value.size() {
-            0 => ((tag << 2) | 0b01).size(),
-            8 => ((tag << 2) | 0b10).size(),
-            size => ((tag << 2) | 0b11).size() + size.size(),
+            0 => ((index << 2) | 0b01).size(),
+            8 => ((index << 2) | 0b10).size(),
+            size => ((index << 2) | 0b11).size() + size.size(),
         }) + value.size()
     }
 }
 
 #[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) -> io::Result<()> {
+fn serialize_field<T: Write, U: Serialize>(writer: &mut T, index: u64, value: &U) -> \
+    io::Result<()> {
     if U::VARINT_ENCODED {
-        ((tag << 2) | 0b00).serialize(writer)?;
+        ((index << 2) | 0b00).serialize(writer)?;
     } else {
         match value.size() {
             0 => {
-                ((tag << 2) | 0b01).serialize(writer)?;
+                ((index << 2) | 0b01).serialize(writer)?;
             }
             8 => {
-                ((tag << 2) | 0b10).serialize(writer)?;
+                ((index << 2) | 0b10).serialize(writer)?;
             }
             size => {
-                ((tag << 2) | 0b11).serialize(writer)?;
+                ((index << 2) | 0b11).serialize(writer)?;
                 size.serialize(writer)?;
             }
         }
@@ -1557,7 +1559,7 @@ pub mod basic {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (tag, size) = match super::super::deserialize_field_header(&mut *reader) {
+                    let (index, size) = match super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -1570,7 +1572,7 @@ pub mod basic {
 
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                    match tag {
+                    match index {
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
                         }
@@ -1638,11 +1640,11 @@ pub mod basic {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (tag, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                    match tag {
+                    match index {
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
                         }
@@ -1787,11 +1789,11 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             loop {
-                let (tag, size) = super::deserialize_field_header(&mut *reader)?;
+                let (index, size) = super::deserialize_field_header(&mut *reader)?;
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match tag {
+                match index {
                     0 => {
                         return Ok(BarIn::X(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
@@ -1879,7 +1881,7 @@ pub mod main {
             let mut z: Option<f64> = None;
 
             loop {
-                let (tag, size) = match super::deserialize_field_header(&mut *reader) {
+                let (index, size) = match super::deserialize_field_header(&mut *reader) {
                     Ok(header) => header,
                     Err(err) => {
                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -1892,7 +1894,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match tag {
+                match index {
                     0 => {
                         x.get_or_insert(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -1991,7 +1993,7 @@ pub mod main {
             let mut t: Option<super::basic::unit::UnitIn> = None;
 
             loop {
-                let (tag, size) = match super::deserialize_field_header(&mut *reader) {
+                let (index, size) = match super::deserialize_field_header(&mut *reader) {
                     Ok(header) => header,
                     Err(err) => {
                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2004,7 +2006,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match tag {
+                match index {
                     0 => {
                         x.get_or_insert(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2103,7 +2105,7 @@ pub mod main {
             let mut bar: Option<BarIn> = None;
 
             loop {
-                let (tag, size) = match super::deserialize_field_header(&mut *reader) {
+                let (index, size) = match super::deserialize_field_header(&mut *reader) {
                     Ok(header) => header,
                     Err(err) => {
                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2116,7 +2118,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match tag {
+                match index {
                     0 => {
                         foo.get_or_insert(<FooIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2215,11 +2217,11 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             loop {
-                let (tag, size) = super::deserialize_field_header(&mut *reader)?;
+                let (index, size) = super::deserialize_field_header(&mut *reader)?;
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match tag {
+                match index {
                     0 => {
                         return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
@@ -2325,11 +2327,11 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             loop {
-                let (tag, size) = super::deserialize_field_header(&mut *reader)?;
+                let (index, size) = super::deserialize_field_header(&mut *reader)?;
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match tag {
+                match index {
                     0 => {
                         return Ok(QuxIn::X(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
