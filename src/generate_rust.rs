@@ -97,7 +97,10 @@ pub fn generate(
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::io::{{self, BufRead, Error, ErrorKind, Write}};
+use std::{{
+    cmp::min,
+    io::{{self, BufRead, Error, ErrorKind, Write}},
+}};
 
 #[rustfmt::skip]
 pub trait Serialize {{
@@ -114,6 +117,58 @@ pub trait Deserialize {{
     where
         Self: Sized,
         T: BufRead;
+}}
+
+#[rustfmt::skip]
+fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
+    if T::VARINT_ENCODED {{
+        ((tag << 2) | 0b00).size() + value.size()
+    }} else {{
+        (match value.size() {{
+            0 => ((tag << 2) | 0b01).size(),
+            8 => ((tag << 2) | 0b10).size(),
+            size => ((tag << 2) | 0b11).size() + size.size(),
+        }}) + value.size()
+    }}
+}}
+
+#[rustfmt::skip]
+fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) -> io::Result<()> {{
+    if U::VARINT_ENCODED {{
+        ((tag << 2) | 0b00).serialize(writer)?;
+    }} else {{
+        match value.size() {{
+            0 => {{
+                ((tag << 2) | 0b01).serialize(writer)?;
+            }}
+            8 => {{
+                ((tag << 2) | 0b10).serialize(writer)?;
+            }}
+            size => {{
+                ((tag << 2) | 0b11).serialize(writer)?;
+                size.serialize(writer)?;
+            }}
+        }}
+    }}
+
+    value.serialize(writer)
+}}
+
+#[rustfmt::skip]
+fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
+    while amount > 0 {{
+        let buffer = reader.fill_buf()?;
+        let num_bytes_to_consume = min(buffer.len(), amount);
+        reader.consume(num_bytes_to_consume);
+        amount -= num_bytes_to_consume;
+    }}
+
+    Ok(())
+}}
+
+#[rustfmt::skip]
+fn u64_size(first_byte: u8) -> u32 {{
+    first_byte.trailing_zeros() + 1
 }}
 
 #[rustfmt::skip]
@@ -266,58 +321,6 @@ impl Deserialize for Vec<u8> {{
         reader.read_to_end(&mut buffer)?;
         Ok(buffer)
     }}
-}}
-
-#[rustfmt::skip]
-fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
-    if T::VARINT_ENCODED {{
-        ((tag << 2) | 0b00).size() + value.size()
-    }} else {{
-        (match value.size() {{
-            0 => ((tag << 2) | 0b01).size(),
-            8 => ((tag << 2) | 0b10).size(),
-            size => ((tag << 2) | 0b11).size() + size.size(),
-        }}) + value.size()
-    }}
-}}
-
-#[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) -> io::Result<()> {{
-    if U::VARINT_ENCODED {{
-        ((tag << 2) | 0b00).serialize(writer)?;
-    }} else {{
-        match value.size() {{
-            0 => {{
-                ((tag << 2) | 0b01).serialize(writer)?;
-            }}
-            8 => {{
-                ((tag << 2) | 0b10).serialize(writer)?;
-            }}
-            size => {{
-                ((tag << 2) | 0b11).serialize(writer)?;
-                size.serialize(writer)?;
-            }}
-        }}
-    }}
-
-    value.serialize(writer)
-}}
-
-#[rustfmt::skip]
-fn u64_size(first_byte: u8) -> u32 {{
-    first_byte.trailing_zeros() + 1
-}}
-
-#[rustfmt::skip]
-fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
-    while amount > 0 {{
-        let buffer = ::std::io::BufRead::fill_buf(reader)?;
-        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
-        ::std::io::BufRead::consume(reader, num_bytes_to_consume);
-        amount -= num_bytes_to_consume;
-    }}
-
-    Ok(())
 }}",
             typical_version,
         )
@@ -1319,7 +1322,10 @@ mod tests {
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
 
 #[rustfmt::skip]
-use std::io::{self, BufRead, Error, ErrorKind, Write};
+use std::{
+    cmp::min,
+    io::{self, BufRead, Error, ErrorKind, Write},
+};
 
 #[rustfmt::skip]
 pub trait Serialize {
@@ -1336,6 +1342,58 @@ pub trait Deserialize {
     where
         Self: Sized,
         T: BufRead;
+}
+
+#[rustfmt::skip]
+fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
+    if T::VARINT_ENCODED {
+        ((tag << 2) | 0b00).size() + value.size()
+    } else {
+        (match value.size() {
+            0 => ((tag << 2) | 0b01).size(),
+            8 => ((tag << 2) | 0b10).size(),
+            size => ((tag << 2) | 0b11).size() + size.size(),
+        }) + value.size()
+    }
+}
+
+#[rustfmt::skip]
+fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) -> io::Result<()> {
+    if U::VARINT_ENCODED {
+        ((tag << 2) | 0b00).serialize(writer)?;
+    } else {
+        match value.size() {
+            0 => {
+                ((tag << 2) | 0b01).serialize(writer)?;
+            }
+            8 => {
+                ((tag << 2) | 0b10).serialize(writer)?;
+            }
+            size => {
+                ((tag << 2) | 0b11).serialize(writer)?;
+                size.serialize(writer)?;
+            }
+        }
+    }
+
+    value.serialize(writer)
+}
+
+#[rustfmt::skip]
+fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
+    while amount > 0 {
+        let buffer = reader.fill_buf()?;
+        let num_bytes_to_consume = min(buffer.len(), amount);
+        reader.consume(num_bytes_to_consume);
+        amount -= num_bytes_to_consume;
+    }
+
+    Ok(())
+}
+
+#[rustfmt::skip]
+fn u64_size(first_byte: u8) -> u32 {
+    first_byte.trailing_zeros() + 1
 }
 
 #[rustfmt::skip]
@@ -1488,58 +1546,6 @@ impl Deserialize for Vec<u8> {
         reader.read_to_end(&mut buffer)?;
         Ok(buffer)
     }
-}
-
-#[rustfmt::skip]
-fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
-    if T::VARINT_ENCODED {
-        ((tag << 2) | 0b00).size() + value.size()
-    } else {
-        (match value.size() {
-            0 => ((tag << 2) | 0b01).size(),
-            8 => ((tag << 2) | 0b10).size(),
-            size => ((tag << 2) | 0b11).size() + size.size(),
-        }) + value.size()
-    }
-}
-
-#[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) -> io::Result<()> {
-    if U::VARINT_ENCODED {
-        ((tag << 2) | 0b00).serialize(writer)?;
-    } else {
-        match value.size() {
-            0 => {
-                ((tag << 2) | 0b01).serialize(writer)?;
-            }
-            8 => {
-                ((tag << 2) | 0b10).serialize(writer)?;
-            }
-            size => {
-                ((tag << 2) | 0b11).serialize(writer)?;
-                size.serialize(writer)?;
-            }
-        }
-    }
-
-    value.serialize(writer)
-}
-
-#[rustfmt::skip]
-fn u64_size(first_byte: u8) -> u32 {
-    first_byte.trailing_zeros() + 1
-}
-
-#[rustfmt::skip]
-fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
-    while amount > 0 {
-        let buffer = ::std::io::BufRead::fill_buf(reader)?;
-        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
-        ::std::io::BufRead::consume(reader, num_bytes_to_consume);
-        amount -= num_bytes_to_consume;
-    }
-
-    Ok(())
 }
 
 #[rustfmt::skip]
