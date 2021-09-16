@@ -172,6 +172,32 @@ fn u64_size(first_byte: u8) -> u32 {{
 }}
 
 #[rustfmt::skip]
+fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {{
+    let header = u64::deserialize(&mut *reader)?;
+
+    let size = match header & 0b11 {{
+        0b00 => {{
+            let buffer = (&mut *reader).fill_buf()?;
+
+            if buffer.is_empty() {{
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::UnexpectedEof,
+                    \"Error decoding field.\",
+                ));
+            }}
+
+            u64::from(u64_size(buffer[0]))
+        }}
+        0b01 => 0,
+        0b10 => 8,
+        0b11 => u64::deserialize(&mut *reader)?,
+        _ => panic!(),
+    }};
+
+    Ok((header >> 2, size))
+}}
+
+#[rustfmt::skip]
 impl Serialize for bool {{
     const VARINT_ENCODED: bool = true;
 
@@ -553,10 +579,9 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(
-                    buffer,
-                    "let header = match u64::deserialize(&mut *reader) {{",
-                )?;
+                write!(buffer, "let (tag, size) = match ")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "deserialize_field_header(&mut *reader) {{")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "Ok(header) => header,")?;
                 write_indentation(buffer, indentation + 4)?;
@@ -579,50 +604,13 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}};")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "let size = match header & 0b11 {{")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b00 => {{")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "let buffer = (&mut *reader).fill_buf()?;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "if buffer.is_empty() {{")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "return Err(::std::io::Error::new(")?;
-                write_indentation(buffer, indentation + 7)?;
-                writeln!(buffer, "::std::io::ErrorKind::UnexpectedEof,")?;
-                write_indentation(buffer, indentation + 7)?;
-                writeln!(buffer, "\"Error decoding field.\",")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "));")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 5)?;
-                write!(buffer, "u64::from(")?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "u64_size(buffer[0]))")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b01 => 0,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b10 => 8,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b11 => u64::deserialize(&mut *reader)?,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "_ => panic!(),")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}};")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
                     "let mut sub_reader = ::std::io::Read::take(&mut *reader, size);",
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match header >> 2 {{")?;
+                writeln!(buffer, "match tag {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
@@ -951,44 +939,9 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "let header = u64::deserialize(&mut *reader)?;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "let size = match header & 0b11 {{")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b00 => {{")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "let buffer = (&mut *reader).fill_buf()?;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "if buffer.is_empty() {{")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "return Err(::std::io::Error::new(")?;
-                write_indentation(buffer, indentation + 7)?;
-                writeln!(buffer, "::std::io::ErrorKind::UnexpectedEof,")?;
-                write_indentation(buffer, indentation + 7)?;
-                writeln!(buffer, "\"Error decoding field.\",")?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "));")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 5)?;
-                write!(buffer, "u64::from(")?;
+                write!(buffer, "let (tag, size) = ")?;
                 write_supers(buffer, indentation)?;
-                writeln!(buffer, "u64_size(buffer[0]))")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b01 => 0,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b10 => 8,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "0b11 => u64::deserialize(&mut *reader)?,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "_ => panic!(),")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}};")?;
+                writeln!(buffer, "deserialize_field_header(&mut *reader)?;")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
@@ -997,7 +950,7 @@ fn write_schema<T: Write>(
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match header >> 2 {{")?;
+                writeln!(buffer, "match tag {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
@@ -1397,6 +1350,32 @@ fn u64_size(first_byte: u8) -> u32 {
 }
 
 #[rustfmt::skip]
+fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {
+    let header = u64::deserialize(&mut *reader)?;
+
+    let size = match header & 0b11 {
+        0b00 => {
+            let buffer = (&mut *reader).fill_buf()?;
+
+            if buffer.is_empty() {
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::UnexpectedEof,
+                    \"Error decoding field.\",
+                ));
+            }
+
+            u64::from(u64_size(buffer[0]))
+        }
+        0b01 => 0,
+        0b10 => 8,
+        0b11 => u64::deserialize(&mut *reader)?,
+        _ => panic!(),
+    };
+
+    Ok((header >> 2, size))
+}
+
+#[rustfmt::skip]
 impl Serialize for bool {
     const VARINT_ENCODED: bool = true;
 
@@ -1578,7 +1557,7 @@ pub mod basic {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let header = match u64::deserialize(&mut *reader) {
+                    let (tag, size) = match super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -1589,28 +1568,9 @@ pub mod basic {
                         }
                     };
 
-                    let size = match header & 0b11 {
-                        0b00 => {
-                            let buffer = (&mut *reader).fill_buf()?;
-
-                            if buffer.is_empty() {
-                                return Err(::std::io::Error::new(
-                                    ::std::io::ErrorKind::UnexpectedEof,
-                                    \"Error decoding field.\",
-                                ));
-                            }
-
-                            u64::from(super::super::u64_size(buffer[0]))
-                        }
-                        0b01 => 0,
-                        0b10 => 8,
-                        0b11 => u64::deserialize(&mut *reader)?,
-                        _ => panic!(),
-                    };
-
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                    match header >> 2 {
+                    match tag {
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
                         }
@@ -1678,30 +1638,11 @@ pub mod basic {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let header = u64::deserialize(&mut *reader)?;
-
-                    let size = match header & 0b11 {
-                        0b00 => {
-                            let buffer = (&mut *reader).fill_buf()?;
-
-                            if buffer.is_empty() {
-                                return Err(::std::io::Error::new(
-                                    ::std::io::ErrorKind::UnexpectedEof,
-                                    \"Error decoding field.\",
-                                ));
-                            }
-
-                            u64::from(super::super::u64_size(buffer[0]))
-                        }
-                        0b01 => 0,
-                        0b10 => 8,
-                        0b11 => u64::deserialize(&mut *reader)?,
-                        _ => panic!(),
-                    };
+                    let (tag, size) = super::super::deserialize_field_header(&mut *reader)?;
 
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                    match header >> 2 {
+                    match tag {
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
                         }
@@ -1846,30 +1787,11 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             loop {
-                let header = u64::deserialize(&mut *reader)?;
-
-                let size = match header & 0b11 {
-                    0b00 => {
-                        let buffer = (&mut *reader).fill_buf()?;
-
-                        if buffer.is_empty() {
-                            return Err(::std::io::Error::new(
-                                ::std::io::ErrorKind::UnexpectedEof,
-                                \"Error decoding field.\",
-                            ));
-                        }
-
-                        u64::from(super::u64_size(buffer[0]))
-                    }
-                    0b01 => 0,
-                    0b10 => 8,
-                    0b11 => u64::deserialize(&mut *reader)?,
-                    _ => panic!(),
-                };
+                let (tag, size) = super::deserialize_field_header(&mut *reader)?;
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match header >> 2 {
+                match tag {
                     0 => {
                         return Ok(BarIn::X(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
@@ -1957,7 +1879,7 @@ pub mod main {
             let mut z: Option<f64> = None;
 
             loop {
-                let header = match u64::deserialize(&mut *reader) {
+                let (tag, size) = match super::deserialize_field_header(&mut *reader) {
                     Ok(header) => header,
                     Err(err) => {
                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -1968,28 +1890,9 @@ pub mod main {
                     }
                 };
 
-                let size = match header & 0b11 {
-                    0b00 => {
-                        let buffer = (&mut *reader).fill_buf()?;
-
-                        if buffer.is_empty() {
-                            return Err(::std::io::Error::new(
-                                ::std::io::ErrorKind::UnexpectedEof,
-                                \"Error decoding field.\",
-                            ));
-                        }
-
-                        u64::from(super::u64_size(buffer[0]))
-                    }
-                    0b01 => 0,
-                    0b10 => 8,
-                    0b11 => u64::deserialize(&mut *reader)?,
-                    _ => panic!(),
-                };
-
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match header >> 2 {
+                match tag {
                     0 => {
                         x.get_or_insert(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2088,7 +1991,7 @@ pub mod main {
             let mut t: Option<super::basic::unit::UnitIn> = None;
 
             loop {
-                let header = match u64::deserialize(&mut *reader) {
+                let (tag, size) = match super::deserialize_field_header(&mut *reader) {
                     Ok(header) => header,
                     Err(err) => {
                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2099,28 +2002,9 @@ pub mod main {
                     }
                 };
 
-                let size = match header & 0b11 {
-                    0b00 => {
-                        let buffer = (&mut *reader).fill_buf()?;
-
-                        if buffer.is_empty() {
-                            return Err(::std::io::Error::new(
-                                ::std::io::ErrorKind::UnexpectedEof,
-                                \"Error decoding field.\",
-                            ));
-                        }
-
-                        u64::from(super::u64_size(buffer[0]))
-                    }
-                    0b01 => 0,
-                    0b10 => 8,
-                    0b11 => u64::deserialize(&mut *reader)?,
-                    _ => panic!(),
-                };
-
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match header >> 2 {
+                match tag {
                     0 => {
                         x.get_or_insert(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2219,7 +2103,7 @@ pub mod main {
             let mut bar: Option<BarIn> = None;
 
             loop {
-                let header = match u64::deserialize(&mut *reader) {
+                let (tag, size) = match super::deserialize_field_header(&mut *reader) {
                     Ok(header) => header,
                     Err(err) => {
                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2230,28 +2114,9 @@ pub mod main {
                     }
                 };
 
-                let size = match header & 0b11 {
-                    0b00 => {
-                        let buffer = (&mut *reader).fill_buf()?;
-
-                        if buffer.is_empty() {
-                            return Err(::std::io::Error::new(
-                                ::std::io::ErrorKind::UnexpectedEof,
-                                \"Error decoding field.\",
-                            ));
-                        }
-
-                        u64::from(super::u64_size(buffer[0]))
-                    }
-                    0b01 => 0,
-                    0b10 => 8,
-                    0b11 => u64::deserialize(&mut *reader)?,
-                    _ => panic!(),
-                };
-
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match header >> 2 {
+                match tag {
                     0 => {
                         foo.get_or_insert(<FooIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2350,37 +2215,18 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             loop {
-                let header = u64::deserialize(&mut *reader)?;
-
-                let size = match header & 0b11 {
-                    0b00 => {
-                        let buffer = (&mut *reader).fill_buf()?;
-
-                        if buffer.is_empty() {
-                            return Err(::std::io::Error::new(
-                                ::std::io::ErrorKind::UnexpectedEof,
-                                \"Error decoding field.\",
-                            ));
-                        }
-
-                        u64::from(super::u64_size(buffer[0]))
-                    }
-                    0b01 => 0,
-                    0b10 => 8,
-                    0b11 => u64::deserialize(&mut *reader)?,
-                    _ => panic!(),
-                };
+                let (tag, size) = super::deserialize_field_header(&mut *reader)?;
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match header >> 2 {
+                match tag {
                     0 => {
-                        return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>:\
-                            :deserialize(&mut sub_reader)?));
+                        return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?));
                     }
                     1 => {
-                        return Ok(FooOrBarIn::Bar(<BarIn as super::Deserialize>:\
-                            :deserialize(&mut sub_reader)?));
+                        return Ok(FooOrBarIn::Bar(<BarIn as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2479,41 +2325,22 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             loop {
-                let header = u64::deserialize(&mut *reader)?;
-
-                let size = match header & 0b11 {
-                    0b00 => {
-                        let buffer = (&mut *reader).fill_buf()?;
-
-                        if buffer.is_empty() {
-                            return Err(::std::io::Error::new(
-                                ::std::io::ErrorKind::UnexpectedEof,
-                                \"Error decoding field.\",
-                            ));
-                        }
-
-                        u64::from(super::u64_size(buffer[0]))
-                    }
-                    0b01 => 0,
-                    0b10 => 8,
-                    0b11 => u64::deserialize(&mut *reader)?,
-                    _ => panic!(),
-                };
+                let (tag, size) = super::deserialize_field_header(&mut *reader)?;
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match header >> 2 {
+                match tag {
                     0 => {
                         return Ok(QuxIn::X(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
                     }
                     1 => {
-                        return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>:\
-                            :deserialize(&mut sub_reader)?));
+                        return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?));
                     }
                     2 => {
-                        return Ok(QuxIn::Z(<f64 as super::Deserialize>:\
-                            :deserialize(&mut sub_reader)?));
+                        return Ok(QuxIn::Z(<f64 as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
