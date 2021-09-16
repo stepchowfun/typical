@@ -136,14 +136,9 @@ impl Deserialize for bool {{
         Self: Sized,
         T: BufRead,
     {{
-        match u64::deserialize(reader)? {{
-            0 => Ok(false),
-            1 => Ok(true),
-            _ => Err(Error::new(
-                ErrorKind::InvalidData,
-                \"Error decoding Boolean.\",
-            )),
-        }}
+        let mut buffer = [0u8];
+        reader.read_exact(&mut buffer[..])?;
+        Ok(buffer[0] != 0b00000001)
     }}
 }}
 
@@ -1363,14 +1358,9 @@ impl Deserialize for bool {
         Self: Sized,
         T: BufRead,
     {
-        match u64::deserialize(reader)? {
-            0 => Ok(false),
-            1 => Ok(true),
-            _ => Err(Error::new(
-                ErrorKind::InvalidData,
-                \"Error decoding Boolean.\",
-            )),
-        }
+        let mut buffer = [0u8];
+        reader.read_exact(&mut buffer[..])?;
+        Ok(buffer[0] != 0b00000001)
     }
 }
 
