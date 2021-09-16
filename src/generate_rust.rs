@@ -274,11 +274,6 @@ impl Deserialize for Vec<u8> {{
 }}
 
 #[rustfmt::skip]
-fn u64_size(first_byte: u8) -> u32 {{
-    first_byte.trailing_zeros() + 1
-}}
-
-#[rustfmt::skip]
 fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
     if T::VARINT_ENCODED {{
         ((tag << 2) | 0b00).size() + value.size()
@@ -289,18 +284,6 @@ fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {{
             size => ((tag << 2) | 0b11).size() + size.size(),
         }}) + value.size()
     }}
-}}
-
-#[rustfmt::skip]
-fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
-    while amount > 0 {{
-        let buffer = ::std::io::BufRead::fill_buf(reader)?;
-        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
-        ::std::io::BufRead::consume(reader, num_bytes_to_consume);
-        amount -= num_bytes_to_consume;
-    }}
-
-    Ok(())
 }}
 
 #[rustfmt::skip]
@@ -323,6 +306,23 @@ fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) 
     }}
 
     value.serialize(writer)
+}}
+
+#[rustfmt::skip]
+fn u64_size(first_byte: u8) -> u32 {{
+    first_byte.trailing_zeros() + 1
+}}
+
+#[rustfmt::skip]
+fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
+    while amount > 0 {{
+        let buffer = ::std::io::BufRead::fill_buf(reader)?;
+        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
+        ::std::io::BufRead::consume(reader, num_bytes_to_consume);
+        amount -= num_bytes_to_consume;
+    }}
+
+    Ok(())
 }}",
             typical_version,
         )
@@ -1507,11 +1507,6 @@ impl Deserialize for Vec<u8> {
 }
 
 #[rustfmt::skip]
-fn u64_size(first_byte: u8) -> u32 {
-    first_byte.trailing_zeros() + 1
-}
-
-#[rustfmt::skip]
 fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
     if T::VARINT_ENCODED {
         ((tag << 2) | 0b00).size() + value.size()
@@ -1522,18 +1517,6 @@ fn field_size<T: Serialize>(tag: u64, value: &T) -> u64 {
             size => ((tag << 2) | 0b11).size() + size.size(),
         }) + value.size()
     }
-}
-
-#[rustfmt::skip]
-fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
-    while amount > 0 {
-        let buffer = ::std::io::BufRead::fill_buf(reader)?;
-        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
-        ::std::io::BufRead::consume(reader, num_bytes_to_consume);
-        amount -= num_bytes_to_consume;
-    }
-
-    Ok(())
 }
 
 #[rustfmt::skip]
@@ -1556,6 +1539,23 @@ fn serialize_field<T: Write, U: Serialize>(writer: &mut T, tag: u64, value: &U) 
     }
 
     value.serialize(writer)
+}
+
+#[rustfmt::skip]
+fn u64_size(first_byte: u8) -> u32 {
+    first_byte.trailing_zeros() + 1
+}
+
+#[rustfmt::skip]
+fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
+    while amount > 0 {
+        let buffer = ::std::io::BufRead::fill_buf(reader)?;
+        let num_bytes_to_consume = std::cmp::min(buffer.len(), amount);
+        ::std::io::BufRead::consume(reader, num_bytes_to_consume);
+        amount -= num_bytes_to_consume;
+    }
+
+    Ok(())
 }
 
 #[rustfmt::skip]
