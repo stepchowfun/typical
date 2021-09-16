@@ -581,9 +581,6 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}};")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "let index = header >> 2;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "let size = match header & 0b11 {{")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "0b00 => {{")?;
@@ -627,7 +624,7 @@ fn write_schema<T: Write>(
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match index {{")?;
+                writeln!(buffer, "match header >> 2 {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
@@ -959,9 +956,6 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "let header = u64::deserialize(&mut *reader)?;")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "let index = header >> 2;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "let size = match header & 0b11 {{")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "0b00 => {{")?;
@@ -1005,7 +999,7 @@ fn write_schema<T: Write>(
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match index {{")?;
+                writeln!(buffer, "match header >> 2 {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
@@ -1599,8 +1593,6 @@ pub mod basic {
                         }
                     };
 
-                    let index = header >> 2;
-
                     let size = match header & 0b11 {
                         0b00 => {
                             let buffer = (&mut *reader).fill_buf()?;
@@ -1622,7 +1614,7 @@ pub mod basic {
 
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                    match index {
+                    match header >> 2 {
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
                         }
@@ -1692,8 +1684,6 @@ pub mod basic {
                 loop {
                     let header = u64::deserialize(&mut *reader)?;
 
-                    let index = header >> 2;
-
                     let size = match header & 0b11 {
                         0b00 => {
                             let buffer = (&mut *reader).fill_buf()?;
@@ -1715,7 +1705,7 @@ pub mod basic {
 
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                    match index {
+                    match header >> 2 {
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
                         }
@@ -1862,8 +1852,6 @@ pub mod main {
             loop {
                 let header = u64::deserialize(&mut *reader)?;
 
-                let index = header >> 2;
-
                 let size = match header & 0b11 {
                     0b00 => {
                         let buffer = (&mut *reader).fill_buf()?;
@@ -1885,7 +1873,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match index {
+                match header >> 2 {
                     0 => {
                         return Ok(BarIn::X(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
@@ -1984,8 +1972,6 @@ pub mod main {
                     }
                 };
 
-                let index = header >> 2;
-
                 let size = match header & 0b11 {
                     0b00 => {
                         let buffer = (&mut *reader).fill_buf()?;
@@ -2007,7 +1993,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match index {
+                match header >> 2 {
                     0 => {
                         x.get_or_insert(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2117,8 +2103,6 @@ pub mod main {
                     }
                 };
 
-                let index = header >> 2;
-
                 let size = match header & 0b11 {
                     0b00 => {
                         let buffer = (&mut *reader).fill_buf()?;
@@ -2140,7 +2124,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match index {
+                match header >> 2 {
                     0 => {
                         x.get_or_insert(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2250,8 +2234,6 @@ pub mod main {
                     }
                 };
 
-                let index = header >> 2;
-
                 let size = match header & 0b11 {
                     0b00 => {
                         let buffer = (&mut *reader).fill_buf()?;
@@ -2273,7 +2255,7 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match index {
+                match header >> 2 {
                     0 => {
                         foo.get_or_insert(<FooIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
@@ -2374,8 +2356,6 @@ pub mod main {
             loop {
                 let header = u64::deserialize(&mut *reader)?;
 
-                let index = header >> 2;
-
                 let size = match header & 0b11 {
                     0b00 => {
                         let buffer = (&mut *reader).fill_buf()?;
@@ -2397,14 +2377,14 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match index {
+                match header >> 2 {
                     0 => {
-                        return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>:\
+                            :deserialize(&mut sub_reader)?));
                     }
                     1 => {
-                        return Ok(FooOrBarIn::Bar(<BarIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        return Ok(FooOrBarIn::Bar(<BarIn as super::Deserialize>:\
+                            :deserialize(&mut sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -2505,8 +2485,6 @@ pub mod main {
             loop {
                 let header = u64::deserialize(&mut *reader)?;
 
-                let index = header >> 2;
-
                 let size = match header & 0b11 {
                     0b00 => {
                         let buffer = (&mut *reader).fill_buf()?;
@@ -2528,18 +2506,18 @@ pub mod main {
 
                 let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
 
-                match index {
+                match header >> 2 {
                     0 => {
                         return Ok(QuxIn::X(<bool as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
                     }
                     1 => {
-                        return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>:\
+                            :deserialize(&mut sub_reader)?));
                     }
                     2 => {
-                        return Ok(QuxIn::Z(<f64 as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        return Ok(QuxIn::Z(<f64 as super::Deserialize>:\
+                            :deserialize(&mut sub_reader)?));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
