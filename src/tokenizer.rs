@@ -100,7 +100,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 } else if &schema_contents[i..end] == BOOLEAN_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Boolean,
+                        variant: Variant::Bool,
                     });
                 } else if &schema_contents[i..end] == BYTES_KEYWORD {
                     tokens.push(Token {
@@ -115,7 +115,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 } else if &schema_contents[i..end] == FLOAT64_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Float64,
+                        variant: Variant::F64,
                     });
                 } else if &schema_contents[i..end] == IMPORT_KEYWORD {
                     tokens.push(Token {
@@ -130,7 +130,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 } else if &schema_contents[i..end] == UNSIGNED64_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Unsigned64,
+                        variant: Variant::U64,
                     });
                 } else if &schema_contents[i..end] == UNSTABLE_KEYWORD {
                     tokens.push(Token {
@@ -302,15 +302,15 @@ mod tests {
 
             # This is a struct.
             struct plugh {
-              qux: bar.Foo = 0
-              corge: unstable Boolean = 1
+              qux: bar.foo = 0
+              corge: unstable bool = 1
             }
 
             # This is a choice.
             choice zyzzy {
-              grault: bar.Bar = 0
-              garply: unstable Float64 = 1
-              wobble: Unsigned64 = 2
+              grault: bar.bar = 0
+              garply: unstable f64 = 1
+              wobble: u64 = 2
             }
         ";
 
@@ -378,7 +378,7 @@ mod tests {
                         start: 118,
                         end: 121,
                     },
-                    variant: Variant::Identifier("Foo".into()),
+                    variant: Variant::Identifier("foo".into()),
                 },
                 Token {
                     source_range: SourceRange {
@@ -418,182 +418,182 @@ mod tests {
                 Token {
                     source_range: SourceRange {
                         start: 156,
-                        end: 163,
+                        end: 160,
                     },
-                    variant: Variant::Boolean,
+                    variant: Variant::Bool,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 164,
-                        end: 165,
+                        start: 161,
+                        end: 162,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 166,
-                        end: 167,
+                        start: 163,
+                        end: 164,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 180,
-                        end: 181,
+                        start: 177,
+                        end: 178,
                     },
                     variant: Variant::RightCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 227,
-                        end: 233,
+                        start: 224,
+                        end: 230,
                     },
                     variant: Variant::Choice,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 234,
-                        end: 239,
+                        start: 231,
+                        end: 236,
                     },
                     variant: Variant::Identifier("zyzzy".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 240,
-                        end: 241,
+                        start: 237,
+                        end: 238,
                     },
                     variant: Variant::LeftCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 256,
-                        end: 262,
+                        start: 253,
+                        end: 259,
                     },
                     variant: Variant::Identifier("grault".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 262,
-                        end: 263,
+                        start: 259,
+                        end: 260,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 264,
-                        end: 267,
+                        start: 261,
+                        end: 264,
                     },
                     variant: Variant::Identifier("bar".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 267,
-                        end: 268,
+                        start: 264,
+                        end: 265,
                     },
                     variant: Variant::Dot,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 268,
-                        end: 271,
+                        start: 265,
+                        end: 268,
                     },
-                    variant: Variant::Identifier("Bar".into()),
+                    variant: Variant::Identifier("bar".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 272,
-                        end: 273,
+                        start: 269,
+                        end: 270,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 274,
-                        end: 275,
+                        start: 271,
+                        end: 272,
                     },
                     variant: Variant::Integer(0),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 290,
-                        end: 296,
+                        start: 287,
+                        end: 293,
                     },
                     variant: Variant::Identifier("garply".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 296,
-                        end: 297,
+                        start: 293,
+                        end: 294,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 298,
-                        end: 306,
+                        start: 295,
+                        end: 303,
                     },
                     variant: Variant::Unstable,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 307,
-                        end: 314,
+                        start: 304,
+                        end: 307,
                     },
-                    variant: Variant::Float64,
+                    variant: Variant::F64,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 315,
-                        end: 316,
+                        start: 308,
+                        end: 309,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 317,
-                        end: 318,
+                        start: 310,
+                        end: 311,
                     },
                     variant: Variant::Integer(1),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 333,
-                        end: 339,
+                        start: 326,
+                        end: 332,
                     },
                     variant: Variant::Identifier("wobble".into()),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 339,
-                        end: 340,
+                        start: 332,
+                        end: 333,
                     },
                     variant: Variant::Colon,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 341,
-                        end: 351,
+                        start: 334,
+                        end: 337,
                     },
-                    variant: Variant::Unsigned64,
+                    variant: Variant::U64,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 352,
-                        end: 353,
+                        start: 338,
+                        end: 339,
                     },
                     variant: Variant::Equals,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 354,
-                        end: 355,
+                        start: 340,
+                        end: 341,
                     },
                     variant: Variant::Integer(2),
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 368,
-                        end: 369,
+                        start: 354,
+                        end: 355,
                     },
                     variant: Variant::RightCurly,
                 },
@@ -642,7 +642,7 @@ mod tests {
                     start: 0,
                     end: BOOLEAN_KEYWORD.len(),
                 },
-                variant: Variant::Boolean,
+                variant: Variant::Bool,
             }],
         );
     }
@@ -717,7 +717,7 @@ mod tests {
                     start: 0,
                     end: FLOAT64_KEYWORD.len(),
                 },
-                variant: Variant::Float64,
+                variant: Variant::F64,
             }],
         );
     }
@@ -856,7 +856,7 @@ mod tests {
                     start: 0,
                     end: UNSIGNED64_KEYWORD.len(),
                 },
-                variant: Variant::Unsigned64,
+                variant: Variant::U64,
             }],
         );
     }

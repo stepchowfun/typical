@@ -47,10 +47,10 @@ pub struct Type {
 
 #[derive(Clone, Debug)]
 pub enum TypeVariant {
-    Boolean,
+    Bool,
     Bytes,
-    Float64,
-    Unsigned64,
+    F64,
+    U64,
     Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
@@ -173,17 +173,17 @@ impl Type {
 impl TypeVariant {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
-            Self::Boolean => {
-                write!(f, "Boolean")?;
+            Self::Bool => {
+                write!(f, "bool")?;
             }
             Self::Bytes => {
-                write!(f, "Bytes")?;
+                write!(f, "bytes")?;
             }
-            Self::Float64 => {
-                write!(f, "Float64")?;
+            Self::F64 => {
+                write!(f, "f64")?;
             }
-            Self::Unsigned64 => {
-                write!(f, "Unsigned64")?;
+            Self::U64 => {
+                write!(f, "u64")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -430,7 +430,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Bool,
                 },
                 index: 0,
             },
@@ -440,7 +440,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Unsigned64,
+                    variant: TypeVariant::U64,
                 },
                 index: 1,
             },
@@ -453,7 +453,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Bool,
                 },
                 index: 0,
             },
@@ -463,7 +463,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Float64,
+                    variant: TypeVariant::F64,
                 },
                 index: 1,
             },
@@ -472,7 +472,7 @@ mod tests {
         let mut declarations = BTreeMap::new();
 
         declarations.insert(
-            "Foo".into(),
+            "foo".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Struct(foo_fields),
@@ -480,7 +480,7 @@ mod tests {
         );
 
         declarations.insert(
-            "Bar".into(),
+            "bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Choice(bar_fields),
@@ -493,14 +493,14 @@ mod tests {
         };
 
         let expected = "\
-            choice Bar {\n\
-            \x20 x: Boolean = 0\n\
-            \x20 y: Float64 = 1\n\
+            choice bar {\n\
+            \x20 x: bool = 0\n\
+            \x20 y: f64 = 1\n\
             }\n\
             \n\
-            struct Foo {\n\
-            \x20 x: Boolean = 0\n\
-            \x20 y: Unsigned64 = 1\n\
+            struct foo {\n\
+            \x20 x: bool = 0\n\
+            \x20 y: u64 = 1\n\
             }\n\
         ";
 
@@ -537,7 +537,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Bool,
                 },
                 index: 0,
             },
@@ -547,7 +547,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Unsigned64,
+                    variant: TypeVariant::U64,
                 },
                 index: 1,
             },
@@ -560,7 +560,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Boolean,
+                    variant: TypeVariant::Bool,
                 },
                 index: 0,
             },
@@ -570,7 +570,7 @@ mod tests {
                 unstable: false,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Float64,
+                    variant: TypeVariant::F64,
                 },
                 index: 1,
             },
@@ -579,7 +579,7 @@ mod tests {
         let mut declarations = BTreeMap::new();
 
         declarations.insert(
-            "Foo".into(),
+            "foo".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Struct(foo_fields),
@@ -587,7 +587,7 @@ mod tests {
         );
 
         declarations.insert(
-            "Bar".into(),
+            "bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Choice(bar_fields),
@@ -603,14 +603,14 @@ mod tests {
             import 'bar.t' as bar\n\
             import 'foo.t' as foo\n\
             \n\
-            choice Bar {\n\
-            \x20 x: Boolean = 0\n\
-            \x20 y: Float64 = 1\n\
+            choice bar {\n\
+            \x20 x: bool = 0\n\
+            \x20 y: f64 = 1\n\
             }\n\
             \n\
-            struct Foo {\n\
-            \x20 x: Boolean = 0\n\
-            \x20 y: Unsigned64 = 1\n\
+            struct foo {\n\
+            \x20 x: bool = 0\n\
+            \x20 y: u64 = 1\n\
             }\n\
         ";
 
@@ -621,10 +621,10 @@ mod tests {
     fn type_display_boolean() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Boolean,
+            variant: TypeVariant::Bool,
         };
 
-        let expected = "Boolean";
+        let expected = "bool";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -636,7 +636,7 @@ mod tests {
             variant: TypeVariant::Bytes,
         };
 
-        let expected = "Bytes";
+        let expected = "bytes";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -645,10 +645,10 @@ mod tests {
     fn type_display_float64() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Float64,
+            variant: TypeVariant::F64,
         };
 
-        let expected = "Float64";
+        let expected = "f64";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -657,10 +657,10 @@ mod tests {
     fn type_display_unsigned64() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Unsigned64,
+            variant: TypeVariant::U64,
         };
 
-        let expected = "Unsigned64";
+        let expected = "u64";
 
         assert_eq!(r#type.to_string(), expected);
     }

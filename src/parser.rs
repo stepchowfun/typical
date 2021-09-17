@@ -561,12 +561,12 @@ fn parse_field(
 
     // Parse the type.
     let type_start = *position;
-    let r#type = if let token::Variant::Boolean = tokens[*position].variant {
+    let r#type = if let token::Variant::Bool = tokens[*position].variant {
         *position += 1;
 
         schema::Type {
             source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Boolean,
+            variant: schema::TypeVariant::Bool,
         }
     } else if let token::Variant::Bytes = tokens[*position].variant {
         *position += 1;
@@ -575,19 +575,19 @@ fn parse_field(
             source_range: span_tokens(tokens, type_start, *position),
             variant: schema::TypeVariant::Bytes,
         }
-    } else if let token::Variant::Float64 = tokens[*position].variant {
+    } else if let token::Variant::F64 = tokens[*position].variant {
         *position += 1;
 
         schema::Type {
             source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Float64,
+            variant: schema::TypeVariant::F64,
         }
-    } else if let token::Variant::Unsigned64 = tokens[*position].variant {
+    } else if let token::Variant::U64 = tokens[*position].variant {
         *position += 1;
 
         schema::Type {
             source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Unsigned64,
+            variant: schema::TypeVariant::U64,
         }
     } else {
         let (import_name, r#type_name) = if *position < tokens.len() - 2 {
@@ -717,17 +717,17 @@ mod tests {
             import 'qux.t' as qux
 
             # This is a struct.
-            struct Foo {
-              x: baz.Baz = 0
-              y: unstable Unsigned64 = 1
-              z: Boolean = 2
+            struct foo {
+              x: baz.baz = 0
+              y: unstable u64 = 1
+              z: bool = 2
             }
 
             # This is a choice.
-            choice Bar {
-              x: qux.Qux = 0
-              y: unstable Bytes = 1
-              z: Float64 = 2
+            choice bar {
+              x: qux.qux = 0
+              y: unstable bytes = 1
+              z: f64 = 2
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
@@ -765,39 +765,39 @@ mod tests {
                         start: 144,
                         end: 151,
                     },
-                    variant: schema::TypeVariant::Custom(Some("baz".into()), "Baz".into()),
+                    variant: schema::TypeVariant::Custom(Some("baz".into()), "baz".into()),
                 },
                 index: 0,
             },
             schema::Field {
                 source_range: SourceRange {
                     start: 170,
-                    end: 196,
+                    end: 189,
                 },
                 name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 182,
-                        end: 192,
+                        end: 185,
                     },
-                    variant: schema::TypeVariant::Unsigned64,
+                    variant: schema::TypeVariant::U64,
                 },
                 index: 1,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 211,
-                    end: 225,
+                    start: 204,
+                    end: 215,
                 },
                 name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 214,
-                        end: 221,
+                        start: 207,
+                        end: 211,
                     },
-                    variant: schema::TypeVariant::Boolean,
+                    variant: schema::TypeVariant::Bool,
                 },
                 index: 2,
             },
@@ -806,31 +806,31 @@ mod tests {
         let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 312,
-                    end: 326,
+                    start: 302,
+                    end: 316,
                 },
                 name: "x".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 315,
-                        end: 322,
+                        start: 305,
+                        end: 312,
                     },
-                    variant: schema::TypeVariant::Custom(Some("qux".into()), "Qux".into()),
+                    variant: schema::TypeVariant::Custom(Some("qux".into()), "qux".into()),
                 },
                 index: 0,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 341,
-                    end: 362,
+                    start: 331,
+                    end: 352,
                 },
                 name: "y".into(),
                 unstable: true,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 353,
-                        end: 358,
+                        start: 343,
+                        end: 348,
                     },
                     variant: schema::TypeVariant::Bytes,
                 },
@@ -838,17 +838,17 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 377,
-                    end: 391,
+                    start: 367,
+                    end: 377,
                 },
                 name: "z".into(),
                 unstable: false,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 380,
-                        end: 387,
+                        start: 370,
+                        end: 373,
                     },
-                    variant: schema::TypeVariant::Float64,
+                    variant: schema::TypeVariant::F64,
                 },
                 index: 2,
             },
@@ -857,22 +857,22 @@ mod tests {
         let mut declarations = BTreeMap::new();
 
         declarations.insert(
-            "Foo".into(),
+            "foo".into(),
             schema::Declaration {
                 source_range: SourceRange {
                     start: 114,
-                    end: 239,
+                    end: 229,
                 },
                 variant: schema::DeclarationVariant::Struct(foo_fields),
             },
         );
 
         declarations.insert(
-            "Bar".into(),
+            "bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 285,
-                    end: 405,
+                    start: 275,
+                    end: 391,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },
@@ -906,17 +906,17 @@ mod tests {
     fn parse_duplicate_declaration() {
         let source_path = Path::new("foo.t");
         let source = "
-            struct Foo {
+            struct foo {
             }
 
-            choice Foo {
+            choice foo {
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_fails!(
             parse(source_path, source, &tokens[..]),
-            "A declaration named `Foo` already exists in this file.",
+            "A declaration named `foo` already exists in this file.",
         );
     }
 }

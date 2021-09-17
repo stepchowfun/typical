@@ -6,13 +6,13 @@ use std::{
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
-pub const BOOLEAN_KEYWORD: &str = "Boolean";
-pub const BYTES_KEYWORD: &str = "Bytes";
+pub const BOOLEAN_KEYWORD: &str = "bool";
+pub const BYTES_KEYWORD: &str = "bytes";
 pub const CHOICE_KEYWORD: &str = "choice";
-pub const FLOAT64_KEYWORD: &str = "Float64";
+pub const FLOAT64_KEYWORD: &str = "f64";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const STRUCT_KEYWORD: &str = "struct";
-pub const UNSIGNED64_KEYWORD: &str = "Unsigned64";
+pub const UNSIGNED64_KEYWORD: &str = "u64";
 pub const UNSTABLE_KEYWORD: &str = "unstable";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
@@ -27,13 +27,13 @@ pub struct Token {
 #[derive(Clone, Debug)]
 pub enum Variant {
     As,
-    Boolean,
+    Bool,
     Bytes,
     Choice,
     Colon,
     Dot,
     Equals,
-    Float64,
+    F64,
     Identifier(Identifier),
     Import,
     Integer(usize),
@@ -41,7 +41,7 @@ pub enum Variant {
     Path(PathBuf),
     RightCurly,
     Struct,
-    Unsigned64,
+    U64,
     Unstable,
 }
 
@@ -55,13 +55,13 @@ impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
-            Self::Boolean => write!(f, "{}", BOOLEAN_KEYWORD),
+            Self::Bool => write!(f, "{}", BOOLEAN_KEYWORD),
             Self::Bytes => write!(f, "{}", BYTES_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
-            Self::Float64 => write!(f, "{}", FLOAT64_KEYWORD),
+            Self::F64 => write!(f, "{}", FLOAT64_KEYWORD),
             Self::Identifier(name) => write!(f, "{}", name.original()),
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
@@ -69,7 +69,7 @@ impl Display for Variant {
             Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::RightCurly => write!(f, "}}"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
-            Self::Unsigned64 => write!(f, "{}", UNSIGNED64_KEYWORD),
+            Self::U64 => write!(f, "{}", UNSIGNED64_KEYWORD),
             Self::Unstable => write!(f, "{}", UNSTABLE_KEYWORD),
         }
     }
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn variant_bool_display() {
-        assert_eq!(format!("{}", Variant::Boolean), BOOLEAN_KEYWORD);
+        assert_eq!(format!("{}", Variant::Bool), BOOLEAN_KEYWORD);
     }
 
     #[test]
@@ -137,12 +137,12 @@ mod tests {
 
     #[test]
     fn variant_float64_display() {
-        assert_eq!(format!("{}", Variant::Float64), FLOAT64_KEYWORD);
+        assert_eq!(format!("{}", Variant::F64), FLOAT64_KEYWORD);
     }
 
     #[test]
     fn variant_identifier_display() {
-        assert_eq!(format!("{}", Variant::Identifier("Foo".into())), "Foo");
+        assert_eq!(format!("{}", Variant::Identifier("foo".into())), "foo");
     }
 
     #[test]
@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn variant_unsigned64_display() {
-        assert_eq!(format!("{}", Variant::Unsigned64), UNSIGNED64_KEYWORD);
+        assert_eq!(format!("{}", Variant::U64), UNSIGNED64_KEYWORD);
     }
 
     #[test]
