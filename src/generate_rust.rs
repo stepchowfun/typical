@@ -1120,16 +1120,16 @@ fn write_type<T: Write>(
     flavor: ChoiceFlavor,
 ) -> Result<(), fmt::Error> {
     match &r#type.variant {
-        schema::TypeVariant::Boolean => {
+        schema::TypeVariant::Bool => {
             write!(buffer, "bool")?;
         }
-        schema::TypeVariant::Float64 => {
+        schema::TypeVariant::F64 => {
             write!(buffer, "f64")?;
         }
         schema::TypeVariant::Bytes => {
             write!(buffer, "Vec<u8>")?;
         }
-        schema::TypeVariant::Unsigned64 => {
+        schema::TypeVariant::U64 => {
             write!(buffer, "u64")?;
         }
         schema::TypeVariant::Custom(import, name) => {

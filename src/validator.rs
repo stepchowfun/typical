@@ -89,10 +89,10 @@ pub fn validate(
 
                         // Validate the type.
                         match &field.r#type.variant {
-                            schema::TypeVariant::Boolean
+                            schema::TypeVariant::Bool
                             | schema::TypeVariant::Bytes
-                            | schema::TypeVariant::Float64
-                            | schema::TypeVariant::Unsigned64 => {}
+                            | schema::TypeVariant::F64
+                            | schema::TypeVariant::U64 => {}
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
                                 let type_namespace = if let Some(import) = import {
@@ -237,10 +237,10 @@ fn check_type_for_cycles(
         schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
             for field in fields {
                 match &field.r#type.variant {
-                    schema::TypeVariant::Boolean
+                    schema::TypeVariant::Bool
                     | schema::TypeVariant::Bytes
-                    | schema::TypeVariant::Float64
-                    | schema::TypeVariant::Unsigned64 => {}
+                    | schema::TypeVariant::F64
+                    | schema::TypeVariant::U64 => {}
                     schema::TypeVariant::Custom(import, type_name) => {
                         let type_namespace = import.as_ref().map_or_else(
                             || namespace.clone(),
@@ -314,9 +314,9 @@ mod tests {
         let foo_contents = "
             import 'bar.t' as bar
 
-            struct Foo {
-              x: bar.Bar = 0
-              y: bar.Bar = 1
+            struct foo {
+              x: bar.bar = 0
+              y: bar.bar = 1
             }
         "
         .to_owned();
@@ -326,9 +326,9 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            choice Bar {
-              x: Boolean = 0
-              y: Float64 = 1
+            choice bar {
+              x: bool = 0
+              y: f64 = 1
             }
         "
         .to_owned();
@@ -354,9 +354,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Bar {
-              x: Boolean = 0
-              x: Float64 = 1
+            struct bar {
+              x: bool = 0
+              x: f64 = 1
             }
         "
         .to_owned();
@@ -379,9 +379,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Bar {
-              x: Boolean = 0
-              y: Float64 = 0
+            struct bar {
+              x: bool = 0
+              y: f64 = 0
             }
         "
         .to_owned();
@@ -404,9 +404,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice Bar {
-              x: Boolean = 0
-              x: Float64 = 1
+            choice bar {
+              x: bool = 0
+              x: f64 = 1
             }
         "
         .to_owned();
@@ -429,9 +429,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice Bar {
-              x: Boolean = 0
-              y: Float64 = 0
+            choice bar {
+              x: bool = 0
+              y: f64 = 0
             }
         "
         .to_owned();
@@ -454,8 +454,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Foo {
-              x: bar.Bar = 0
+            struct foo {
+              x: bar.bar = 0
             }
         "
         .to_owned();
@@ -478,8 +478,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Foo {
-              x: Bar = 0
+            struct foo {
+              x: bar = 0
             }
         "
         .to_owned();
@@ -491,7 +491,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "There is no type named `Bar` in this file.",
+            "There is no type named `bar` in this file.",
         );
     }
 
@@ -504,8 +504,8 @@ mod tests {
         let foo_contents = "
             import 'bar.t' as bar
 
-            struct Foo {
-              x: bar.Bar = 0
+            struct foo {
+              x: bar.bar = 0
             }
         "
         .to_owned();
@@ -515,7 +515,7 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            struct Qux {
+            struct qux {
             }
         "
         .to_owned();
@@ -533,7 +533,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "There is no type named `Bar` in import `bar`.",
+            "There is no type named `bar` in import `bar`.",
         );
     }
 
@@ -546,8 +546,8 @@ mod tests {
         let foo_contents = "
             import 'bar.t' as bar
 
-            struct Foo {
-              x: bar.Bar = 0
+            struct foo {
+              x: bar.bar = 0
             }
         "
         .to_owned();
@@ -559,8 +559,8 @@ mod tests {
         let bar_contents = "
             import 'foo.t' as foo
 
-            choice Bar {
-              x: foo.Foo = 0
+            choice bar {
+              x: foo.foo = 0
             }
         "
         .to_owned();
@@ -579,7 +579,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "Cycle detected: `bar.Bar` \u{2192} `foo.Foo` \u{2192} `bar.Bar`.",
+            "Cycle detected: `bar.bar` \u{2192} `foo.foo` \u{2192} `bar.bar`.",
         );
     }
 }

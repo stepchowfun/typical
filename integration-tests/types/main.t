@@ -1,42 +1,42 @@
 import 'basic/unit.t' as unit
 import 'basic/void.t' as void
 
-struct Foo {
-  x: Boolean = 0
-  y: unstable Boolean = 1
-  z: void.Void = 2
-  w: unstable void.Void = 3
-  s: unit.Unit = 4
-  t: unstable unit.Unit = 5
+struct foo {
+  x: bool = 0
+  y: unstable bool = 1
+  z: void.void = 2
+  w: unstable void.void = 3
+  s: unit.unit = 4
+  t: unstable unit.unit = 5
 }
 
-choice Bar {
-  x: Boolean = 0
-  y: unstable Float64 = 1
-  z: void.Void = 2
-  w: unstable void.Void = 3
-  s: unit.Unit = 4
-  t: unstable unit.Unit = 5
+choice bar {
+  x: bool = 0
+  y: unstable f64 = 1
+  z: void.void = 2
+  w: unstable void.void = 3
+  s: unit.unit = 4
+  t: unstable unit.unit = 5
 }
 
-struct FooAndBar {
-  foo: Foo = 0
-  bar: Bar = 1
+struct foo_and_bar {
+  foo: foo = 0
+  bar: bar = 1
 }
 
-choice FooOrBar {
-  foo: Foo = 0
-  bar: Bar = 1
+choice foo_or_bar {
+  foo: foo = 0
+  bar: bar = 1
 }
 
-struct Baz {
-  x: Boolean = 0
-  y: Unsigned64 = 1
-  z: Float64 = 2
+struct baz {
+  x: bool = 0
+  y: u64 = 1
+  z: f64 = 2
 }
 
-choice Qux {
-  x: Boolean = 0
-  y: Bytes = 1
-  z: unstable Float64 = 2
+choice qux {
+  x: bool = 0
+  y: bytes = 1
+  z: unstable f64 = 2
 }
