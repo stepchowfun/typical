@@ -29,7 +29,7 @@ fn main() -> io::Result<()> {
     out_to_in::<FooOut, FooIn>(FooOut {
         x: true,
         y: vec![0, 42, 255],
-        z: UnitOut {},
+        z: Some(UnitOut {}),
     })?;
     println!();
     out_to_in::<BarOut, BarIn>(BarOut::X(true))?;
