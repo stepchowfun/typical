@@ -3,7 +3,7 @@ use crate::{
     format::CodeStr,
     token::{
         Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
-        IMPORT_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNSTABLE_KEYWORD,
+        IMPORT_KEYWORD, OPTIONAL_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNSTABLE_KEYWORD,
     },
 };
 use std::path::Path;
@@ -121,6 +121,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Import,
+                    });
+                } else if &schema_contents[i..end] == OPTIONAL_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Optional,
                     });
                 } else if &schema_contents[i..end] == STRUCT_KEYWORD {
                     tokens.push(Token {
@@ -288,7 +293,7 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
-            IMPORT_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNSTABLE_KEYWORD,
+            IMPORT_KEYWORD, OPTIONAL_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNSTABLE_KEYWORD,
         },
         tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
     };
@@ -533,6 +538,20 @@ mod tests {
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::LeftCurly,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_optional() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), OPTIONAL_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: OPTIONAL_KEYWORD.len(),
+                },
+                variant: Variant::Optional,
             }],
         );
     }
