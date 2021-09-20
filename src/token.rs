@@ -92,7 +92,7 @@ mod tests {
             format!(
                 "{}",
                 Token {
-                    source_range: SourceRange { start: 0, end: 0 },
+                    source_range: SourceRange { start: 0, end: 2 },
                     variant: Variant::As,
                 },
             ),

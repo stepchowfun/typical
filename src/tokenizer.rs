@@ -468,7 +468,7 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_identifier() {
+    fn tokenize_bare_identifier() {
         assert_same!(
             tokenize(Path::new("foo.t"), "\u{5e78}\u{798f}").unwrap(),
             vec![Token {
