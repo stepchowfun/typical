@@ -6,13 +6,13 @@ use std::{
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
-pub const BOOLEAN_KEYWORD: &str = "bool";
+pub const BOOL_KEYWORD: &str = "bool";
 pub const BYTES_KEYWORD: &str = "bytes";
 pub const CHOICE_KEYWORD: &str = "choice";
-pub const FLOAT64_KEYWORD: &str = "f64";
+pub const F64_KEYWORD: &str = "f64";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const STRUCT_KEYWORD: &str = "struct";
-pub const UNSIGNED64_KEYWORD: &str = "u64";
+pub const U64_KEYWORD: &str = "u64";
 pub const UNSTABLE_KEYWORD: &str = "unstable";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
@@ -55,13 +55,13 @@ impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
-            Self::Bool => write!(f, "{}", BOOLEAN_KEYWORD),
+            Self::Bool => write!(f, "{}", BOOL_KEYWORD),
             Self::Bytes => write!(f, "{}", BYTES_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
-            Self::F64 => write!(f, "{}", FLOAT64_KEYWORD),
+            Self::F64 => write!(f, "{}", F64_KEYWORD),
             Self::Identifier(name) => write!(f, "{}", name.original()),
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
@@ -69,7 +69,7 @@ impl Display for Variant {
             Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::RightCurly => write!(f, "}}"),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
-            Self::U64 => write!(f, "{}", UNSIGNED64_KEYWORD),
+            Self::U64 => write!(f, "{}", U64_KEYWORD),
             Self::Unstable => write!(f, "{}", UNSTABLE_KEYWORD),
         }
     }
@@ -80,8 +80,8 @@ mod tests {
     use crate::{
         error::SourceRange,
         token::{
-            Token, Variant, AS_KEYWORD, BOOLEAN_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-            FLOAT64_KEYWORD, IMPORT_KEYWORD, STRUCT_KEYWORD, UNSIGNED64_KEYWORD, UNSTABLE_KEYWORD,
+            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
+            IMPORT_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNSTABLE_KEYWORD,
         },
     };
     use std::path::Path;
@@ -93,10 +93,10 @@ mod tests {
                 "{}",
                 Token {
                     source_range: SourceRange { start: 0, end: 0 },
-                    variant: Variant::Choice,
+                    variant: Variant::As,
                 },
             ),
-            CHOICE_KEYWORD,
+            AS_KEYWORD,
         );
     }
 
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn variant_bool_display() {
-        assert_eq!(format!("{}", Variant::Bool), BOOLEAN_KEYWORD);
+        assert_eq!(format!("{}", Variant::Bool), BOOL_KEYWORD);
     }
 
     #[test]
@@ -136,8 +136,8 @@ mod tests {
     }
 
     #[test]
-    fn variant_float64_display() {
-        assert_eq!(format!("{}", Variant::F64), FLOAT64_KEYWORD);
+    fn variant_f64_display() {
+        assert_eq!(format!("{}", Variant::F64), F64_KEYWORD);
     }
 
     #[test]
@@ -179,8 +179,8 @@ mod tests {
     }
 
     #[test]
-    fn variant_unsigned64_display() {
-        assert_eq!(format!("{}", Variant::U64), UNSIGNED64_KEYWORD);
+    fn variant_u64_display() {
+        assert_eq!(format!("{}", Variant::U64), U64_KEYWORD);
     }
 
     #[test]
