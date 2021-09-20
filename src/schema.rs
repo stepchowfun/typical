@@ -618,7 +618,7 @@ mod tests {
     }
 
     #[test]
-    fn type_display_boolean() {
+    fn type_display_bool() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
             variant: TypeVariant::Bool,
@@ -642,7 +642,7 @@ mod tests {
     }
 
     #[test]
-    fn type_display_float64() {
+    fn type_display_f64() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
             variant: TypeVariant::F64,
@@ -654,7 +654,7 @@ mod tests {
     }
 
     #[test]
-    fn type_display_unsigned64() {
+    fn type_display_u64() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
             variant: TypeVariant::U64,
