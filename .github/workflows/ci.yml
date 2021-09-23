@@ -17,7 +17,7 @@ jobs:
     - uses: stepchowfun/toast/.github/actions/toast@main
       with:
         tasks: build test_units test_rust_integration lint release run
-        repo: stephanmisc/toast
+        docker_repo: stephanmisc/toast
         write_remote_cache: ${{ github.event_name == 'push' }}
     - run: |
         # Make Bash not silently ignore errors.
@@ -166,6 +166,6 @@ jobs:
     - uses: stepchowfun/toast/.github/actions/toast@main
       with:
         tasks: publish
-        repo: stephanmisc/toast
+        docker_repo: stephanmisc/toast
       env:
         CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
