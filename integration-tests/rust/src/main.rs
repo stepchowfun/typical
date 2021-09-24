@@ -9,7 +9,8 @@ use {
         io::{self, Error, ErrorKind},
     },
     types::{
-        main::{BazIn, BazOut, QuxIn, QuxOut, QuxOutStable},
+        basic::unit::UnitOut,
+        main::{BarIn, BarOut, FooIn, FooOut},
         Deserialize, Serialize,
     },
 };
@@ -25,13 +26,13 @@ fn main() -> io::Result<()> {
     println!();
     round_trip::<f64>(&PI)?;
     println!();
-    out_to_in::<BazOut, BazIn>(BazOut {
+    out_to_in::<FooOut, FooIn>(FooOut {
         x: true,
-        y: 42,
-        z: PI,
+        y: vec![0, 42, 255],
+        z: UnitOut {},
     })?;
     println!();
-    out_to_in::<QuxOut, QuxIn>(QuxOut::Z(0.5_f64, vec![], QuxOutStable::X(true)))?;
+    out_to_in::<BarOut, BarIn>(BarOut::X(true))?;
 
     Ok(())
 }

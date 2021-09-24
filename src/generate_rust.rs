@@ -133,8 +133,11 @@ fn field_size<T: Serialize>(index: u64, value: &T) -> u64 {{
 }}
 
 #[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(writer: &mut T, index: u64, value: &U) -> \
-    io::Result<()> {{
+fn serialize_field<T: Write, U: Serialize>(
+    writer: &mut T,
+    index: u64,
+    value: &U,
+) -> io::Result<()> {{
     if U::VARINT_ENCODED {{
         ((index << 2) | 0b00).serialize(writer)?;
     }} else {{
@@ -638,14 +641,17 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
-                if !fields.is_empty() {
+                if fields.iter().any(|field| !field.unstable) {
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "if ")?;
-                    write_identifier(buffer, &fields[0].name, Snake, None)?;
-                    write!(buffer, ".is_none()")?;
-                    for field in fields.iter().skip(1) {
+                    let mut first = true;
+                    for field in fields {
                         if !field.unstable {
-                            write!(buffer, " || ")?;
+                            if first {
+                                first = false;
+                            } else {
+                                write!(buffer, " || ")?;
+                            }
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ".is_none()")?;
                         }
@@ -1312,8 +1318,11 @@ fn field_size<T: Serialize>(index: u64, value: &T) -> u64 {
 }
 
 #[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(writer: &mut T, index: u64, value: &U) -> \
-    io::Result<()> {
+fn serialize_field<T: Write, U: Serialize>(
+    writer: &mut T,
+    index: u64,
+    value: &U,
+) -> io::Result<()> {
     if U::VARINT_ENCODED {
         ((index << 2) | 0b00).serialize(writer)?;
     } else {
@@ -1667,28 +1676,21 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub enum BarOut {
         X(bool),
-        Y(f64, Vec<BarOut>, BarOutStable),
+        Y(Vec<u8>, Vec<BarOut>, BarOutStable),
         Z(super::basic::void::VoidOut),
-        W(super::basic::void::VoidOut, Vec<BarOut>, BarOutStable),
-        S(super::basic::unit::UnitOut),
-        T(super::basic::unit::UnitOut, Vec<BarOut>, BarOutStable),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarOutStable {
         X(bool),
         Z(super::basic::void::VoidOut),
-        S(super::basic::unit::UnitOut),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarIn {
         X(bool),
-        Y(f64),
+        Y(Vec<u8>),
         Z(super::basic::void::VoidIn),
-        W(super::basic::void::VoidIn),
-        S(super::basic::unit::UnitIn),
-        T(super::basic::unit::UnitIn),
     }
 
     impl super::Serialize for BarOut {
@@ -1706,23 +1708,6 @@ pub mod main {
                         + fallback.size()
                 }
                 BarOut::Z(ref payload) => super::field_size(2, payload),
-                BarOut::W(ref payload, ref alternatives, ref fallback) => {
-                    super::field_size(3, payload)
-                        + alternatives
-                            .iter()
-                            .map(|alternative| alternative.size())
-                            .sum::<u64>()
-                        + fallback.size()
-                }
-                BarOut::S(ref payload) => super::field_size(4, payload),
-                BarOut::T(ref payload, ref alternatives, ref fallback) => {
-                    super::field_size(5, payload)
-                        + alternatives
-                            .iter()
-                            .map(|alternative| alternative.size())
-                            .sum::<u64>()
-                        + fallback.size()
-                }
             }
         }
 
@@ -1739,25 +1724,6 @@ pub mod main {
                     fallback.serialize(writer)
                 }
                 BarOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
-                BarOut::W(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer, 3, payload)?;
-
-                    for alternative in alternatives {
-                        alternative.serialize(writer)?;
-                    }
-
-                    fallback.serialize(writer)
-                }
-                BarOut::S(ref payload) => super::serialize_field(writer, 4, payload),
-                BarOut::T(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer, 5, payload)?;
-
-                    for alternative in alternatives {
-                        alternative.serialize(writer)?;
-                    }
-
-                    fallback.serialize(writer)
-                }
             }
         }
     }
@@ -1769,7 +1735,6 @@ pub mod main {
             match *self {
                 BarOutStable::X(ref payload) => super::field_size(0, payload),
                 BarOutStable::Z(ref payload) => super::field_size(2, payload),
-                BarOutStable::S(ref payload) => super::field_size(4, payload),
             }
         }
 
@@ -1777,7 +1742,6 @@ pub mod main {
             match *self {
                 BarOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
                 BarOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
-                BarOutStable::S(ref payload) => super::serialize_field(writer, 4, payload),
             }
         }
     }
@@ -1799,23 +1763,11 @@ pub mod main {
                             deserialize(&mut sub_reader)?));
                     }
                     1 => {
-                        return Ok(BarIn::Y(<f64 as super::Deserialize>::\
+                        return Ok(BarIn::Y(<Vec<u8> as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
                     }
                     2 => {
                         return Ok(BarIn::Z(<super::basic::void::VoidIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    3 => {
-                        return Ok(BarIn::W(<super::basic::void::VoidIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    4 => {
-                        return Ok(BarIn::S(<super::basic::unit::UnitIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    5 => {
-                        return Ok(BarIn::T(<super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?));
                     }
                     _ => {
@@ -1832,106 +1784,6 @@ pub mod main {
                 BarOut::X(payload) => BarIn::X(payload.into()),
                 BarOut::Y(payload, _, _) => BarIn::Y(payload.into()),
                 BarOut::Z(payload) => BarIn::Z(payload.into()),
-                BarOut::W(payload, _, _) => BarIn::W(payload.into()),
-                BarOut::S(payload) => BarIn::S(payload.into()),
-                BarOut::T(payload, _, _) => BarIn::T(payload.into()),
-            }
-        }
-    }
-
-    #[derive(Clone, Debug)]
-    pub struct BazOut {
-        pub x: bool,
-        pub y: u64,
-        pub z: f64,
-    }
-
-    #[derive(Clone, Debug)]
-    pub struct BazIn {
-        pub x: bool,
-        pub y: u64,
-        pub z: f64,
-    }
-
-    impl super::Serialize for BazOut {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            super::field_size(0, &self.x)
-                + super::field_size(1, &self.y)
-                + super::field_size(2, &self.z)
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            super::serialize_field(writer, 0, &self.x)?;
-            super::serialize_field(writer, 1, &self.y)?;
-            super::serialize_field(writer, 2, &self.z)?;
-            Ok(())
-        }
-    }
-
-    impl super::Deserialize for BazIn {
-        fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
-        where
-            Self: Sized,
-            T: ::std::io::BufRead,
-        {
-            let mut x: Option<bool> = None;
-            let mut y: Option<u64> = None;
-            let mut z: Option<f64> = None;
-
-            loop {
-                let (index, size) = match super::deserialize_field_header(&mut *reader) {
-                    Ok(header) => header,
-                    Err(err) => {
-                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                            break;
-                        }
-
-                        return Err(err);
-                    }
-                };
-
-                let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
-
-                match index {
-                    0 => {
-                        x.get_or_insert(<bool as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
-                    }
-                    1 => {
-                        y.get_or_insert(<u64 as super::Deserialize>::deserialize(&mut sub_reader)?);
-                    }
-                    2 => {
-                        z.get_or_insert(<f64 as super::Deserialize>::deserialize(&mut sub_reader)?);
-                    }
-                    _ => {
-                        super::skip(&mut sub_reader, size as usize)?;
-                    }
-                }
-            }
-
-            if x.is_none() || y.is_none() || z.is_none() {
-                return Err(::std::io::Error::new(
-                    ::std::io::ErrorKind::InvalidData,
-                    \"Struct missing one or more field(s).\",
-                ));
-            }
-
-            Ok(BazIn {
-                x: x.unwrap(),
-                y: y.unwrap(),
-                z: z.unwrap(),
-            })
-        }
-    }
-
-    impl From<BazOut> for BazIn {
-        fn from(message: BazOut) -> Self {
-            BazIn {
-                x: message.x.into(),
-                y: message.y.into(),
-                z: message.z.into(),
             }
         }
     }
@@ -1939,21 +1791,15 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub struct FooOut {
         pub x: bool,
-        pub y: bool,
-        pub z: super::basic::void::VoidOut,
-        pub w: super::basic::void::VoidOut,
-        pub s: super::basic::unit::UnitOut,
-        pub t: super::basic::unit::UnitOut,
+        pub y: Vec<u8>,
+        pub z: super::basic::unit::UnitOut,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooIn {
         pub x: bool,
-        pub y: Option<bool>,
-        pub z: super::basic::void::VoidIn,
-        pub w: Option<super::basic::void::VoidIn>,
-        pub s: super::basic::unit::UnitIn,
-        pub t: Option<super::basic::unit::UnitIn>,
+        pub y: Option<Vec<u8>>,
+        pub z: super::basic::unit::UnitIn,
     }
 
     impl super::Serialize for FooOut {
@@ -1963,18 +1809,12 @@ pub mod main {
             super::field_size(0, &self.x)
                 + super::field_size(1, &self.y)
                 + super::field_size(2, &self.z)
-                + super::field_size(3, &self.w)
-                + super::field_size(4, &self.s)
-                + super::field_size(5, &self.t)
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             super::serialize_field(writer, 0, &self.x)?;
             super::serialize_field(writer, 1, &self.y)?;
             super::serialize_field(writer, 2, &self.z)?;
-            super::serialize_field(writer, 3, &self.w)?;
-            super::serialize_field(writer, 4, &self.s)?;
-            super::serialize_field(writer, 5, &self.t)?;
             Ok(())
         }
     }
@@ -1986,11 +1826,8 @@ pub mod main {
             T: ::std::io::BufRead,
         {
             let mut x: Option<bool> = None;
-            let mut y: Option<bool> = None;
-            let mut z: Option<super::basic::void::VoidIn> = None;
-            let mut w: Option<super::basic::void::VoidIn> = None;
-            let mut s: Option<super::basic::unit::UnitIn> = None;
-            let mut t: Option<super::basic::unit::UnitIn> = None;
+            let mut y: Option<Vec<u8>> = None;
+            let mut z: Option<super::basic::unit::UnitIn> = None;
 
             loop {
                 let (index, size) = match super::deserialize_field_header(&mut *reader) {
@@ -2012,23 +1849,11 @@ pub mod main {
                             deserialize(&mut sub_reader)?);
                     }
                     1 => {
-                        y.get_or_insert(<bool as super::Deserialize>::\
+                        y.get_or_insert(<Vec<u8> as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
                     }
                     2 => {
-                        z.get_or_insert(<super::basic::void::VoidIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
-                    }
-                    3 => {
-                        w.get_or_insert(<super::basic::void::VoidIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
-                    }
-                    4 => {
-                        s.get_or_insert(<super::basic::unit::UnitIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
-                    }
-                    5 => {
-                        t.get_or_insert(<super::basic::unit::UnitIn as super::Deserialize>::\
+                        z.get_or_insert(<super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?);
                     }
                     _ => {
@@ -2037,7 +1862,7 @@ pub mod main {
                 }
             }
 
-            if x.is_none() || z.is_none() || s.is_none() {
+            if x.is_none() || z.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",
@@ -2048,9 +1873,6 @@ pub mod main {
                 x: x.unwrap(),
                 y,
                 z: z.unwrap(),
-                w,
-                s: s.unwrap(),
-                t,
             })
         }
     }
@@ -2061,303 +1883,6 @@ pub mod main {
                 x: message.x.into(),
                 y: Some(message.y.into()),
                 z: message.z.into(),
-                w: Some(message.w.into()),
-                s: message.s.into(),
-                t: Some(message.t.into()),
-            }
-        }
-    }
-
-    #[derive(Clone, Debug)]
-    pub struct FooAndBarOut {
-        pub foo: FooOut,
-        pub bar: BarOut,
-    }
-
-    #[derive(Clone, Debug)]
-    pub struct FooAndBarIn {
-        pub foo: FooIn,
-        pub bar: BarIn,
-    }
-
-    impl super::Serialize for FooAndBarOut {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            super::field_size(0, &self.foo)
-                + super::field_size(1, &self.bar)
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            super::serialize_field(writer, 0, &self.foo)?;
-            super::serialize_field(writer, 1, &self.bar)?;
-            Ok(())
-        }
-    }
-
-    impl super::Deserialize for FooAndBarIn {
-        fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
-        where
-            Self: Sized,
-            T: ::std::io::BufRead,
-        {
-            let mut foo: Option<FooIn> = None;
-            let mut bar: Option<BarIn> = None;
-
-            loop {
-                let (index, size) = match super::deserialize_field_header(&mut *reader) {
-                    Ok(header) => header,
-                    Err(err) => {
-                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                            break;
-                        }
-
-                        return Err(err);
-                    }
-                };
-
-                let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
-
-                match index {
-                    0 => {
-                        foo.get_or_insert(<FooIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
-                    }
-                    1 => {
-                        bar.get_or_insert(<BarIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
-                    }
-                    _ => {
-                        super::skip(&mut sub_reader, size as usize)?;
-                    }
-                }
-            }
-
-            if foo.is_none() || bar.is_none() {
-                return Err(::std::io::Error::new(
-                    ::std::io::ErrorKind::InvalidData,
-                    \"Struct missing one or more field(s).\",
-                ));
-            }
-
-            Ok(FooAndBarIn {
-                foo: foo.unwrap(),
-                bar: bar.unwrap(),
-            })
-        }
-    }
-
-    impl From<FooAndBarOut> for FooAndBarIn {
-        fn from(message: FooAndBarOut) -> Self {
-            FooAndBarIn {
-                foo: message.foo.into(),
-                bar: message.bar.into(),
-            }
-        }
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum FooOrBarOut {
-        Foo(FooOut),
-        Bar(BarOut),
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum FooOrBarOutStable {
-        Foo(FooOut),
-        Bar(BarOut),
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum FooOrBarIn {
-        Foo(FooIn),
-        Bar(BarIn),
-    }
-
-    impl super::Serialize for FooOrBarOut {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            match *self {
-                FooOrBarOut::Foo(ref payload) => super::field_size(0, payload),
-                FooOrBarOut::Bar(ref payload) => super::field_size(1, payload),
-            }
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            match *self {
-                FooOrBarOut::Foo(ref payload) => super::serialize_field(writer, 0, payload),
-                FooOrBarOut::Bar(ref payload) => super::serialize_field(writer, 1, payload),
-            }
-        }
-    }
-
-    impl super::Serialize for FooOrBarOutStable {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            match *self {
-                FooOrBarOutStable::Foo(ref payload) => super::field_size(0, payload),
-                FooOrBarOutStable::Bar(ref payload) => super::field_size(1, payload),
-            }
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            match *self {
-                FooOrBarOutStable::Foo(ref payload) => super::serialize_field(writer, 0, payload),
-                FooOrBarOutStable::Bar(ref payload) => super::serialize_field(writer, 1, payload),
-            }
-        }
-    }
-
-    impl super::Deserialize for FooOrBarIn {
-        fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
-        where
-            Self: Sized,
-            T: ::std::io::BufRead,
-        {
-            loop {
-                let (index, size) = super::deserialize_field_header(&mut *reader)?;
-
-                let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
-
-                match index {
-                    0 => {
-                        return Ok(FooOrBarIn::Foo(<FooIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    1 => {
-                        return Ok(FooOrBarIn::Bar(<BarIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    _ => {
-                        super::skip(&mut sub_reader, size as usize)?;
-                    }
-                }
-            }
-        }
-    }
-
-    impl From<FooOrBarOut> for FooOrBarIn {
-        fn from(message: FooOrBarOut) -> Self {
-            match message {
-                FooOrBarOut::Foo(payload) => FooOrBarIn::Foo(payload.into()),
-                FooOrBarOut::Bar(payload) => FooOrBarIn::Bar(payload.into()),
-            }
-        }
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum QuxOut {
-        X(bool),
-        Y(Vec<u8>),
-        Z(f64, Vec<QuxOut>, QuxOutStable),
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum QuxOutStable {
-        X(bool),
-        Y(Vec<u8>),
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum QuxIn {
-        X(bool),
-        Y(Vec<u8>),
-        Z(f64),
-    }
-
-    impl super::Serialize for QuxOut {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            match *self {
-                QuxOut::X(ref payload) => super::field_size(0, payload),
-                QuxOut::Y(ref payload) => super::field_size(1, payload),
-                QuxOut::Z(ref payload, ref alternatives, ref fallback) => {
-                    super::field_size(2, payload)
-                        + alternatives
-                            .iter()
-                            .map(|alternative| alternative.size())
-                            .sum::<u64>()
-                        + fallback.size()
-                }
-            }
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            match *self {
-                QuxOut::X(ref payload) => super::serialize_field(writer, 0, payload),
-                QuxOut::Y(ref payload) => super::serialize_field(writer, 1, payload),
-                QuxOut::Z(ref payload, ref alternatives, ref fallback) => {
-                    super::serialize_field(writer, 2, payload)?;
-
-                    for alternative in alternatives {
-                        alternative.serialize(writer)?;
-                    }
-
-                    fallback.serialize(writer)
-                }
-            }
-        }
-    }
-
-    impl super::Serialize for QuxOutStable {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            match *self {
-                QuxOutStable::X(ref payload) => super::field_size(0, payload),
-                QuxOutStable::Y(ref payload) => super::field_size(1, payload),
-            }
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            match *self {
-                QuxOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
-                QuxOutStable::Y(ref payload) => super::serialize_field(writer, 1, payload),
-            }
-        }
-    }
-
-    impl super::Deserialize for QuxIn {
-        fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
-        where
-            Self: Sized,
-            T: ::std::io::BufRead,
-        {
-            loop {
-                let (index, size) = super::deserialize_field_header(&mut *reader)?;
-
-                let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
-
-                match index {
-                    0 => {
-                        return Ok(QuxIn::X(<bool as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    1 => {
-                        return Ok(QuxIn::Y(<Vec<u8> as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    2 => {
-                        return Ok(QuxIn::Z(<f64 as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
-                    }
-                    _ => {
-                        super::skip(&mut sub_reader, size as usize)?;
-                    }
-                }
-            }
-        }
-    }
-
-    impl From<QuxOut> for QuxIn {
-        fn from(message: QuxOut) -> Self {
-            match message {
-                QuxOut::X(payload) => QuxIn::X(payload.into()),
-                QuxOut::Y(payload) => QuxIn::Y(payload.into()),
-                QuxOut::Z(payload, _, _) => QuxIn::Z(payload.into()),
             }
         }
     }
