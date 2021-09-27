@@ -39,23 +39,14 @@ enum CaseConvention {
 
 use CaseConvention::{Pascal, Snake};
 
-// This enum is used to distinguish between the flavors of a struct type.
+// This enum is used to distinguish between the ingress and egress versions of a type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum StructFlavor {
-    In,
+enum Direction {
     Out,
+    In,
 }
 
-use StructFlavor::{In, Out};
-
-// This enum is used to distinguish between the flavors of a choice type.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum ChoiceFlavor {
-    InOrOut(StructFlavor),
-    OutStable,
-}
-
-use ChoiceFlavor::{InOrOut, OutStable};
+use Direction::{In, Out};
 
 // Generate Rust code from a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
@@ -500,7 +491,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
@@ -508,21 +499,25 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                if fields.is_empty() {
-                    writeln!(buffer, "0")?;
-                } else {
-                    write_supers(buffer, indentation)?;
-                    write!(buffer, "field_size({}, &self.", fields[0].index)?;
-                    write_identifier(buffer, &fields[0].name, Snake, None)?;
-                    writeln!(buffer, ")")?;
-
-                    for field in fields.iter().skip(1) {
-                        write_indentation(buffer, indentation + 3)?;
-                        write!(buffer, "+ ")?;
-                        write_supers(buffer, indentation)?;
-                        write!(buffer, "field_size({}, &self.", field.index)?;
-                        write_identifier(buffer, &field.name, Snake, None)?;
-                        writeln!(buffer, ")")?;
+                writeln!(buffer, "0")?;
+                for field in fields {
+                    match field.cardinality {
+                        schema::Cardinality::Optional => {
+                            write_indentation(buffer, indentation + 3)?;
+                            write!(buffer, "+ if let Some(inner) = &self.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, " {{ ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "field_size({}, inner) }} else {{ 0 }}", field.index)?;
+                        }
+                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                            write_indentation(buffer, indentation + 3)?;
+                            write!(buffer, "+ ")?;
+                            write_supers(buffer, indentation)?;
+                            write!(buffer, "field_size({}, &self.", field.index)?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ")")?;
+                        }
                     }
                 }
                 write_indentation(buffer, indentation + 1)?;
@@ -535,11 +530,26 @@ fn write_schema<T: Write>(
                         ::std::io::Result<()> {{",
                 )?;
                 for field in fields {
-                    write_indentation(buffer, indentation + 2)?;
-                    write_supers(buffer, indentation)?;
-                    write!(buffer, "serialize_field(writer, {}, &self.", field.index)?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    writeln!(buffer, ")?;")?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional => {
+                            write_indentation(buffer, indentation + 2)?;
+                            write!(buffer, "if let Some(inner) = &self.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, " {{")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "serialize_field(writer, {}, inner)?;", field.index)?;
+                            write_indentation(buffer, indentation + 2)?;
+                            writeln!(buffer, "}}")?;
+                        }
+                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                            write_indentation(buffer, indentation + 2)?;
+                            write_supers(buffer, indentation)?;
+                            write!(buffer, "serialize_field(writer, {}, &self.", field.index)?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ")?;")?;
+                        }
+                    }
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "Ok(())")?;
@@ -554,7 +564,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Deserialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
@@ -569,15 +579,15 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "T: ::std::io::BufRead,")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
-                for field in fields {
-                    write_indentation(buffer, indentation + 2)?;
-                    write!(buffer, "let mut ")?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ": Option<")?;
-                    write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
-                    writeln!(buffer, "> = None;")?;
-                }
                 if !fields.is_empty() {
+                    for field in fields {
+                        write_indentation(buffer, indentation + 2)?;
+                        write!(buffer, "let mut ")?;
+                        write_identifier(buffer, &field.name, Snake, None)?;
+                        write!(buffer, ": Option<")?;
+                        write_type(buffer, &imports, namespace, &field.r#type, In)?;
+                        writeln!(buffer, "> = None;")?;
+                    }
                     writeln!(buffer)?;
                 }
                 write_indentation(buffer, indentation + 2)?;
@@ -622,7 +632,7 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, &field.name, Snake, None)?;
                     write!(buffer, ".get_or_insert(")?;
                     write!(buffer, "<")?;
-                    write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
+                    write_type(buffer, &imports, namespace, &field.r#type, In)?;
                     write!(buffer, " as ")?;
                     write_supers(buffer, indentation)?;
                     writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?);")?;
@@ -641,19 +651,25 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
-                if fields.iter().any(|field| !field.unstable) {
+                if fields.iter().any(|field| match field.cardinality {
+                    schema::Cardinality::Optional | schema::Cardinality::Unstable => false,
+                    schema::Cardinality::Required => true,
+                }) {
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "if ")?;
                     let mut first = true;
                     for field in fields {
-                        if !field.unstable {
-                            if first {
-                                first = false;
-                            } else {
-                                write!(buffer, " || ")?;
+                        match field.cardinality {
+                            schema::Cardinality::Optional | schema::Cardinality::Unstable => {}
+                            schema::Cardinality::Required => {
+                                if first {
+                                    first = false;
+                                } else {
+                                    write!(buffer, " || ")?;
+                                }
+                                write_identifier(buffer, &field.name, Snake, None)?;
+                                write!(buffer, ".is_none()")?;
                             }
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            write!(buffer, ".is_none()")?;
                         }
                     }
                     writeln!(buffer, " {{")?;
@@ -671,15 +687,18 @@ fn write_schema<T: Write>(
                 }
                 write_indentation(buffer, indentation + 2)?;
                 write!(buffer, "Ok(")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    if !field.unstable {
-                        write!(buffer, ": ")?;
-                        write_identifier(buffer, &field.name, Snake, None)?;
-                        write!(buffer, ".unwrap()")?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {}
+                        schema::Cardinality::Required => {
+                            write!(buffer, ": ")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ".unwrap()")?;
+                        }
                     }
                     writeln!(buffer, ",")?;
                 }
@@ -694,31 +713,41 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(Out))?;
                 write!(buffer, "> for ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 for field in fields {
-                    write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ": ")?;
-                    if field.unstable {
-                        write!(buffer, "Some(")?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional => {
+                            write_indentation(buffer, indentation + 3)?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ": message.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ".map(|inner| inner.into()),")?;
+                        }
+                        schema::Cardinality::Required => {
+                            write_indentation(buffer, indentation + 3)?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ": message.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ".into(),")?;
+                        }
+                        schema::Cardinality::Unstable => {
+                            write_indentation(buffer, indentation + 3)?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ": Some(message.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ".into()),")?;
+                        }
                     }
-                    write!(buffer, "message.")?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ".into()")?;
-                    if field.unstable {
-                        write!(buffer, ")")?;
-                    }
-                    writeln!(buffer, ",")?;
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
@@ -728,39 +757,11 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
             }
             schema::DeclarationVariant::Choice(fields) => {
-                write_choice(
-                    buffer,
-                    indentation,
-                    &imports,
-                    namespace,
-                    name,
-                    fields,
-                    InOrOut(Out),
-                )?;
+                write_choice(buffer, indentation, &imports, namespace, name, fields, Out)?;
 
                 writeln!(buffer)?;
 
-                write_choice(
-                    buffer,
-                    indentation,
-                    &imports,
-                    namespace,
-                    name,
-                    fields,
-                    OutStable,
-                )?;
-
-                writeln!(buffer)?;
-
-                write_choice(
-                    buffer,
-                    indentation,
-                    &imports,
-                    namespace,
-                    name,
-                    fields,
-                    InOrOut(In),
-                )?;
+                write_choice(buffer, indentation, &imports, namespace, name, fields, In)?;
 
                 writeln!(buffer)?;
 
@@ -768,7 +769,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
@@ -781,33 +782,24 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                    write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    if field.unstable {
-                        writeln!(
-                            buffer,
-                            "(ref payload, ref alternatives, ref fallback) => {{",
-                        )?;
-                        write_indentation(buffer, indentation + 4)?;
-                        write_supers(buffer, indentation)?;
-                        writeln!(buffer, "field_size({}, payload)", field.index)?;
-                        write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, "+ alternatives")?;
-                        write_indentation(buffer, indentation + 6)?;
-                        writeln!(buffer, ".iter()")?;
-                        write_indentation(buffer, indentation + 6)?;
-                        writeln!(buffer, ".map(|alternative| alternative.size())")?;
-                        write_indentation(buffer, indentation + 6)?;
-                        writeln!(buffer, ".sum::<u64>()")?;
-                        write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, "+ fallback.size()")?;
-                        write_indentation(buffer, indentation + 3)?;
-                        writeln!(buffer, "}}")?;
-                    } else {
-                        write!(buffer, "(ref payload) => ")?;
-                        write_supers(buffer, indentation)?;
-                        writeln!(buffer, "field_size({}, payload),", field.index)?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                            write!(buffer, "(ref payload, ref fallback) => ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(
+                                buffer,
+                                "field_size({}, payload) + fallback.size(),",
+                                field.index,
+                            )?;
+                        }
+                        schema::Cardinality::Required => {
+                            write!(buffer, "(ref payload) => ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "field_size({}, payload),", field.index)?;
+                        }
                     }
                 }
                 write_indentation(buffer, indentation + 2)?;
@@ -825,94 +817,29 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                    write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    if field.unstable {
-                        writeln!(
-                            buffer,
-                            "(ref payload, ref alternatives, ref fallback) => {{",
-                        )?;
-                        write_indentation(buffer, indentation + 4)?;
-                        write_supers(buffer, indentation)?;
-                        writeln!(
-                            buffer,
-                            "serialize_field(writer, {}, payload)?;",
-                            field.index,
-                        )?;
-                        writeln!(buffer)?;
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "for alternative in alternatives {{")?;
-                        write_indentation(buffer, indentation + 5)?;
-                        writeln!(buffer, "alternative.serialize(writer)?;")?;
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "}}")?;
-                        writeln!(buffer)?;
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "fallback.serialize(writer)")?;
-                        write_indentation(buffer, indentation + 3)?;
-                        writeln!(buffer, "}}")?;
-                    } else {
-                        write!(buffer, "(ref payload) => ")?;
-                        write_supers(buffer, indentation)?;
-                        writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
-                    }
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}}")?;
-
-                writeln!(buffer)?;
-
-                write_indentation(buffer, indentation)?;
-                write!(buffer, "impl ")?;
-                write_supers(buffer, indentation)?;
-                write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(OutStable))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "fn size(&self) -> u64 {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
-                for field in fields {
-                    if !field.unstable {
-                        write_indentation(buffer, indentation + 3)?;
-                        write_identifier(buffer, name, Pascal, Some(OutStable))?;
-                        write!(buffer, "::")?;
-                        write_identifier(buffer, &field.name, Pascal, None)?;
-                        write!(buffer, "(ref payload) => ")?;
-                        write_supers(buffer, indentation)?;
-                        writeln!(buffer, "field_size({}, payload),", field.index)?;
-                    }
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> \
-                        ::std::io::Result<()> {{",
-                )?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
-                for field in fields {
-                    if !field.unstable {
-                        write_indentation(buffer, indentation + 3)?;
-                        write_identifier(buffer, name, Pascal, Some(OutStable))?;
-                        write!(buffer, "::")?;
-                        write_identifier(buffer, &field.name, Pascal, None)?;
-                        write!(buffer, "(ref payload) => ")?;
-                        write_supers(buffer, indentation)?;
-                        writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                            writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            write_indentation(buffer, indentation + 4)?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(
+                                buffer,
+                                "serialize_field(writer, {}, payload)?;",
+                                field.index,
+                            )?;
+                            write_indentation(buffer, indentation + 4)?;
+                            writeln!(buffer, "fallback.serialize(writer)")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(buffer, "}}")?;
+                        }
+                        schema::Cardinality::Required => {
+                            write!(buffer, "(ref payload) => ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
+                        }
                     }
                 }
                 write_indentation(buffer, indentation + 2)?;
@@ -928,7 +855,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Deserialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
@@ -961,16 +888,40 @@ fn write_schema<T: Write>(
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
-                    write_indentation(buffer, indentation + 5)?;
-                    write!(buffer, "return Ok(")?;
-                    write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
-                    write!(buffer, "::")?;
-                    write_identifier(buffer, &field.name, Pascal, None)?;
-                    write!(buffer, "(<")?;
-                    write_type(buffer, &imports, namespace, &field.r#type, InOrOut(In))?;
-                    write!(buffer, " as ")?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?));")?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional => {
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "let payload = <")?;
+                            write_type(buffer, &imports, namespace, &field.r#type, In)?;
+                            write!(buffer, " as ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?;")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "let fallback = Box::new(<")?;
+                            write_identifier(buffer, name, Pascal, Some(In))?;
+                            write!(buffer, " as ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?);")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "return Ok(")?;
+                            write_identifier(buffer, name, Pascal, Some(In))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            writeln!(buffer, "(payload, fallback));")?;
+                        }
+                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "return Ok(")?;
+                            write_identifier(buffer, name, Pascal, Some(In))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            write!(buffer, "(<")?;
+                            write_type(buffer, &imports, namespace, &field.r#type, In)?;
+                            write!(buffer, " as ")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?));")?;
+                        }
+                    }
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -994,30 +945,43 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(Out))?;
                 write!(buffer, "> for ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match message {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
+                    write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     write!(buffer, "(payload")?;
-                    if field.unstable {
-                        write!(buffer, ", _, _")?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional => {
+                            write!(buffer, ", fallback")?;
+                        }
+                        schema::Cardinality::Required => {}
+                        schema::Cardinality::Unstable => {
+                            write!(buffer, ", _")?;
+                        }
                     }
                     write!(buffer, ") => ")?;
-                    write_identifier(buffer, name, Pascal, Some(InOrOut(In)))?;
+                    write_identifier(buffer, name, Pascal, Some(In))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    writeln!(buffer, "(payload.into()),")?;
+                    match field.cardinality {
+                        schema::Cardinality::Optional => {
+                            writeln!(buffer, "(payload.into(), Box::new((*fallback).into())),")?;
+                        }
+                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                            writeln!(buffer, "(payload.into()),")?;
+                        }
+                    }
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
@@ -1044,13 +1008,13 @@ fn write_struct<T: Write>(
     namespace: &schema::Namespace,
     name: &Identifier,
     fields: &[schema::Field],
-    flavor: StructFlavor,
+    direction: Direction,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub struct ")?;
-    write_identifier(buffer, name, Pascal, Some(InOrOut(flavor)))?;
+    write_identifier(buffer, name, Pascal, Some(direction))?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
@@ -1058,12 +1022,30 @@ fn write_struct<T: Write>(
         write!(buffer, "pub ")?;
         write_identifier(buffer, &field.name, Snake, None)?;
         write!(buffer, ": ")?;
-        if field.unstable && flavor == In {
-            write!(buffer, "Option<")?;
+        match field.cardinality {
+            schema::Cardinality::Optional => {
+                write!(buffer, "Option<")?;
+            }
+            schema::Cardinality::Required => {}
+            schema::Cardinality::Unstable => match direction {
+                Direction::Out => {}
+                Direction::In => {
+                    write!(buffer, "Option<")?;
+                }
+            },
         }
-        write_type(buffer, imports, namespace, &field.r#type, InOrOut(flavor))?;
-        if field.unstable && flavor == In {
-            write!(buffer, ">")?;
+        write_type(buffer, imports, namespace, &field.r#type, direction)?;
+        match field.cardinality {
+            schema::Cardinality::Optional => {
+                write!(buffer, ">")?;
+            }
+            schema::Cardinality::Required => {}
+            schema::Cardinality::Unstable => match direction {
+                Direction::Out => {}
+                Direction::In => {
+                    write!(buffer, ">")?;
+                }
+            },
         }
         writeln!(buffer, ",")?;
     }
@@ -1082,33 +1064,37 @@ fn write_choice<T: Write>(
     namespace: &schema::Namespace,
     name: &Identifier,
     fields: &[schema::Field],
-    flavor: ChoiceFlavor,
+    direction: Direction,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "#[derive({})]", TRAITS_TO_DERIVE.join(", "))?;
     write_indentation(buffer, indentation)?;
     write!(buffer, "pub enum ")?;
-    write_identifier(buffer, name, Pascal, Some(flavor))?;
+    write_identifier(buffer, name, Pascal, Some(direction))?;
     writeln!(buffer, " {{")?;
 
     for field in fields {
-        if !(flavor == OutStable && field.unstable) {
-            let flavor = match flavor {
-                ChoiceFlavor::InOrOut(flavor) => flavor,
-                ChoiceFlavor::OutStable => Out,
-            };
-            write_indentation(buffer, indentation + 1)?;
-            write_identifier(buffer, &field.name, Pascal, None)?;
-            write!(buffer, "(")?;
-            write_type(buffer, imports, namespace, &field.r#type, InOrOut(flavor))?;
-            if flavor == Out && field.unstable {
-                write!(buffer, ", Vec<")?;
-                write_identifier(buffer, name, Pascal, Some(InOrOut(Out)))?;
-                write!(buffer, ">, ")?;
-                write_identifier(buffer, name, Pascal, Some(OutStable))?;
+        write_indentation(buffer, indentation + 1)?;
+        write_identifier(buffer, &field.name, Pascal, None)?;
+        write!(buffer, "(")?;
+        write_type(buffer, imports, namespace, &field.r#type, direction)?;
+        match field.cardinality {
+            schema::Cardinality::Optional => {
+                write!(buffer, ", Box<")?;
+                write_identifier(buffer, name, Pascal, Some(direction))?;
+                write!(buffer, ">")?;
             }
-            writeln!(buffer, "),")?;
+            schema::Cardinality::Required => {}
+            schema::Cardinality::Unstable => match direction {
+                Direction::Out => {
+                    write!(buffer, ", Box<")?;
+                    write_identifier(buffer, name, Pascal, Some(direction))?;
+                    write!(buffer, ">")?;
+                }
+                Direction::In => {}
+            },
         }
+        writeln!(buffer, "),")?;
     }
 
     write_indentation(buffer, indentation)?;
@@ -1123,7 +1109,7 @@ fn write_type<T: Write>(
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     r#type: &schema::Type,
-    flavor: ChoiceFlavor,
+    direction: Direction,
 ) -> Result<(), fmt::Error> {
     match &r#type.variant {
         schema::TypeVariant::Bool => {
@@ -1156,28 +1142,27 @@ fn write_type<T: Write>(
                 write!(buffer, "::")?;
             }
 
-            write_identifier(buffer, name, Pascal, Some(flavor))?;
+            write_identifier(buffer, name, Pascal, Some(direction))?;
         }
     }
 
     Ok(())
 }
 
-// Write an identifier with an optional flavor suffix in a way that Rust will be happy with.
+// Write an identifier with an optional direction suffix in a way that Rust will be happy with.
 fn write_identifier<T: Write>(
     buffer: &mut T,
     identifier: &Identifier,
     case: CaseConvention,
-    suffix: Option<ChoiceFlavor>,
+    suffix: Option<Direction>,
 ) -> Result<(), fmt::Error> {
     let identifier_with_suffix = suffix.map_or_else(
         || identifier.clone(),
         |suffix| {
             identifier.join(
                 &match suffix {
-                    ChoiceFlavor::InOrOut(StructFlavor::In) => "In",
-                    ChoiceFlavor::InOrOut(StructFlavor::Out) => "Out",
-                    ChoiceFlavor::OutStable => "OutStable",
+                    Direction::In => "In",
+                    Direction::Out => "Out",
                 }
                 .into(),
             )
@@ -1607,28 +1592,10 @@ pub mod basic {
         }
 
         #[derive(Clone, Debug)]
-        pub enum VoidOutStable {
-        }
-
-        #[derive(Clone, Debug)]
         pub enum VoidIn {
         }
 
         impl super::super::Serialize for VoidOut {
-            const VARINT_ENCODED: bool = false;
-
-            fn size(&self) -> u64 {
-                match *self {
-                }
-            }
-
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                }
-            }
-        }
-
-        impl super::super::Serialize for VoidOutStable {
             const VARINT_ENCODED: bool = false;
 
             fn size(&self) -> u64 {
@@ -1676,21 +1643,15 @@ pub mod main {
     #[derive(Clone, Debug)]
     pub enum BarOut {
         X(bool),
-        Y(Vec<u8>, Vec<BarOut>, BarOutStable),
-        Z(super::basic::void::VoidOut),
-    }
-
-    #[derive(Clone, Debug)]
-    pub enum BarOutStable {
-        X(bool),
-        Z(super::basic::void::VoidOut),
+        Y(Vec<u8>, Box<BarOut>),
+        Z(super::basic::void::VoidOut, Box<BarOut>),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarIn {
         X(bool),
         Y(Vec<u8>),
-        Z(super::basic::void::VoidIn),
+        Z(super::basic::void::VoidIn, Box<BarIn>),
     }
 
     impl super::Serialize for BarOut {
@@ -1699,49 +1660,24 @@ pub mod main {
         fn size(&self) -> u64 {
             match *self {
                 BarOut::X(ref payload) => super::field_size(0, payload),
-                BarOut::Y(ref payload, ref alternatives, ref fallback) => {
-                    super::field_size(1, payload)
-                        + alternatives
-                            .iter()
-                            .map(|alternative| alternative.size())
-                            .sum::<u64>()
-                        + fallback.size()
-                }
-                BarOut::Z(ref payload) => super::field_size(2, payload),
+                BarOut::Y(ref payload, ref fallback) => super::field_size(1, payload) + \
+                    fallback.size(),
+                BarOut::Z(ref payload, ref fallback) => super::field_size(2, payload) + \
+                    fallback.size(),
             }
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             match *self {
                 BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
-                BarOut::Y(ref payload, ref alternatives, ref fallback) => {
+                BarOut::Y(ref payload, ref fallback) => {
                     super::serialize_field(writer, 1, payload)?;
-
-                    for alternative in alternatives {
-                        alternative.serialize(writer)?;
-                    }
-
                     fallback.serialize(writer)
                 }
-                BarOut::Z(ref payload) => super::serialize_field(writer, 2, payload),
-            }
-        }
-    }
-
-    impl super::Serialize for BarOutStable {
-        const VARINT_ENCODED: bool = false;
-
-        fn size(&self) -> u64 {
-            match *self {
-                BarOutStable::X(ref payload) => super::field_size(0, payload),
-                BarOutStable::Z(ref payload) => super::field_size(2, payload),
-            }
-        }
-
-        fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            match *self {
-                BarOutStable::X(ref payload) => super::serialize_field(writer, 0, payload),
-                BarOutStable::Z(ref payload) => super::serialize_field(writer, 2, payload),
+                BarOut::Z(ref payload, ref fallback) => {
+                    super::serialize_field(writer, 2, payload)?;
+                    fallback.serialize(writer)
+                }
             }
         }
     }
@@ -1767,8 +1703,11 @@ pub mod main {
                             deserialize(&mut sub_reader)?));
                     }
                     2 => {
-                        return Ok(BarIn::Z(<super::basic::void::VoidIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        let payload = <super::basic::void::VoidIn as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?;
+                        let fallback = Box::new(<BarIn as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?);
+                        return Ok(BarIn::Z(payload, fallback));
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
@@ -1782,8 +1721,9 @@ pub mod main {
         fn from(message: BarOut) -> Self {
             match message {
                 BarOut::X(payload) => BarIn::X(payload.into()),
-                BarOut::Y(payload, _, _) => BarIn::Y(payload.into()),
-                BarOut::Z(payload) => BarIn::Z(payload.into()),
+                BarOut::Y(payload, _) => BarIn::Y(payload.into()),
+                BarOut::Z(payload, fallback) => \
+                    BarIn::Z(payload.into(), Box::new((*fallback).into())),
             }
         }
     }
@@ -1792,29 +1732,32 @@ pub mod main {
     pub struct FooOut {
         pub x: bool,
         pub y: Vec<u8>,
-        pub z: super::basic::unit::UnitOut,
+        pub z: Option<super::basic::unit::UnitOut>,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooIn {
         pub x: bool,
         pub y: Option<Vec<u8>>,
-        pub z: super::basic::unit::UnitIn,
+        pub z: Option<super::basic::unit::UnitIn>,
     }
 
     impl super::Serialize for FooOut {
         const VARINT_ENCODED: bool = false;
 
         fn size(&self) -> u64 {
-            super::field_size(0, &self.x)
+            0
+                + super::field_size(0, &self.x)
                 + super::field_size(1, &self.y)
-                + super::field_size(2, &self.z)
+                + if let Some(inner) = &self.z { super::field_size(2, inner) } else { 0 }
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             super::serialize_field(writer, 0, &self.x)?;
             super::serialize_field(writer, 1, &self.y)?;
-            super::serialize_field(writer, 2, &self.z)?;
+            if let Some(inner) = &self.z {
+                super::serialize_field(writer, 2, inner)?;
+            }
             Ok(())
         }
     }
@@ -1862,7 +1805,7 @@ pub mod main {
                 }
             }
 
-            if x.is_none() || z.is_none() {
+            if x.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",
@@ -1872,7 +1815,7 @@ pub mod main {
             Ok(FooIn {
                 x: x.unwrap(),
                 y,
-                z: z.unwrap(),
+                z,
             })
         }
     }
@@ -1882,7 +1825,7 @@ pub mod main {
             FooIn {
                 x: message.x.into(),
                 y: Some(message.y.into()),
-                z: message.z.into(),
+                z: message.z.map(|inner| inner.into()),
             }
         }
     }

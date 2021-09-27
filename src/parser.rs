@@ -535,15 +535,23 @@ fn parse_field(
         None,
     );
 
-    // Determine if the field is unstable.
-    let unstable = if *position == tokens.len() {
-        false
-    } else if let token::Variant::Unstable = tokens[*position].variant {
-        *position += 1;
-
-        true
+    // Parse the field cardinality.
+    let cardinality = if *position == tokens.len() {
+        schema::Cardinality::Required
     } else {
-        false
+        match tokens[*position].variant {
+            token::Variant::Optional => {
+                *position += 1;
+
+                schema::Cardinality::Optional
+            }
+            token::Variant::Unstable => {
+                *position += 1;
+
+                schema::Cardinality::Unstable
+            }
+            _ => schema::Cardinality::Required,
+        }
     };
 
     // Make sure we have a token to parse next.
@@ -680,7 +688,7 @@ fn parse_field(
     Some(schema::Field {
         source_range: span_tokens(tokens, start, *position),
         name,
-        unstable,
+        cardinality,
         r#type,
         index,
     })
@@ -719,7 +727,7 @@ mod tests {
             # This is a struct.
             struct foo {
               x: baz.baz = 0
-              y: unstable u64 = 1
+              y: optional u64 = 1
               z: bool = 2
             }
 
@@ -759,7 +767,7 @@ mod tests {
                     end: 155,
                 },
                 name: "x".into(),
-                unstable: false,
+                cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 144,
@@ -775,7 +783,7 @@ mod tests {
                     end: 189,
                 },
                 name: "y".into(),
-                unstable: true,
+                cardinality: schema::Cardinality::Optional,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 182,
@@ -791,7 +799,7 @@ mod tests {
                     end: 215,
                 },
                 name: "z".into(),
-                unstable: false,
+                cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 207,
@@ -810,7 +818,7 @@ mod tests {
                     end: 316,
                 },
                 name: "x".into(),
-                unstable: false,
+                cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 305,
@@ -826,7 +834,7 @@ mod tests {
                     end: 352,
                 },
                 name: "y".into(),
-                unstable: true,
+                cardinality: schema::Cardinality::Unstable,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 343,
@@ -842,7 +850,7 @@ mod tests {
                     end: 377,
                 },
                 name: "z".into(),
-                unstable: false,
+                cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 370,

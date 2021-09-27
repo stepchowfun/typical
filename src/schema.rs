@@ -1,4 +1,8 @@
-use crate::{error::SourceRange, identifier::Identifier};
+use crate::{
+    error::SourceRange,
+    identifier::Identifier,
+    token::{OPTIONAL_KEYWORD, UNSTABLE_KEYWORD},
+};
 use std::{
     collections::BTreeMap,
     fmt::{self, Display, Formatter, Write},
@@ -34,9 +38,16 @@ pub enum DeclarationVariant {
 pub struct Field {
     pub source_range: SourceRange,
     pub name: Identifier,
-    pub unstable: bool,
+    pub cardinality: Cardinality,
     pub r#type: Type,
     pub index: usize,
+}
+
+#[derive(Clone, Debug)]
+pub enum Cardinality {
+    Optional,
+    Required,
+    Unstable,
 }
 
 #[derive(Clone, Debug)]
@@ -154,8 +165,14 @@ impl Field {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         write!(f, "  {}: ", self.name.original())?;
 
-        if self.unstable {
-            write!(f, "unstable ")?;
+        match self.cardinality {
+            Cardinality::Optional => {
+                write!(f, "{} ", OPTIONAL_KEYWORD)?;
+            }
+            Cardinality::Required => {}
+            Cardinality::Unstable => {
+                write!(f, "{} ", UNSTABLE_KEYWORD)?;
+            }
         }
 
         self.r#type.write(f)?;
@@ -236,8 +253,8 @@ mod tests {
         assert_same,
         error::SourceRange,
         schema::{
-            relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace,
-            Schema, Type, TypeVariant,
+            relativize_namespace, Cardinality, Declaration, DeclarationVariant, Field, Import,
+            Namespace, Schema, Type, TypeVariant,
         },
     };
     use std::{collections::BTreeMap, path::Path};
@@ -427,7 +444,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "x".into(),
-                unstable: false,
+                cardinality: Cardinality::Required,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -437,7 +454,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "y".into(),
-                unstable: false,
+                cardinality: Cardinality::Optional,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::U64,
@@ -450,7 +467,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "x".into(),
-                unstable: false,
+                cardinality: Cardinality::Required,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -460,7 +477,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "y".into(),
-                unstable: false,
+                cardinality: Cardinality::Unstable,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::F64,
@@ -495,12 +512,12 @@ mod tests {
         let expected = "\
             choice bar {\n\
             \x20 x: bool = 0\n\
-            \x20 y: f64 = 1\n\
+            \x20 y: unstable f64 = 1\n\
             }\n\
             \n\
             struct foo {\n\
             \x20 x: bool = 0\n\
-            \x20 y: u64 = 1\n\
+            \x20 y: optional u64 = 1\n\
             }\n\
         ";
 
@@ -534,7 +551,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "x".into(),
-                unstable: false,
+                cardinality: Cardinality::Required,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -544,7 +561,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "y".into(),
-                unstable: false,
+                cardinality: Cardinality::Optional,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::U64,
@@ -557,7 +574,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "x".into(),
-                unstable: false,
+                cardinality: Cardinality::Required,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -567,7 +584,7 @@ mod tests {
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
                 name: "y".into(),
-                unstable: false,
+                cardinality: Cardinality::Unstable,
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::F64,
@@ -605,12 +622,12 @@ mod tests {
             \n\
             choice bar {\n\
             \x20 x: bool = 0\n\
-            \x20 y: f64 = 1\n\
+            \x20 y: unstable f64 = 1\n\
             }\n\
             \n\
             struct foo {\n\
             \x20 x: bool = 0\n\
-            \x20 y: u64 = 1\n\
+            \x20 y: optional u64 = 1\n\
             }\n\
         ";
 
