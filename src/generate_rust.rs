@@ -95,8 +95,6 @@ use std::{{
 
 #[rustfmt::skip]
 pub trait Serialize {{
-    const VARINT_ENCODED: bool;
-
     fn size(&self) -> u64;
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
@@ -111,38 +109,46 @@ pub trait Deserialize {{
 }}
 
 #[rustfmt::skip]
-fn field_size<T: Serialize>(index: u64, value: &T) -> u64 {{
-    if T::VARINT_ENCODED {{
-        ((index << 2) | 0b00).size() + value.size()
-    }} else {{
-        (match value.size() {{
-            0 => ((index << 2) | 0b01).size(),
-            8 => ((index << 2) | 0b10).size(),
-            size => ((index << 2) | 0b11).size() + size.size(),
-        }}) + value.size()
-    }}
+fn field_size_varint<T: Serialize>(index: u64, value: &T) -> u64 {{
+    ((index << 2) | 0b00).size() + value.size()
 }}
 
 #[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(
+fn field_size_non_varint<T: Serialize>(index: u64, value: &T) -> u64 {{
+    (match value.size() {{
+        0 => ((index << 2) | 0b01).size(),
+        8 => ((index << 2) | 0b10).size(),
+        size => ((index << 2) | 0b11).size() + size.size(),
+    }}) + value.size()
+}}
+
+#[rustfmt::skip]
+fn serialize_field_varint<T: Write, U: Serialize>(
     writer: &mut T,
     index: u64,
     value: &U,
 ) -> io::Result<()> {{
-    if U::VARINT_ENCODED {{
-        ((index << 2) | 0b00).serialize(writer)?;
-    }} else {{
-        match value.size() {{
-            0 => {{
-                ((index << 2) | 0b01).serialize(writer)?;
-            }}
-            8 => {{
-                ((index << 2) | 0b10).serialize(writer)?;
-            }}
-            size => {{
-                ((index << 2) | 0b11).serialize(writer)?;
-                size.serialize(writer)?;
-            }}
+    ((index << 2) | 0b00).serialize(writer)?;
+
+    value.serialize(writer)
+}}
+
+#[rustfmt::skip]
+fn serialize_field_non_varint<T: Write, U: Serialize>(
+    writer: &mut T,
+    index: u64,
+    value: &U,
+) -> io::Result<()> {{
+    match value.size() {{
+        0 => {{
+            ((index << 2) | 0b01).serialize(writer)?;
+        }}
+        8 => {{
+            ((index << 2) | 0b10).serialize(writer)?;
+        }}
+        size => {{
+            ((index << 2) | 0b11).serialize(writer)?;
+            size.serialize(writer)?;
         }}
     }}
 
@@ -194,8 +200,6 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
 
 #[rustfmt::skip]
 impl Serialize for bool {{
-    const VARINT_ENCODED: bool = true;
-
     fn size(&self) -> u64 {{
         1
     }}
@@ -220,8 +224,6 @@ impl Deserialize for bool {{
 
 #[rustfmt::skip]
 impl Serialize for u64 {{
-    const VARINT_ENCODED: bool = true;
-
     fn size(&self) -> u64 {{
         let mut size = 1_u64;
         let mut upper_bound_exclusive = 0_u64;
@@ -294,8 +296,6 @@ impl Deserialize for u64 {{
 
 #[rustfmt::skip]
 impl Serialize for f64 {{
-    const VARINT_ENCODED: bool = false;
-
     fn size(&self) -> u64 {{
         8
     }}
@@ -320,8 +320,6 @@ impl Deserialize for f64 {{
 
 #[rustfmt::skip]
 impl Serialize for Vec<u8> {{
-    const VARINT_ENCODED: bool = false;
-
     fn size(&self) -> u64 {{
         self.len() as u64
     }}
@@ -494,9 +492,6 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "0")?;
@@ -508,13 +503,23 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, " {{ ")?;
                             write_supers(buffer, indentation)?;
-                            writeln!(buffer, "field_size({}, inner) }} else {{ 0 }}", field.index)?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "field_size_varint")?;
+                            } else {
+                                write!(buffer, "field_size_non_varint")?;
+                            }
+                            writeln!(buffer, "({}, inner) }} else {{ 0 }}", field.index)?;
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
                             write_indentation(buffer, indentation + 3)?;
                             write!(buffer, "+ ")?;
                             write_supers(buffer, indentation)?;
-                            write!(buffer, "field_size({}, &self.", field.index)?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "field_size_varint")?;
+                            } else {
+                                write!(buffer, "field_size_non_varint")?;
+                            }
+                            write!(buffer, "({}, &self.", field.index)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ")")?;
                         }
@@ -538,14 +543,24 @@ fn write_schema<T: Write>(
                             writeln!(buffer, " {{")?;
                             write_indentation(buffer, indentation + 3)?;
                             write_supers(buffer, indentation)?;
-                            writeln!(buffer, "serialize_field(writer, {}, inner)?;", field.index)?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "serialize_field_varint")?;
+                            } else {
+                                write!(buffer, "serialize_field_non_varint")?;
+                            }
+                            writeln!(buffer, "(writer, {}, inner)?;", field.index)?;
                             write_indentation(buffer, indentation + 2)?;
                             writeln!(buffer, "}}")?;
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
                             write_indentation(buffer, indentation + 2)?;
                             write_supers(buffer, indentation)?;
-                            write!(buffer, "serialize_field(writer, {}, &self.", field.index)?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "serialize_field_varint")?;
+                            } else {
+                                write!(buffer, "serialize_field_non_varint")?;
+                            }
+                            write!(buffer, "(writer, {}, &self.", field.index)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ")?;")?;
                         }
@@ -772,9 +787,6 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "const VARINT_ENCODED: bool = false;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
@@ -789,16 +801,22 @@ fn write_schema<T: Write>(
                         schema::Cardinality::Optional | schema::Cardinality::Unstable => {
                             write!(buffer, "(ref payload, ref fallback) => ")?;
                             write_supers(buffer, indentation)?;
-                            writeln!(
-                                buffer,
-                                "field_size({}, payload) + fallback.size(),",
-                                field.index,
-                            )?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "field_size_varint")?;
+                            } else {
+                                write!(buffer, "field_size_non_varint")?;
+                            }
+                            writeln!(buffer, "({}, payload) + fallback.size(),", field.index)?;
                         }
                         schema::Cardinality::Required => {
                             write!(buffer, "(ref payload) => ")?;
                             write_supers(buffer, indentation)?;
-                            writeln!(buffer, "field_size({}, payload),", field.index)?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "field_size_varint")?;
+                            } else {
+                                write!(buffer, "field_size_non_varint")?;
+                            }
+                            writeln!(buffer, "({}, payload),", field.index)?;
                         }
                     }
                 }
@@ -825,11 +843,12 @@ fn write_schema<T: Write>(
                             writeln!(buffer, "(ref payload, ref fallback) => {{")?;
                             write_indentation(buffer, indentation + 4)?;
                             write_supers(buffer, indentation)?;
-                            writeln!(
-                                buffer,
-                                "serialize_field(writer, {}, payload)?;",
-                                field.index,
-                            )?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "serialize_field_varint")?;
+                            } else {
+                                write!(buffer, "serialize_field_non_varint")?;
+                            }
+                            writeln!(buffer, "(writer, {}, payload)?;", field.index)?;
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "fallback.serialize(writer)")?;
                             write_indentation(buffer, indentation + 3)?;
@@ -838,7 +857,12 @@ fn write_schema<T: Write>(
                         schema::Cardinality::Required => {
                             write!(buffer, "(ref payload) => ")?;
                             write_supers(buffer, indentation)?;
-                            writeln!(buffer, "serialize_field(writer, {}, payload),", field.index)?;
+                            if varint_encoded(&field.r#type) {
+                                write!(buffer, "serialize_field_varint")?;
+                            } else {
+                                write!(buffer, "serialize_field_non_varint")?;
+                            }
+                            writeln!(buffer, "(writer, {}, payload),", field.index)?;
                         }
                     }
                 }
@@ -1205,6 +1229,16 @@ fn write_supers<T: Write>(buffer: &mut T, count: usize) -> Result<(), fmt::Error
     Ok(())
 }
 
+// Determine whether a type is encoded as a varint.
+fn varint_encoded(r#type: &schema::Type) -> bool {
+    match &r#type.variant {
+        schema::TypeVariant::Bool | schema::TypeVariant::U64 => true,
+        schema::TypeVariant::F64
+        | schema::TypeVariant::Bytes
+        | schema::TypeVariant::Custom(_, _) => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -1274,8 +1308,6 @@ use std::{
 
 #[rustfmt::skip]
 pub trait Serialize {
-    const VARINT_ENCODED: bool;
-
     fn size(&self) -> u64;
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
@@ -1290,38 +1322,46 @@ pub trait Deserialize {
 }
 
 #[rustfmt::skip]
-fn field_size<T: Serialize>(index: u64, value: &T) -> u64 {
-    if T::VARINT_ENCODED {
-        ((index << 2) | 0b00).size() + value.size()
-    } else {
-        (match value.size() {
-            0 => ((index << 2) | 0b01).size(),
-            8 => ((index << 2) | 0b10).size(),
-            size => ((index << 2) | 0b11).size() + size.size(),
-        }) + value.size()
-    }
+fn field_size_varint<T: Serialize>(index: u64, value: &T) -> u64 {
+    ((index << 2) | 0b00).size() + value.size()
 }
 
 #[rustfmt::skip]
-fn serialize_field<T: Write, U: Serialize>(
+fn field_size_non_varint<T: Serialize>(index: u64, value: &T) -> u64 {
+    (match value.size() {
+        0 => ((index << 2) | 0b01).size(),
+        8 => ((index << 2) | 0b10).size(),
+        size => ((index << 2) | 0b11).size() + size.size(),
+    }) + value.size()
+}
+
+#[rustfmt::skip]
+fn serialize_field_varint<T: Write, U: Serialize>(
     writer: &mut T,
     index: u64,
     value: &U,
 ) -> io::Result<()> {
-    if U::VARINT_ENCODED {
-        ((index << 2) | 0b00).serialize(writer)?;
-    } else {
-        match value.size() {
-            0 => {
-                ((index << 2) | 0b01).serialize(writer)?;
-            }
-            8 => {
-                ((index << 2) | 0b10).serialize(writer)?;
-            }
-            size => {
-                ((index << 2) | 0b11).serialize(writer)?;
-                size.serialize(writer)?;
-            }
+    ((index << 2) | 0b00).serialize(writer)?;
+
+    value.serialize(writer)
+}
+
+#[rustfmt::skip]
+fn serialize_field_non_varint<T: Write, U: Serialize>(
+    writer: &mut T,
+    index: u64,
+    value: &U,
+) -> io::Result<()> {
+    match value.size() {
+        0 => {
+            ((index << 2) | 0b01).serialize(writer)?;
+        }
+        8 => {
+            ((index << 2) | 0b10).serialize(writer)?;
+        }
+        size => {
+            ((index << 2) | 0b11).serialize(writer)?;
+            size.serialize(writer)?;
         }
     }
 
@@ -1373,8 +1413,6 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
 
 #[rustfmt::skip]
 impl Serialize for bool {
-    const VARINT_ENCODED: bool = true;
-
     fn size(&self) -> u64 {
         1
     }
@@ -1399,8 +1437,6 @@ impl Deserialize for bool {
 
 #[rustfmt::skip]
 impl Serialize for u64 {
-    const VARINT_ENCODED: bool = true;
-
     fn size(&self) -> u64 {
         let mut size = 1_u64;
         let mut upper_bound_exclusive = 0_u64;
@@ -1473,8 +1509,6 @@ impl Deserialize for u64 {
 
 #[rustfmt::skip]
 impl Serialize for f64 {
-    const VARINT_ENCODED: bool = false;
-
     fn size(&self) -> u64 {
         8
     }
@@ -1499,8 +1533,6 @@ impl Deserialize for f64 {
 
 #[rustfmt::skip]
 impl Serialize for Vec<u8> {
-    const VARINT_ENCODED: bool = false;
-
     fn size(&self) -> u64 {
         self.len() as u64
     }
@@ -1535,8 +1567,6 @@ pub mod basic {
         }
 
         impl super::super::Serialize for UnitOut {
-            const VARINT_ENCODED: bool = false;
-
             fn size(&self) -> u64 {
                 0
             }
@@ -1596,8 +1626,6 @@ pub mod basic {
         }
 
         impl super::super::Serialize for VoidOut {
-            const VARINT_ENCODED: bool = false;
-
             fn size(&self) -> u64 {
                 match *self {
                 }
@@ -1655,27 +1683,25 @@ pub mod main {
     }
 
     impl super::Serialize for BarOut {
-        const VARINT_ENCODED: bool = false;
-
         fn size(&self) -> u64 {
             match *self {
-                BarOut::X(ref payload) => super::field_size(0, payload),
-                BarOut::Y(ref payload, ref fallback) => super::field_size(1, payload) + \
-                    fallback.size(),
-                BarOut::Z(ref payload, ref fallback) => super::field_size(2, payload) + \
-                    fallback.size(),
+                BarOut::X(ref payload) => super::field_size_varint(0, payload),
+                BarOut::Y(ref payload, ref fallback) => \
+                    super::field_size_non_varint(1, payload) + fallback.size(),
+                BarOut::Z(ref payload, ref fallback) => \
+                    super::field_size_non_varint(2, payload) + fallback.size(),
             }
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             match *self {
-                BarOut::X(ref payload) => super::serialize_field(writer, 0, payload),
+                BarOut::X(ref payload) => super::serialize_field_varint(writer, 0, payload),
                 BarOut::Y(ref payload, ref fallback) => {
-                    super::serialize_field(writer, 1, payload)?;
+                    super::serialize_field_non_varint(writer, 1, payload)?;
                     fallback.serialize(writer)
                 }
                 BarOut::Z(ref payload, ref fallback) => {
-                    super::serialize_field(writer, 2, payload)?;
+                    super::serialize_field_non_varint(writer, 2, payload)?;
                     fallback.serialize(writer)
                 }
             }
@@ -1743,20 +1769,18 @@ pub mod main {
     }
 
     impl super::Serialize for FooOut {
-        const VARINT_ENCODED: bool = false;
-
         fn size(&self) -> u64 {
             0
-                + super::field_size(0, &self.x)
-                + super::field_size(1, &self.y)
-                + if let Some(inner) = &self.z { super::field_size(2, inner) } else { 0 }
+                + super::field_size_varint(0, &self.x)
+                + super::field_size_non_varint(1, &self.y)
+                + if let Some(inner) = &self.z { super::field_size_non_varint(2, inner) } else { 0 }
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            super::serialize_field(writer, 0, &self.x)?;
-            super::serialize_field(writer, 1, &self.y)?;
+            super::serialize_field_varint(writer, 0, &self.x)?;
+            super::serialize_field_non_varint(writer, 1, &self.y)?;
             if let Some(inner) = &self.z {
-                super::serialize_field(writer, 2, inner)?;
+                super::serialize_field_non_varint(writer, 2, inner)?;
             }
             Ok(())
         }
