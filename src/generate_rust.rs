@@ -406,7 +406,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 if fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "0_u64")?;
+                    writeln!(buffer, "0")?;
                 }
                 for (i, field) in fields.iter().enumerate() {
                     let is_first = i == 0;
@@ -450,7 +450,7 @@ fn write_schema<T: Write>(
                     match field.cardinality {
                         schema::Cardinality::Optional => {
                             write_indentation(buffer, indentation + 2)?;
-                            writeln!(buffer, "}} else {{ 0 }})")?;
+                            write!(buffer, "}} else {{ 0 }})")?;
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
                             write_indentation(buffer, indentation + 2)?;
@@ -1292,7 +1292,7 @@ fn write_deserialization_invocation<T: Write>(
         schema::TypeVariant::U64 => {
             write!(buffer, "let payload = ")?;
             write_supers(buffer, supers)?;
-            writeln!(buffer, "deserialize_varint(sub_reader)?;")
+            writeln!(buffer, "deserialize_varint(&mut sub_reader)?;")
         }
         schema::TypeVariant::Custom(_, _) => {
             write!(buffer, "let payload = <")?;
@@ -1554,7 +1554,7 @@ pub mod basic {
 
         impl super::super::Serialize for UnitOut {
             fn size(&self) -> u64 {
-                0_u64
+                0
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
@@ -1789,7 +1789,6 @@ pub mod main {
                 let payload_size = payload.size();
                 super::non_varint_field_header_size(2, payload_size) + payload_size
             } else { 0 })
-
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
