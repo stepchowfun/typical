@@ -251,56 +251,6 @@ pub trait Deserialize {{
     where
         Self: Sized,
         T: BufRead;
-}}
-
-#[rustfmt::skip]
-impl Deserialize for bool {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {{
-        let mut buffer = [0u8];
-        reader.read_exact(&mut buffer[..])?;
-        Ok(buffer[0] != 0b00000001)
-    }}
-}}
-
-#[rustfmt::skip]
-impl Deserialize for u64 {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {{
-        deserialize_varint(reader)
-    }}
-}}
-
-#[rustfmt::skip]
-impl Deserialize for f64 {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {{
-        let mut buffer = [0; 8];
-        reader.read_exact(&mut buffer)?;
-        Ok(f64::from_le_bytes(buffer))
-    }}
-}}
-
-#[rustfmt::skip]
-impl Deserialize for Vec<u8> {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {{
-        let mut buffer = vec![];
-        reader.read_to_end(&mut buffer)?;
-        Ok(buffer)
-    }}
 }}",
             typical_version,
         )
@@ -639,14 +589,17 @@ fn write_schema<T: Write>(
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
+                    write_deserialization_invocation(
+                        buffer,
+                        indentation + 5,
+                        indentation,
+                        &imports,
+                        namespace,
+                        &field.r#type,
+                    )?;
                     write_indentation(buffer, indentation + 5)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ".get_or_insert(")?;
-                    write!(buffer, "<")?;
-                    write_type(buffer, &imports, namespace, &field.r#type, In)?;
-                    write!(buffer, " as ")?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?);")?;
+                    writeln!(buffer, ".get_or_insert(payload);")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -939,14 +892,16 @@ fn write_schema<T: Write>(
                 for field in fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
+                    write_deserialization_invocation(
+                        buffer,
+                        indentation + 5,
+                        indentation,
+                        &imports,
+                        namespace,
+                        &field.r#type,
+                    )?;
                     match field.cardinality {
                         schema::Cardinality::Optional => {
-                            write_indentation(buffer, indentation + 5)?;
-                            write!(buffer, "let payload = <")?;
-                            write_type(buffer, &imports, namespace, &field.r#type, In)?;
-                            write!(buffer, " as ")?;
-                            write_supers(buffer, indentation)?;
-                            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?;")?;
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "let fallback = Box::new(<")?;
                             write_identifier(buffer, name, Pascal, Some(In))?;
@@ -966,11 +921,7 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, name, Pascal, Some(In))?;
                             write!(buffer, "::")?;
                             write_identifier(buffer, &field.name, Pascal, None)?;
-                            write!(buffer, "(<")?;
-                            write_type(buffer, &imports, namespace, &field.r#type, In)?;
-                            write!(buffer, " as ")?;
-                            write_supers(buffer, indentation)?;
-                            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?));")?;
+                            writeln!(buffer, "(payload));")?;
                         }
                     }
                     write_indentation(buffer, indentation + 4)?;
@@ -1263,13 +1214,13 @@ fn write_size_calculation_invocation<T: Write>(
     r#type: &schema::Type,
 ) -> Result<(), fmt::Error> {
     match &r#type.variant {
+        schema::TypeVariant::Bool => write!(buffer, "1_u64"),
+        schema::TypeVariant::Bytes => write!(buffer, "payload.len() as u64"),
+        schema::TypeVariant::F64 => write!(buffer, "8_u64"),
         schema::TypeVariant::U64 => {
             write_supers(buffer, supers)?;
             write!(buffer, "varint_size_from_value(*payload)")
         }
-        schema::TypeVariant::Bool => write!(buffer, "1_u64"),
-        schema::TypeVariant::F64 => write!(buffer, "8_u64"),
-        schema::TypeVariant::Bytes => write!(buffer, "payload.len() as u64"),
         schema::TypeVariant::Custom(_, _) => write!(buffer, "payload.size()"),
     }
 }
@@ -1284,17 +1235,72 @@ fn write_serialization_invocation<T: Write>(
     write_indentation(buffer, indentation)?;
 
     match &r#type.variant {
-        schema::TypeVariant::U64 => {
-            write_supers(buffer, supers)?;
-            writeln!(buffer, "serialize_varint(*payload, writer)?;")
-        }
         schema::TypeVariant::Bool => {
             write_supers(buffer, supers)?;
             writeln!(buffer, "serialize_varint(*payload as u64, writer)?;")
         }
-        schema::TypeVariant::F64 => writeln!(buffer, "writer.write_all(&payload.to_le_bytes())?;"),
         schema::TypeVariant::Bytes => writeln!(buffer, "writer.write_all(payload)?;"),
+        schema::TypeVariant::F64 => writeln!(buffer, "writer.write_all(&payload.to_le_bytes())?;"),
+        schema::TypeVariant::U64 => {
+            write_supers(buffer, supers)?;
+            writeln!(buffer, "serialize_varint(*payload, writer)?;")
+        }
         schema::TypeVariant::Custom(_, _) => writeln!(buffer, "payload.serialize(writer)?;"),
+    }
+}
+
+// Write the logic to invoke the deserialization logic for a value, including a trailing line break.
+fn write_deserialization_invocation<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+    supers: usize,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
+    namespace: &schema::Namespace,
+    r#type: &schema::Type,
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+
+    match &r#type.variant {
+        schema::TypeVariant::Bool => {
+            writeln!(buffer, "let mut buffer = [0u8];")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;",
+            )?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "let payload = buffer[0] != 0b00000001;")
+        }
+        schema::TypeVariant::Bytes => {
+            writeln!(buffer, "let mut payload = vec![];")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;",
+            )
+        }
+        schema::TypeVariant::F64 => {
+            writeln!(buffer, "let mut buffer = [0; 8];")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;",
+            )?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "let payload = f64::from_le_bytes(buffer);")
+        }
+        schema::TypeVariant::U64 => {
+            write!(buffer, "let payload = ")?;
+            write_supers(buffer, supers)?;
+            writeln!(buffer, "deserialize_varint(sub_reader)?;")
+        }
+        schema::TypeVariant::Custom(_, _) => {
+            write!(buffer, "let payload = <")?;
+            write_type(buffer, imports, namespace, r#type, In)?;
+            write!(buffer, " as ")?;
+            write_supers(buffer, supers)?;
+            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?;")
+        }
     }
 }
 
@@ -1536,56 +1542,6 @@ pub trait Deserialize {
 }
 
 #[rustfmt::skip]
-impl Deserialize for bool {
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {
-        let mut buffer = [0u8];
-        reader.read_exact(&mut buffer[..])?;
-        Ok(buffer[0] != 0b00000001)
-    }
-}
-
-#[rustfmt::skip]
-impl Deserialize for u64 {
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {
-        deserialize_varint(reader)
-    }
-}
-
-#[rustfmt::skip]
-impl Deserialize for f64 {
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {
-        let mut buffer = [0; 8];
-        reader.read_exact(&mut buffer)?;
-        Ok(f64::from_le_bytes(buffer))
-    }
-}
-
-#[rustfmt::skip]
-impl Deserialize for Vec<u8> {
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead,
-    {
-        let mut buffer = vec![];
-        reader.read_to_end(&mut buffer)?;
-        Ok(buffer)
-    }
-}
-
-#[rustfmt::skip]
 pub mod basic {
     pub mod unit {
         #[derive(Clone, Debug)]
@@ -1769,12 +1725,15 @@ pub mod main {
 
                 match index {
                     0 => {
-                        return Ok(BarIn::X(<bool as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        let mut buffer = [0u8];
+                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        let payload = buffer[0] != 0b00000001;
+                        return Ok(BarIn::X(payload));
                     }
                     1 => {
-                        return Ok(BarIn::Y(<Vec<u8> as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?));
+                        let mut payload = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                        return Ok(BarIn::Y(payload));
                     }
                     2 => {
                         let payload = <super::basic::void::VoidIn as super::Deserialize>::\
@@ -1884,16 +1843,20 @@ pub mod main {
 
                 match index {
                     0 => {
-                        x.get_or_insert(<bool as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
+                        let mut buffer = [0u8];
+                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        let payload = buffer[0] != 0b00000001;
+                        x.get_or_insert(payload);
                     }
                     1 => {
-                        y.get_or_insert(<Vec<u8> as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
+                        let mut payload = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                        y.get_or_insert(payload);
                     }
                     2 => {
-                        z.get_or_insert(<super::basic::unit::UnitIn as super::Deserialize>::\
-                            deserialize(&mut sub_reader)?);
+                        let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
+                            deserialize(&mut sub_reader)?;
+                        z.get_or_insert(payload);
                     }
                     _ => {
                         super::skip(&mut sub_reader, size as usize)?;
