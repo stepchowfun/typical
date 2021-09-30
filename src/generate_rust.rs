@@ -94,65 +94,148 @@ use std::{{
 }};
 
 #[rustfmt::skip]
-pub trait Serialize {{
-    fn size(&self) -> u64;
+fn varint_size_from_value(value: u64) -> u64 {{
+    let mut size = 1_u64;
+    let mut upper_bound_exclusive = 0_u64;
 
-    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
+    while size < 9_u64 {{
+        upper_bound_exclusive += 1_u64 << (size * 7_u64);
+
+        if value < upper_bound_exclusive {{
+            break;
+        }}
+
+        size += 1_u64;
+    }}
+
+    size
 }}
 
 #[rustfmt::skip]
-pub trait Deserialize {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead;
+fn varint_size_from_first_byte(first_byte: u8) -> u32 {{
+    first_byte.trailing_zeros() + 1
 }}
 
 #[rustfmt::skip]
-fn field_header_size_varint(index: u64) -> u64 {{
-    ((index << 2) | 0b00).size()
+fn serialize_varint<T: Write>(value: u64, writer: &mut T) -> io::Result<()> {{
+    let size = varint_size_from_value(value);
+    let size_minus_one = size - 1;
+
+    let mut x = value;
+    for i in 1..size {{
+        x -= 1_u64 << (i * 7);
+    }}
+
+    writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
+    x >>= 8_u64.saturating_sub(size);
+
+    for _ in 0..size_minus_one {{
+        writer.write_all(&[x as u8])?;
+        x >>= 8;
+    }}
+
+    Ok(())
 }}
 
 #[rustfmt::skip]
-fn field_header_size_non_varint(index: u64, value_size: u64) -> u64 {{
+fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {{
+    let mut buffer = [0; 9];
+    reader.read_exact(&mut buffer[0..1])?;
+    let first_byte = buffer[0];
+    let size = varint_size_from_first_byte(first_byte) as usize;
+
+    reader.read_exact(&mut buffer[1..size])?;
+
+    let mut x = u64::from(first_byte) >> size;
+    let mut bits_read = 8_usize.saturating_sub(size);
+
+    for byte in buffer.iter().skip(1) {{
+        x |= u64::from(*byte) << bits_read;
+        bits_read += 8;
+    }}
+
+    for i in 1..size {{
+        x = x
+            .checked_add(1_u64 << (i * 7))
+            .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Error decoding varint.\"))?;
+    }}
+
+    Ok(x)
+}}
+
+#[rustfmt::skip]
+fn varint_field_header_size(index: u64) -> u64 {{
+    varint_size_from_value((index << 2) | 0b00)
+}}
+
+#[rustfmt::skip]
+fn non_varint_field_header_size(index: u64, value_size: u64) -> u64 {{
     match value_size {{
-        0 => ((index << 2) | 0b01).size(),
-        8 => ((index << 2) | 0b10).size(),
-        size => ((index << 2) | 0b11).size() + size.size(),
+        0 => varint_size_from_value((index << 2) | 0b01),
+        8 => varint_size_from_value((index << 2) | 0b10),
+        size => varint_size_from_value((index << 2) | 0b11) + varint_size_from_value(size),
     }}
 }}
 
 #[rustfmt::skip]
-fn serialize_field_varint<T: Write, U: Serialize>(
+fn serialize_varint_field<T: Write, U: Serialize>(
     writer: &mut T,
     index: u64,
     value: &U,
 ) -> io::Result<()> {{
-    ((index << 2) | 0b00).serialize(writer)?;
+    serialize_varint((index << 2) | 0b00, writer)?;
 
     value.serialize(writer)
 }}
 
 #[rustfmt::skip]
-fn serialize_field_non_varint<T: Write, U: Serialize>(
+fn serialize_non_varint_field<T: Write, U: Serialize>(
     writer: &mut T,
     index: u64,
     value: &U,
 ) -> io::Result<()> {{
     match value.size() {{
         0 => {{
-            ((index << 2) | 0b01).serialize(writer)?;
+            serialize_varint((index << 2) | 0b01, writer)?;
         }}
         8 => {{
-            ((index << 2) | 0b10).serialize(writer)?;
+            serialize_varint((index << 2) | 0b10, writer)?;
         }}
         size => {{
-            ((index << 2) | 0b11).serialize(writer)?;
-            size.serialize(writer)?;
+            serialize_varint((index << 2) | 0b11, writer)?;
+            serialize_varint(size, writer)?;
         }}
     }}
 
     value.serialize(writer)
+}}
+
+#[rustfmt::skip]
+fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {{
+    let tag = deserialize_varint(&mut *reader)?;
+
+    let index = tag >> 2;
+
+    let size = match tag & 0b11 {{
+        0b00 => {{
+            let buffer = (&mut *reader).fill_buf()?;
+
+            if buffer.is_empty() {{
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::UnexpectedEof,
+                    \"Error decoding field.\",
+                ));
+            }}
+
+            u64::from(varint_size_from_first_byte(buffer[0]))
+        }}
+        0b01 => 0,
+        0b10 => 8,
+        0b11 => deserialize_varint(&mut *reader)?,
+        _ => panic!(),
+    }};
+
+    Ok((index, size))
 }}
 
 #[rustfmt::skip]
@@ -168,36 +251,18 @@ fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
 }}
 
 #[rustfmt::skip]
-fn u64_size(first_byte: u8) -> u32 {{
-    first_byte.trailing_zeros() + 1
+pub trait Serialize {{
+    fn size(&self) -> u64;
+
+    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
 }}
 
 #[rustfmt::skip]
-fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {{
-    let tag = u64::deserialize(&mut *reader)?;
-
-    let index = tag >> 2;
-
-    let size = match tag & 0b11 {{
-        0b00 => {{
-            let buffer = (&mut *reader).fill_buf()?;
-
-            if buffer.is_empty() {{
-                return Err(::std::io::Error::new(
-                    ::std::io::ErrorKind::UnexpectedEof,
-                    \"Error decoding field.\",
-                ));
-            }}
-
-            u64::from(u64_size(buffer[0]))
-        }}
-        0b01 => 0,
-        0b10 => 8,
-        0b11 => u64::deserialize(&mut *reader)?,
-        _ => panic!(),
-    }};
-
-    Ok((index, size))
+pub trait Deserialize {{
+    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
+    where
+        Self: Sized,
+        T: BufRead;
 }}
 
 #[rustfmt::skip]
@@ -207,7 +272,7 @@ impl Serialize for bool {{
     }}
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()> {{
-        (*self as u64).serialize(writer)
+        serialize_varint(*self as u64, writer)
     }}
 }}
 
@@ -227,40 +292,11 @@ impl Deserialize for bool {{
 #[rustfmt::skip]
 impl Serialize for u64 {{
     fn size(&self) -> u64 {{
-        let mut size = 1_u64;
-        let mut upper_bound_exclusive = 0_u64;
-
-        while size < 9_u64 {{
-            upper_bound_exclusive += 1_u64 << (size * 7_u64);
-
-            if *self < upper_bound_exclusive {{
-                break;
-            }}
-
-            size += 1_u64;
-        }}
-
-        size
+        varint_size_from_value(*self)
     }}
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()> {{
-        let size = self.size();
-        let size_minus_one = size - 1;
-
-        let mut x = *self;
-        for i in 1..size {{
-            x -= 1_u64 << (i * 7);
-        }}
-
-        writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
-        x >>= 8_u64.saturating_sub(size);
-
-        for _ in 0..size_minus_one {{
-            writer.write_all(&[x as u8])?;
-            x >>= 8;
-        }}
-
-        Ok(())
+        serialize_varint(*self, writer)
     }}
 }}
 
@@ -271,28 +307,7 @@ impl Deserialize for u64 {{
         Self: Sized,
         T: BufRead,
     {{
-        let mut buffer = [0; 9];
-        reader.read_exact(&mut buffer[0..1])?;
-        let first_byte = buffer[0];
-        let size = u64_size(first_byte) as usize;
-
-        reader.read_exact(&mut buffer[1..size])?;
-
-        let mut x = u64::from(first_byte) >> size;
-        let mut bits_read = 8_usize.saturating_sub(size);
-
-        for byte in buffer.iter().skip(1) {{
-            x |= u64::from(*byte) << bits_read;
-            bits_read += 8;
-        }}
-
-        for i in 1..size {{
-            x = x.checked_add(1_u64 << (i * 7)).ok_or_else(|| {{
-                Error::new(ErrorKind::InvalidData, \"Error decoding 64-bit integer.\")
-            }})?;
-        }}
-
-        Ok(x)
+        deserialize_varint(reader)
     }}
 }}
 
@@ -518,7 +533,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 writeln!(
                                     buffer,
-                                    "field_header_size_varint({}) + payload.size()",
+                                    "varint_field_header_size({}) + payload.size()",
                                     field.index,
                                 )?;
                             } else {
@@ -527,7 +542,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 writeln!(
                                     buffer,
-                                    "field_header_size_non_varint({}, payload_size) + \
+                                    "non_varint_field_header_size({}, payload_size) + \
                                         payload.size()",
                                     field.index,
                                 )?;
@@ -552,7 +567,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 write!(
                                     buffer,
-                                    "field_header_size_varint({}) + self.",
+                                    "varint_field_header_size({}) + self.",
                                     field.index,
                                 )?;
                                 write_identifier(buffer, &field.name, Snake, None)?;
@@ -565,7 +580,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 writeln!(
                                     buffer,
-                                    "field_header_size_non_varint({}, payload_size) + payload_size",
+                                    "non_varint_field_header_size({}, payload_size) + payload_size",
                                     field.index,
                                 )?;
                             }
@@ -598,9 +613,9 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 3)?;
                             write_supers(buffer, indentation)?;
                             if varint_encoded(&field.r#type) {
-                                write!(buffer, "serialize_field_varint")?;
+                                write!(buffer, "serialize_varint_field")?;
                             } else {
-                                write!(buffer, "serialize_field_non_varint")?;
+                                write!(buffer, "serialize_non_varint_field")?;
                             }
                             writeln!(buffer, "(writer, {}, inner)?;", field.index)?;
                             write_indentation(buffer, indentation + 2)?;
@@ -610,9 +625,9 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 2)?;
                             write_supers(buffer, indentation)?;
                             if varint_encoded(&field.r#type) {
-                                write!(buffer, "serialize_field_varint")?;
+                                write!(buffer, "serialize_varint_field")?;
                             } else {
-                                write!(buffer, "serialize_field_non_varint")?;
+                                write!(buffer, "serialize_non_varint_field")?;
                             }
                             write!(buffer, "(writer, {}, &self.", field.index)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
@@ -857,7 +872,7 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 4)?;
                             if varint_encoded(&field.r#type) {
                                 write_supers(buffer, indentation)?;
-                                writeln!(buffer, "field_header_size_varint({}) +", field.index)?;
+                                writeln!(buffer, "varint_field_header_size({}) +", field.index)?;
                                 write_indentation(buffer, indentation + 5)?;
                                 writeln!(buffer, "payload.size() +")?;
                             } else {
@@ -866,7 +881,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 writeln!(
                                     buffer,
-                                    "field_header_size_non_varint({}, payload_size) +",
+                                    "non_varint_field_header_size({}, payload_size) +",
                                     field.index,
                                 )?;
                                 write_indentation(buffer, indentation + 5)?;
@@ -884,7 +899,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 writeln!(
                                     buffer,
-                                    "field_header_size_varint({}) + payload.size()",
+                                    "varint_field_header_size({}) + payload.size()",
                                     field.index,
                                 )?;
                             } else {
@@ -893,7 +908,7 @@ fn write_schema<T: Write>(
                                 write_supers(buffer, indentation)?;
                                 writeln!(
                                     buffer,
-                                    "field_header_size_non_varint({}, payload_size) + payload_size",
+                                    "non_varint_field_header_size({}, payload_size) + payload_size",
                                     field.index,
                                 )?;
                             }
@@ -926,9 +941,9 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 4)?;
                             write_supers(buffer, indentation)?;
                             if varint_encoded(&field.r#type) {
-                                write!(buffer, "serialize_field_varint")?;
+                                write!(buffer, "serialize_varint_field")?;
                             } else {
-                                write!(buffer, "serialize_field_non_varint")?;
+                                write!(buffer, "serialize_non_varint_field")?;
                             }
                             writeln!(buffer, "(writer, {}, payload)?;", field.index)?;
                             write_indentation(buffer, indentation + 4)?;
@@ -940,9 +955,9 @@ fn write_schema<T: Write>(
                             write!(buffer, "(ref payload) => ")?;
                             write_supers(buffer, indentation)?;
                             if varint_encoded(&field.r#type) {
-                                write!(buffer, "serialize_field_varint")?;
+                                write!(buffer, "serialize_varint_field")?;
                             } else {
-                                write!(buffer, "serialize_field_non_varint")?;
+                                write!(buffer, "serialize_non_varint_field")?;
                             }
                             writeln!(buffer, "(writer, {}, payload),", field.index)?;
                         }
@@ -1389,65 +1404,148 @@ use std::{
 };
 
 #[rustfmt::skip]
-pub trait Serialize {
-    fn size(&self) -> u64;
+fn varint_size_from_value(value: u64) -> u64 {
+    let mut size = 1_u64;
+    let mut upper_bound_exclusive = 0_u64;
 
-    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
+    while size < 9_u64 {
+        upper_bound_exclusive += 1_u64 << (size * 7_u64);
+
+        if value < upper_bound_exclusive {
+            break;
+        }
+
+        size += 1_u64;
+    }
+
+    size
 }
 
 #[rustfmt::skip]
-pub trait Deserialize {
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead;
+fn varint_size_from_first_byte(first_byte: u8) -> u32 {
+    first_byte.trailing_zeros() + 1
 }
 
 #[rustfmt::skip]
-fn field_header_size_varint(index: u64) -> u64 {
-    ((index << 2) | 0b00).size()
+fn serialize_varint<T: Write>(value: u64, writer: &mut T) -> io::Result<()> {
+    let size = varint_size_from_value(value);
+    let size_minus_one = size - 1;
+
+    let mut x = value;
+    for i in 1..size {
+        x -= 1_u64 << (i * 7);
+    }
+
+    writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
+    x >>= 8_u64.saturating_sub(size);
+
+    for _ in 0..size_minus_one {
+        writer.write_all(&[x as u8])?;
+        x >>= 8;
+    }
+
+    Ok(())
 }
 
 #[rustfmt::skip]
-fn field_header_size_non_varint(index: u64, value_size: u64) -> u64 {
+fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {
+    let mut buffer = [0; 9];
+    reader.read_exact(&mut buffer[0..1])?;
+    let first_byte = buffer[0];
+    let size = varint_size_from_first_byte(first_byte) as usize;
+
+    reader.read_exact(&mut buffer[1..size])?;
+
+    let mut x = u64::from(first_byte) >> size;
+    let mut bits_read = 8_usize.saturating_sub(size);
+
+    for byte in buffer.iter().skip(1) {
+        x |= u64::from(*byte) << bits_read;
+        bits_read += 8;
+    }
+
+    for i in 1..size {
+        x = x
+            .checked_add(1_u64 << (i * 7))
+            .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Error decoding varint.\"))?;
+    }
+
+    Ok(x)
+}
+
+#[rustfmt::skip]
+fn varint_field_header_size(index: u64) -> u64 {
+    varint_size_from_value((index << 2) | 0b00)
+}
+
+#[rustfmt::skip]
+fn non_varint_field_header_size(index: u64, value_size: u64) -> u64 {
     match value_size {
-        0 => ((index << 2) | 0b01).size(),
-        8 => ((index << 2) | 0b10).size(),
-        size => ((index << 2) | 0b11).size() + size.size(),
+        0 => varint_size_from_value((index << 2) | 0b01),
+        8 => varint_size_from_value((index << 2) | 0b10),
+        size => varint_size_from_value((index << 2) | 0b11) + varint_size_from_value(size),
     }
 }
 
 #[rustfmt::skip]
-fn serialize_field_varint<T: Write, U: Serialize>(
+fn serialize_varint_field<T: Write, U: Serialize>(
     writer: &mut T,
     index: u64,
     value: &U,
 ) -> io::Result<()> {
-    ((index << 2) | 0b00).serialize(writer)?;
+    serialize_varint((index << 2) | 0b00, writer)?;
 
     value.serialize(writer)
 }
 
 #[rustfmt::skip]
-fn serialize_field_non_varint<T: Write, U: Serialize>(
+fn serialize_non_varint_field<T: Write, U: Serialize>(
     writer: &mut T,
     index: u64,
     value: &U,
 ) -> io::Result<()> {
     match value.size() {
         0 => {
-            ((index << 2) | 0b01).serialize(writer)?;
+            serialize_varint((index << 2) | 0b01, writer)?;
         }
         8 => {
-            ((index << 2) | 0b10).serialize(writer)?;
+            serialize_varint((index << 2) | 0b10, writer)?;
         }
         size => {
-            ((index << 2) | 0b11).serialize(writer)?;
-            size.serialize(writer)?;
+            serialize_varint((index << 2) | 0b11, writer)?;
+            serialize_varint(size, writer)?;
         }
     }
 
     value.serialize(writer)
+}
+
+#[rustfmt::skip]
+fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {
+    let tag = deserialize_varint(&mut *reader)?;
+
+    let index = tag >> 2;
+
+    let size = match tag & 0b11 {
+        0b00 => {
+            let buffer = (&mut *reader).fill_buf()?;
+
+            if buffer.is_empty() {
+                return Err(::std::io::Error::new(
+                    ::std::io::ErrorKind::UnexpectedEof,
+                    \"Error decoding field.\",
+                ));
+            }
+
+            u64::from(varint_size_from_first_byte(buffer[0]))
+        }
+        0b01 => 0,
+        0b10 => 8,
+        0b11 => deserialize_varint(&mut *reader)?,
+        _ => panic!(),
+    };
+
+    Ok((index, size))
 }
 
 #[rustfmt::skip]
@@ -1463,36 +1561,18 @@ fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
 }
 
 #[rustfmt::skip]
-fn u64_size(first_byte: u8) -> u32 {
-    first_byte.trailing_zeros() + 1
+pub trait Serialize {
+    fn size(&self) -> u64;
+
+    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
 }
 
 #[rustfmt::skip]
-fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {
-    let tag = u64::deserialize(&mut *reader)?;
-
-    let index = tag >> 2;
-
-    let size = match tag & 0b11 {
-        0b00 => {
-            let buffer = (&mut *reader).fill_buf()?;
-
-            if buffer.is_empty() {
-                return Err(::std::io::Error::new(
-                    ::std::io::ErrorKind::UnexpectedEof,
-                    \"Error decoding field.\",
-                ));
-            }
-
-            u64::from(u64_size(buffer[0]))
-        }
-        0b01 => 0,
-        0b10 => 8,
-        0b11 => u64::deserialize(&mut *reader)?,
-        _ => panic!(),
-    };
-
-    Ok((index, size))
+pub trait Deserialize {
+    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
+    where
+        Self: Sized,
+        T: BufRead;
 }
 
 #[rustfmt::skip]
@@ -1502,7 +1582,7 @@ impl Serialize for bool {
     }
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()> {
-        (*self as u64).serialize(writer)
+        serialize_varint(*self as u64, writer)
     }
 }
 
@@ -1522,40 +1602,11 @@ impl Deserialize for bool {
 #[rustfmt::skip]
 impl Serialize for u64 {
     fn size(&self) -> u64 {
-        let mut size = 1_u64;
-        let mut upper_bound_exclusive = 0_u64;
-
-        while size < 9_u64 {
-            upper_bound_exclusive += 1_u64 << (size * 7_u64);
-
-            if *self < upper_bound_exclusive {
-                break;
-            }
-
-            size += 1_u64;
-        }
-
-        size
+        varint_size_from_value(*self)
     }
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()> {
-        let size = self.size();
-        let size_minus_one = size - 1;
-
-        let mut x = *self;
-        for i in 1..size {
-            x -= 1_u64 << (i * 7);
-        }
-
-        writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
-        x >>= 8_u64.saturating_sub(size);
-
-        for _ in 0..size_minus_one {
-            writer.write_all(&[x as u8])?;
-            x >>= 8;
-        }
-
-        Ok(())
+        serialize_varint(*self, writer)
     }
 }
 
@@ -1566,28 +1617,7 @@ impl Deserialize for u64 {
         Self: Sized,
         T: BufRead,
     {
-        let mut buffer = [0; 9];
-        reader.read_exact(&mut buffer[0..1])?;
-        let first_byte = buffer[0];
-        let size = u64_size(first_byte) as usize;
-
-        reader.read_exact(&mut buffer[1..size])?;
-
-        let mut x = u64::from(first_byte) >> size;
-        let mut bits_read = 8_usize.saturating_sub(size);
-
-        for byte in buffer.iter().skip(1) {
-            x |= u64::from(*byte) << bits_read;
-            bits_read += 8;
-        }
-
-        for i in 1..size {
-            x = x.checked_add(1_u64 << (i * 7)).ok_or_else(|| {
-                Error::new(ErrorKind::InvalidData, \"Error decoding 64-bit integer.\")
-            })?;
-        }
-
-        Ok(x)
+        deserialize_varint(reader)
     }
 }
 
@@ -1770,17 +1800,17 @@ pub mod main {
         fn size(&self) -> u64 {
             match *self {
                 BarOut::X(ref payload) => {
-                    super::field_header_size_varint(0) + payload.size()
+                    super::varint_field_header_size(0) + payload.size()
                 }
                 BarOut::Y(ref payload, ref fallback) => {
                     let payload_size = payload.size();
-                    super::field_header_size_non_varint(1, payload_size) +
+                    super::non_varint_field_header_size(1, payload_size) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::Z(ref payload, ref fallback) => {
                     let payload_size = payload.size();
-                    super::field_header_size_non_varint(2, payload_size) +
+                    super::non_varint_field_header_size(2, payload_size) +
                         payload_size +
                         fallback.size()
                 }
@@ -1789,13 +1819,13 @@ pub mod main {
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             match *self {
-                BarOut::X(ref payload) => super::serialize_field_varint(writer, 0, payload),
+                BarOut::X(ref payload) => super::serialize_varint_field(writer, 0, payload),
                 BarOut::Y(ref payload, ref fallback) => {
-                    super::serialize_field_non_varint(writer, 1, payload)?;
+                    super::serialize_non_varint_field(writer, 1, payload)?;
                     fallback.serialize(writer)
                 }
                 BarOut::Z(ref payload, ref fallback) => {
-                    super::serialize_field_non_varint(writer, 2, payload)?;
+                    super::serialize_non_varint_field(writer, 2, payload)?;
                     fallback.serialize(writer)
                 }
             }
@@ -1865,23 +1895,23 @@ pub mod main {
     impl super::Serialize for FooOut {
         fn size(&self) -> u64 {
             ({
-                super::field_header_size_varint(0) + self.x.size()
+                super::varint_field_header_size(0) + self.x.size()
             }) + ({
                 let payload_size = self.y.size();
-                super::field_header_size_non_varint(1, payload_size) + payload_size
+                super::non_varint_field_header_size(1, payload_size) + payload_size
             }) + (
                 if let Some(payload) = &self.z {
                     let payload_size = payload.size();
-                    super::field_header_size_non_varint(2, payload_size) + payload.size()
+                    super::non_varint_field_header_size(2, payload_size) + payload.size()
                 } else { 0 }
             )
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-            super::serialize_field_varint(writer, 0, &self.x)?;
-            super::serialize_field_non_varint(writer, 1, &self.y)?;
+            super::serialize_varint_field(writer, 0, &self.x)?;
+            super::serialize_non_varint_field(writer, 1, &self.y)?;
             if let Some(inner) = &self.z {
-                super::serialize_field_non_varint(writer, 2, inner)?;
+                super::serialize_non_varint_field(writer, 2, inner)?;
             }
             Ok(())
         }
