@@ -109,17 +109,17 @@ pub trait Deserialize {{
 }}
 
 #[rustfmt::skip]
-fn field_size_varint<T: Serialize>(index: u64, value: &T) -> u64 {{
-    ((index << 2) | 0b00).size() + value.size()
+fn field_header_size_varint(index: u64) -> u64 {{
+    ((index << 2) | 0b00).size()
 }}
 
 #[rustfmt::skip]
-fn field_size_non_varint<T: Serialize>(index: u64, value: &T) -> u64 {{
-    (match value.size() {{
+fn field_header_size_non_varint(index: u64, value_size: u64) -> u64 {{
+    match value_size {{
         0 => ((index << 2) | 0b01).size(),
         8 => ((index << 2) | 0b10).size(),
         size => ((index << 2) | 0b11).size() + size.size(),
-    }}) + value.size()
+    }}
 }}
 
 #[rustfmt::skip]
@@ -174,9 +174,11 @@ fn u64_size(first_byte: u8) -> u32 {{
 
 #[rustfmt::skip]
 fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {{
-    let header = u64::deserialize(&mut *reader)?;
+    let tag = u64::deserialize(&mut *reader)?;
 
-    let size = match header & 0b11 {{
+    let index = tag >> 2;
+
+    let size = match tag & 0b11 {{
         0b00 => {{
             let buffer = (&mut *reader).fill_buf()?;
 
@@ -195,7 +197,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
         _ => panic!(),
     }};
 
-    Ok((header >> 2, size))
+    Ok((index, size))
 }}
 
 #[rustfmt::skip]
@@ -493,35 +495,87 @@ fn write_schema<T: Write>(
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "0")?;
-                for field in fields {
+                if fields.is_empty() {
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "0")?;
+                }
+                for (i, field) in fields.iter().enumerate() {
+                    let is_first = i == 0;
+                    let is_last = i == fields.len() - 1;
+
                     match field.cardinality {
                         schema::Cardinality::Optional => {
-                            write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "+ if let Some(inner) = &self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            write!(buffer, " {{ ")?;
-                            write_supers(buffer, indentation)?;
-                            if varint_encoded(&field.r#type) {
-                                write!(buffer, "field_size_varint")?;
-                            } else {
-                                write!(buffer, "field_size_non_varint")?;
+                            if is_first {
+                                write_indentation(buffer, indentation + 2)?;
                             }
-                            writeln!(buffer, "({}, inner) }} else {{ 0 }}", field.index)?;
+                            writeln!(buffer, "(")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            write!(buffer, "if let Some(payload) = &self.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, " {{")?;
+                            write_indentation(buffer, indentation + 4)?;
+                            if varint_encoded(&field.r#type) {
+                                write_supers(buffer, indentation)?;
+                                writeln!(
+                                    buffer,
+                                    "field_header_size_varint({}) + payload.size()",
+                                    field.index,
+                                )?;
+                            } else {
+                                writeln!(buffer, "let payload_size = payload.size();")?;
+                                write_indentation(buffer, indentation + 4)?;
+                                write_supers(buffer, indentation)?;
+                                writeln!(
+                                    buffer,
+                                    "field_header_size_non_varint({}, payload_size) + \
+                                        payload.size()",
+                                    field.index,
+                                )?;
+                            }
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(buffer, "}} else {{ 0 }}")?;
+                            write_indentation(buffer, indentation + 2)?;
+                            write!(buffer, ")")?;
+                            if is_last {
+                                writeln!(buffer)?;
+                            } else {
+                                write!(buffer, " + ")?;
+                            }
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
-                            write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "+ ")?;
-                            write_supers(buffer, indentation)?;
-                            if varint_encoded(&field.r#type) {
-                                write!(buffer, "field_size_varint")?;
-                            } else {
-                                write!(buffer, "field_size_non_varint")?;
+                            if is_first {
+                                write_indentation(buffer, indentation + 2)?;
                             }
-                            write!(buffer, "({}, &self.", field.index)?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ")")?;
+                            writeln!(buffer, "({{")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            if varint_encoded(&field.r#type) {
+                                write_supers(buffer, indentation)?;
+                                write!(
+                                    buffer,
+                                    "field_header_size_varint({}) + self.",
+                                    field.index,
+                                )?;
+                                write_identifier(buffer, &field.name, Snake, None)?;
+                                writeln!(buffer, ".size()")?;
+                            } else {
+                                write!(buffer, "let payload_size = self.")?;
+                                write_identifier(buffer, &field.name, Snake, None)?;
+                                writeln!(buffer, ".size();")?;
+                                write_indentation(buffer, indentation + 3)?;
+                                write_supers(buffer, indentation)?;
+                                writeln!(
+                                    buffer,
+                                    "field_header_size_non_varint({}, payload_size) + payload_size",
+                                    field.index,
+                                )?;
+                            }
+                            write_indentation(buffer, indentation + 2)?;
+                            write!(buffer, "}})")?;
+                            if is_last {
+                                writeln!(buffer)?;
+                            } else {
+                                write!(buffer, " + ")?;
+                            }
                         }
                     }
                 }
@@ -799,24 +853,52 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.cardinality {
                         schema::Cardinality::Optional | schema::Cardinality::Unstable => {
-                            write!(buffer, "(ref payload, ref fallback) => ")?;
-                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            write_indentation(buffer, indentation + 4)?;
                             if varint_encoded(&field.r#type) {
-                                write!(buffer, "field_size_varint")?;
+                                write_supers(buffer, indentation)?;
+                                writeln!(buffer, "field_header_size_varint({}) +", field.index)?;
+                                write_indentation(buffer, indentation + 5)?;
+                                writeln!(buffer, "payload.size() +")?;
                             } else {
-                                write!(buffer, "field_size_non_varint")?;
+                                writeln!(buffer, "let payload_size = payload.size();")?;
+                                write_indentation(buffer, indentation + 4)?;
+                                write_supers(buffer, indentation)?;
+                                writeln!(
+                                    buffer,
+                                    "field_header_size_non_varint({}, payload_size) +",
+                                    field.index,
+                                )?;
+                                write_indentation(buffer, indentation + 5)?;
+                                writeln!(buffer, "payload_size +")?;
                             }
-                            writeln!(buffer, "({}, payload) + fallback.size(),", field.index)?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "fallback.size()")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(buffer, "}}")?;
                         }
                         schema::Cardinality::Required => {
-                            write!(buffer, "(ref payload) => ")?;
-                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "(ref payload) => {{")?;
+                            write_indentation(buffer, indentation + 4)?;
                             if varint_encoded(&field.r#type) {
-                                write!(buffer, "field_size_varint")?;
+                                write_supers(buffer, indentation)?;
+                                writeln!(
+                                    buffer,
+                                    "field_header_size_varint({}) + payload.size()",
+                                    field.index,
+                                )?;
                             } else {
-                                write!(buffer, "field_size_non_varint")?;
+                                writeln!(buffer, "let payload_size = payload.size();")?;
+                                write_indentation(buffer, indentation + 4)?;
+                                write_supers(buffer, indentation)?;
+                                writeln!(
+                                    buffer,
+                                    "field_header_size_non_varint({}, payload_size) + payload_size",
+                                    field.index,
+                                )?;
                             }
-                            writeln!(buffer, "({}, payload),", field.index)?;
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(buffer, "}}")?;
                         }
                     }
                 }
@@ -1322,17 +1404,17 @@ pub trait Deserialize {
 }
 
 #[rustfmt::skip]
-fn field_size_varint<T: Serialize>(index: u64, value: &T) -> u64 {
-    ((index << 2) | 0b00).size() + value.size()
+fn field_header_size_varint(index: u64) -> u64 {
+    ((index << 2) | 0b00).size()
 }
 
 #[rustfmt::skip]
-fn field_size_non_varint<T: Serialize>(index: u64, value: &T) -> u64 {
-    (match value.size() {
+fn field_header_size_non_varint(index: u64, value_size: u64) -> u64 {
+    match value_size {
         0 => ((index << 2) | 0b01).size(),
         8 => ((index << 2) | 0b10).size(),
         size => ((index << 2) | 0b11).size() + size.size(),
-    }) + value.size()
+    }
 }
 
 #[rustfmt::skip]
@@ -1387,9 +1469,11 @@ fn u64_size(first_byte: u8) -> u32 {
 
 #[rustfmt::skip]
 fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {
-    let header = u64::deserialize(&mut *reader)?;
+    let tag = u64::deserialize(&mut *reader)?;
 
-    let size = match header & 0b11 {
+    let index = tag >> 2;
+
+    let size = match tag & 0b11 {
         0b00 => {
             let buffer = (&mut *reader).fill_buf()?;
 
@@ -1408,7 +1492,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
         _ => panic!(),
     };
 
-    Ok((header >> 2, size))
+    Ok((index, size))
 }
 
 #[rustfmt::skip]
@@ -1685,11 +1769,21 @@ pub mod main {
     impl super::Serialize for BarOut {
         fn size(&self) -> u64 {
             match *self {
-                BarOut::X(ref payload) => super::field_size_varint(0, payload),
-                BarOut::Y(ref payload, ref fallback) => \
-                    super::field_size_non_varint(1, payload) + fallback.size(),
-                BarOut::Z(ref payload, ref fallback) => \
-                    super::field_size_non_varint(2, payload) + fallback.size(),
+                BarOut::X(ref payload) => {
+                    super::field_header_size_varint(0) + payload.size()
+                }
+                BarOut::Y(ref payload, ref fallback) => {
+                    let payload_size = payload.size();
+                    super::field_header_size_non_varint(1, payload_size) +
+                        payload_size +
+                        fallback.size()
+                }
+                BarOut::Z(ref payload, ref fallback) => {
+                    let payload_size = payload.size();
+                    super::field_header_size_non_varint(2, payload_size) +
+                        payload_size +
+                        fallback.size()
+                }
             }
         }
 
@@ -1770,10 +1864,17 @@ pub mod main {
 
     impl super::Serialize for FooOut {
         fn size(&self) -> u64 {
-            0
-                + super::field_size_varint(0, &self.x)
-                + super::field_size_non_varint(1, &self.y)
-                + if let Some(inner) = &self.z { super::field_size_non_varint(2, inner) } else { 0 }
+            ({
+                super::field_header_size_varint(0) + self.x.size()
+            }) + ({
+                let payload_size = self.y.size();
+                super::field_header_size_non_varint(1, payload_size) + payload_size
+            }) + (
+                if let Some(payload) = &self.z {
+                    let payload_size = payload.size();
+                    super::field_header_size_non_varint(2, payload_size) + payload.size()
+                } else { 0 }
+            )
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
