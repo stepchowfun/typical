@@ -12,6 +12,7 @@ pub const CHOICE_KEYWORD: &str = "choice";
 pub const F64_KEYWORD: &str = "f64";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const OPTIONAL_KEYWORD: &str = "optional";
+pub const STRING_KEYWORD: &str = "string";
 pub const STRUCT_KEYWORD: &str = "struct";
 pub const U64_KEYWORD: &str = "u64";
 pub const UNSTABLE_KEYWORD: &str = "unstable";
@@ -42,6 +43,7 @@ pub enum Variant {
     Optional,
     Path(PathBuf),
     RightCurly,
+    String,
     Struct,
     U64,
     Unstable,
@@ -71,6 +73,7 @@ impl Display for Variant {
             Self::Optional => write!(f, "{}", OPTIONAL_KEYWORD),
             Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::RightCurly => write!(f, "}}"),
+            Self::String => write!(f, "{}", STRING_KEYWORD),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
             Self::U64 => write!(f, "{}", U64_KEYWORD),
             Self::Unstable => write!(f, "{}", UNSTABLE_KEYWORD),
@@ -84,7 +87,8 @@ mod tests {
         error::SourceRange,
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
-            IMPORT_KEYWORD, OPTIONAL_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNSTABLE_KEYWORD,
+            IMPORT_KEYWORD, OPTIONAL_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD,
+            UNSTABLE_KEYWORD,
         },
     };
     use std::path::Path;
@@ -179,6 +183,11 @@ mod tests {
     #[test]
     fn variant_right_curly_display() {
         assert_eq!(format!("{}", Variant::RightCurly), "}");
+    }
+
+    #[test]
+    fn variant_string_display() {
+        assert_eq!(format!("{}", Variant::String), STRING_KEYWORD);
     }
 
     #[test]
