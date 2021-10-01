@@ -416,9 +416,9 @@ fn write_schema<T: Write>(
                     }
                     match field.cardinality {
                         schema::Cardinality::Optional => {
-                            write!(buffer, "(if let Some(payload) = &self.")?;
+                            write!(buffer, "self.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, " {{")?;
+                            writeln!(buffer, ".as_ref().map_or(0, |payload| {{")?;
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
                             writeln!(buffer, "({{")?;
@@ -447,16 +447,8 @@ fn write_schema<T: Write>(
                             field.index,
                         )?;
                     }
-                    match field.cardinality {
-                        schema::Cardinality::Optional => {
-                            write_indentation(buffer, indentation + 2)?;
-                            write!(buffer, "}} else {{ 0 }})")?;
-                        }
-                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
-                            write_indentation(buffer, indentation + 2)?;
-                            write!(buffer, "}})")?;
-                        }
-                    }
+                    write_indentation(buffer, indentation + 2)?;
+                    write!(buffer, "}})")?;
                     if is_last {
                         writeln!(buffer)?;
                     } else {
@@ -530,7 +522,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>",
+                    "fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>",
                 )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "where")?;
@@ -864,7 +856,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
-                    "fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>",
+                    "fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>",
                 )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "where")?;
@@ -1117,11 +1109,14 @@ fn write_type<T: Write>(
         schema::TypeVariant::Bool => {
             write!(buffer, "bool")?;
         }
+        schema::TypeVariant::Bytes => {
+            write!(buffer, "Vec<u8>")?;
+        }
         schema::TypeVariant::F64 => {
             write!(buffer, "f64")?;
         }
-        schema::TypeVariant::Bytes => {
-            write!(buffer, "Vec<u8>")?;
+        schema::TypeVariant::String => {
+            write!(buffer, "String")?;
         }
         schema::TypeVariant::U64 => {
             write!(buffer, "u64")?;
@@ -1215,7 +1210,9 @@ fn write_size_calculation_invocation<T: Write>(
 ) -> Result<(), fmt::Error> {
     match &r#type.variant {
         schema::TypeVariant::Bool => write!(buffer, "1_u64"),
-        schema::TypeVariant::Bytes => write!(buffer, "payload.len() as u64"),
+        schema::TypeVariant::Bytes | schema::TypeVariant::String => {
+            write!(buffer, "payload.len() as u64")
+        }
         schema::TypeVariant::F64 => write!(buffer, "8_u64"),
         schema::TypeVariant::U64 => {
             write_supers(buffer, supers)?;
@@ -1241,6 +1238,7 @@ fn write_serialization_invocation<T: Write>(
         }
         schema::TypeVariant::Bytes => writeln!(buffer, "writer.write_all(payload)?;"),
         schema::TypeVariant::F64 => writeln!(buffer, "writer.write_all(&payload.to_le_bytes())?;"),
+        schema::TypeVariant::String => writeln!(buffer, "writer.write_all(payload.as_bytes())?;"),
         schema::TypeVariant::U64 => {
             write_supers(buffer, supers)?;
             writeln!(buffer, "serialize_varint(*payload, writer)?;")
@@ -1262,14 +1260,14 @@ fn write_deserialization_invocation<T: Write>(
 
     match &r#type.variant {
         schema::TypeVariant::Bool => {
-            writeln!(buffer, "let mut buffer = [0u8];")?;
+            writeln!(buffer, "let mut buffer = [0_u8];")?;
             write_indentation(buffer, indentation)?;
             writeln!(
                 buffer,
                 "::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;",
             )?;
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "let payload = buffer[0] != 0b00000001;")
+            writeln!(buffer, "let payload = buffer[0] != 0b0000_0001;")
         }
         schema::TypeVariant::Bytes => {
             writeln!(buffer, "let mut payload = vec![];")?;
@@ -1288,6 +1286,28 @@ fn write_deserialization_invocation<T: Write>(
             )?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "let payload = f64::from_le_bytes(buffer);")
+        }
+        schema::TypeVariant::String => {
+            writeln!(buffer, "let mut buffer = vec![];")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;",
+            )?;
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "let payload = std::str::from_utf8(&buffer).map_or_else(",
+            )?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(
+                buffer,
+                "|err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),",
+            )?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "|result| Ok(result.to_owned()),")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, ")?;")
         }
         schema::TypeVariant::U64 => {
             write!(buffer, "let payload = ")?;
@@ -1308,8 +1328,9 @@ fn write_deserialization_invocation<T: Write>(
 fn varint_encoded(r#type: &schema::Type) -> bool {
     match &r#type.variant {
         schema::TypeVariant::Bool | schema::TypeVariant::U64 => true,
-        schema::TypeVariant::F64
-        | schema::TypeVariant::Bytes
+        schema::TypeVariant::Bytes
+        | schema::TypeVariant::F64
+        | schema::TypeVariant::String
         | schema::TypeVariant::Custom(_, _) => false,
     }
 }
@@ -1563,7 +1584,7 @@ pub mod basic {
         }
 
         impl super::super::Deserialize for UnitIn {
-            fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
             where
                 Self: Sized,
                 T: ::std::io::BufRead,
@@ -1624,7 +1645,7 @@ pub mod basic {
         }
 
         impl super::super::Deserialize for VoidIn {
-            fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
             where
                 Self: Sized,
                 T: ::std::io::BufRead,
@@ -1656,38 +1677,44 @@ pub mod basic {
 pub mod main {
     #[derive(Clone, Debug)]
     pub enum BarOut {
-        VRequired(bool),
-        WRequired(Vec<u8>),
-        XRequired(f64),
+        URequired(bool),
+        VRequired(Vec<u8>),
+        WRequired(f64),
+        XRequired(String),
         YRequired(u64),
         ZRequired(super::basic::unit::UnitOut),
-        VUnstable(bool, Box<BarOut>),
-        WUnstable(Vec<u8>, Box<BarOut>),
-        XUnstable(f64, Box<BarOut>),
+        UUnstable(bool, Box<BarOut>),
+        VUnstable(Vec<u8>, Box<BarOut>),
+        WUnstable(f64, Box<BarOut>),
+        XUnstable(String, Box<BarOut>),
         YUnstable(u64, Box<BarOut>),
         ZUnstable(super::basic::unit::UnitOut, Box<BarOut>),
-        VOptional(bool, Box<BarOut>),
-        WOptional(Vec<u8>, Box<BarOut>),
-        XOptional(f64, Box<BarOut>),
+        UOptional(bool, Box<BarOut>),
+        VOptional(Vec<u8>, Box<BarOut>),
+        WOptional(f64, Box<BarOut>),
+        XOptional(String, Box<BarOut>),
         YOptional(u64, Box<BarOut>),
         ZOptional(super::basic::unit::UnitOut, Box<BarOut>),
     }
 
     #[derive(Clone, Debug)]
     pub enum BarIn {
-        VRequired(bool),
-        WRequired(Vec<u8>),
-        XRequired(f64),
+        URequired(bool),
+        VRequired(Vec<u8>),
+        WRequired(f64),
+        XRequired(String),
         YRequired(u64),
         ZRequired(super::basic::unit::UnitIn),
-        VUnstable(bool),
-        WUnstable(Vec<u8>),
-        XUnstable(f64),
+        UUnstable(bool),
+        VUnstable(Vec<u8>),
+        WUnstable(f64),
+        XUnstable(String),
         YUnstable(u64),
         ZUnstable(super::basic::unit::UnitIn),
-        VOptional(bool, Box<BarIn>),
-        WOptional(Vec<u8>, Box<BarIn>),
-        XOptional(f64, Box<BarIn>),
+        UOptional(bool, Box<BarIn>),
+        VOptional(Vec<u8>, Box<BarIn>),
+        WOptional(f64, Box<BarIn>),
+        XOptional(String, Box<BarIn>),
         YOptional(u64, Box<BarIn>),
         ZOptional(super::basic::unit::UnitIn, Box<BarIn>),
     }
@@ -1695,88 +1722,105 @@ pub mod main {
     impl super::Serialize for BarOut {
         fn size(&self) -> u64 {
             match *self {
-                BarOut::VRequired(ref payload) => {
+                BarOut::URequired(ref payload) => {
                     let payload_size = 1_u64;
                     super::varint_field_header_size(0) +
                         payload_size
                 }
-                BarOut::WRequired(ref payload) => {
+                BarOut::VRequired(ref payload) => {
                     let payload_size = payload.len() as u64;
                     super::non_varint_field_header_size(1, payload_size) +
                         payload_size
                 }
-                BarOut::XRequired(ref payload) => {
+                BarOut::WRequired(ref payload) => {
                     let payload_size = 8_u64;
                     super::non_varint_field_header_size(2, payload_size) +
                         payload_size
                 }
+                BarOut::XRequired(ref payload) => {
+                    let payload_size = payload.len() as u64;
+                    super::non_varint_field_header_size(3, payload_size) +
+                        payload_size
+                }
                 BarOut::YRequired(ref payload) => {
                     let payload_size = super::varint_size_from_value(*payload);
-                    super::varint_field_header_size(3) +
+                    super::varint_field_header_size(4) +
                         payload_size
                 }
                 BarOut::ZRequired(ref payload) => {
                     let payload_size = payload.size();
-                    super::non_varint_field_header_size(4, payload_size) +
+                    super::non_varint_field_header_size(5, payload_size) +
                         payload_size
                 }
-                BarOut::VUnstable(ref payload, ref fallback) => {
+                BarOut::UUnstable(ref payload, ref fallback) => {
                     let payload_size = 1_u64;
-                    super::varint_field_header_size(5) +
+                    super::varint_field_header_size(6) +
+                        payload_size +
+                        fallback.size()
+                }
+                BarOut::VUnstable(ref payload, ref fallback) => {
+                    let payload_size = payload.len() as u64;
+                    super::non_varint_field_header_size(7, payload_size) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::WUnstable(ref payload, ref fallback) => {
-                    let payload_size = payload.len() as u64;
-                    super::non_varint_field_header_size(6, payload_size) +
+                    let payload_size = 8_u64;
+                    super::non_varint_field_header_size(8, payload_size) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::XUnstable(ref payload, ref fallback) => {
-                    let payload_size = 8_u64;
-                    super::non_varint_field_header_size(7, payload_size) +
+                    let payload_size = payload.len() as u64;
+                    super::non_varint_field_header_size(9, payload_size) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::YUnstable(ref payload, ref fallback) => {
                     let payload_size = super::varint_size_from_value(*payload);
-                    super::varint_field_header_size(8) +
+                    super::varint_field_header_size(10) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::ZUnstable(ref payload, ref fallback) => {
                     let payload_size = payload.size();
-                    super::non_varint_field_header_size(9, payload_size) +
-                        payload_size +
-                        fallback.size()
-                }
-                BarOut::VOptional(ref payload, ref fallback) => {
-                    let payload_size = 1_u64;
-                    super::varint_field_header_size(10) +
-                        payload_size +
-                        fallback.size()
-                }
-                BarOut::WOptional(ref payload, ref fallback) => {
-                    let payload_size = payload.len() as u64;
                     super::non_varint_field_header_size(11, payload_size) +
                         payload_size +
                         fallback.size()
                 }
-                BarOut::XOptional(ref payload, ref fallback) => {
+                BarOut::UOptional(ref payload, ref fallback) => {
+                    let payload_size = 1_u64;
+                    super::varint_field_header_size(12) +
+                        payload_size +
+                        fallback.size()
+                }
+                BarOut::VOptional(ref payload, ref fallback) => {
+                    let payload_size = payload.len() as u64;
+                    super::non_varint_field_header_size(13, payload_size) +
+                        payload_size +
+                        fallback.size()
+                }
+                BarOut::WOptional(ref payload, ref fallback) => {
                     let payload_size = 8_u64;
-                    super::non_varint_field_header_size(12, payload_size) +
+                    super::non_varint_field_header_size(14, payload_size) +
+                        payload_size +
+                        fallback.size()
+                }
+                BarOut::XOptional(ref payload, ref fallback) => {
+                    let payload_size = payload.len() as u64;
+                    super::non_varint_field_header_size(15, payload_size) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::YOptional(ref payload, ref fallback) => {
                     let payload_size = super::varint_size_from_value(*payload);
-                    super::varint_field_header_size(13) +
+                    super::varint_field_header_size(16) +
                         payload_size +
                         fallback.size()
                 }
                 BarOut::ZOptional(ref payload, ref fallback) => {
                     let payload_size = payload.size();
-                    super::non_varint_field_header_size(14, payload_size) +
+                    super::non_varint_field_header_size(17, payload_size) +
                         payload_size +
                         fallback.size()
                 }
@@ -1785,78 +1829,93 @@ pub mod main {
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             match *self {
-                BarOut::VRequired(ref payload) => {
+                BarOut::URequired(ref payload) => {
                     super::serialize_varint_field_header(writer, 0)?;
                     super::serialize_varint(*payload as u64, writer)?;
                     Ok(())
                 }
-                BarOut::WRequired(ref payload) => {
+                BarOut::VRequired(ref payload) => {
                     super::serialize_non_varint_field_header(writer, 1, payload.len() as u64)?;
                     writer.write_all(payload)?;
                     Ok(())
                 }
-                BarOut::XRequired(ref payload) => {
+                BarOut::WRequired(ref payload) => {
                     super::serialize_non_varint_field_header(writer, 2, 8_u64)?;
                     writer.write_all(&payload.to_le_bytes())?;
                     Ok(())
                 }
+                BarOut::XRequired(ref payload) => {
+                    super::serialize_non_varint_field_header(writer, 3, payload.len() as u64)?;
+                    writer.write_all(payload.as_bytes())?;
+                    Ok(())
+                }
                 BarOut::YRequired(ref payload) => {
-                    super::serialize_varint_field_header(writer, 3)?;
+                    super::serialize_varint_field_header(writer, 4)?;
                     super::serialize_varint(*payload, writer)?;
                     Ok(())
                 }
                 BarOut::ZRequired(ref payload) => {
-                    super::serialize_non_varint_field_header(writer, 4, payload.size())?;
+                    super::serialize_non_varint_field_header(writer, 5, payload.size())?;
                     payload.serialize(writer)?;
                     Ok(())
                 }
-                BarOut::VUnstable(ref payload, ref fallback) => {
-                    super::serialize_varint_field_header(writer, 5)?;
+                BarOut::UUnstable(ref payload, ref fallback) => {
+                    super::serialize_varint_field_header(writer, 6)?;
                     super::serialize_varint(*payload as u64, writer)?;
                     fallback.serialize(writer)
                 }
-                BarOut::WUnstable(ref payload, ref fallback) => {
-                    super::serialize_non_varint_field_header(writer, 6, payload.len() as u64)?;
+                BarOut::VUnstable(ref payload, ref fallback) => {
+                    super::serialize_non_varint_field_header(writer, 7, payload.len() as u64)?;
                     writer.write_all(payload)?;
                     fallback.serialize(writer)
                 }
-                BarOut::XUnstable(ref payload, ref fallback) => {
-                    super::serialize_non_varint_field_header(writer, 7, 8_u64)?;
+                BarOut::WUnstable(ref payload, ref fallback) => {
+                    super::serialize_non_varint_field_header(writer, 8, 8_u64)?;
                     writer.write_all(&payload.to_le_bytes())?;
                     fallback.serialize(writer)
                 }
+                BarOut::XUnstable(ref payload, ref fallback) => {
+                    super::serialize_non_varint_field_header(writer, 9, payload.len() as u64)?;
+                    writer.write_all(payload.as_bytes())?;
+                    fallback.serialize(writer)
+                }
                 BarOut::YUnstable(ref payload, ref fallback) => {
-                    super::serialize_varint_field_header(writer, 8)?;
+                    super::serialize_varint_field_header(writer, 10)?;
                     super::serialize_varint(*payload, writer)?;
                     fallback.serialize(writer)
                 }
                 BarOut::ZUnstable(ref payload, ref fallback) => {
-                    super::serialize_non_varint_field_header(writer, 9, payload.size())?;
+                    super::serialize_non_varint_field_header(writer, 11, payload.size())?;
                     payload.serialize(writer)?;
                     fallback.serialize(writer)
                 }
-                BarOut::VOptional(ref payload, ref fallback) => {
-                    super::serialize_varint_field_header(writer, 10)?;
+                BarOut::UOptional(ref payload, ref fallback) => {
+                    super::serialize_varint_field_header(writer, 12)?;
                     super::serialize_varint(*payload as u64, writer)?;
                     fallback.serialize(writer)
                 }
-                BarOut::WOptional(ref payload, ref fallback) => {
-                    super::serialize_non_varint_field_header(writer, 11, payload.len() as u64)?;
+                BarOut::VOptional(ref payload, ref fallback) => {
+                    super::serialize_non_varint_field_header(writer, 13, payload.len() as u64)?;
                     writer.write_all(payload)?;
                     fallback.serialize(writer)
                 }
-                BarOut::XOptional(ref payload, ref fallback) => {
-                    super::serialize_non_varint_field_header(writer, 12, 8_u64)?;
+                BarOut::WOptional(ref payload, ref fallback) => {
+                    super::serialize_non_varint_field_header(writer, 14, 8_u64)?;
                     writer.write_all(&payload.to_le_bytes())?;
                     fallback.serialize(writer)
                 }
+                BarOut::XOptional(ref payload, ref fallback) => {
+                    super::serialize_non_varint_field_header(writer, 15, payload.len() as u64)?;
+                    writer.write_all(payload.as_bytes())?;
+                    fallback.serialize(writer)
+                }
                 BarOut::YOptional(ref payload, ref fallback) => {
-                    super::serialize_varint_field_header(writer, 13)?;
+                    super::serialize_varint_field_header(writer, 16)?;
                     super::serialize_varint(*payload, writer)?;
                     fallback.serialize(writer)
                 }
                 BarOut::ZOptional(ref payload, ref fallback) => {
-                    super::serialize_non_varint_field_header(writer, 14, payload.size())?;
+                    super::serialize_non_varint_field_header(writer, 17, payload.size())?;
                     payload.serialize(writer)?;
                     fallback.serialize(writer)
                 }
@@ -1865,7 +1924,7 @@ pub mod main {
     }
 
     impl super::Deserialize for BarIn {
-        fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
+        fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
         where
             Self: Sized,
             T: ::std::io::BufRead,
@@ -1877,87 +1936,116 @@ pub mod main {
 
                 match index {
                     0 => {
-                        let mut buffer = [0u8];
+                        let mut buffer = [0_u8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        let payload = buffer[0] != 0b00000001;
-                        return Ok(BarIn::VRequired(payload));
+                        let payload = buffer[0] != 0b0000_0001;
+                        return Ok(BarIn::URequired(payload));
                     }
                     1 => {
                         let mut payload = vec![];
                         ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                        return Ok(BarIn::WRequired(payload));
+                        return Ok(BarIn::VRequired(payload));
                     }
                     2 => {
                         let mut buffer = [0; 8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                         let payload = f64::from_le_bytes(buffer);
-                        return Ok(BarIn::XRequired(payload));
+                        return Ok(BarIn::WRequired(payload));
                     }
                     3 => {
+                        let mut buffer = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                        let payload = std::str::from_utf8(&buffer).map_or_else(
+                            |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                            |result| Ok(result.to_owned()),
+                        )?;
+                        return Ok(BarIn::XRequired(payload));
+                    }
+                    4 => {
                         let payload = super::deserialize_varint(&mut sub_reader)?;
                         return Ok(BarIn::YRequired(payload));
                     }
-                    4 => {
+                    5 => {
                         let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?;
                         return Ok(BarIn::ZRequired(payload));
                     }
-                    5 => {
-                        let mut buffer = [0u8];
-                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        let payload = buffer[0] != 0b00000001;
-                        return Ok(BarIn::VUnstable(payload));
-                    }
                     6 => {
-                        let mut payload = vec![];
-                        ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                        return Ok(BarIn::WUnstable(payload));
+                        let mut buffer = [0_u8];
+                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        let payload = buffer[0] != 0b0000_0001;
+                        return Ok(BarIn::UUnstable(payload));
                     }
                     7 => {
+                        let mut payload = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                        return Ok(BarIn::VUnstable(payload));
+                    }
+                    8 => {
                         let mut buffer = [0; 8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                         let payload = f64::from_le_bytes(buffer);
+                        return Ok(BarIn::WUnstable(payload));
+                    }
+                    9 => {
+                        let mut buffer = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                        let payload = std::str::from_utf8(&buffer).map_or_else(
+                            |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                            |result| Ok(result.to_owned()),
+                        )?;
                         return Ok(BarIn::XUnstable(payload));
                     }
-                    8 => {
+                    10 => {
                         let payload = super::deserialize_varint(&mut sub_reader)?;
                         return Ok(BarIn::YUnstable(payload));
                     }
-                    9 => {
+                    11 => {
                         let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?;
                         return Ok(BarIn::ZUnstable(payload));
                     }
-                    10 => {
-                        let mut buffer = [0u8];
+                    12 => {
+                        let mut buffer = [0_u8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        let payload = buffer[0] != 0b00000001;
+                        let payload = buffer[0] != 0b0000_0001;
                         let fallback = Box::new(<BarIn as super::Deserialize>::\
                             deserialize(&mut *reader)?);
-                        return Ok(BarIn::VOptional(payload, fallback));
+                        return Ok(BarIn::UOptional(payload, fallback));
                     }
-                    11 => {
+                    13 => {
                         let mut payload = vec![];
                         ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
                         let fallback = Box::new(<BarIn as super::Deserialize>::\
                             deserialize(&mut *reader)?);
-                        return Ok(BarIn::WOptional(payload, fallback));
+                        return Ok(BarIn::VOptional(payload, fallback));
                     }
-                    12 => {
+                    14 => {
                         let mut buffer = [0; 8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                         let payload = f64::from_le_bytes(buffer);
                         let fallback = Box::new(<BarIn as super::Deserialize>::\
                             deserialize(&mut *reader)?);
+                        return Ok(BarIn::WOptional(payload, fallback));
+                    }
+                    15 => {
+                        let mut buffer = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                        let payload = std::str::from_utf8(&buffer).map_or_else(
+                            |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                            |result| Ok(result.to_owned()),
+                        )?;
+                        let fallback = Box::new(<BarIn as super::Deserialize>::\
+                            deserialize(&mut *reader)?);
                         return Ok(BarIn::XOptional(payload, fallback));
                     }
-                    13 => {
+                    16 => {
                         let payload = super::deserialize_varint(&mut sub_reader)?;
                         let fallback = Box::new(<BarIn as super::Deserialize>::\
                             deserialize(&mut *reader)?);
                         return Ok(BarIn::YOptional(payload, fallback));
                     }
-                    14 => {
+                    17 => {
                         let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?;
                         let fallback = Box::new(<BarIn as super::Deserialize>::\
@@ -1975,16 +2063,20 @@ pub mod main {
     impl From<BarOut> for BarIn {
         fn from(message: BarOut) -> Self {
             match message {
+                BarOut::URequired(payload) => BarIn::URequired(payload.into()),
                 BarOut::VRequired(payload) => BarIn::VRequired(payload.into()),
                 BarOut::WRequired(payload) => BarIn::WRequired(payload.into()),
                 BarOut::XRequired(payload) => BarIn::XRequired(payload.into()),
                 BarOut::YRequired(payload) => BarIn::YRequired(payload.into()),
                 BarOut::ZRequired(payload) => BarIn::ZRequired(payload.into()),
+                BarOut::UUnstable(payload, _) => BarIn::UUnstable(payload.into()),
                 BarOut::VUnstable(payload, _) => BarIn::VUnstable(payload.into()),
                 BarOut::WUnstable(payload, _) => BarIn::WUnstable(payload.into()),
                 BarOut::XUnstable(payload, _) => BarIn::XUnstable(payload.into()),
                 BarOut::YUnstable(payload, _) => BarIn::YUnstable(payload.into()),
                 BarOut::ZUnstable(payload, _) => BarIn::ZUnstable(payload.into()),
+                BarOut::UOptional(payload, fallback) => \
+                    BarIn::UOptional(payload.into(), Box::new((*fallback).into())),
                 BarOut::VOptional(payload, fallback) => \
                     BarIn::VOptional(payload.into(), Box::new((*fallback).into())),
                 BarOut::WOptional(payload, fallback) => \
@@ -2001,38 +2093,44 @@ pub mod main {
 
     #[derive(Clone, Debug)]
     pub struct FooOut {
-        pub v_required: bool,
-        pub w_required: Vec<u8>,
-        pub x_required: f64,
+        pub u_required: bool,
+        pub v_required: Vec<u8>,
+        pub w_required: f64,
+        pub x_required: String,
         pub y_required: u64,
         pub z_required: super::basic::unit::UnitOut,
-        pub v_unstable: bool,
-        pub w_unstable: Vec<u8>,
-        pub x_unstable: f64,
+        pub u_unstable: bool,
+        pub v_unstable: Vec<u8>,
+        pub w_unstable: f64,
+        pub x_unstable: String,
         pub y_unstable: u64,
         pub z_unstable: super::basic::unit::UnitOut,
-        pub v_optional: Option<bool>,
-        pub w_optional: Option<Vec<u8>>,
-        pub x_optional: Option<f64>,
+        pub u_optional: Option<bool>,
+        pub v_optional: Option<Vec<u8>>,
+        pub w_optional: Option<f64>,
+        pub x_optional: Option<String>,
         pub y_optional: Option<u64>,
         pub z_optional: Option<super::basic::unit::UnitOut>,
     }
 
     #[derive(Clone, Debug)]
     pub struct FooIn {
-        pub v_required: bool,
-        pub w_required: Vec<u8>,
-        pub x_required: f64,
+        pub u_required: bool,
+        pub v_required: Vec<u8>,
+        pub w_required: f64,
+        pub x_required: String,
         pub y_required: u64,
         pub z_required: super::basic::unit::UnitIn,
-        pub v_unstable: Option<bool>,
-        pub w_unstable: Option<Vec<u8>>,
-        pub x_unstable: Option<f64>,
+        pub u_unstable: Option<bool>,
+        pub v_unstable: Option<Vec<u8>>,
+        pub w_unstable: Option<f64>,
+        pub x_unstable: Option<String>,
         pub y_unstable: Option<u64>,
         pub z_unstable: Option<super::basic::unit::UnitIn>,
-        pub v_optional: Option<bool>,
-        pub w_optional: Option<Vec<u8>>,
-        pub x_optional: Option<f64>,
+        pub u_optional: Option<bool>,
+        pub v_optional: Option<Vec<u8>>,
+        pub w_optional: Option<f64>,
+        pub x_optional: Option<String>,
         pub y_optional: Option<u64>,
         pub z_optional: Option<super::basic::unit::UnitIn>,
     }
@@ -2040,161 +2138,192 @@ pub mod main {
     impl super::Serialize for FooOut {
         fn size(&self) -> u64 {
             ({
-                let payload = &self.v_required;
+                let payload = &self.u_required;
                 let payload_size = 1_u64;
                 super::varint_field_header_size(0) + payload_size
             }) + ({
-                let payload = &self.w_required;
+                let payload = &self.v_required;
                 let payload_size = payload.len() as u64;
                 super::non_varint_field_header_size(1, payload_size) + payload_size
             }) + ({
-                let payload = &self.x_required;
+                let payload = &self.w_required;
                 let payload_size = 8_u64;
                 super::non_varint_field_header_size(2, payload_size) + payload_size
             }) + ({
+                let payload = &self.x_required;
+                let payload_size = payload.len() as u64;
+                super::non_varint_field_header_size(3, payload_size) + payload_size
+            }) + ({
                 let payload = &self.y_required;
                 let payload_size = super::varint_size_from_value(*payload);
-                super::varint_field_header_size(3) + payload_size
+                super::varint_field_header_size(4) + payload_size
             }) + ({
                 let payload = &self.z_required;
                 let payload_size = payload.size();
-                super::non_varint_field_header_size(4, payload_size) + payload_size
+                super::non_varint_field_header_size(5, payload_size) + payload_size
+            }) + ({
+                let payload = &self.u_unstable;
+                let payload_size = 1_u64;
+                super::varint_field_header_size(6) + payload_size
             }) + ({
                 let payload = &self.v_unstable;
-                let payload_size = 1_u64;
-                super::varint_field_header_size(5) + payload_size
+                let payload_size = payload.len() as u64;
+                super::non_varint_field_header_size(7, payload_size) + payload_size
             }) + ({
                 let payload = &self.w_unstable;
-                let payload_size = payload.len() as u64;
-                super::non_varint_field_header_size(6, payload_size) + payload_size
+                let payload_size = 8_u64;
+                super::non_varint_field_header_size(8, payload_size) + payload_size
             }) + ({
                 let payload = &self.x_unstable;
-                let payload_size = 8_u64;
-                super::non_varint_field_header_size(7, payload_size) + payload_size
+                let payload_size = payload.len() as u64;
+                super::non_varint_field_header_size(9, payload_size) + payload_size
             }) + ({
                 let payload = &self.y_unstable;
                 let payload_size = super::varint_size_from_value(*payload);
-                super::varint_field_header_size(8) + payload_size
+                super::varint_field_header_size(10) + payload_size
             }) + ({
                 let payload = &self.z_unstable;
                 let payload_size = payload.size();
-                super::non_varint_field_header_size(9, payload_size) + payload_size
-            }) + (if let Some(payload) = &self.v_optional {
-                let payload_size = 1_u64;
-                super::varint_field_header_size(10) + payload_size
-            } else { 0 }) + (if let Some(payload) = &self.w_optional {
-                let payload_size = payload.len() as u64;
                 super::non_varint_field_header_size(11, payload_size) + payload_size
-            } else { 0 }) + (if let Some(payload) = &self.x_optional {
+            }) + self.u_optional.as_ref().map_or(0, |payload| {
+                let payload_size = 1_u64;
+                super::varint_field_header_size(12) + payload_size
+            }) + self.v_optional.as_ref().map_or(0, |payload| {
+                let payload_size = payload.len() as u64;
+                super::non_varint_field_header_size(13, payload_size) + payload_size
+            }) + self.w_optional.as_ref().map_or(0, |payload| {
                 let payload_size = 8_u64;
-                super::non_varint_field_header_size(12, payload_size) + payload_size
-            } else { 0 }) + (if let Some(payload) = &self.y_optional {
-                let payload_size = super::varint_size_from_value(*payload);
-                super::varint_field_header_size(13) + payload_size
-            } else { 0 }) + (if let Some(payload) = &self.z_optional {
-                let payload_size = payload.size();
                 super::non_varint_field_header_size(14, payload_size) + payload_size
-            } else { 0 })
+            }) + self.x_optional.as_ref().map_or(0, |payload| {
+                let payload_size = payload.len() as u64;
+                super::non_varint_field_header_size(15, payload_size) + payload_size
+            }) + self.y_optional.as_ref().map_or(0, |payload| {
+                let payload_size = super::varint_size_from_value(*payload);
+                super::varint_field_header_size(16) + payload_size
+            }) + self.z_optional.as_ref().map_or(0, |payload| {
+                let payload_size = payload.size();
+                super::non_varint_field_header_size(17, payload_size) + payload_size
+            })
         }
 
         fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
             {
-                let payload = &self.v_required;
+                let payload = &self.u_required;
                 let payload_size = 1_u64;
                 super::serialize_varint_field_header(writer, 0)?;
                 super::serialize_varint(*payload as u64, writer)?;
             }
 
             {
-                let payload = &self.w_required;
+                let payload = &self.v_required;
                 let payload_size = payload.len() as u64;
                 super::serialize_non_varint_field_header(writer, 1, payload_size)?;
                 writer.write_all(payload)?;
             }
 
             {
-                let payload = &self.x_required;
+                let payload = &self.w_required;
                 let payload_size = 8_u64;
                 super::serialize_non_varint_field_header(writer, 2, payload_size)?;
                 writer.write_all(&payload.to_le_bytes())?;
             }
 
             {
+                let payload = &self.x_required;
+                let payload_size = payload.len() as u64;
+                super::serialize_non_varint_field_header(writer, 3, payload_size)?;
+                writer.write_all(payload.as_bytes())?;
+            }
+
+            {
                 let payload = &self.y_required;
                 let payload_size = super::varint_size_from_value(*payload);
-                super::serialize_varint_field_header(writer, 3)?;
+                super::serialize_varint_field_header(writer, 4)?;
                 super::serialize_varint(*payload, writer)?;
             }
 
             {
                 let payload = &self.z_required;
                 let payload_size = payload.size();
-                super::serialize_non_varint_field_header(writer, 4, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 5, payload_size)?;
                 payload.serialize(writer)?;
             }
 
             {
-                let payload = &self.v_unstable;
+                let payload = &self.u_unstable;
                 let payload_size = 1_u64;
-                super::serialize_varint_field_header(writer, 5)?;
+                super::serialize_varint_field_header(writer, 6)?;
                 super::serialize_varint(*payload as u64, writer)?;
             }
 
             {
-                let payload = &self.w_unstable;
+                let payload = &self.v_unstable;
                 let payload_size = payload.len() as u64;
-                super::serialize_non_varint_field_header(writer, 6, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 7, payload_size)?;
                 writer.write_all(payload)?;
             }
 
             {
-                let payload = &self.x_unstable;
+                let payload = &self.w_unstable;
                 let payload_size = 8_u64;
-                super::serialize_non_varint_field_header(writer, 7, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 8, payload_size)?;
                 writer.write_all(&payload.to_le_bytes())?;
+            }
+
+            {
+                let payload = &self.x_unstable;
+                let payload_size = payload.len() as u64;
+                super::serialize_non_varint_field_header(writer, 9, payload_size)?;
+                writer.write_all(payload.as_bytes())?;
             }
 
             {
                 let payload = &self.y_unstable;
                 let payload_size = super::varint_size_from_value(*payload);
-                super::serialize_varint_field_header(writer, 8)?;
+                super::serialize_varint_field_header(writer, 10)?;
                 super::serialize_varint(*payload, writer)?;
             }
 
             {
                 let payload = &self.z_unstable;
                 let payload_size = payload.size();
-                super::serialize_non_varint_field_header(writer, 9, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 11, payload_size)?;
                 payload.serialize(writer)?;
             }
 
-            if let Some(payload) = &self.v_optional {
+            if let Some(payload) = &self.u_optional {
                 let payload_size = 1_u64;
-                super::serialize_varint_field_header(writer, 10)?;
+                super::serialize_varint_field_header(writer, 12)?;
                 super::serialize_varint(*payload as u64, writer)?;
             }
 
-            if let Some(payload) = &self.w_optional {
+            if let Some(payload) = &self.v_optional {
                 let payload_size = payload.len() as u64;
-                super::serialize_non_varint_field_header(writer, 11, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 13, payload_size)?;
                 writer.write_all(payload)?;
             }
 
-            if let Some(payload) = &self.x_optional {
+            if let Some(payload) = &self.w_optional {
                 let payload_size = 8_u64;
-                super::serialize_non_varint_field_header(writer, 12, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 14, payload_size)?;
                 writer.write_all(&payload.to_le_bytes())?;
+            }
+
+            if let Some(payload) = &self.x_optional {
+                let payload_size = payload.len() as u64;
+                super::serialize_non_varint_field_header(writer, 15, payload_size)?;
+                writer.write_all(payload.as_bytes())?;
             }
 
             if let Some(payload) = &self.y_optional {
                 let payload_size = super::varint_size_from_value(*payload);
-                super::serialize_varint_field_header(writer, 13)?;
+                super::serialize_varint_field_header(writer, 16)?;
                 super::serialize_varint(*payload, writer)?;
             }
 
             if let Some(payload) = &self.z_optional {
                 let payload_size = payload.size();
-                super::serialize_non_varint_field_header(writer, 14, payload_size)?;
+                super::serialize_non_varint_field_header(writer, 17, payload_size)?;
                 payload.serialize(writer)?;
             }
 
@@ -2203,24 +2332,27 @@ pub mod main {
     }
 
     impl super::Deserialize for FooIn {
-        fn deserialize<T>(mut reader: &mut T) -> ::std::io::Result<Self>
+        fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
         where
             Self: Sized,
             T: ::std::io::BufRead,
         {
-            let mut v_required: Option<bool> = None;
-            let mut w_required: Option<Vec<u8>> = None;
-            let mut x_required: Option<f64> = None;
+            let mut u_required: Option<bool> = None;
+            let mut v_required: Option<Vec<u8>> = None;
+            let mut w_required: Option<f64> = None;
+            let mut x_required: Option<String> = None;
             let mut y_required: Option<u64> = None;
             let mut z_required: Option<super::basic::unit::UnitIn> = None;
-            let mut v_unstable: Option<bool> = None;
-            let mut w_unstable: Option<Vec<u8>> = None;
-            let mut x_unstable: Option<f64> = None;
+            let mut u_unstable: Option<bool> = None;
+            let mut v_unstable: Option<Vec<u8>> = None;
+            let mut w_unstable: Option<f64> = None;
+            let mut x_unstable: Option<String> = None;
             let mut y_unstable: Option<u64> = None;
             let mut z_unstable: Option<super::basic::unit::UnitIn> = None;
-            let mut v_optional: Option<bool> = None;
-            let mut w_optional: Option<Vec<u8>> = None;
-            let mut x_optional: Option<f64> = None;
+            let mut u_optional: Option<bool> = None;
+            let mut v_optional: Option<Vec<u8>> = None;
+            let mut w_optional: Option<f64> = None;
+            let mut x_optional: Option<String> = None;
             let mut y_optional: Option<u64> = None;
             let mut z_optional: Option<super::basic::unit::UnitIn> = None;
 
@@ -2240,79 +2372,106 @@ pub mod main {
 
                 match index {
                     0 => {
-                        let mut buffer = [0u8];
+                        let mut buffer = [0_u8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        let payload = buffer[0] != 0b00000001;
-                        v_required.get_or_insert(payload);
+                        let payload = buffer[0] != 0b0000_0001;
+                        u_required.get_or_insert(payload);
                     }
                     1 => {
                         let mut payload = vec![];
                         ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                        w_required.get_or_insert(payload);
+                        v_required.get_or_insert(payload);
                     }
                     2 => {
                         let mut buffer = [0; 8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                         let payload = f64::from_le_bytes(buffer);
-                        x_required.get_or_insert(payload);
+                        w_required.get_or_insert(payload);
                     }
                     3 => {
+                        let mut buffer = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                        let payload = std::str::from_utf8(&buffer).map_or_else(
+                            |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                            |result| Ok(result.to_owned()),
+                        )?;
+                        x_required.get_or_insert(payload);
+                    }
+                    4 => {
                         let payload = super::deserialize_varint(&mut sub_reader)?;
                         y_required.get_or_insert(payload);
                     }
-                    4 => {
+                    5 => {
                         let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?;
                         z_required.get_or_insert(payload);
                     }
-                    5 => {
-                        let mut buffer = [0u8];
-                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        let payload = buffer[0] != 0b00000001;
-                        v_unstable.get_or_insert(payload);
-                    }
                     6 => {
-                        let mut payload = vec![];
-                        ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                        w_unstable.get_or_insert(payload);
+                        let mut buffer = [0_u8];
+                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                        let payload = buffer[0] != 0b0000_0001;
+                        u_unstable.get_or_insert(payload);
                     }
                     7 => {
+                        let mut payload = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                        v_unstable.get_or_insert(payload);
+                    }
+                    8 => {
                         let mut buffer = [0; 8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                         let payload = f64::from_le_bytes(buffer);
+                        w_unstable.get_or_insert(payload);
+                    }
+                    9 => {
+                        let mut buffer = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                        let payload = std::str::from_utf8(&buffer).map_or_else(
+                            |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                            |result| Ok(result.to_owned()),
+                        )?;
                         x_unstable.get_or_insert(payload);
                     }
-                    8 => {
+                    10 => {
                         let payload = super::deserialize_varint(&mut sub_reader)?;
                         y_unstable.get_or_insert(payload);
                     }
-                    9 => {
+                    11 => {
                         let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?;
                         z_unstable.get_or_insert(payload);
                     }
-                    10 => {
-                        let mut buffer = [0u8];
+                    12 => {
+                        let mut buffer = [0_u8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                        let payload = buffer[0] != 0b00000001;
-                        v_optional.get_or_insert(payload);
+                        let payload = buffer[0] != 0b0000_0001;
+                        u_optional.get_or_insert(payload);
                     }
-                    11 => {
+                    13 => {
                         let mut payload = vec![];
                         ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                        w_optional.get_or_insert(payload);
+                        v_optional.get_or_insert(payload);
                     }
-                    12 => {
+                    14 => {
                         let mut buffer = [0; 8];
                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                         let payload = f64::from_le_bytes(buffer);
+                        w_optional.get_or_insert(payload);
+                    }
+                    15 => {
+                        let mut buffer = vec![];
+                        ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                        let payload = std::str::from_utf8(&buffer).map_or_else(
+                            |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                            |result| Ok(result.to_owned()),
+                        )?;
                         x_optional.get_or_insert(payload);
                     }
-                    13 => {
+                    16 => {
                         let payload = super::deserialize_varint(&mut sub_reader)?;
                         y_optional.get_or_insert(payload);
                     }
-                    14 => {
+                    17 => {
                         let payload = <super::basic::unit::UnitIn as super::Deserialize>::\
                             deserialize(&mut sub_reader)?;
                         z_optional.get_or_insert(payload);
@@ -2323,8 +2482,8 @@ pub mod main {
                 }
             }
 
-            if v_required.is_none() || w_required.is_none() || x_required.is_none() || \
-                y_required.is_none() || z_required.is_none() {
+            if u_required.is_none() || v_required.is_none() || w_required.is_none() || \
+                x_required.is_none() || y_required.is_none() || z_required.is_none() {
                 return Err(::std::io::Error::new(
                     ::std::io::ErrorKind::InvalidData,
                     \"Struct missing one or more field(s).\",
@@ -2332,16 +2491,19 @@ pub mod main {
             }
 
             Ok(FooIn {
+                u_required: u_required.unwrap(),
                 v_required: v_required.unwrap(),
                 w_required: w_required.unwrap(),
                 x_required: x_required.unwrap(),
                 y_required: y_required.unwrap(),
                 z_required: z_required.unwrap(),
+                u_unstable,
                 v_unstable,
                 w_unstable,
                 x_unstable,
                 y_unstable,
                 z_unstable,
+                u_optional,
                 v_optional,
                 w_optional,
                 x_optional,
@@ -2354,16 +2516,19 @@ pub mod main {
     impl From<FooOut> for FooIn {
         fn from(message: FooOut) -> Self {
             FooIn {
+                u_required: message.u_required.into(),
                 v_required: message.v_required.into(),
                 w_required: message.w_required.into(),
                 x_required: message.x_required.into(),
                 y_required: message.y_required.into(),
                 z_required: message.z_required.into(),
+                u_unstable: Some(message.u_unstable.into()),
                 v_unstable: Some(message.v_unstable.into()),
                 w_unstable: Some(message.w_unstable.into()),
                 x_unstable: Some(message.x_unstable.into()),
                 y_unstable: Some(message.y_unstable.into()),
                 z_unstable: Some(message.z_unstable.into()),
+                u_optional: message.u_optional.map(|payload| payload.into()),
                 v_optional: message.v_optional.map(|payload| payload.into()),
                 w_optional: message.w_optional.map(|payload| payload.into()),
                 x_optional: message.x_optional.map(|payload| payload.into()),
