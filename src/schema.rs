@@ -37,8 +37,8 @@ pub enum DeclarationVariant {
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub name: Identifier,
     pub cardinality: Cardinality,
+    pub name: Identifier,
     pub r#type: Type,
     pub index: usize,
 }
@@ -165,17 +165,19 @@ impl DeclarationVariant {
 
 impl Field {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
-        write!(f, "  {}: ", self.name.original())?;
-
         match self.cardinality {
             Cardinality::Optional => {
-                write!(f, "{} ", OPTIONAL_KEYWORD)?;
+                write!(f, "  {} ", OPTIONAL_KEYWORD)?;
             }
-            Cardinality::Required => {}
+            Cardinality::Required => {
+                write!(f, "  ")?;
+            }
             Cardinality::Unstable => {
-                write!(f, "{} ", UNSTABLE_KEYWORD)?;
+                write!(f, "  {} ", UNSTABLE_KEYWORD)?;
             }
         }
+
+        write!(f, "{}: ", self.name.original())?;
 
         self.r#type.write(f)?;
 
@@ -451,8 +453,8 @@ mod tests {
         let foo_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "x".into(),
                 cardinality: Cardinality::Required,
+                name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -461,8 +463,8 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "y".into(),
                 cardinality: Cardinality::Optional,
+                name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::U64,
@@ -474,8 +476,8 @@ mod tests {
         let bar_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "x".into(),
                 cardinality: Cardinality::Required,
+                name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -484,8 +486,8 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "y".into(),
                 cardinality: Cardinality::Unstable,
+                name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::F64,
@@ -520,12 +522,12 @@ mod tests {
         let expected = "\
             choice bar {\n\
             \x20 x: bool = 0\n\
-            \x20 y: unstable f64 = 1\n\
+            \x20 unstable y: f64 = 1\n\
             }\n\
             \n\
             struct foo {\n\
             \x20 x: bool = 0\n\
-            \x20 y: optional u64 = 1\n\
+            \x20 optional y: u64 = 1\n\
             }\n\
         ";
 
@@ -558,8 +560,8 @@ mod tests {
         let foo_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "x".into(),
                 cardinality: Cardinality::Required,
+                name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -568,8 +570,8 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "y".into(),
                 cardinality: Cardinality::Optional,
+                name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::U64,
@@ -581,8 +583,8 @@ mod tests {
         let bar_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "x".into(),
                 cardinality: Cardinality::Required,
+                name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::Bool,
@@ -591,8 +593,8 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                name: "y".into(),
                 cardinality: Cardinality::Unstable,
+                name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
                     variant: TypeVariant::F64,
@@ -630,12 +632,12 @@ mod tests {
             \n\
             choice bar {\n\
             \x20 x: bool = 0\n\
-            \x20 y: unstable f64 = 1\n\
+            \x20 unstable y: f64 = 1\n\
             }\n\
             \n\
             struct foo {\n\
             \x20 x: bool = 0\n\
-            \x20 y: optional u64 = 1\n\
+            \x20 optional y: u64 = 1\n\
             }\n\
         ";
 
