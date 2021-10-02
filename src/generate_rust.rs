@@ -179,22 +179,17 @@ fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {{
 }}
 
 #[rustfmt::skip]
-fn varint_field_header_size(index: u64) -> u64 {{
-    varint_size_from_value((index << 2) | 0b00)
-}}
-
-#[rustfmt::skip]
 fn non_varint_field_header_size(index: u64, value_size: u64) -> u64 {{
     match value_size {{
-        0 => varint_size_from_value((index << 2) | 0b01),
-        8 => varint_size_from_value((index << 2) | 0b10),
-        size => varint_size_from_value((index << 2) | 0b11) + varint_size_from_value(size),
+        0 => varint_size_from_value((index << 2) | 0b00),
+        8 => varint_size_from_value((index << 2) | 0b01),
+        size => varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size),
     }}
 }}
 
 #[rustfmt::skip]
-fn serialize_varint_field_header<T: Write>(writer: &mut T, index: u64) -> io::Result<()> {{
-    serialize_varint((index << 2) | 0b00, writer)
+fn varint_field_header_size(index: u64) -> u64 {{
+    varint_size_from_value((index << 2) | 0b11)
 }}
 
 #[rustfmt::skip]
@@ -204,13 +199,18 @@ fn serialize_non_varint_field_header<T: Write>(
     payload_size: u64,
 ) -> io::Result<()> {{
     match payload_size {{
-        0 => serialize_varint((index << 2) | 0b01, writer),
-        8 => serialize_varint((index << 2) | 0b10, writer),
+        0 => serialize_varint((index << 2) | 0b00, writer),
+        8 => serialize_varint((index << 2) | 0b01, writer),
         size => {{
-            serialize_varint((index << 2) | 0b11, writer)?;
+            serialize_varint((index << 2) | 0b10, writer)?;
             serialize_varint(size, writer)
         }}
     }}
+}}
+
+#[rustfmt::skip]
+fn serialize_varint_field_header<T: Write>(writer: &mut T, index: u64) -> io::Result<()> {{
+    serialize_varint((index << 2) | 0b11, writer)
 }}
 
 #[rustfmt::skip]
@@ -220,7 +220,10 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
     let index = tag >> 2;
 
     let size = match tag & 0b11 {{
-        0b00 => {{
+        0b00 => 0,
+        0b01 => 8,
+        0b10 => deserialize_varint(&mut *reader)?,
+        0b11 => {{
             let buffer = (&mut *reader).fill_buf()?;
 
             if buffer.is_empty() {{
@@ -229,9 +232,6 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
 
             u64::from(varint_size_from_first_byte(buffer[0]))
         }}
-        0b01 => 0,
-        0b10 => 8,
-        0b11 => deserialize_varint(&mut *reader)?,
         _ => panic!(),
     }};
 
@@ -1529,22 +1529,17 @@ fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {
 }
 
 #[rustfmt::skip]
-fn varint_field_header_size(index: u64) -> u64 {
-    varint_size_from_value((index << 2) | 0b00)
-}
-
-#[rustfmt::skip]
 fn non_varint_field_header_size(index: u64, value_size: u64) -> u64 {
     match value_size {
-        0 => varint_size_from_value((index << 2) | 0b01),
-        8 => varint_size_from_value((index << 2) | 0b10),
-        size => varint_size_from_value((index << 2) | 0b11) + varint_size_from_value(size),
+        0 => varint_size_from_value((index << 2) | 0b00),
+        8 => varint_size_from_value((index << 2) | 0b01),
+        size => varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size),
     }
 }
 
 #[rustfmt::skip]
-fn serialize_varint_field_header<T: Write>(writer: &mut T, index: u64) -> io::Result<()> {
-    serialize_varint((index << 2) | 0b00, writer)
+fn varint_field_header_size(index: u64) -> u64 {
+    varint_size_from_value((index << 2) | 0b11)
 }
 
 #[rustfmt::skip]
@@ -1554,13 +1549,18 @@ fn serialize_non_varint_field_header<T: Write>(
     payload_size: u64,
 ) -> io::Result<()> {
     match payload_size {
-        0 => serialize_varint((index << 2) | 0b01, writer),
-        8 => serialize_varint((index << 2) | 0b10, writer),
+        0 => serialize_varint((index << 2) | 0b00, writer),
+        8 => serialize_varint((index << 2) | 0b01, writer),
         size => {
-            serialize_varint((index << 2) | 0b11, writer)?;
+            serialize_varint((index << 2) | 0b10, writer)?;
             serialize_varint(size, writer)
         }
     }
+}
+
+#[rustfmt::skip]
+fn serialize_varint_field_header<T: Write>(writer: &mut T, index: u64) -> io::Result<()> {
+    serialize_varint((index << 2) | 0b11, writer)
 }
 
 #[rustfmt::skip]
@@ -1570,7 +1570,10 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
     let index = tag >> 2;
 
     let size = match tag & 0b11 {
-        0b00 => {
+        0b00 => 0,
+        0b01 => 8,
+        0b10 => deserialize_varint(&mut *reader)?,
+        0b11 => {
             let buffer = (&mut *reader).fill_buf()?;
 
             if buffer.is_empty() {
@@ -1579,9 +1582,6 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
 
             u64::from(varint_size_from_first_byte(buffer[0]))
         }
-        0b01 => 0,
-        0b10 => 8,
-        0b11 => deserialize_varint(&mut *reader)?,
         _ => panic!(),
     };
 
