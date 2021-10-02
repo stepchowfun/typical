@@ -94,7 +94,8 @@ pub fn validate(
                             | schema::TypeVariant::F64
                             | schema::TypeVariant::S64
                             | schema::TypeVariant::String
-                            | schema::TypeVariant::U64 => {}
+                            | schema::TypeVariant::U64
+                            | schema::TypeVariant::Unit => {}
                             schema::TypeVariant::Custom(import, name) => {
                                 // Determine which file the type is from.
                                 let type_namespace = if let Some(import) = import {
@@ -244,7 +245,8 @@ fn check_type_for_cycles(
                     | schema::TypeVariant::F64
                     | schema::TypeVariant::S64
                     | schema::TypeVariant::String
-                    | schema::TypeVariant::U64 => {}
+                    | schema::TypeVariant::U64
+                    | schema::TypeVariant::Unit => {}
                     schema::TypeVariant::Custom(import, type_name) => {
                         let type_namespace = import.as_ref().map_or_else(
                             || namespace.clone(),

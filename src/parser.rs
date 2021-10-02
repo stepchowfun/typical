@@ -611,6 +611,13 @@ fn parse_field(
             source_range: span_tokens(tokens, type_start, *position),
             variant: schema::TypeVariant::U64,
         }
+    } else if let token::Variant::Unit = tokens[*position].variant {
+        *position += 1;
+
+        schema::Type {
+            source_range: span_tokens(tokens, type_start, *position),
+            variant: schema::TypeVariant::Unit,
+        }
     } else {
         let (import_name, r#type_name) = if *position < tokens.len() - 2 {
             if let Some(token::Variant::Dot) = tokens.get(*position + 1).map(|token| &token.variant)

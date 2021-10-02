@@ -16,6 +16,7 @@ pub const S64_KEYWORD: &str = "s64";
 pub const STRING_KEYWORD: &str = "string";
 pub const STRUCT_KEYWORD: &str = "struct";
 pub const U64_KEYWORD: &str = "u64";
+pub const UNIT_KEYWORD: &str = "unit";
 pub const UNSTABLE_KEYWORD: &str = "unstable";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
@@ -48,6 +49,7 @@ pub enum Variant {
     String,
     Struct,
     U64,
+    Unit,
     Unstable,
 }
 
@@ -79,6 +81,7 @@ impl Display for Variant {
             Self::String => write!(f, "{}", STRING_KEYWORD),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
             Self::U64 => write!(f, "{}", U64_KEYWORD),
+            Self::Unit => write!(f, "{}", UNIT_KEYWORD),
             Self::Unstable => write!(f, "{}", UNSTABLE_KEYWORD),
         }
     }
@@ -91,7 +94,7 @@ mod tests {
         token::{
             Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
             IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD,
-            U64_KEYWORD, UNSTABLE_KEYWORD,
+            U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
         },
     };
     use std::path::Path;
@@ -206,6 +209,11 @@ mod tests {
     #[test]
     fn variant_u64_display() {
         assert_eq!(format!("{}", Variant::U64), U64_KEYWORD);
+    }
+
+    #[test]
+    fn variant_unit_display() {
+        assert_eq!(format!("{}", Variant::Unit), UNIT_KEYWORD);
     }
 
     #[test]
