@@ -590,6 +590,13 @@ fn parse_field(
             source_range: span_tokens(tokens, type_start, *position),
             variant: schema::TypeVariant::F64,
         }
+    } else if let token::Variant::S64 = tokens[*position].variant {
+        *position += 1;
+
+        schema::Type {
+            source_range: span_tokens(tokens, type_start, *position),
+            variant: schema::TypeVariant::S64,
+        }
     } else if let token::Variant::String = tokens[*position].variant {
         *position += 1;
 

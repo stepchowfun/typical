@@ -92,6 +92,7 @@ pub fn validate(
                             schema::TypeVariant::Bool
                             | schema::TypeVariant::Bytes
                             | schema::TypeVariant::F64
+                            | schema::TypeVariant::S64
                             | schema::TypeVariant::String
                             | schema::TypeVariant::U64 => {}
                             schema::TypeVariant::Custom(import, name) => {
@@ -241,6 +242,7 @@ fn check_type_for_cycles(
                     schema::TypeVariant::Bool
                     | schema::TypeVariant::Bytes
                     | schema::TypeVariant::F64
+                    | schema::TypeVariant::S64
                     | schema::TypeVariant::String
                     | schema::TypeVariant::U64 => {}
                     schema::TypeVariant::Custom(import, type_name) => {
