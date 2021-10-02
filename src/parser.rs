@@ -512,6 +512,25 @@ fn parse_field(
 ) -> Option<schema::Field> {
     let start = *position;
 
+    // Parse the cardinality.
+    let cardinality = if *position == tokens.len() {
+        schema::Cardinality::Required
+    } else {
+        match tokens[*position].variant {
+            token::Variant::Optional => {
+                *position += 1;
+
+                schema::Cardinality::Optional
+            }
+            token::Variant::Unstable => {
+                *position += 1;
+
+                schema::Cardinality::Unstable
+            }
+            _ => schema::Cardinality::Required,
+        }
+    };
+
     // Parse the name.
     let name = consume_token_1!(
         source_path,
@@ -534,25 +553,6 @@ fn parse_field(
         Colon,
         None,
     );
-
-    // Parse the field cardinality.
-    let cardinality = if *position == tokens.len() {
-        schema::Cardinality::Required
-    } else {
-        match tokens[*position].variant {
-            token::Variant::Optional => {
-                *position += 1;
-
-                schema::Cardinality::Optional
-            }
-            token::Variant::Unstable => {
-                *position += 1;
-
-                schema::Cardinality::Unstable
-            }
-            _ => schema::Cardinality::Required,
-        }
-    };
 
     // Make sure we have a token to parse next.
     if *position == tokens.len() {
@@ -701,8 +701,8 @@ fn parse_field(
     // Return the field.
     Some(schema::Field {
         source_range: span_tokens(tokens, start, *position),
-        name,
         cardinality,
+        name,
         r#type,
         index,
     })
@@ -741,14 +741,14 @@ mod tests {
             # This is a struct.
             struct foo {
               x: baz.baz = 0
-              y: optional u64 = 1
+              optional y: u64 = 1
               z: bool = 2
             }
 
             # This is a choice.
             choice bar {
               x: qux.qux = 0
-              y: unstable bytes = 1
+              unstable y: bytes = 1
               z: f64 = 2
             }
         ";
