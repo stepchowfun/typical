@@ -64,6 +64,7 @@ pub enum TypeVariant {
     S64,
     String,
     U64,
+    Unit,
     Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
@@ -207,10 +208,13 @@ impl TypeVariant {
                 write!(f, "s64")?;
             }
             Self::String => {
-                write!(f, "String")?;
+                write!(f, "string")?;
             }
             Self::U64 => {
                 write!(f, "u64")?;
+            }
+            Self::Unit => {
+                write!(f, "unit")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -699,7 +703,7 @@ mod tests {
             variant: TypeVariant::String,
         };
 
-        let expected = "String";
+        let expected = "string";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -717,13 +721,25 @@ mod tests {
     }
 
     #[test]
+    fn type_display_unit() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Unit,
+        };
+
+        let expected = "unit";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
     fn type_display_custom_no_import() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Custom(None, "Int".into()),
+            variant: TypeVariant::Custom(None, "int".into()),
         };
 
-        let expected = "Int";
+        let expected = "int";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -732,10 +748,10 @@ mod tests {
     fn type_display_custom_import() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Custom(Some("foo".into()), "Int".into()),
+            variant: TypeVariant::Custom(Some("foo".into()), "int".into()),
         };
 
-        let expected = "foo.Int";
+        let expected = "foo.int";
 
         assert_eq!(r#type.to_string(), expected);
     }

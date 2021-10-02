@@ -1,54 +1,18 @@
-import 'basic/unit.t' as unit
-import 'basic/void.t' as void
+import 'metasyntactic/foo.t' as foo
+import 'metasyntactic/bar.t' as bar
 
-struct foo {
-  t_required: bool = 0
-  u_required: bytes = 1
-  v_required: f64 = 2
-  w_required: s64 = 3
-  x_required: string = 4
-  y_required: u64 = 5
-  z_required: unit.unit = 6
-
-  unstable t_unstable: bool = 7
-  unstable u_unstable: bytes = 8
-  unstable v_unstable: f64 = 9
-  unstable w_unstable: s64 = 10
-  unstable x_unstable: string = 11
-  unstable y_unstable: u64 = 12
-  unstable z_unstable: unit.unit = 13
-
-  optional t_optional: bool = 14
-  optional u_optional: bytes = 15
-  optional v_optional: f64 = 16
-  optional w_optional: s64 = 17
-  optional x_optional: string = 18
-  optional y_optional: u64 = 19
-  optional z_optional: unit.unit = 20
+struct empty_struct {
 }
 
-choice bar {
-  t_required: bool = 0
-  u_required: bytes = 1
-  v_required: f64 = 2
-  w_required: s64 = 3
-  x_required: string = 4
-  y_required: u64 = 5
-  z_required: unit.unit = 6
+choice empty_choice {
+}
 
-  unstable t_unstable: bool = 7
-  unstable u_unstable: bytes = 8
-  unstable v_unstable: f64 = 9
-  unstable w_unstable: s64 = 10
-  unstable x_unstable: string = 11
-  unstable y_unstable: u64 = 12
-  unstable z_unstable: unit.unit = 13
+struct foo_and_bar {
+  x: foo.foo = 0
+  y: bar.bar = 1
+}
 
-  optional t_optional: bool = 14
-  optional u_optional: bytes = 15
-  optional v_optional: f64 = 16
-  optional w_optional: s64 = 17
-  optional x_optional: string = 18
-  optional y_optional: u64 = 19
-  optional z_optional: unit.unit = 20
+choice foo_or_bar {
+  x: foo.foo = 0
+  y: bar.bar = 1
 }

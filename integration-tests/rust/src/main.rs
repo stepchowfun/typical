@@ -9,12 +9,16 @@ use {
         io::{self, Error, ErrorKind},
     },
     types::{
-        basic::unit::UnitOut,
-        main::{BarIn, BarOut, FooIn, FooOut},
+        main::{EmptyStructIn, EmptyStructOut, FooAndBarIn, FooAndBarOut, FooOrBarIn, FooOrBarOut},
+        metasyntactic::{
+            bar::{BarIn, BarOut},
+            foo::{FooIn, FooOut},
+        },
         Deserialize, Serialize,
     },
 };
 
+#[allow(clippy::too_many_lines)]
 fn main() -> io::Result<()> {
     round_trip::<FooOut, FooIn>(FooOut {
         t_required: true,
@@ -23,7 +27,7 @@ fn main() -> io::Result<()> {
         w_required: i64::MIN,
         x_required: "Hello, World!".to_owned(),
         y_required: u64::MAX,
-        z_required: UnitOut {},
+        z_required: (),
 
         t_unstable: true,
         u_unstable: vec![0, 42, 255],
@@ -31,7 +35,7 @@ fn main() -> io::Result<()> {
         w_unstable: i64::MIN,
         x_unstable: "Hello, World!".to_owned(),
         y_unstable: u64::MAX,
-        z_unstable: UnitOut {},
+        z_unstable: (),
 
         t_optional: None,
         u_optional: None,
@@ -51,7 +55,7 @@ fn main() -> io::Result<()> {
         w_required: i64::MIN,
         x_required: "Hello, World!".to_owned(),
         y_required: u64::MAX,
-        z_required: UnitOut {},
+        z_required: (),
 
         t_unstable: true,
         u_unstable: vec![0, 42, 255],
@@ -59,7 +63,7 @@ fn main() -> io::Result<()> {
         w_unstable: i64::MIN,
         x_unstable: "Hello, World!".to_owned(),
         y_unstable: u64::MAX,
-        z_unstable: UnitOut {},
+        z_unstable: (),
 
         t_optional: Some(true),
         u_optional: Some(vec![0, 42, 255]),
@@ -67,7 +71,7 @@ fn main() -> io::Result<()> {
         w_optional: Some(i64::MIN),
         x_optional: Some("Hello, World!".to_owned()),
         y_optional: Some(u64::MAX),
-        z_optional: Some(UnitOut {}),
+        z_optional: Some(()),
     })?;
 
     println!();
@@ -78,7 +82,7 @@ fn main() -> io::Result<()> {
     round_trip::<BarOut, BarIn>(BarOut::WRequired(i64::MIN))?;
     round_trip::<BarOut, BarIn>(BarOut::XRequired("Hello, World!".to_owned()))?;
     round_trip::<BarOut, BarIn>(BarOut::YRequired(u64::MAX))?;
-    round_trip::<BarOut, BarIn>(BarOut::ZRequired(UnitOut {}))?;
+    round_trip::<BarOut, BarIn>(BarOut::ZRequired(()))?;
 
     let fallback = BarOut::TRequired(true);
 
@@ -94,7 +98,7 @@ fn main() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     round_trip::<BarOut, BarIn>(BarOut::YUnstable(u64::MAX, Box::new(fallback.clone())))?;
-    round_trip::<BarOut, BarIn>(BarOut::ZUnstable(UnitOut {}, Box::new(fallback.clone())))?;
+    round_trip::<BarOut, BarIn>(BarOut::ZUnstable((), Box::new(fallback.clone())))?;
 
     round_trip::<BarOut, BarIn>(BarOut::TOptional(true, Box::new(fallback.clone())))?;
     round_trip::<BarOut, BarIn>(BarOut::UOptional(
@@ -108,7 +112,46 @@ fn main() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     round_trip::<BarOut, BarIn>(BarOut::YOptional(u64::MAX, Box::new(fallback.clone())))?;
-    round_trip::<BarOut, BarIn>(BarOut::ZOptional(UnitOut {}, Box::new(fallback)))?;
+    round_trip::<BarOut, BarIn>(BarOut::ZOptional((), Box::new(fallback)))?;
+
+    println!();
+
+    round_trip::<FooAndBarOut, FooAndBarIn>(FooAndBarOut {
+        x: FooOut {
+            t_required: true,
+            u_required: vec![0, 42, 255],
+            v_required: PI,
+            w_required: i64::MIN,
+            x_required: "Hello, World!".to_owned(),
+            y_required: u64::MAX,
+            z_required: (),
+
+            t_unstable: true,
+            u_unstable: vec![0, 42, 255],
+            v_unstable: PI,
+            w_unstable: i64::MIN,
+            x_unstable: "Hello, World!".to_owned(),
+            y_unstable: u64::MAX,
+            z_unstable: (),
+
+            t_optional: None,
+            u_optional: None,
+            v_optional: None,
+            w_optional: None,
+            x_optional: None,
+            y_optional: None,
+            z_optional: None,
+        },
+        y: BarOut::TRequired(true),
+    })?;
+
+    println!();
+
+    round_trip::<FooOrBarOut, FooOrBarIn>(FooOrBarOut::Y(BarOut::TRequired(true)))?;
+
+    println!();
+
+    round_trip::<EmptyStructOut, EmptyStructIn>(EmptyStructOut {})?;
 
     Ok(())
 }
