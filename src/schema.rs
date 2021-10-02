@@ -61,6 +61,7 @@ pub enum TypeVariant {
     Bool,
     Bytes,
     F64,
+    S64,
     String,
     U64,
     Custom(Option<Identifier>, Identifier), // (import, name)
@@ -199,6 +200,9 @@ impl TypeVariant {
             }
             Self::F64 => {
                 write!(f, "f64")?;
+            }
+            Self::S64 => {
+                write!(f, "s64")?;
             }
             Self::String => {
                 write!(f, "String")?;
@@ -670,6 +674,18 @@ mod tests {
         };
 
         let expected = "f64";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
+    fn type_display_s64() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::S64,
+        };
+
+        let expected = "s64";
 
         assert_eq!(r#type.to_string(), expected);
     }
