@@ -1976,14 +1976,14 @@ pub mod main {
 
                 match index {
                     0 => {
-                        let payload = <super::metasyntactic::foo::FooIn as super::Deserialize>::des\
-                            erialize(&mut sub_reader)?;
+                        let payload = <super::metasyntactic::foo::FooIn as \
+                            super::Deserialize>::deserialize(&mut sub_reader)?;
 
                         x.get_or_insert(payload);
                     }
                     1 => {
-                        let payload = <super::metasyntactic::bar::BarIn as super::Deserialize>::des\
-                            erialize(&mut sub_reader)?;
+                        let payload = <super::metasyntactic::bar::BarIn as \
+                            super::Deserialize>::deserialize(&mut sub_reader)?;
 
                         y.get_or_insert(payload);
                     }
@@ -2073,13 +2073,13 @@ pub mod main {
 
                 match index {
                     0 => {
-                        let payload = <super::metasyntactic::foo::FooIn as super::Deserialize>::des\
-                            erialize(&mut sub_reader)?;
+                        let payload = <super::metasyntactic::foo::FooIn as \
+                            super::Deserialize>::deserialize(&mut sub_reader)?;
                         return Ok(FooOrBarIn::X(payload));
                     }
                     1 => {
-                        let payload = <super::metasyntactic::bar::BarIn as super::Deserialize>::des\
-                            erialize(&mut sub_reader)?;
+                        let payload = <super::metasyntactic::bar::BarIn as \
+                            super::Deserialize>::deserialize(&mut sub_reader)?;
                         return Ok(FooOrBarIn::Y(payload));
                     }
                     _ => {
@@ -2181,8 +2181,8 @@ pub mod metasyntactic {
             fn size(&self) -> u64 {
                 match *self {
                     BarOut::PRequired(ref payload) => {
-                        let payload_size = super::super::varint_size_from_value(payload.len() as u6\
-                            4);
+                        let payload_size = super::super::varint_size_from_value(payload.len() as \
+                            u64);
                         super::super::non_varint_field_header_size(0, payload_size) +
                             payload_size
                     }
@@ -2192,17 +2192,19 @@ pub mod metasyntactic {
                             payload_size
                     }
                     BarOut::RRequired(ref payload) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super\
-                            ::varint_size_from_value(super::super::zigzag_encode(*payload)));
+                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload)));
                         super::super::non_varint_field_header_size(2, payload_size) +
                             payload_size
                     }
                     BarOut::SRequired(ref payload) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_si\
-                            ze = payload.iter().fold(0_u64, |x, payload| { let payload_size = paylo\
-                            ad.len() as u64; x + super::super::varint_size_from_value(payload_size\
-                            ) + payload_size }); x + super::super::varint_size_from_value(payload_s\
-                            ize) + payload_size });
+                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                            payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                            payload_size = payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + \
+                            payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size });
                         super::super::non_varint_field_header_size(3, payload_size) +
                             payload_size
                     }
@@ -2222,8 +2224,9 @@ pub mod metasyntactic {
                             payload_size
                     }
                     BarOut::WRequired(ref payload) => {
-                        let payload_size = super::super::varint_size_from_value(super::super::zigza\
-                            g_encode(*payload));
+                        let payload_size = \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload));
                         super::super::varint_field_header_size(7) +
                             payload_size
                     }
@@ -2243,8 +2246,8 @@ pub mod metasyntactic {
                             payload_size
                     }
                     BarOut::PUnstable(ref payload, ref fallback) => {
-                        let payload_size = super::super::varint_size_from_value(payload.len() as u6\
-                            4);
+                        let payload_size = super::super::varint_size_from_value(payload.len() as \
+                            u64);
                         super::super::non_varint_field_header_size(11, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2256,18 +2259,20 @@ pub mod metasyntactic {
                             fallback.size()
                     }
                     BarOut::RUnstable(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super\
-                            ::varint_size_from_value(super::super::zigzag_encode(*payload)));
+                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload)));
                         super::super::non_varint_field_header_size(13, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::SUnstable(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_si\
-                            ze = payload.iter().fold(0_u64, |x, payload| { let payload_size = paylo\
-                            ad.len() as u64; x + super::super::varint_size_from_value(payload_size\
-                            ) + payload_size }); x + super::super::varint_size_from_value(payload_s\
-                            ize) + payload_size });
+                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                            payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                            payload_size = payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + \
+                            payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size });
                         super::super::non_varint_field_header_size(14, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2291,8 +2296,9 @@ pub mod metasyntactic {
                             fallback.size()
                     }
                     BarOut::WUnstable(ref payload, ref fallback) => {
-                        let payload_size = super::super::varint_size_from_value(super::super::zigza\
-                            g_encode(*payload));
+                        let payload_size = \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload));
                         super::super::varint_field_header_size(18) +
                             payload_size +
                             fallback.size()
@@ -2316,8 +2322,8 @@ pub mod metasyntactic {
                             fallback.size()
                     }
                     BarOut::POptional(ref payload, ref fallback) => {
-                        let payload_size = super::super::varint_size_from_value(payload.len() as u6\
-                            4);
+                        let payload_size = super::super::varint_size_from_value(payload.len() as \
+                            u64);
                         super::super::non_varint_field_header_size(22, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2329,18 +2335,20 @@ pub mod metasyntactic {
                             fallback.size()
                     }
                     BarOut::ROptional(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super\
-                            ::varint_size_from_value(super::super::zigzag_encode(*payload)));
+                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload)));
                         super::super::non_varint_field_header_size(24, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::SOptional(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_si\
-                            ze = payload.iter().fold(0_u64, |x, payload| { let payload_size = paylo\
-                            ad.len() as u64; x + super::super::varint_size_from_value(payload_size\
-                            ) + payload_size }); x + super::super::varint_size_from_value(payload_s\
-                            ize) + payload_size });
+                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                            payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                            payload_size = payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + \
+                            payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size });
                         super::super::non_varint_field_header_size(25, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2364,8 +2372,9 @@ pub mod metasyntactic {
                             fallback.size()
                     }
                     BarOut::WOptional(ref payload, ref fallback) => {
-                        let payload_size = super::super::varint_size_from_value(super::super::zigza\
-                            g_encode(*payload));
+                        let payload_size = \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload));
                         super::super::varint_field_header_size(29) +
                             payload_size +
                             fallback.size()
@@ -2394,39 +2403,43 @@ pub mod metasyntactic {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 match *self {
                     BarOut::PRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 0, super::super::va\
-                            rint_size_from_value(payload.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 0, \
+                            super::super::varint_size_from_value(payload.len() as u64))?;
                         super::super::serialize_varint(payload.len() as u64, writer)?;
                         Ok(())
                     }
                     BarOut::QRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 1, 8_u64 * (payload\
-                            .len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 1, 8_u64 * \
+                            (payload.len() as u64))?;
                         for payload in payload {
                             writer.write_all(&payload.to_le_bytes())?;
                         }
                         Ok(())
                     }
                     BarOut::RRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 2, payload.iter().f\
-                            old(0_u64, |x, payload| x + super::super::varint_size_from_value(super:\
-                            :super::zigzag_encode(*payload))))?;
+                        super::super::serialize_non_varint_field_header(writer, 2, \
+                            payload.iter().fold(0_u64, |x, payload| x + \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload))))?;
                         for payload in payload {
-                            super::super::serialize_varint(super::super::zigzag_encode(*payload), w\
-                                riter)?;
+                            super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                                writer)?;
                         }
                         Ok(())
                     }
                     BarOut::SRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 3, payload.iter().f\
-                            old(0_u64, |x, payload| { let payload_size = payload.iter().fold(0_u64\
-                            , |x, payload| { let payload_size = payload.len() as u64; x + super::su\
-                            per::varint_size_from_value(payload_size) + payload_size }); x + super:\
-                            :super::varint_size_from_value(payload_size) + payload_size }))?;
+                        super::super::serialize_non_varint_field_header(writer, 3, \
+                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
+                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
+                            payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + \
+                            payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size }))?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| \
-                                { let payload_size = payload.len() as u64; x + super::super::varint\
-                                _size_from_value(payload_size) + payload_size }), writer)?;
+                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, \
+                                payload| { let payload_size = payload.len() as u64; x + \
+                                super::super::varint_size_from_value(payload_size) + \
+                                payload_size }), writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2440,8 +2453,8 @@ pub mod metasyntactic {
                         Ok(())
                     }
                     BarOut::URequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 5, payload.len() a\
-                            s u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 5, payload.len() \
+                            as u64)?;
                         writer.write_all(payload)?;
                         Ok(())
                     }
@@ -2452,13 +2465,13 @@ pub mod metasyntactic {
                     }
                     BarOut::WRequired(ref payload) => {
                         super::super::serialize_varint_field_header(writer, 7)?;
-                        super::super::serialize_varint(super::super::zigzag_encode(*payload), write\
-                            r)?;
+                        super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                            writer)?;
                         Ok(())
                     }
                     BarOut::XRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 8, payload.len() a\
-                            s u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 8, payload.len() \
+                            as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
@@ -2473,39 +2486,43 @@ pub mod metasyntactic {
                         Ok(())
                     }
                     BarOut::PUnstable(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 11, super::super::v\
-                            arint_size_from_value(payload.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 11, \
+                            super::super::varint_size_from_value(payload.len() as u64))?;
                         super::super::serialize_varint(payload.len() as u64, writer)?;
                         fallback.serialize(writer)
                     }
                     BarOut::QUnstable(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 12, 8_u64 * (payloa\
-                            d.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 12, 8_u64 * \
+                            (payload.len() as u64))?;
                         for payload in payload {
                             writer.write_all(&payload.to_le_bytes())?;
                         }
                         fallback.serialize(writer)
                     }
                     BarOut::RUnstable(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 13, payload.iter().\
-                            fold(0_u64, |x, payload| x + super::super::varint_size_from_value(super\
-                            ::super::zigzag_encode(*payload))))?;
+                        super::super::serialize_non_varint_field_header(writer, 13, \
+                            payload.iter().fold(0_u64, |x, payload| x + \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload))))?;
                         for payload in payload {
-                            super::super::serialize_varint(super::super::zigzag_encode(*payload), w\
-                                riter)?;
+                            super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                                writer)?;
                         }
                         fallback.serialize(writer)
                     }
                     BarOut::SUnstable(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 14, payload.iter().\
-                            fold(0_u64, |x, payload| { let payload_size = payload.iter().fold(0_u64\
-                            , |x, payload| { let payload_size = payload.len() as u64; x + super::su\
-                            per::varint_size_from_value(payload_size) + payload_size }); x + super:\
-                            :super::varint_size_from_value(payload_size) + payload_size }))?;
+                        super::super::serialize_non_varint_field_header(writer, 14, \
+                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
+                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
+                            payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + \
+                            payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size }))?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| \
-                                { let payload_size = payload.len() as u64; x + super::super::varint\
-                                _size_from_value(payload_size) + payload_size }), writer)?;
+                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, \
+                                payload| { let payload_size = payload.len() as u64; x + \
+                                super::super::varint_size_from_value(payload_size) + \
+                                payload_size }), writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2519,8 +2536,8 @@ pub mod metasyntactic {
                         fallback.serialize(writer)
                     }
                     BarOut::UUnstable(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 16, payload.len() a\
-                            s u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 16, payload.len() \
+                            as u64)?;
                         writer.write_all(payload)?;
                         fallback.serialize(writer)
                     }
@@ -2531,13 +2548,13 @@ pub mod metasyntactic {
                     }
                     BarOut::WUnstable(ref payload, ref fallback) => {
                         super::super::serialize_varint_field_header(writer, 18)?;
-                        super::super::serialize_varint(super::super::zigzag_encode(*payload), write\
-                            r)?;
+                        super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                            writer)?;
                         fallback.serialize(writer)
                     }
                     BarOut::XUnstable(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 19, payload.len() a\
-                            s u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 19, payload.len() \
+                            as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -2552,39 +2569,43 @@ pub mod metasyntactic {
                         fallback.serialize(writer)
                     }
                     BarOut::POptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 22, super::super::v\
-                            arint_size_from_value(payload.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 22, \
+                            super::super::varint_size_from_value(payload.len() as u64))?;
                         super::super::serialize_varint(payload.len() as u64, writer)?;
                         fallback.serialize(writer)
                     }
                     BarOut::QOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 23, 8_u64 * (payloa\
-                            d.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 23, 8_u64 * \
+                            (payload.len() as u64))?;
                         for payload in payload {
                             writer.write_all(&payload.to_le_bytes())?;
                         }
                         fallback.serialize(writer)
                     }
                     BarOut::ROptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 24, payload.iter().\
-                            fold(0_u64, |x, payload| x + super::super::varint_size_from_value(super\
-                            ::super::zigzag_encode(*payload))))?;
+                        super::super::serialize_non_varint_field_header(writer, 24, \
+                            payload.iter().fold(0_u64, |x, payload| x + \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload))))?;
                         for payload in payload {
-                            super::super::serialize_varint(super::super::zigzag_encode(*payload), w\
-                                riter)?;
+                            super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                                writer)?;
                         }
                         fallback.serialize(writer)
                     }
                     BarOut::SOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 25, payload.iter().\
-                            fold(0_u64, |x, payload| { let payload_size = payload.iter().fold(0_u64\
-                            , |x, payload| { let payload_size = payload.len() as u64; x + super::su\
-                            per::varint_size_from_value(payload_size) + payload_size }); x + super:\
-                            :super::varint_size_from_value(payload_size) + payload_size }))?;
+                        super::super::serialize_non_varint_field_header(writer, 25, \
+                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
+                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
+                            payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + \
+                            payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size }))?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| \
-                                { let payload_size = payload.len() as u64; x + super::super::varint\
-                                _size_from_value(payload_size) + payload_size }), writer)?;
+                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, \
+                                payload| { let payload_size = payload.len() as u64; x + \
+                                super::super::varint_size_from_value(payload_size) + \
+                                payload_size }), writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2598,8 +2619,8 @@ pub mod metasyntactic {
                         fallback.serialize(writer)
                     }
                     BarOut::UOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 27, payload.len() a\
-                            s u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 27, payload.len() \
+                            as u64)?;
                         writer.write_all(payload)?;
                         fallback.serialize(writer)
                     }
@@ -2610,13 +2631,13 @@ pub mod metasyntactic {
                     }
                     BarOut::WOptional(ref payload, ref fallback) => {
                         super::super::serialize_varint_field_header(writer, 29)?;
-                        super::super::serialize_varint(super::super::zigzag_encode(*payload), write\
-                            r)?;
+                        super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                            writer)?;
                         fallback.serialize(writer)
                     }
                     BarOut::XOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 30, payload.len() a\
-                            s u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 30, payload.len() \
+                            as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -2647,13 +2668,13 @@ pub mod metasyntactic {
 
                     match index {
                         0 => {
-                            let payload = vec![(); super::super::deserialize_varint(&mut sub_reader\
-                                )? as usize];
+                            let payload = vec![(); super::super::deserialize_varint(&mut \
+                                sub_reader)? as usize];
                             return Ok(BarIn::PRequired(payload));
                         }
                         1 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -2678,10 +2699,11 @@ pub mod metasyntactic {
                             return Ok(BarIn::QRequired(payload));
                         }
                         2 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<i64> {
-                                let payload = super::super::zigzag_decode(super::super::deserialize\
-                                    _varint(&mut sub_reader)?);
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<i64> {
+                                let payload = \
+                                    super::super::zigzag_decode(super::super::deserialize_varint(&\
+                                    mut sub_reader)?);
 
                                 Ok(payload)
                             }
@@ -2706,8 +2728,8 @@ pub mod metasyntactic {
                             let mut payload = Vec::new();
 
                             loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_\
-                                    reader) {
+                                let element_size = match super::super::deserialize_varint(&mut \
+                                    sub_reader) {
                                     Ok(element_size) => element_size,
                                     Err(err) => {
                                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2718,18 +2740,18 @@ pub mod metasyntactic {
                                     }
                                 };
 
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element\
-                                    _size);
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
+                                    element_size);
                                 payload.push({
                                     let mut payload = Vec::new();
 
                                     loop {
-                                        let element_size = match super::super::deserialize_varint(&\
-                                            mut sub_reader) {
+                                        let element_size = match \
+                                            super::super::deserialize_varint(&mut sub_reader) {
                                             Ok(element_size) => element_size,
                                             Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind\
-                                                    () {
+                                                if let std::io::ErrorKind::UnexpectedEof = \
+                                                    err.kind() {
                                                     break;
                                                 }
 
@@ -2737,15 +2759,15 @@ pub mod metasyntactic {
                                             }
                                         };
 
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader\
-                                            , element_size);
+                                        let mut sub_reader = ::std::io::Read::take(&mut \
+                                            sub_reader, element_size);
                                         payload.push({
                                             let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buff\
-                                                er)?;
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
+                                                buffer)?;
                                             let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKin\
-                                                    d::Other, err)),
+                                                |err| Err(::std::io::Error::new(::std::io::\
+                                                    ErrorKind::Other, err)),
                                                 |result| Ok(result.to_owned()),
                                             )?;
                                             payload
@@ -2774,8 +2796,9 @@ pub mod metasyntactic {
                             return Ok(BarIn::VRequired(payload));
                         }
                         7 => {
-                            let payload = super::super::zigzag_decode(super::super::deserialize_var\
-                                int(&mut sub_reader)?);
+                            let payload = \
+                                super::super::zigzag_decode(super::super::deserialize_varint(&mut \
+                                sub_reader)?);
                             return Ok(BarIn::WRequired(payload));
                         }
                         8 => {
@@ -2796,13 +2819,13 @@ pub mod metasyntactic {
                             return Ok(BarIn::ZRequired(payload));
                         }
                         11 => {
-                            let payload = vec![(); super::super::deserialize_varint(&mut sub_reader\
-                                )? as usize];
+                            let payload = vec![(); super::super::deserialize_varint(&mut \
+                                sub_reader)? as usize];
                             return Ok(BarIn::PUnstable(payload));
                         }
                         12 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -2827,10 +2850,11 @@ pub mod metasyntactic {
                             return Ok(BarIn::QUnstable(payload));
                         }
                         13 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<i64> {
-                                let payload = super::super::zigzag_decode(super::super::deserialize\
-                                    _varint(&mut sub_reader)?);
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<i64> {
+                                let payload = \
+                                    super::super::zigzag_decode(super::super::deserialize_varint(&\
+                                    mut sub_reader)?);
 
                                 Ok(payload)
                             }
@@ -2855,8 +2879,8 @@ pub mod metasyntactic {
                             let mut payload = Vec::new();
 
                             loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_\
-                                    reader) {
+                                let element_size = match super::super::deserialize_varint(&mut \
+                                    sub_reader) {
                                     Ok(element_size) => element_size,
                                     Err(err) => {
                                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2867,18 +2891,18 @@ pub mod metasyntactic {
                                     }
                                 };
 
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element\
-                                    _size);
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
+                                    element_size);
                                 payload.push({
                                     let mut payload = Vec::new();
 
                                     loop {
-                                        let element_size = match super::super::deserialize_varint(&\
-                                            mut sub_reader) {
+                                        let element_size = match \
+                                            super::super::deserialize_varint(&mut sub_reader) {
                                             Ok(element_size) => element_size,
                                             Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind\
-                                                    () {
+                                                if let std::io::ErrorKind::UnexpectedEof = \
+                                                    err.kind() {
                                                     break;
                                                 }
 
@@ -2886,15 +2910,15 @@ pub mod metasyntactic {
                                             }
                                         };
 
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader\
-                                            , element_size);
+                                        let mut sub_reader = ::std::io::Read::take(&mut \
+                                            sub_reader, element_size);
                                         payload.push({
                                             let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buff\
-                                                er)?;
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
+                                                buffer)?;
                                             let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKin\
-                                                    d::Other, err)),
+                                                |err| Err(::std::io::Error::new(::std::io::\
+                                                    ErrorKind::Other, err)),
                                                 |result| Ok(result.to_owned()),
                                             )?;
                                             payload
@@ -2923,8 +2947,9 @@ pub mod metasyntactic {
                             return Ok(BarIn::VUnstable(payload));
                         }
                         18 => {
-                            let payload = super::super::zigzag_decode(super::super::deserialize_var\
-                                int(&mut sub_reader)?);
+                            let payload = \
+                                super::super::zigzag_decode(super::super::deserialize_varint(&mut \
+                                sub_reader)?);
                             return Ok(BarIn::WUnstable(payload));
                         }
                         19 => {
@@ -2945,15 +2970,15 @@ pub mod metasyntactic {
                             return Ok(BarIn::ZUnstable(payload));
                         }
                         22 => {
-                            let payload = vec![(); super::super::deserialize_varint(&mut sub_reader\
-                                )? as usize];
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let payload = vec![(); super::super::deserialize_varint(&mut \
+                                sub_reader)? as usize];
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::POptional(payload, fallback));
                         }
                         23 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -2975,15 +3000,16 @@ pub mod metasyntactic {
                                     }
                                 });
                             }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::QOptional(payload, fallback));
                         }
                         24 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<i64> {
-                                let payload = super::super::zigzag_decode(super::super::deserialize\
-                                    _varint(&mut sub_reader)?);
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<i64> {
+                                let payload = \
+                                    super::super::zigzag_decode(super::super::deserialize_varint(&\
+                                    mut sub_reader)?);
 
                                 Ok(payload)
                             }
@@ -3002,16 +3028,16 @@ pub mod metasyntactic {
                                     }
                                 });
                             }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::ROptional(payload, fallback));
                         }
                         25 => {
                             let mut payload = Vec::new();
 
                             loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_\
-                                    reader) {
+                                let element_size = match super::super::deserialize_varint(&mut \
+                                    sub_reader) {
                                     Ok(element_size) => element_size,
                                     Err(err) => {
                                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -3022,18 +3048,18 @@ pub mod metasyntactic {
                                     }
                                 };
 
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element\
-                                    _size);
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
+                                    element_size);
                                 payload.push({
                                     let mut payload = Vec::new();
 
                                     loop {
-                                        let element_size = match super::super::deserialize_varint(&\
-                                            mut sub_reader) {
+                                        let element_size = match \
+                                            super::super::deserialize_varint(&mut sub_reader) {
                                             Ok(element_size) => element_size,
                                             Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind\
-                                                    () {
+                                                if let std::io::ErrorKind::UnexpectedEof = \
+                                                    err.kind() {
                                                     break;
                                                 }
 
@@ -3041,15 +3067,15 @@ pub mod metasyntactic {
                                             }
                                         };
 
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader\
-                                            , element_size);
+                                        let mut sub_reader = ::std::io::Read::take(&mut \
+                                            sub_reader, element_size);
                                         payload.push({
                                             let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buff\
-                                                er)?;
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
+                                                buffer)?;
                                             let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKin\
-                                                    d::Other, err)),
+                                                |err| Err(::std::io::Error::new(::std::io::\
+                                                    ErrorKind::Other, err)),
                                                 |result| Ok(result.to_owned()),
                                             )?;
                                             payload
@@ -3058,38 +3084,39 @@ pub mod metasyntactic {
                                     payload
                                 });
                             }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::SOptional(payload, fallback));
                         }
                         26 => {
                             let mut buffer = [0_u8];
                             ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
                             let payload = buffer[0] != 0b0000_0001;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::TOptional(payload, fallback));
                         }
                         27 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::UOptional(payload, fallback));
                         }
                         28 => {
                             let mut buffer = [0; 8];
                             ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                             let payload = f64::from_le_bytes(buffer);
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::VOptional(payload, fallback));
                         }
                         29 => {
-                            let payload = super::super::zigzag_decode(super::super::deserialize_var\
-                                int(&mut sub_reader)?);
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let payload = \
+                                super::super::zigzag_decode(super::super::deserialize_varint(&mut \
+                                sub_reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::WOptional(payload, fallback));
                         }
                         30 => {
@@ -3099,20 +3126,20 @@ pub mod metasyntactic {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::XOptional(payload, fallback));
                         }
                         31 => {
                             let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::YOptional(payload, fallback));
                         }
                         32 => {
                             let payload = ();
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deseriali\
-                                ze(&mut *reader)?);
+                            let fallback = Box::new(<BarIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
                             return Ok(BarIn::ZOptional(payload, fallback));
                         }
                         _ => {
@@ -3148,28 +3175,28 @@ pub mod metasyntactic {
                     BarOut::XUnstable(payload, _) => BarIn::XUnstable(payload.into()),
                     BarOut::YUnstable(payload, _) => BarIn::YUnstable(payload.into()),
                     BarOut::ZUnstable(payload, _) => BarIn::ZUnstable(payload.into()),
-                    BarOut::POptional(payload, fallback) => BarIn::POptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::QOptional(payload, fallback) => BarIn::QOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::ROptional(payload, fallback) => BarIn::ROptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::SOptional(payload, fallback) => BarIn::SOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::TOptional(payload, fallback) => BarIn::TOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::UOptional(payload, fallback) => BarIn::UOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::VOptional(payload, fallback) => BarIn::VOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::WOptional(payload, fallback) => BarIn::WOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::XOptional(payload, fallback) => BarIn::XOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::YOptional(payload, fallback) => BarIn::YOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
-                    BarOut::ZOptional(payload, fallback) => BarIn::ZOptional(payload.into(), Box::n\
-                        ew((*fallback).into())),
+                    BarOut::POptional(payload, fallback) => BarIn::POptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::QOptional(payload, fallback) => BarIn::QOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::ROptional(payload, fallback) => BarIn::ROptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::SOptional(payload, fallback) => BarIn::SOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::TOptional(payload, fallback) => BarIn::TOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::UOptional(payload, fallback) => BarIn::UOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::VOptional(payload, fallback) => BarIn::VOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::WOptional(payload, fallback) => BarIn::WOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::XOptional(payload, fallback) => BarIn::XOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::YOptional(payload, fallback) => BarIn::YOptional(payload.into(), \
+                        Box::new((*fallback).into())),
+                    BarOut::ZOptional(payload, fallback) => BarIn::ZOptional(payload.into(), \
+                        Box::new((*fallback).into())),
                 }
             }
         }
@@ -3262,16 +3289,17 @@ pub mod metasyntactic {
                     super::super::non_varint_field_header_size(1, payload_size) + payload_size
                 }) + ({
                     let payload = &self.r_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super::va\
-                        rint_size_from_value(super::super::zigzag_encode(*payload)));
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        )));
                     super::super::non_varint_field_header_size(2, payload_size) + payload_size
                 }) + ({
                     let payload = &self.s_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
-                        = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
-                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
-                        ize });
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.len() as u64; x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::non_varint_field_header_size(3, payload_size) + payload_size
                 }) + ({
                     let payload = &self.t_required;
@@ -3287,8 +3315,9 @@ pub mod metasyntactic {
                     super::super::non_varint_field_header_size(6, payload_size) + payload_size
                 }) + ({
                     let payload = &self.w_required;
-                    let payload_size = super::super::varint_size_from_value(super::super::zigzag_en\
-                        code(*payload));
+                    let payload_size = \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        ));
                     super::super::varint_field_header_size(7) + payload_size
                 }) + ({
                     let payload = &self.x_required;
@@ -3312,16 +3341,17 @@ pub mod metasyntactic {
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
                 }) + ({
                     let payload = &self.r_unstable;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super::va\
-                        rint_size_from_value(super::super::zigzag_encode(*payload)));
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        )));
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + ({
                     let payload = &self.s_unstable;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
-                        = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
-                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
-                        ize });
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.len() as u64; x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + ({
                     let payload = &self.t_unstable;
@@ -3337,8 +3367,9 @@ pub mod metasyntactic {
                     super::super::non_varint_field_header_size(17, payload_size) + payload_size
                 }) + ({
                     let payload = &self.w_unstable;
-                    let payload_size = super::super::varint_size_from_value(super::super::zigzag_en\
-                        code(*payload));
+                    let payload_size = \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        ));
                     super::super::varint_field_header_size(18) + payload_size
                 }) + ({
                     let payload = &self.x_unstable;
@@ -3359,15 +3390,16 @@ pub mod metasyntactic {
                     let payload_size = 8_u64 * (payload.len() as u64);
                     super::super::non_varint_field_header_size(23, payload_size) + payload_size
                 }) + self.r_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super::va\
-                        rint_size_from_value(super::super::zigzag_encode(*payload)));
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        )));
                     super::super::non_varint_field_header_size(24, payload_size) + payload_size
                 }) + self.s_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
-                        = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
-                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
-                        ize });
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.len() as u64; x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::non_varint_field_header_size(25, payload_size) + payload_size
                 }) + self.t_optional.as_ref().map_or(0, |payload| {
                     let payload_size = 1_u64;
@@ -3379,8 +3411,9 @@ pub mod metasyntactic {
                     let payload_size = 8_u64;
                     super::super::non_varint_field_header_size(28, payload_size) + payload_size
                 }) + self.w_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = super::super::varint_size_from_value(super::super::zigzag_en\
-                        code(*payload));
+                    let payload_size = \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        ));
                     super::super::varint_field_header_size(29) + payload_size
                 }) + self.x_optional.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
@@ -3413,27 +3446,29 @@ pub mod metasyntactic {
 
                 {
                     let payload = &self.r_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super::va\
-                        rint_size_from_value(super::super::zigzag_encode(*payload)));
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        )));
                     super::super::serialize_non_varint_field_header(writer, 2, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(super::super::zigzag_encode(*payload), write\
-                            r)?;
+                        super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                            writer)?;
                     }
                 }
 
                 {
                     let payload = &self.s_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
-                        = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
-                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
-                        ize });
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.len() as u64; x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::serialize_non_varint_field_header(writer, 3, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { le\
-                            t payload_size = payload.len() as u64; x + super::super::varint_size_fr\
-                            om_value(payload_size) + payload_size }), writer)?;
+                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { \
+                            let payload_size = payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size }), \
+                            writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3464,8 +3499,9 @@ pub mod metasyntactic {
 
                 {
                     let payload = &self.w_required;
-                    let payload_size = super::super::varint_size_from_value(super::super::zigzag_en\
-                        code(*payload));
+                    let payload_size = \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        ));
                     super::super::serialize_varint_field_header(writer, 7)?;
                     super::super::serialize_varint(super::super::zigzag_encode(*payload), writer)?;
                 }
@@ -3509,27 +3545,29 @@ pub mod metasyntactic {
 
                 {
                     let payload = &self.r_unstable;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super::va\
-                        rint_size_from_value(super::super::zigzag_encode(*payload)));
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        )));
                     super::super::serialize_non_varint_field_header(writer, 13, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(super::super::zigzag_encode(*payload), write\
-                            r)?;
+                        super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                            writer)?;
                     }
                 }
 
                 {
                     let payload = &self.s_unstable;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
-                        = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
-                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
-                        ize });
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.len() as u64; x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::serialize_non_varint_field_header(writer, 14, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { le\
-                            t payload_size = payload.len() as u64; x + super::super::varint_size_fr\
-                            om_value(payload_size) + payload_size }), writer)?;
+                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { \
+                            let payload_size = payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size }), \
+                            writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3560,8 +3598,9 @@ pub mod metasyntactic {
 
                 {
                     let payload = &self.w_unstable;
-                    let payload_size = super::super::varint_size_from_value(super::super::zigzag_en\
-                        code(*payload));
+                    let payload_size = \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        ));
                     super::super::serialize_varint_field_header(writer, 18)?;
                     super::super::serialize_varint(super::super::zigzag_encode(*payload), writer)?;
                 }
@@ -3602,26 +3641,28 @@ pub mod metasyntactic {
                 }
 
                 if let Some(payload) = &self.r_optional {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + super::super::va\
-                        rint_size_from_value(super::super::zigzag_encode(*payload)));
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        )));
                     super::super::serialize_non_varint_field_header(writer, 24, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(super::super::zigzag_encode(*payload), write\
-                            r)?;
+                        super::super::serialize_varint(super::super::zigzag_encode(*payload), \
+                            writer)?;
                     }
                 }
 
                 if let Some(payload) = &self.s_optional {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
-                        = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
-                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
-                        ize });
+                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
+                        payload_size = payload.len() as u64; x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
+                        super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::serialize_non_varint_field_header(writer, 25, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { le\
-                            t payload_size = payload.len() as u64; x + super::super::varint_size_fr\
-                            om_value(payload_size) + payload_size }), writer)?;
+                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { \
+                            let payload_size = payload.len() as u64; x + \
+                            super::super::varint_size_from_value(payload_size) + payload_size }), \
+                            writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3648,8 +3689,9 @@ pub mod metasyntactic {
                 }
 
                 if let Some(payload) = &self.w_optional {
-                    let payload_size = super::super::varint_size_from_value(super::super::zigzag_en\
-                        code(*payload));
+                    let payload_size = \
+                        super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
+                        ));
                     super::super::serialize_varint_field_header(writer, 29)?;
                     super::super::serialize_varint(super::super::zigzag_encode(*payload), writer)?;
                 }
@@ -3717,8 +3759,8 @@ pub mod metasyntactic {
                 let mut z_optional: Option<()> = None;
 
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut *reader) \
-                        {
+                    let (index, size) = match super::super::deserialize_field_header(&mut \
+                        *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -3733,14 +3775,14 @@ pub mod metasyntactic {
 
                     match index {
                         0 => {
-                            let payload = vec![(); super::super::deserialize_varint(&mut sub_reader\
-                                )? as usize];
+                            let payload = vec![(); super::super::deserialize_varint(&mut \
+                                sub_reader)? as usize];
 
                             p_required.get_or_insert(payload);
                         }
                         1 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -3766,10 +3808,11 @@ pub mod metasyntactic {
                             q_required.get_or_insert(payload);
                         }
                         2 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<i64> {
-                                let payload = super::super::zigzag_decode(super::super::deserialize\
-                                    _varint(&mut sub_reader)?);
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<i64> {
+                                let payload = \
+                                    super::super::zigzag_decode(super::super::deserialize_varint(&\
+                                    mut sub_reader)?);
 
                                 Ok(payload)
                             }
@@ -3795,8 +3838,8 @@ pub mod metasyntactic {
                             let mut payload = Vec::new();
 
                             loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_\
-                                    reader) {
+                                let element_size = match super::super::deserialize_varint(&mut \
+                                    sub_reader) {
                                     Ok(element_size) => element_size,
                                     Err(err) => {
                                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -3807,18 +3850,18 @@ pub mod metasyntactic {
                                     }
                                 };
 
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element\
-                                    _size);
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
+                                    element_size);
                                 payload.push({
                                     let mut payload = Vec::new();
 
                                     loop {
-                                        let element_size = match super::super::deserialize_varint(&\
-                                            mut sub_reader) {
+                                        let element_size = match \
+                                            super::super::deserialize_varint(&mut sub_reader) {
                                             Ok(element_size) => element_size,
                                             Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind\
-                                                    () {
+                                                if let std::io::ErrorKind::UnexpectedEof = \
+                                                    err.kind() {
                                                     break;
                                                 }
 
@@ -3826,15 +3869,15 @@ pub mod metasyntactic {
                                             }
                                         };
 
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader\
-                                            , element_size);
+                                        let mut sub_reader = ::std::io::Read::take(&mut \
+                                            sub_reader, element_size);
                                         payload.push({
                                             let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buff\
-                                                er)?;
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
+                                                buffer)?;
                                             let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKin\
-                                                    d::Other, err)),
+                                                |err| Err(::std::io::Error::new(::std::io::\
+                                                    ErrorKind::Other, err)),
                                                 |result| Ok(result.to_owned()),
                                             )?;
                                             payload
@@ -3867,8 +3910,9 @@ pub mod metasyntactic {
                             v_required.get_or_insert(payload);
                         }
                         7 => {
-                            let payload = super::super::zigzag_decode(super::super::deserialize_var\
-                                int(&mut sub_reader)?);
+                            let payload = \
+                                super::super::zigzag_decode(super::super::deserialize_varint(&mut \
+                                sub_reader)?);
 
                             w_required.get_or_insert(payload);
                         }
@@ -3893,14 +3937,14 @@ pub mod metasyntactic {
                             z_required.get_or_insert(payload);
                         }
                         11 => {
-                            let payload = vec![(); super::super::deserialize_varint(&mut sub_reader\
-                                )? as usize];
+                            let payload = vec![(); super::super::deserialize_varint(&mut \
+                                sub_reader)? as usize];
 
                             p_unstable.get_or_insert(payload);
                         }
                         12 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -3926,10 +3970,11 @@ pub mod metasyntactic {
                             q_unstable.get_or_insert(payload);
                         }
                         13 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<i64> {
-                                let payload = super::super::zigzag_decode(super::super::deserialize\
-                                    _varint(&mut sub_reader)?);
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<i64> {
+                                let payload = \
+                                    super::super::zigzag_decode(super::super::deserialize_varint(&\
+                                    mut sub_reader)?);
 
                                 Ok(payload)
                             }
@@ -3955,8 +4000,8 @@ pub mod metasyntactic {
                             let mut payload = Vec::new();
 
                             loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_\
-                                    reader) {
+                                let element_size = match super::super::deserialize_varint(&mut \
+                                    sub_reader) {
                                     Ok(element_size) => element_size,
                                     Err(err) => {
                                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -3967,18 +4012,18 @@ pub mod metasyntactic {
                                     }
                                 };
 
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element\
-                                    _size);
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
+                                    element_size);
                                 payload.push({
                                     let mut payload = Vec::new();
 
                                     loop {
-                                        let element_size = match super::super::deserialize_varint(&\
-                                            mut sub_reader) {
+                                        let element_size = match \
+                                            super::super::deserialize_varint(&mut sub_reader) {
                                             Ok(element_size) => element_size,
                                             Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind\
-                                                    () {
+                                                if let std::io::ErrorKind::UnexpectedEof = \
+                                                    err.kind() {
                                                     break;
                                                 }
 
@@ -3986,15 +4031,15 @@ pub mod metasyntactic {
                                             }
                                         };
 
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader\
-                                            , element_size);
+                                        let mut sub_reader = ::std::io::Read::take(&mut \
+                                            sub_reader, element_size);
                                         payload.push({
                                             let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buff\
-                                                er)?;
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
+                                                buffer)?;
                                             let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKin\
-                                                    d::Other, err)),
+                                                |err| Err(::std::io::Error::new(::std::io::\
+                                                    ErrorKind::Other, err)),
                                                 |result| Ok(result.to_owned()),
                                             )?;
                                             payload
@@ -4027,8 +4072,9 @@ pub mod metasyntactic {
                             v_unstable.get_or_insert(payload);
                         }
                         18 => {
-                            let payload = super::super::zigzag_decode(super::super::deserialize_var\
-                                int(&mut sub_reader)?);
+                            let payload = \
+                                super::super::zigzag_decode(super::super::deserialize_varint(&mut \
+                                sub_reader)?);
 
                             w_unstable.get_or_insert(payload);
                         }
@@ -4053,14 +4099,14 @@ pub mod metasyntactic {
                             z_unstable.get_or_insert(payload);
                         }
                         22 => {
-                            let payload = vec![(); super::super::deserialize_varint(&mut sub_reader\
-                                )? as usize];
+                            let payload = vec![(); super::super::deserialize_varint(&mut \
+                                sub_reader)? as usize];
 
                             p_optional.get_or_insert(payload);
                         }
                         23 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -4086,10 +4132,11 @@ pub mod metasyntactic {
                             q_optional.get_or_insert(payload);
                         }
                         24 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -\
-                                > ::std::io::Result<i64> {
-                                let payload = super::super::zigzag_decode(super::super::deserialize\
-                                    _varint(&mut sub_reader)?);
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
+                                T) -> ::std::io::Result<i64> {
+                                let payload = \
+                                    super::super::zigzag_decode(super::super::deserialize_varint(&\
+                                    mut sub_reader)?);
 
                                 Ok(payload)
                             }
@@ -4115,8 +4162,8 @@ pub mod metasyntactic {
                             let mut payload = Vec::new();
 
                             loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_\
-                                    reader) {
+                                let element_size = match super::super::deserialize_varint(&mut \
+                                    sub_reader) {
                                     Ok(element_size) => element_size,
                                     Err(err) => {
                                         if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -4127,18 +4174,18 @@ pub mod metasyntactic {
                                     }
                                 };
 
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element\
-                                    _size);
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
+                                    element_size);
                                 payload.push({
                                     let mut payload = Vec::new();
 
                                     loop {
-                                        let element_size = match super::super::deserialize_varint(&\
-                                            mut sub_reader) {
+                                        let element_size = match \
+                                            super::super::deserialize_varint(&mut sub_reader) {
                                             Ok(element_size) => element_size,
                                             Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind\
-                                                    () {
+                                                if let std::io::ErrorKind::UnexpectedEof = \
+                                                    err.kind() {
                                                     break;
                                                 }
 
@@ -4146,15 +4193,15 @@ pub mod metasyntactic {
                                             }
                                         };
 
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader\
-                                            , element_size);
+                                        let mut sub_reader = ::std::io::Read::take(&mut \
+                                            sub_reader, element_size);
                                         payload.push({
                                             let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buff\
-                                                er)?;
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
+                                                buffer)?;
                                             let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKin\
-                                                    d::Other, err)),
+                                                |err| Err(::std::io::Error::new(::std::io::\
+                                                    ErrorKind::Other, err)),
                                                 |result| Ok(result.to_owned()),
                                             )?;
                                             payload
@@ -4187,8 +4234,9 @@ pub mod metasyntactic {
                             v_optional.get_or_insert(payload);
                         }
                         29 => {
-                            let payload = super::super::zigzag_decode(super::super::deserialize_var\
-                                int(&mut sub_reader)?);
+                            let payload = \
+                                super::super::zigzag_decode(super::super::deserialize_varint(&mut \
+                                sub_reader)?);
 
                             w_optional.get_or_insert(payload);
                         }
@@ -4218,10 +4266,10 @@ pub mod metasyntactic {
                     }
                 }
 
-                if p_required.is_none() || q_required.is_none() || r_required.is_none() || s_requir\
-                    ed.is_none() || t_required.is_none() || u_required.is_none() || v_required.is_n\
-                    one() || w_required.is_none() || x_required.is_none() || y_required.is_none() |\
-                    | z_required.is_none() {
+                if p_required.is_none() || q_required.is_none() || r_required.is_none() || \
+                    s_required.is_none() || t_required.is_none() || u_required.is_none() || \
+                    v_required.is_none() || w_required.is_none() || x_required.is_none() || \
+                    y_required.is_none() || z_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
