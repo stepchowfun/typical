@@ -318,7 +318,7 @@ mod tests {
         };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
-            import 'bar.t' as bar
+            import 'bar.t'
 
             struct foo {
               x: bar.bar = 0
@@ -508,7 +508,7 @@ mod tests {
         };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
-            import 'bar.t' as bar
+            import 'bar.t'
 
             struct foo {
               x: bar.bar = 0
@@ -550,7 +550,7 @@ mod tests {
         };
         let foo_path = Path::new("foo.t").to_owned();
         let foo_contents = "
-            import 'bar.t' as bar
+            import 'bar.t'
 
             struct foo {
               x: bar.bar = 0
@@ -563,7 +563,7 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            import 'foo.t' as foo
+            import 'foo.t'
 
             choice bar {
               x: foo.foo = 0
