@@ -53,6 +53,8 @@ The Rust code generator has a unit test which contains a large string of generat
 ```ruby
 #!/usr/bin/env ruby
 
+MAX_COLUMNS = 100
+
 File.read('integration-tests/rust/src/types.rs').each_line do |line|
   line.gsub!('\\', '\\\\\\\\')
   line.gsub!('"', '\\"')
@@ -60,20 +62,37 @@ File.read('integration-tests/rust/src/types.rs').each_line do |line|
   indentation = line[/\A */] + '    '
 
   while line
-    if line.size <= 100
+    if line.size <= MAX_COLUMNS
       puts(line)
       break
     end
 
-    split_pos = 99
+    split_index = MAX_COLUMNS - 1
 
-    while line[split_pos] == ' '
-      split_pos -= 1
+    while line[split_index] == ' '
+      split_index -= 1
+
+      if split_index == 0
+        STDERR.puts('Unable to format the file.')
+        exit(1)
+      end
     end
 
-    puts(line[0...split_pos] + '\\')
+    trailing_word_prefix = line[0...split_index][/\b(\w+|\W+)\Z/]
+    if trailing_word_prefix && trailing_word_prefix.size != split_index
+      split_index -= trailing_word_prefix.size
+    end
 
-    line = indentation + line[split_pos..]
+    if split_index > 1 && line[split_index - 1] != ' '
+      space_rindex = line.rindex(' ', split_index - 2)
+      if space_rindex && space_rindex + 1 > indentation.size + 4
+          split_index = space_rindex + 1
+      end
+    end
+
+    puts(line[0...split_index] + '\\')
+
+    line = indentation + line[split_index..]
   end
 end
 ```
