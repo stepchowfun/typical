@@ -4,7 +4,7 @@ use crate::{
     identifier::Identifier,
     schema, token,
 };
-use std::{collections::BTreeMap, path::Path};
+use std::{char::REPLACEMENT_CHARACTER, collections::BTreeMap, path::Path};
 
 // This function computes the source range for a token, or the empty range at the end of the source
 // file in the case where the given position is at the end of the token stream.
@@ -391,28 +391,54 @@ fn parse_import(
         None,
     );
 
-    // Consume the `as` keyword.
-    consume_token_0!(
-        source_path,
-        source_contents,
-        tokens,
-        &mut *position,
-        errors,
-        As,
-        None,
-    );
+    // Determine if the import name was given explicitly.
+    let explicit_import_name = if *position == tokens.len() {
+        false
+    } else {
+        matches!(tokens[*position].variant, token::Variant::As)
+    };
 
-    // Parse the name.
-    let name = consume_token_1!(
-        source_path,
-        source_contents,
-        tokens,
-        &mut *position,
-        errors,
-        Identifier,
-        "a name for the import",
-        None,
-    );
+    // Determine the import name.
+    let name = if explicit_import_name {
+        // Consume the `as` keyword.
+        consume_token_0!(
+            source_path,
+            source_contents,
+            tokens,
+            &mut *position,
+            errors,
+            As,
+            None,
+        );
+
+        // Parse the name.
+        consume_token_1!(
+            source_path,
+            source_contents,
+            tokens,
+            &mut *position,
+            errors,
+            Identifier,
+            "a name for the import",
+            None,
+        )
+    } else if let Some(file_stem) = path.file_stem() {
+        // The `to_string_lossy` is semantically a no-op because the path was parsed from a
+        // file which is guaranteed to be valid UTF-8.
+        file_stem.to_string_lossy().as_ref().into()
+    } else {
+        errors.push(throw::<Error>(
+            "Unable to infer a name for this import.",
+            Some(source_path),
+            Some(&listing(
+                source_contents,
+                span_tokens(tokens, start, *position),
+            )),
+            None,
+        ));
+
+        REPLACEMENT_CHARACTER.to_string().as_str().into()
+    };
 
     // Construct and return the import.
     Some((
@@ -742,8 +768,8 @@ mod tests {
     fn parse_example() {
         let source_path = Path::new("foo.t");
         let source = "
-            import 'baz.t' as baz
-            import 'qux.t' as qux
+            import 'baz.t'
+            import 'qux.t' as corge
 
             # This is a struct.
             struct foo {
@@ -754,7 +780,7 @@ mod tests {
 
             # This is a choice.
             choice bar {
-              x: qux.qux = 0
+              x: corge.qux = 0
               unstable y: bytes = 1
               z: f64 = 2
             }
@@ -766,16 +792,16 @@ mod tests {
         imports.insert(
             "baz".into(),
             schema::Import {
-                source_range: SourceRange { start: 13, end: 34 },
+                source_range: SourceRange { start: 13, end: 27 },
                 path: Path::new("baz.t").to_owned(),
                 namespace: None,
             },
         );
 
         imports.insert(
-            "qux".into(),
+            "corge".into(),
             schema::Import {
-                source_range: SourceRange { start: 47, end: 68 },
+                source_range: SourceRange { start: 40, end: 63 },
                 path: Path::new("qux.t").to_owned(),
                 namespace: None,
             },
@@ -784,15 +810,15 @@ mod tests {
         let foo_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 141,
-                    end: 155,
+                    start: 136,
+                    end: 150,
                 },
                 name: "x".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 144,
-                        end: 151,
+                        start: 139,
+                        end: 146,
                     },
                     variant: schema::TypeVariant::Custom(Some("baz".into()), "baz".into()),
                 },
@@ -800,15 +826,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 170,
-                    end: 189,
+                    start: 165,
+                    end: 184,
                 },
                 name: "y".into(),
                 cardinality: schema::Cardinality::Optional,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 182,
-                        end: 185,
+                        start: 177,
+                        end: 180,
                     },
                     variant: schema::TypeVariant::U64,
                 },
@@ -816,15 +842,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 204,
-                    end: 215,
+                    start: 199,
+                    end: 210,
                 },
                 name: "z".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 207,
-                        end: 211,
+                        start: 202,
+                        end: 206,
                     },
                     variant: schema::TypeVariant::Bool,
                 },
@@ -835,31 +861,31 @@ mod tests {
         let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 302,
-                    end: 316,
+                    start: 297,
+                    end: 313,
                 },
                 name: "x".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 305,
-                        end: 312,
+                        start: 300,
+                        end: 309,
                     },
-                    variant: schema::TypeVariant::Custom(Some("qux".into()), "qux".into()),
+                    variant: schema::TypeVariant::Custom(Some("corge".into()), "qux".into()),
                 },
                 index: 0,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 331,
-                    end: 352,
+                    start: 328,
+                    end: 349,
                 },
                 name: "y".into(),
                 cardinality: schema::Cardinality::Unstable,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 343,
-                        end: 348,
+                        start: 340,
+                        end: 345,
                     },
                     variant: schema::TypeVariant::Bytes,
                 },
@@ -867,15 +893,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 367,
-                    end: 377,
+                    start: 364,
+                    end: 374,
                 },
                 name: "z".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 370,
-                        end: 373,
+                        start: 367,
+                        end: 370,
                     },
                     variant: schema::TypeVariant::F64,
                 },
@@ -889,8 +915,8 @@ mod tests {
             "foo".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 114,
-                    end: 229,
+                    start: 109,
+                    end: 224,
                 },
                 variant: schema::DeclarationVariant::Struct(foo_fields),
             },
@@ -900,8 +926,8 @@ mod tests {
             "bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 275,
-                    end: 391,
+                    start: 270,
+                    end: 388,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },

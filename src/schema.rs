@@ -129,7 +129,17 @@ impl Schema {
 
 impl Import {
     fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
-        writeln!(f, "import '{}' as {}", self.path.display(), name.original())
+        if self
+            .path
+            .file_stem()
+            .map(|file_stem| file_stem.to_string_lossy().as_ref().into())
+            .as_ref()
+            == Some(name)
+        {
+            writeln!(f, "import '{}'", self.path.display())
+        } else {
+            writeln!(f, "import '{}' as {}", self.path.display(), name.original())
+        }
     }
 }
 
@@ -431,7 +441,7 @@ mod tests {
         );
 
         imports.insert(
-            "bar".into(),
+            "qux".into(),
             Import {
                 source_range: SourceRange { start: 0, end: 0 },
                 path: Path::new("bar.t").to_owned(),
@@ -445,8 +455,8 @@ mod tests {
         };
 
         let expected = "\
-            import 'bar.t' as bar\n\
-            import 'foo.t' as foo\n\
+            import 'foo.t'\n\
+            import 'bar.t' as qux\n\
         ";
 
         assert_eq!(schema.to_string(), expected);
@@ -553,7 +563,7 @@ mod tests {
         );
 
         imports.insert(
-            "bar".into(),
+            "qux".into(),
             Import {
                 source_range: SourceRange { start: 0, end: 0 },
                 path: Path::new("bar.t").to_owned(),
@@ -631,8 +641,8 @@ mod tests {
         };
 
         let expected = "\
-            import 'bar.t' as bar\n\
-            import 'foo.t' as foo\n\
+            import 'foo.t'\n\
+            import 'bar.t' as qux\n\
             \n\
             choice bar {\n\
             \x20 x: bool = 0\n\

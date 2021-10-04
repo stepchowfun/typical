@@ -1,5 +1,5 @@
-import 'metasyntactic/foo.t' as foo
-import 'metasyntactic/bar.t' as bar
+import 'metasyntactic/foo.t'
+import 'metasyntactic/bar.t'
 
 struct empty_struct {
 }
