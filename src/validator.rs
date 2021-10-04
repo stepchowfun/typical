@@ -6,7 +6,7 @@ use crate::{
 };
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 // The index will be encoded as a 64-bit integer, but two of the bits are used to help encode the
@@ -14,7 +14,6 @@ use std::{
 const MAX_FIELD_INDEX: usize = (1 << 62) - 1;
 
 // This function validates a schema and its transitive dependencies.
-#[allow(clippy::too_many_lines)]
 pub fn validate(
     schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
 ) -> Result<(), Vec<Error>> {
@@ -24,7 +23,6 @@ pub fn validate(
     // For the purpose of validating types, construct a map from (namespace, name) to
     // (schema, declaration).
     let mut all_types = HashMap::new();
-
     for (namespace, (schema, _, _)) in schemas {
         for (name, declaration) in &schema.declarations {
             match &declaration.variant {
@@ -88,71 +86,23 @@ pub fn validate(
                         }
 
                         // Validate the type.
-                        match &field.r#type.variant {
-                            schema::TypeVariant::Bool
-                            | schema::TypeVariant::Bytes
-                            | schema::TypeVariant::F64
-                            | schema::TypeVariant::S64
-                            | schema::TypeVariant::String
-                            | schema::TypeVariant::U64
-                            | schema::TypeVariant::Unit => {}
-                            schema::TypeVariant::Custom(import, name) => {
-                                // Determine which file the type is from.
-                                let type_namespace = if let Some(import) = import {
-                                    if let Some(import) = schema.imports.get(import) {
-                                        // The `unwrap` is safe due to [ref:namespace_populated].
-                                        import.namespace.clone().unwrap()
-                                    } else {
-                                        errors.push(throw::<Error>(
-                                            &format!(
-                                                "There is no import named {} in this file.",
-                                                import.code_str(),
-                                            ),
-                                            Some(source_path),
-                                            Some(&listing(
-                                                source_contents,
-                                                field.r#type.source_range,
-                                            )),
-                                            None,
-                                        ));
-
-                                        continue;
-                                    }
-                                } else {
-                                    namespace.clone()
-                                };
-
-                                // Check that the type exists in that file.
-                                if !all_types.contains_key(&(type_namespace.clone(), name.clone()))
-                                {
-                                    errors.push(throw::<Error>(
-                                        &if let Some(import) = import {
-                                            format!(
-                                                "There is no type named {} in import {}.",
-                                                name.code_str(),
-                                                import.code_str(),
-                                            )
-                                        } else {
-                                            format!(
-                                                "There is no type named {} in this file.",
-                                                name.code_str(),
-                                            )
-                                        },
-                                        Some(source_path),
-                                        Some(&listing(source_contents, field.r#type.source_range)),
-                                        None,
-                                    ));
-                                }
-                            }
-                        }
+                        validate_type(
+                            &all_types,
+                            &mut errors,
+                            namespace,
+                            schema,
+                            source_path,
+                            source_contents,
+                            &field.r#type,
+                        );
                     }
                 }
             }
         }
     }
 
-    // Check for cycles if the schemas are otherwise valid.
-    // [tag:schemas_valid_except_possible_cycles]
+    // Check for cycles if the schemas are otherwise valid
+    // [tag:schemas_valid_except_possible_cycles].
     if errors.is_empty() {
         let mut types_checked = HashSet::new();
         let mut types_visited_set = HashSet::new();
@@ -160,7 +110,7 @@ pub fn validate(
 
         for (namespace, (schema, _, _)) in schemas {
             for name in schema.declarations.keys() {
-                check_type_for_cycles(
+                check_declaration_for_cycles(
                     &all_types,
                     &mut types_checked,
                     &mut types_visited_set,
@@ -181,8 +131,81 @@ pub fn validate(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn check_type_for_cycles(
+// This function validates an individual type.
+fn validate_type(
+    all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
+    errors: &mut Vec<Error>,
+    namespace: &schema::Namespace,
+    schema: &schema::Schema,
+    source_path: &Path,
+    source_contents: &str,
+    r#type: &schema::Type,
+) {
+    match &r#type.variant {
+        schema::TypeVariant::Array(inner_type) => {
+            validate_type(
+                all_types,
+                errors,
+                namespace,
+                schema,
+                source_path,
+                source_contents,
+                inner_type,
+            );
+        }
+        schema::TypeVariant::Bool
+        | schema::TypeVariant::Bytes
+        | schema::TypeVariant::F64
+        | schema::TypeVariant::S64
+        | schema::TypeVariant::String
+        | schema::TypeVariant::U64
+        | schema::TypeVariant::Unit => {}
+        schema::TypeVariant::Custom(import, name) => {
+            // Determine which file the type is from.
+            let type_namespace = if let Some(import) = import {
+                if let Some(import) = schema.imports.get(import) {
+                    // The `unwrap` is safe due to [ref:namespace_populated].
+                    import.namespace.clone().unwrap()
+                } else {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "There is no import named {} in this file.",
+                            import.code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, r#type.source_range)),
+                        None,
+                    ));
+
+                    return;
+                }
+            } else {
+                namespace.clone()
+            };
+
+            // Check that the type exists in that file.
+            if !all_types.contains_key(&(type_namespace, name.clone())) {
+                errors.push(throw::<Error>(
+                    &if let Some(import) = import {
+                        format!(
+                            "There is no type named {} in import {}.",
+                            name.code_str(),
+                            import.code_str(),
+                        )
+                    } else {
+                        format!("There is no type named {} in this file.", name.code_str())
+                    },
+                    Some(source_path),
+                    Some(&listing(source_contents, r#type.source_range)),
+                    None,
+                ));
+            }
+        }
+    }
+}
+
+// This function checks that declarations have no cycles.
+fn check_declaration_for_cycles(
     all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
     types_checked: &mut HashSet<(schema::Namespace, Identifier)>,
     types_visited_set: &mut HashSet<(schema::Namespace, Identifier)>,
@@ -235,45 +258,19 @@ fn check_type_for_cycles(
     // Check the type of each field. The `unwrap` is safe due to
     // [ref:schemas_valid_except_possible_cycles].
     let (schema, declaration) = all_types.get(&qualified_type).unwrap();
-
     match &declaration.variant {
         schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
             for field in fields {
-                match &field.r#type.variant {
-                    schema::TypeVariant::Bool
-                    | schema::TypeVariant::Bytes
-                    | schema::TypeVariant::F64
-                    | schema::TypeVariant::S64
-                    | schema::TypeVariant::String
-                    | schema::TypeVariant::U64
-                    | schema::TypeVariant::Unit => {}
-                    schema::TypeVariant::Custom(import, type_name) => {
-                        let type_namespace = import.as_ref().map_or_else(
-                            || namespace.clone(),
-                            |import|
-                                // The first `unwrap` is safe due to
-                                // [ref:schemas_valid_except_possible_cycles]. The second `unwrap`
-                                // is safe due to [ref:namespace_populated].
-                                schema
-                                .imports
-                                .get(import)
-                                .unwrap()
-                                .namespace
-                                .clone()
-                                .unwrap(),
-                        );
-
-                        check_type_for_cycles(
-                            all_types,
-                            types_checked,
-                            types_visited_set,
-                            types_visited_vec,
-                            errors,
-                            &type_namespace,
-                            type_name,
-                        );
-                    }
-                }
+                check_type_for_cycles(
+                    all_types,
+                    types_checked,
+                    types_visited_set,
+                    types_visited_vec,
+                    errors,
+                    namespace,
+                    schema,
+                    &field.r#type,
+                );
             }
         }
     }
@@ -284,6 +281,67 @@ fn check_type_for_cycles(
 
     // Record that the type has been checked.
     types_checked.insert(qualified_type);
+}
+
+// This function checks that types have no cycles.
+#[allow(clippy::too_many_arguments)]
+fn check_type_for_cycles(
+    all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
+    types_checked: &mut HashSet<(schema::Namespace, Identifier)>,
+    types_visited_set: &mut HashSet<(schema::Namespace, Identifier)>,
+    types_visited_vec: &mut Vec<(schema::Namespace, Identifier)>,
+    errors: &mut Vec<Error>,
+    namespace: &schema::Namespace,
+    schema: &schema::Schema,
+    r#type: &schema::Type,
+) {
+    match &r#type.variant {
+        schema::TypeVariant::Array(inner_type) => {
+            check_type_for_cycles(
+                all_types,
+                types_checked,
+                types_visited_set,
+                types_visited_vec,
+                errors,
+                namespace,
+                schema,
+                inner_type,
+            );
+        }
+        schema::TypeVariant::Bool
+        | schema::TypeVariant::Bytes
+        | schema::TypeVariant::F64
+        | schema::TypeVariant::S64
+        | schema::TypeVariant::String
+        | schema::TypeVariant::U64
+        | schema::TypeVariant::Unit => {}
+        schema::TypeVariant::Custom(import, name) => {
+            let type_namespace = import.as_ref().map_or_else(
+                || namespace.clone(),
+                |import|
+                    // The first `unwrap` is safe due to
+                    // [ref:schemas_valid_except_possible_cycles]. The second `unwrap`
+                    // is safe due to [ref:namespace_populated].
+                    schema
+                    .imports
+                    .get(import)
+                    .unwrap()
+                    .namespace
+                    .clone()
+                    .unwrap(),
+            );
+
+            check_declaration_for_cycles(
+                all_types,
+                types_checked,
+                types_visited_set,
+                types_visited_vec,
+                errors,
+                &type_namespace,
+                name,
+            );
+        }
+    }
 }
 
 #[cfg(test)]
@@ -322,7 +380,8 @@ mod tests {
 
             struct foo {
               x: bar.bar = 0
-              y: bar.bar = 1
+              y: [bar.bar] = 1
+              unstable z: string = 2
             }
         "
         .to_owned();
@@ -335,6 +394,7 @@ mod tests {
             choice bar {
               x: bool = 0
               y: f64 = 1
+              optional z: u64 = 2
             }
         "
         .to_owned();
@@ -478,6 +538,30 @@ mod tests {
     }
 
     #[test]
+    fn validate_non_existent_field_import_in_array() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct foo {
+              x: [bar.bar] = 0
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "There is no import named `bar` in this file.",
+        );
+    }
+
+    #[test]
     fn validate_non_existent_field_type_same_file() {
         let namespace = Namespace {
             components: vec!["foo".into()],
@@ -486,6 +570,30 @@ mod tests {
         let contents = "
             struct foo {
               x: bar = 0
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "There is no type named `bar` in this file.",
+        );
+    }
+
+    #[test]
+    fn validate_non_existent_field_type_in_array_same_file() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct foo {
+              x: [bar] = 0
             }
         "
         .to_owned();
@@ -544,6 +652,48 @@ mod tests {
     }
 
     #[test]
+    fn validate_non_existent_field_type_in_array_different_file() {
+        let foo_namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let foo_path = Path::new("foo.t").to_owned();
+        let foo_contents = "
+            import 'bar.t'
+
+            struct foo {
+              x: [bar.bar] = 0
+            }
+        "
+        .to_owned();
+
+        let bar_namespace = Namespace {
+            components: vec!["bar".into()],
+        };
+        let bar_path = Path::new("bar.t").to_owned();
+        let bar_contents = "
+            struct qux {
+            }
+        "
+        .to_owned();
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
+        let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
+        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "There is no type named `bar` in import `bar`.",
+        );
+    }
+
+    #[test]
     fn validate_cycle() {
         let foo_namespace = Namespace {
             components: vec!["foo".into()],
@@ -554,6 +704,52 @@ mod tests {
 
             struct foo {
               x: bar.bar = 0
+            }
+        "
+        .to_owned();
+
+        let bar_namespace = Namespace {
+            components: vec!["bar".into()],
+        };
+        let bar_path = Path::new("bar.t").to_owned();
+        let bar_contents = "
+            import 'foo.t'
+
+            choice bar {
+              x: foo.foo = 0
+            }
+        "
+        .to_owned();
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
+        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        bar_schema.imports.get_mut(&"foo".into()).unwrap().namespace = Some(foo_namespace.clone());
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
+        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "Cycle detected: `bar.bar` \u{2192} `foo.foo` \u{2192} `bar.bar`.",
+        );
+    }
+
+    #[test]
+    fn validate_cycle_in_array() {
+        let foo_namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let foo_path = Path::new("foo.t").to_owned();
+        let foo_contents = "
+            import 'bar.t'
+
+            struct foo {
+              x: [bar.bar] = 0
             }
         "
         .to_owned();

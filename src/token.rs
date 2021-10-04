@@ -42,9 +42,11 @@ pub enum Variant {
     Import,
     Integer(usize),
     LeftCurly,
+    LeftSquare,
     Optional,
     Path(PathBuf),
     RightCurly,
+    RightSquare,
     S64,
     String,
     Struct,
@@ -74,9 +76,11 @@ impl Display for Variant {
             Self::Import => write!(f, "{}", IMPORT_KEYWORD),
             Self::Integer(integer) => write!(f, "{}", integer),
             Self::LeftCurly => write!(f, "{{"),
+            Self::LeftSquare => write!(f, "["),
             Self::Optional => write!(f, "{}", OPTIONAL_KEYWORD),
             Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::RightCurly => write!(f, "}}"),
+            Self::RightSquare => write!(f, "]"),
             Self::S64 => write!(f, "{}", S64_KEYWORD),
             Self::String => write!(f, "{}", STRING_KEYWORD),
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
@@ -174,6 +178,11 @@ mod tests {
     }
 
     #[test]
+    fn variant_left_square_display() {
+        assert_eq!(format!("{}", Variant::LeftSquare), "[");
+    }
+
+    #[test]
     fn variant_optional_display() {
         assert_eq!(format!("{}", Variant::Optional), OPTIONAL_KEYWORD);
     }
@@ -189,6 +198,11 @@ mod tests {
     #[test]
     fn variant_right_curly_display() {
         assert_eq!(format!("{}", Variant::RightCurly), "}");
+    }
+
+    #[test]
+    fn variant_right_square_display() {
+        assert_eq!(format!("{}", Variant::RightSquare), "]");
     }
 
     #[test]

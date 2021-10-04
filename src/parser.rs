@@ -593,120 +593,8 @@ fn parse_field(
         return None;
     }
 
-    // Parse the type.
-    let type_start = *position;
-    let r#type = if let token::Variant::Bool = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Bool,
-        }
-    } else if let token::Variant::Bytes = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Bytes,
-        }
-    } else if let token::Variant::F64 = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::F64,
-        }
-    } else if let token::Variant::S64 = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::S64,
-        }
-    } else if let token::Variant::String = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::String,
-        }
-    } else if let token::Variant::U64 = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::U64,
-        }
-    } else if let token::Variant::Unit = tokens[*position].variant {
-        *position += 1;
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Unit,
-        }
-    } else {
-        let (import_name, r#type_name) = if *position < tokens.len() - 2 {
-            if let Some(token::Variant::Dot) = tokens.get(*position + 1).map(|token| &token.variant)
-            {
-                let import = consume_token_1!(
-                    source_path,
-                    source_contents,
-                    tokens,
-                    &mut *position,
-                    errors,
-                    Identifier,
-                    "the name of an import",
-                    None,
-                );
-
-                *position += 1;
-
-                let r#type = consume_token_1!(
-                    source_path,
-                    source_contents,
-                    tokens,
-                    &mut *position,
-                    errors,
-                    Identifier,
-                    "a type for the field",
-                    None,
-                );
-
-                (Some(import), r#type)
-            } else {
-                let r#type = consume_token_1!(
-                    source_path,
-                    source_contents,
-                    tokens,
-                    &mut *position,
-                    errors,
-                    Identifier,
-                    "a type for the field",
-                    None,
-                );
-
-                (None, r#type)
-            }
-        } else {
-            let r#type = consume_token_1!(
-                source_path,
-                source_contents,
-                tokens,
-                &mut *position,
-                errors,
-                Identifier,
-                "a type for the field",
-                None,
-            );
-
-            (None, r#type)
-        };
-
-        schema::Type {
-            source_range: span_tokens(tokens, type_start, *position),
-            variant: schema::TypeVariant::Custom(import_name, r#type_name),
-        }
-    };
+    // Parse the type [ref:parse_type_some_advance].
+    let r#type = parse_type(source_path, source_contents, tokens, position, errors)?;
 
     // Consume the equals sign.
     consume_token_0!(
@@ -739,6 +627,170 @@ fn parse_field(
         r#type,
         index,
     })
+}
+
+// Parse a type. If this function returns `None`, then at least one error was added to `errors`.
+// Otherwise, the `position` is guaranteed to have advanced [tag:parse_type_some_advance].
+#[allow(clippy::too_many_lines)]
+fn parse_type(
+    source_path: &Path,
+    source_contents: &str,
+    tokens: &[token::Token],
+    position: &mut usize,
+    errors: &mut Vec<Error>,
+) -> Option<schema::Type> {
+    let start = *position;
+
+    // Make sure we have a token to parse next.
+    if *position == tokens.len() {
+        errors.push(unexpected_token(
+            source_path,
+            source_contents,
+            tokens,
+            *position,
+            "a type",
+        ));
+
+        return None;
+    }
+
+    // Parse the type.
+    if let token::Variant::LeftSquare = tokens[*position].variant {
+        *position += 1;
+
+        if let Some(inner_type) = parse_type(source_path, source_contents, tokens, position, errors)
+        {
+            // Consume the right square bracket.
+            consume_token_0!(
+                source_path,
+                source_contents,
+                tokens,
+                &mut *position,
+                errors,
+                RightSquare,
+                None,
+            );
+
+            Some(schema::Type {
+                source_range: span_tokens(tokens, start, *position),
+                variant: schema::TypeVariant::Array(Box::new(inner_type)),
+            })
+        } else {
+            // [ref:parse_type_some_advance]
+            None
+        }
+    } else if let token::Variant::Bool = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::Bool,
+        })
+    } else if let token::Variant::Bytes = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::Bytes,
+        })
+    } else if let token::Variant::F64 = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::F64,
+        })
+    } else if let token::Variant::S64 = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::S64,
+        })
+    } else if let token::Variant::String = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::String,
+        })
+    } else if let token::Variant::U64 = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::U64,
+        })
+    } else if let token::Variant::Unit = tokens[*position].variant {
+        *position += 1;
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::Unit,
+        })
+    } else {
+        let (import_name, r#type_name) = if *position < tokens.len() - 2 {
+            if let Some(token::Variant::Dot) = tokens.get(*position + 1).map(|token| &token.variant)
+            {
+                let import = consume_token_1!(
+                    source_path,
+                    source_contents,
+                    tokens,
+                    &mut *position,
+                    errors,
+                    Identifier,
+                    "the name of an import",
+                    None,
+                );
+
+                *position += 1;
+
+                let r#type = consume_token_1!(
+                    source_path,
+                    source_contents,
+                    tokens,
+                    &mut *position,
+                    errors,
+                    Identifier,
+                    "a type",
+                    None,
+                );
+
+                (Some(import), r#type)
+            } else {
+                let r#type = consume_token_1!(
+                    source_path,
+                    source_contents,
+                    tokens,
+                    &mut *position,
+                    errors,
+                    Identifier,
+                    "a type",
+                    None,
+                );
+
+                (None, r#type)
+            }
+        } else {
+            let r#type = consume_token_1!(
+                source_path,
+                source_contents,
+                tokens,
+                &mut *position,
+                errors,
+                Identifier,
+                "a type",
+                None,
+            );
+
+            (None, r#type)
+        };
+
+        Some(schema::Type {
+            source_range: span_tokens(tokens, start, *position),
+            variant: schema::TypeVariant::Custom(import_name, r#type_name),
+        })
+    }
 }
 
 #[cfg(test)]
@@ -775,13 +827,13 @@ mod tests {
             struct foo {
               x: baz.baz = 0
               optional y: u64 = 1
-              z: bool = 2
+              z: [bool] = 2
             }
 
             # This is a choice.
             choice bar {
               x: corge.qux = 0
-              unstable y: bytes = 1
+              unstable y: [bytes] = 1
               z: f64 = 2
             }
         ";
@@ -843,16 +895,22 @@ mod tests {
             schema::Field {
                 source_range: SourceRange {
                     start: 199,
-                    end: 210,
+                    end: 212,
                 },
                 name: "z".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 202,
-                        end: 206,
+                        end: 208,
                     },
-                    variant: schema::TypeVariant::Bool,
+                    variant: schema::TypeVariant::Array(Box::new(schema::Type {
+                        source_range: SourceRange {
+                            start: 203,
+                            end: 207,
+                        },
+                        variant: schema::TypeVariant::Bool,
+                    })),
                 },
                 index: 2,
             },
@@ -861,15 +919,15 @@ mod tests {
         let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 297,
-                    end: 313,
+                    start: 299,
+                    end: 315,
                 },
                 name: "x".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 300,
-                        end: 309,
+                        start: 302,
+                        end: 311,
                     },
                     variant: schema::TypeVariant::Custom(Some("corge".into()), "qux".into()),
                 },
@@ -877,31 +935,37 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 328,
-                    end: 349,
+                    start: 330,
+                    end: 353,
                 },
                 name: "y".into(),
                 cardinality: schema::Cardinality::Unstable,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 340,
-                        end: 345,
+                        start: 342,
+                        end: 349,
                     },
-                    variant: schema::TypeVariant::Bytes,
+                    variant: schema::TypeVariant::Array(Box::new(schema::Type {
+                        source_range: SourceRange {
+                            start: 343,
+                            end: 348,
+                        },
+                        variant: schema::TypeVariant::Bytes,
+                    })),
                 },
                 index: 1,
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 364,
-                    end: 374,
+                    start: 368,
+                    end: 378,
                 },
                 name: "z".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 367,
-                        end: 370,
+                        start: 371,
+                        end: 374,
                     },
                     variant: schema::TypeVariant::F64,
                 },
@@ -916,7 +980,7 @@ mod tests {
             schema::Declaration {
                 source_range: SourceRange {
                     start: 109,
-                    end: 224,
+                    end: 226,
                 },
                 variant: schema::DeclarationVariant::Struct(foo_fields),
             },
@@ -926,8 +990,8 @@ mod tests {
             "bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 270,
-                    end: 388,
+                    start: 272,
+                    end: 392,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },

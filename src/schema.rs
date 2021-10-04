@@ -58,14 +58,15 @@ pub struct Type {
 
 #[derive(Clone, Debug)]
 pub enum TypeVariant {
+    Array(Box<Type>),
     Bool,
     Bytes,
+    Custom(Option<Identifier>, Identifier), // (import, name)
     F64,
     S64,
     String,
     U64,
     Unit,
-    Custom(Option<Identifier>, Identifier), // (import, name)
 }
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -205,11 +206,21 @@ impl Type {
 impl TypeVariant {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
+            Self::Array(inner_type) => {
+                write!(f, "[{}]", inner_type)?;
+            }
             Self::Bool => {
                 write!(f, "bool")?;
             }
             Self::Bytes => {
                 write!(f, "bytes")?;
+            }
+            Self::Custom(import, name) => {
+                if let Some(import) = import {
+                    write!(f, "{}.{}", import.original(), name.original())?;
+                } else {
+                    write!(f, "{}", name.original())?;
+                }
             }
             Self::F64 => {
                 write!(f, "f64")?;
@@ -225,13 +236,6 @@ impl TypeVariant {
             }
             Self::Unit => {
                 write!(f, "unit")?;
-            }
-            Self::Custom(import, name) => {
-                if let Some(import) = import {
-                    write!(f, "{}.{}", import.original(), name.original())?;
-                } else {
-                    write!(f, "{}", name.original())?;
-                }
             }
         }
         Ok(())
@@ -659,6 +663,21 @@ mod tests {
     }
 
     #[test]
+    fn type_display_array() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Array(Box::new(Type {
+                source_range: SourceRange { start: 0, end: 0 },
+                variant: TypeVariant::Bool,
+            })),
+        };
+
+        let expected = "[bool]";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
     fn type_display_bool() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
@@ -678,6 +697,30 @@ mod tests {
         };
 
         let expected = "bytes";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
+    fn type_display_custom_no_import() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Custom(None, "int".into()),
+        };
+
+        let expected = "int";
+
+        assert_eq!(r#type.to_string(), expected);
+    }
+
+    #[test]
+    fn type_display_custom_import() {
+        let r#type = Type {
+            source_range: SourceRange { start: 0, end: 0 },
+            variant: TypeVariant::Custom(Some("foo".into()), "int".into()),
+        };
+
+        let expected = "foo.int";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -738,30 +781,6 @@ mod tests {
         };
 
         let expected = "unit";
-
-        assert_eq!(r#type.to_string(), expected);
-    }
-
-    #[test]
-    fn type_display_custom_no_import() {
-        let r#type = Type {
-            source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Custom(None, "int".into()),
-        };
-
-        let expected = "int";
-
-        assert_eq!(r#type.to_string(), expected);
-    }
-
-    #[test]
-    fn type_display_custom_import() {
-        let r#type = Type {
-            source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Custom(Some("foo".into()), "int".into()),
-        };
-
-        let expected = "foo.int";
 
         assert_eq!(r#type.to_string(), expected);
     }
