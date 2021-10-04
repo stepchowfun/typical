@@ -46,6 +46,38 @@ macro_rules! my_macro {
 }
 ```
 
+### The Rust code generation unit test
+
+The Rust code generator has a unit test which contains a large string of generated code produced from the schemas in `integration-tests/types`. This generated code generally doesn't adhere to the 100-column line length limit enforced by the lint CI check. The following Ruby script can be used to wrap the lines for inclusion in the unit test such that they conform to the line length limit:
+
+```ruby
+#!/usr/bin/env ruby
+
+File.read('integration-tests/rust/src/types.rs').each_line do |line|
+  line.gsub!('\\', '\\\\\\\\')
+  line.gsub!('"', '\\"')
+
+  indentation = line[/\A */] + '    '
+
+  while line
+    if line.size <= 100
+      puts(line)
+      break
+    end
+
+    split_pos = 99
+
+    while line[split_pos] == ' '
+      split_pos -= 1
+    end
+
+    puts(line[0...split_pos] + '\\')
+
+    line = indentation + line[split_pos..]
+  end
+end
+```
+
 ## Style guides for generated code
 
 ### Rust
@@ -77,12 +109,12 @@ However, our policy is that generated code should pass all checks in `clippy::al
 )]
 ```
 
-This list of exempt checks can be amended as needed to accommodate future developments, but such amendments must be justified.
+This isn't currently enforced by any CI check. The list of exempt checks can be amended as needed to accommodate future developments, but such amendments must be justified.
 
-To ensure the generated code does not cause code formatting checks to fail, the generated code also disables [Rustfmt](https://github.com/rust-lang/rustfmt) as follows:
+To ensure the generated code doesn't cause code formatting checks to fail, the generated code also disables [Rustfmt](https://github.com/rust-lang/rustfmt) for all top-level constructs as follows:
 
 ```rust
 #[rustfmt::skip]
 ```
 
-However, our policy is that the generated code should be formatted in the same style as handwritten code when doing so doesn't add significant complexity to the code generator. The formatting of handwritten code is enforced by Rustfmt in a CI check.
+Our policy is that the generated code should be formatted in the same style as handwritten code when doing so doesn't add significant complexity to the code generator, although this is also not enforced by any CI check. The formatting of handwritten code is enforced by Rustfmt in a CI check.

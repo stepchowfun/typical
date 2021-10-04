@@ -2200,9 +2200,9 @@ pub mod metasyntactic {
                     BarOut::SRequired(ref payload) => {
                         let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_si\
                             ze = payload.iter().fold(0_u64, |x, payload| { let payload_size = paylo\
-                                ad.len() as u64; x + super::super::varint_size_from_value(payload_s\
-                                    ize) + payload_size }); x + super::super::varint_size_from_valu\
-                                        e(payload_size) + payload_size });
+                            ad.len() as u64; x + super::super::varint_size_from_value(payload_size\
+                            ) + payload_size }); x + super::super::varint_size_from_value(payload_s\
+                            ize) + payload_size });
                         super::super::non_varint_field_header_size(3, payload_size) +
                             payload_size
                     }
@@ -2265,9 +2265,9 @@ pub mod metasyntactic {
                     BarOut::SUnstable(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_si\
                             ze = payload.iter().fold(0_u64, |x, payload| { let payload_size = paylo\
-                                ad.len() as u64; x + super::super::varint_size_from_value(payload_s\
-                                    ize) + payload_size }); x + super::super::varint_size_from_valu\
-                                        e(payload_size) + payload_size });
+                            ad.len() as u64; x + super::super::varint_size_from_value(payload_size\
+                            ) + payload_size }); x + super::super::varint_size_from_value(payload_s\
+                            ize) + payload_size });
                         super::super::non_varint_field_header_size(14, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2338,9 +2338,9 @@ pub mod metasyntactic {
                     BarOut::SOptional(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_si\
                             ze = payload.iter().fold(0_u64, |x, payload| { let payload_size = paylo\
-                                ad.len() as u64; x + super::super::varint_size_from_value(payload_s\
-                                    ize) + payload_size }); x + super::super::varint_size_from_valu\
-                                        e(payload_size) + payload_size });
+                            ad.len() as u64; x + super::super::varint_size_from_value(payload_size\
+                            ) + payload_size }); x + super::super::varint_size_from_value(payload_s\
+                            ize) + payload_size });
                         super::super::non_varint_field_header_size(25, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2410,7 +2410,7 @@ pub mod metasyntactic {
                     BarOut::RRequired(ref payload) => {
                         super::super::serialize_non_varint_field_header(writer, 2, payload.iter().f\
                             old(0_u64, |x, payload| x + super::super::varint_size_from_value(super:\
-                                :super::zigzag_encode(*payload))))?;
+                            :super::zigzag_encode(*payload))))?;
                         for payload in payload {
                             super::super::serialize_varint(super::super::zigzag_encode(*payload), w\
                                 riter)?;
@@ -2420,14 +2420,13 @@ pub mod metasyntactic {
                     BarOut::SRequired(ref payload) => {
                         super::super::serialize_non_varint_field_header(writer, 3, payload.iter().f\
                             old(0_u64, |x, payload| { let payload_size = payload.iter().fold(0_u64\
-                                , |x, payload| { let payload_size = payload.len() as u64; x + super\
-                                    ::super::varint_size_from_value(payload_size) + payload_size })\
-                                        ; x + super::super::varint_size_from_value(payload_size) + \
-                                            payload_size }))?;
+                            , |x, payload| { let payload_size = payload.len() as u64; x + super::su\
+                            per::varint_size_from_value(payload_size) + payload_size }); x + super:\
+                            :super::varint_size_from_value(payload_size) + payload_size }))?;
                         for payload in payload {
                             super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| \
                                 { let payload_size = payload.len() as u64; x + super::super::varint\
-                                    _size_from_value(payload_size) + payload_size }), writer)?;
+                                _size_from_value(payload_size) + payload_size }), writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2490,7 +2489,7 @@ pub mod metasyntactic {
                     BarOut::RUnstable(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 13, payload.iter().\
                             fold(0_u64, |x, payload| x + super::super::varint_size_from_value(super\
-                                ::super::zigzag_encode(*payload))))?;
+                            ::super::zigzag_encode(*payload))))?;
                         for payload in payload {
                             super::super::serialize_varint(super::super::zigzag_encode(*payload), w\
                                 riter)?;
@@ -2500,14 +2499,13 @@ pub mod metasyntactic {
                     BarOut::SUnstable(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 14, payload.iter().\
                             fold(0_u64, |x, payload| { let payload_size = payload.iter().fold(0_u64\
-                                , |x, payload| { let payload_size = payload.len() as u64; x + super\
-                                    ::super::varint_size_from_value(payload_size) + payload_size })\
-                                        ; x + super::super::varint_size_from_value(payload_size) + \
-                                            payload_size }))?;
+                            , |x, payload| { let payload_size = payload.len() as u64; x + super::su\
+                            per::varint_size_from_value(payload_size) + payload_size }); x + super:\
+                            :super::varint_size_from_value(payload_size) + payload_size }))?;
                         for payload in payload {
                             super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| \
                                 { let payload_size = payload.len() as u64; x + super::super::varint\
-                                    _size_from_value(payload_size) + payload_size }), writer)?;
+                                _size_from_value(payload_size) + payload_size }), writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2570,7 +2568,7 @@ pub mod metasyntactic {
                     BarOut::ROptional(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 24, payload.iter().\
                             fold(0_u64, |x, payload| x + super::super::varint_size_from_value(super\
-                                ::super::zigzag_encode(*payload))))?;
+                            ::super::zigzag_encode(*payload))))?;
                         for payload in payload {
                             super::super::serialize_varint(super::super::zigzag_encode(*payload), w\
                                 riter)?;
@@ -2580,14 +2578,13 @@ pub mod metasyntactic {
                     BarOut::SOptional(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 25, payload.iter().\
                             fold(0_u64, |x, payload| { let payload_size = payload.iter().fold(0_u64\
-                                , |x, payload| { let payload_size = payload.len() as u64; x + super\
-                                    ::super::varint_size_from_value(payload_size) + payload_size })\
-                                        ; x + super::super::varint_size_from_value(payload_size) + \
-                                            payload_size }))?;
+                            , |x, payload| { let payload_size = payload.len() as u64; x + super::su\
+                            per::varint_size_from_value(payload_size) + payload_size }); x + super:\
+                            :super::varint_size_from_value(payload_size) + payload_size }))?;
                         for payload in payload {
                             super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| \
                                 { let payload_size = payload.len() as u64; x + super::super::varint\
-                                    _size_from_value(payload_size) + payload_size }), writer)?;
+                                _size_from_value(payload_size) + payload_size }), writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -3272,9 +3269,9 @@ pub mod metasyntactic {
                     let payload = &self.s_required;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
                         = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                            ) as u64; x + super::super::varint_size_from_value(payload_size) + payl\
-                                oad_size }); x + super::super::varint_size_from_value(payload_size\
-                                    ) + payload_size });
+                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
+                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
+                        ize });
                     super::super::non_varint_field_header_size(3, payload_size) + payload_size
                 }) + ({
                     let payload = &self.t_required;
@@ -3322,9 +3319,9 @@ pub mod metasyntactic {
                     let payload = &self.s_unstable;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
                         = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                            ) as u64; x + super::super::varint_size_from_value(payload_size) + payl\
-                                oad_size }); x + super::super::varint_size_from_value(payload_size\
-                                    ) + payload_size });
+                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
+                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
+                        ize });
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + ({
                     let payload = &self.t_unstable;
@@ -3368,9 +3365,9 @@ pub mod metasyntactic {
                 }) + self.s_optional.as_ref().map_or(0, |payload| {
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
                         = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                            ) as u64; x + super::super::varint_size_from_value(payload_size) + payl\
-                                oad_size }); x + super::super::varint_size_from_value(payload_size\
-                                    ) + payload_size });
+                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
+                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
+                        ize });
                     super::super::non_varint_field_header_size(25, payload_size) + payload_size
                 }) + self.t_optional.as_ref().map_or(0, |payload| {
                     let payload_size = 1_u64;
@@ -3429,14 +3426,14 @@ pub mod metasyntactic {
                     let payload = &self.s_required;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
                         = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                            ) as u64; x + super::super::varint_size_from_value(payload_size) + payl\
-                                oad_size }); x + super::super::varint_size_from_value(payload_size\
-                                    ) + payload_size });
+                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
+                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
+                        ize });
                     super::super::serialize_non_varint_field_header(writer, 3, payload_size)?;
                     for payload in payload {
                         super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { le\
                             t payload_size = payload.len() as u64; x + super::super::varint_size_fr\
-                                om_value(payload_size) + payload_size }), writer)?;
+                            om_value(payload_size) + payload_size }), writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3525,14 +3522,14 @@ pub mod metasyntactic {
                     let payload = &self.s_unstable;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
                         = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                            ) as u64; x + super::super::varint_size_from_value(payload_size) + payl\
-                                oad_size }); x + super::super::varint_size_from_value(payload_size\
-                                    ) + payload_size });
+                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
+                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
+                        ize });
                     super::super::serialize_non_varint_field_header(writer, 14, payload_size)?;
                     for payload in payload {
                         super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { le\
                             t payload_size = payload.len() as u64; x + super::super::varint_size_fr\
-                                om_value(payload_size) + payload_size }), writer)?;
+                            om_value(payload_size) + payload_size }), writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3617,14 +3614,14 @@ pub mod metasyntactic {
                 if let Some(payload) = &self.s_optional {
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let payload_size \
                         = payload.iter().fold(0_u64, |x, payload| { let payload_size = payload.len(\
-                            ) as u64; x + super::super::varint_size_from_value(payload_size) + payl\
-                                oad_size }); x + super::super::varint_size_from_value(payload_size\
-                                    ) + payload_size });
+                        ) as u64; x + super::super::varint_size_from_value(payload_size) + payload_\
+                        size }); x + super::super::varint_size_from_value(payload_size) + payload_s\
+                        ize });
                     super::super::serialize_non_varint_field_header(writer, 25, payload_size)?;
                     for payload in payload {
                         super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { le\
                             t payload_size = payload.len() as u64; x + super::super::varint_size_fr\
-                                om_value(payload_size) + payload_size }), writer)?;
+                            om_value(payload_size) + payload_size }), writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -4223,8 +4220,8 @@ pub mod metasyntactic {
 
                 if p_required.is_none() || q_required.is_none() || r_required.is_none() || s_requir\
                     ed.is_none() || t_required.is_none() || u_required.is_none() || v_required.is_n\
-                        one() || w_required.is_none() || x_required.is_none() || y_required.is_none\
-                            () || z_required.is_none() {
+                    one() || w_required.is_none() || x_required.is_none() || y_required.is_none() |\
+                    | z_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
