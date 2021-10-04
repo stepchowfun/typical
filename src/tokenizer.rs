@@ -68,6 +68,15 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     variant: Variant::LeftCurly,
                 });
             }
+            '[' => {
+                tokens.push(Token {
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
+                    variant: Variant::LeftSquare,
+                });
+            }
             '}' => {
                 tokens.push(Token {
                     source_range: SourceRange {
@@ -75,6 +84,15 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         end: i + 1,
                     },
                     variant: Variant::RightCurly,
+                });
+            }
+            ']' => {
+                tokens.push(Token {
+                    source_range: SourceRange {
+                        start: i,
+                        end: i + 1,
+                    },
+                    variant: Variant::RightSquare,
                 });
             }
 
@@ -560,6 +578,17 @@ mod tests {
     }
 
     #[test]
+    fn tokenize_left_square() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), "[").unwrap(),
+            vec![Token {
+                source_range: SourceRange { start: 0, end: 1 },
+                variant: Variant::LeftSquare,
+            }],
+        );
+    }
+
+    #[test]
     fn tokenize_optional() {
         assert_same!(
             tokenize(Path::new("foo.t"), OPTIONAL_KEYWORD).unwrap(),
@@ -610,6 +639,17 @@ mod tests {
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::RightCurly,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_right_square() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), "]").unwrap(),
+            vec![Token {
+                source_range: SourceRange { start: 0, end: 1 },
+                variant: Variant::RightSquare,
             }],
         );
     }
