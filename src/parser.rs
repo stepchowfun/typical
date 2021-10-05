@@ -569,32 +569,47 @@ fn parse_field(
         None,
     );
 
-    // Consume the colon.
-    consume_token_0!(
-        source_path,
-        source_contents,
-        tokens,
-        &mut *position,
-        errors,
-        Colon,
-        None,
-    );
+    // Determine if the type was given explicitly.
+    let explicit_type = if *position == tokens.len() {
+        false
+    } else {
+        matches!(tokens[*position].variant, token::Variant::Colon)
+    };
 
-    // Make sure we have a token to parse next.
-    if *position == tokens.len() {
-        errors.push(unexpected_token(
+    // Parse the type, if applicable.
+    let r#type = if explicit_type {
+        // Consume the colon.
+        consume_token_0!(
             source_path,
             source_contents,
             tokens,
-            *position,
-            "a type",
-        ));
+            &mut *position,
+            errors,
+            Colon,
+            None,
+        );
 
-        return None;
-    }
+        // Make sure we have a token to parse next.
+        if *position == tokens.len() {
+            errors.push(unexpected_token(
+                source_path,
+                source_contents,
+                tokens,
+                *position,
+                "a type",
+            ));
 
-    // Parse the type [ref:parse_type_some_advance].
-    let r#type = parse_type(source_path, source_contents, tokens, position, errors)?;
+            return None;
+        }
+
+        // Parse the type [ref:parse_type_some_advance].
+        parse_type(source_path, source_contents, tokens, position, errors)?
+    } else {
+        schema::Type {
+            source_range: span_tokens(tokens, *position, *position),
+            variant: schema::TypeVariant::Unit,
+        }
+    };
 
     // Consume the equals sign.
     consume_token_0!(
@@ -825,16 +840,18 @@ mod tests {
 
             # This is a struct.
             struct foo {
-              x: baz.baz = 0
-              optional y: u64 = 1
-              z: [bool] = 2
+              w: baz.baz = 0
+              optional x: u64 = 1
+              y: [bool] = 2
+              z = 3
             }
 
             # This is a choice.
             choice bar {
-              x: corge.qux = 0
-              unstable y: [bytes] = 1
-              z: f64 = 2
+              w: corge.qux = 0
+              unstable x: [bytes] = 1
+              y: f64 = 2
+              z = 3
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
@@ -865,7 +882,7 @@ mod tests {
                     start: 136,
                     end: 150,
                 },
-                name: "x".into(),
+                name: "w".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -881,7 +898,7 @@ mod tests {
                     start: 165,
                     end: 184,
                 },
-                name: "y".into(),
+                name: "x".into(),
                 cardinality: schema::Cardinality::Optional,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -897,7 +914,7 @@ mod tests {
                     start: 199,
                     end: 212,
                 },
-                name: "z".into(),
+                name: "y".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
@@ -914,20 +931,36 @@ mod tests {
                 },
                 index: 2,
             },
+            schema::Field {
+                source_range: SourceRange {
+                    start: 227,
+                    end: 232,
+                },
+                name: "z".into(),
+                cardinality: schema::Cardinality::Required,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 229,
+                        end: 229,
+                    },
+                    variant: schema::TypeVariant::Unit,
+                },
+                index: 3,
+            },
         ];
 
         let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 299,
-                    end: 315,
+                    start: 319,
+                    end: 335,
                 },
-                name: "x".into(),
+                name: "w".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 302,
-                        end: 311,
+                        start: 322,
+                        end: 331,
                     },
                     variant: schema::TypeVariant::Custom(Some("corge".into()), "qux".into()),
                 },
@@ -935,20 +968,20 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 330,
-                    end: 353,
+                    start: 350,
+                    end: 373,
                 },
-                name: "y".into(),
+                name: "x".into(),
                 cardinality: schema::Cardinality::Unstable,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 342,
-                        end: 349,
+                        start: 362,
+                        end: 369,
                     },
                     variant: schema::TypeVariant::Array(Box::new(schema::Type {
                         source_range: SourceRange {
-                            start: 343,
-                            end: 348,
+                            start: 363,
+                            end: 368,
                         },
                         variant: schema::TypeVariant::Bytes,
                     })),
@@ -957,19 +990,35 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 368,
-                    end: 378,
+                    start: 388,
+                    end: 398,
+                },
+                name: "y".into(),
+                cardinality: schema::Cardinality::Required,
+                r#type: schema::Type {
+                    source_range: SourceRange {
+                        start: 391,
+                        end: 394,
+                    },
+                    variant: schema::TypeVariant::F64,
+                },
+                index: 2,
+            },
+            schema::Field {
+                source_range: SourceRange {
+                    start: 413,
+                    end: 418,
                 },
                 name: "z".into(),
                 cardinality: schema::Cardinality::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 371,
-                        end: 374,
+                        start: 415,
+                        end: 415,
                     },
-                    variant: schema::TypeVariant::F64,
+                    variant: schema::TypeVariant::Unit,
                 },
-                index: 2,
+                index: 3,
             },
         ];
 
@@ -980,7 +1029,7 @@ mod tests {
             schema::Declaration {
                 source_range: SourceRange {
                     start: 109,
-                    end: 226,
+                    end: 246,
                 },
                 variant: schema::DeclarationVariant::Struct(foo_fields),
             },
@@ -990,8 +1039,8 @@ mod tests {
             "bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 272,
-                    end: 392,
+                    start: 292,
+                    end: 432,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },

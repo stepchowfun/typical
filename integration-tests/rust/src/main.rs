@@ -138,7 +138,7 @@ fn main() -> io::Result<()> {
     round_trip::<BarOut, BarIn>(BarOut::WRequired(i64::MIN))?;
     round_trip::<BarOut, BarIn>(BarOut::XRequired("Hello, World!".to_owned()))?;
     round_trip::<BarOut, BarIn>(BarOut::YRequired(u64::MAX))?;
-    round_trip::<BarOut, BarIn>(BarOut::ZRequired(()))?;
+    round_trip::<BarOut, BarIn>(BarOut::ZRequired)?;
 
     let fallback = BarOut::TRequired(true);
 
@@ -174,7 +174,7 @@ fn main() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     round_trip::<BarOut, BarIn>(BarOut::YUnstable(u64::MAX, Box::new(fallback.clone())))?;
-    round_trip::<BarOut, BarIn>(BarOut::ZUnstable((), Box::new(fallback.clone())))?;
+    round_trip::<BarOut, BarIn>(BarOut::ZUnstable(Box::new(fallback.clone())))?;
 
     round_trip::<BarOut, BarIn>(BarOut::POptional(
         vec![(), (), ()],
@@ -208,7 +208,7 @@ fn main() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     round_trip::<BarOut, BarIn>(BarOut::YOptional(u64::MAX, Box::new(fallback.clone())))?;
-    round_trip::<BarOut, BarIn>(BarOut::ZOptional((), Box::new(fallback)))?;
+    round_trip::<BarOut, BarIn>(BarOut::ZOptional(Box::new(fallback)))?;
 
     println!();
 
