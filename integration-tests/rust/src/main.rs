@@ -4,7 +4,7 @@ mod types;
 
 use {
     std::{
-        f64::consts::PI,
+        f64::consts::{E, PI},
         fmt::Debug,
         io::{self, Error, ErrorKind},
     },
@@ -32,7 +32,7 @@ fn main() -> io::Result<()> {
         t_required: true,
         u_required: vec![0, 42, 255],
         v_required: PI,
-        w_required: i64::MIN,
+        w_required: i64::MAX,
         x_required: "Hello, World!".to_owned(),
         y_required: u64::MAX,
         z_required: (),
@@ -48,7 +48,7 @@ fn main() -> io::Result<()> {
         t_unstable: true,
         u_unstable: vec![0, 42, 255],
         v_unstable: PI,
-        w_unstable: i64::MIN,
+        w_unstable: i64::MAX,
         x_unstable: "Hello, World!".to_owned(),
         y_unstable: u64::MAX,
         z_unstable: (),
@@ -80,7 +80,7 @@ fn main() -> io::Result<()> {
         t_required: true,
         u_required: vec![0, 42, 255],
         v_required: PI,
-        w_required: i64::MIN,
+        w_required: i64::MAX,
         x_required: "Hello, World!".to_owned(),
         y_required: u64::MAX,
         z_required: (),
@@ -96,7 +96,7 @@ fn main() -> io::Result<()> {
         t_unstable: true,
         u_unstable: vec![0, 42, 255],
         v_unstable: PI,
-        w_unstable: i64::MIN,
+        w_unstable: i64::MAX,
         x_unstable: "Hello, World!".to_owned(),
         y_unstable: u64::MAX,
         z_unstable: (),
@@ -112,7 +112,7 @@ fn main() -> io::Result<()> {
         t_optional: Some(true),
         u_optional: Some(vec![0, 42, 255]),
         v_optional: Some(PI),
-        w_optional: Some(i64::MIN),
+        w_optional: Some(i64::MAX),
         x_optional: Some("Hello, World!".to_owned()),
         y_optional: Some(u64::MAX),
         z_optional: Some(()),
@@ -120,24 +120,86 @@ fn main() -> io::Result<()> {
 
     println!();
 
+    round_trip::<BarOut, BarIn>(BarOut::PRequired(vec![]))?;
+    round_trip::<BarOut, BarIn>(BarOut::PRequired(vec![()]))?;
+    round_trip::<BarOut, BarIn>(BarOut::PRequired(vec![(), ()]))?;
     round_trip::<BarOut, BarIn>(BarOut::PRequired(vec![(), (), ()]))?;
+
+    round_trip::<BarOut, BarIn>(BarOut::QRequired(vec![]))?;
+    round_trip::<BarOut, BarIn>(BarOut::QRequired(vec![f64::NEG_INFINITY]))?;
+    round_trip::<BarOut, BarIn>(BarOut::QRequired(vec![f64::NEG_INFINITY, f64::INFINITY]))?;
     round_trip::<BarOut, BarIn>(BarOut::QRequired(vec![
         f64::NEG_INFINITY,
         f64::INFINITY,
         f64::NAN,
     ]))?;
+
+    round_trip::<BarOut, BarIn>(BarOut::RRequired(vec![]))?;
+    round_trip::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN]))?;
+    round_trip::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN, 0]))?;
     round_trip::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN, 0, i64::MAX]))?;
+
+    round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![]))?;
+    round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![vec![]]))?;
+    round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![]]))?;
+    round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![], vec![]]))?;
+    round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![vec![
+        "Hello".to_owned(),
+        "World".to_owned(),
+    ]]))?;
+    round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![
+        vec!["Hello".to_owned(), "World".to_owned()],
+        vec!["Hello".to_owned(), "Earth".to_owned()],
+    ]))?;
     round_trip::<BarOut, BarIn>(BarOut::SRequired(vec![
         vec!["Hello".to_owned(), "World".to_owned()],
         vec!["Hello".to_owned(), "Earth".to_owned()],
         vec!["Hello".to_owned(), "Planet".to_owned()],
     ]))?;
+
+    round_trip::<BarOut, BarIn>(BarOut::TRequired(false))?;
     round_trip::<BarOut, BarIn>(BarOut::TRequired(true))?;
+
+    round_trip::<BarOut, BarIn>(BarOut::URequired(vec![]))?;
+    round_trip::<BarOut, BarIn>(BarOut::URequired(vec![0]))?;
+    round_trip::<BarOut, BarIn>(BarOut::URequired(vec![0, 42]))?;
     round_trip::<BarOut, BarIn>(BarOut::URequired(vec![0, 42, 255]))?;
+
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(0.0_f64))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(E))?;
     round_trip::<BarOut, BarIn>(BarOut::VRequired(PI))?;
-    round_trip::<BarOut, BarIn>(BarOut::WRequired(i64::MIN))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::EPSILON))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::INFINITY))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::MAX))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::MIN))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::MIN_POSITIVE))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::NAN))?;
+    round_trip::<BarOut, BarIn>(BarOut::VRequired(f64::NEG_INFINITY))?;
+
+    for i in i64::MIN..=i64::MIN + 1000 {
+        round_trip::<BarOut, BarIn>(BarOut::WRequired(i))?;
+    }
+    for i in -1000_i64..=1000_i64 {
+        round_trip::<BarOut, BarIn>(BarOut::WRequired(i))?;
+    }
+    for i in i64::MAX - 1000..=i64::MAX {
+        round_trip::<BarOut, BarIn>(BarOut::WRequired(i))?;
+    }
+
+    round_trip::<BarOut, BarIn>(BarOut::XRequired("".to_owned()))?;
+    round_trip::<BarOut, BarIn>(BarOut::XRequired("=8 bytes".to_owned()))?;
     round_trip::<BarOut, BarIn>(BarOut::XRequired("Hello, World!".to_owned()))?;
-    round_trip::<BarOut, BarIn>(BarOut::YRequired(u64::MAX))?;
+
+    for i in u64::MIN..=u64::MIN + 1000 {
+        round_trip::<BarOut, BarIn>(BarOut::YRequired(i))?;
+    }
+    for i in u64::MAX / 2 - 1000..=u64::MAX / 2 + 1000 {
+        round_trip::<BarOut, BarIn>(BarOut::YRequired(i))?;
+    }
+    for i in u64::MAX - 1000..=u64::MAX {
+        round_trip::<BarOut, BarIn>(BarOut::YRequired(i))?;
+    }
+
     round_trip::<BarOut, BarIn>(BarOut::ZRequired)?;
 
     let fallback = BarOut::TRequired(true);
@@ -168,7 +230,7 @@ fn main() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     round_trip::<BarOut, BarIn>(BarOut::VUnstable(PI, Box::new(fallback.clone())))?;
-    round_trip::<BarOut, BarIn>(BarOut::WUnstable(i64::MIN, Box::new(fallback.clone())))?;
+    round_trip::<BarOut, BarIn>(BarOut::WUnstable(i64::MAX, Box::new(fallback.clone())))?;
     round_trip::<BarOut, BarIn>(BarOut::XUnstable(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
@@ -202,7 +264,7 @@ fn main() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     round_trip::<BarOut, BarIn>(BarOut::VOptional(PI, Box::new(fallback.clone())))?;
-    round_trip::<BarOut, BarIn>(BarOut::WOptional(i64::MIN, Box::new(fallback.clone())))?;
+    round_trip::<BarOut, BarIn>(BarOut::WOptional(i64::MAX, Box::new(fallback.clone())))?;
     round_trip::<BarOut, BarIn>(BarOut::XOptional(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
@@ -225,7 +287,7 @@ fn main() -> io::Result<()> {
             t_required: true,
             u_required: vec![0, 42, 255],
             v_required: PI,
-            w_required: i64::MIN,
+            w_required: i64::MAX,
             x_required: "Hello, World!".to_owned(),
             y_required: u64::MAX,
             z_required: (),
@@ -241,7 +303,7 @@ fn main() -> io::Result<()> {
             t_unstable: true,
             u_unstable: vec![0, 42, 255],
             v_unstable: PI,
-            w_unstable: i64::MIN,
+            w_unstable: i64::MAX,
             x_unstable: "Hello, World!".to_owned(),
             y_unstable: u64::MAX,
             z_unstable: (),
