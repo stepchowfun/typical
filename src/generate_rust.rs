@@ -113,14 +113,14 @@ fn varint_size_from_value(value: u64) -> u64 {{
     let mut size = 1_u64;
     let mut upper_bound_exclusive = 0_u64;
 
-    while size < 9_u64 {{
-        upper_bound_exclusive += 1_u64 << (size * 7_u64);
+    while size < 9 {{
+        upper_bound_exclusive += 1_u64 << (size * 7);
 
         if value < upper_bound_exclusive {{
             break;
         }}
 
-        size += 1_u64;
+        size += 1;
     }}
 
     size
@@ -1695,14 +1695,14 @@ fn varint_size_from_value(value: u64) -> u64 {
     let mut size = 1_u64;
     let mut upper_bound_exclusive = 0_u64;
 
-    while size < 9_u64 {
-        upper_bound_exclusive += 1_u64 << (size * 7_u64);
+    while size < 9 {
+        upper_bound_exclusive += 1_u64 << (size * 7);
 
         if value < upper_bound_exclusive {
             break;
         }
 
-        size += 1_u64;
+        size += 1;
     }
 
     size
