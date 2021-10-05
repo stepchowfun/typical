@@ -753,10 +753,18 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.cardinality {
                         schema::Cardinality::Optional | schema::Cardinality::Unstable => {
-                            writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(ref fallback) => {{")?;
+                            } else {
+                                writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            }
                         }
                         schema::Cardinality::Required => {
-                            writeln!(buffer, "(ref payload) => {{")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, " => {{")?;
+                            } else {
+                                writeln!(buffer, "(ref payload) => {{")?;
+                            }
                         }
                     }
                     write_indentation(buffer, indentation + 4)?;
@@ -809,10 +817,18 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.cardinality {
                         schema::Cardinality::Optional | schema::Cardinality::Unstable => {
-                            writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(ref fallback) => {{")?;
+                            } else {
+                                writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            }
                         }
                         schema::Cardinality::Required => {
-                            writeln!(buffer, "(ref payload) => {{")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, " => {{")?;
+                            } else {
+                                writeln!(buffer, "(ref payload) => {{")?;
+                            }
                         }
                     }
                     write_indentation(buffer, indentation + 4)?;
@@ -918,7 +934,11 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, name, Pascal, Some(In))?;
                             write!(buffer, "::")?;
                             write_identifier(buffer, &field.name, Pascal, None)?;
-                            writeln!(buffer, "(payload, fallback));")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(fallback));")?;
+                            } else {
+                                writeln!(buffer, "(payload, fallback));")?;
+                            }
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
                             write_indentation(buffer, indentation + 5)?;
@@ -926,7 +946,11 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, name, Pascal, Some(In))?;
                             write!(buffer, "::")?;
                             write_identifier(buffer, &field.name, Pascal, None)?;
-                            writeln!(buffer, "(payload));")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, ");")?;
+                            } else {
+                                writeln!(buffer, "(payload));")?;
+                            }
                         }
                     }
                     write_indentation(buffer, indentation + 4)?;
@@ -967,26 +991,42 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    write!(buffer, "(payload")?;
                     match field.cardinality {
-                        schema::Cardinality::Optional => {
-                            write!(buffer, ", fallback")?;
+                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                write!(buffer, "(fallback) => ")?;
+                            } else {
+                                write!(buffer, "(payload, fallback) => ")?;
+                            }
                         }
-                        schema::Cardinality::Required => {}
-                        schema::Cardinality::Unstable => {
-                            write!(buffer, ", _")?;
+                        schema::Cardinality::Required => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                write!(buffer, " => ")?;
+                            } else {
+                                write!(buffer, "(payload) => ")?;
+                            }
                         }
                     }
-                    write!(buffer, ") => ")?;
                     write_identifier(buffer, name, Pascal, Some(In))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.cardinality {
                         schema::Cardinality::Optional => {
-                            writeln!(buffer, "(payload.into(), Box::new((*fallback).into())),")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(Box::new((*fallback).into())),")?;
+                            } else {
+                                writeln!(
+                                    buffer,
+                                    "(payload.into(), Box::new((*fallback).into())),",
+                                )?;
+                            }
                         }
                         schema::Cardinality::Required | schema::Cardinality::Unstable => {
-                            writeln!(buffer, "(payload.into()),")?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, ",")?;
+                            } else {
+                                writeln!(buffer, "(payload.into()),")?;
+                            }
                         }
                     }
                 }
@@ -1083,25 +1123,31 @@ fn write_choice<T: Write>(
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
         write_identifier(buffer, &field.name, Pascal, None)?;
-        write!(buffer, "(")?;
-        write_type(buffer, imports, namespace, &field.r#type, direction)?;
-        match field.cardinality {
-            schema::Cardinality::Optional => {
-                write!(buffer, ", Box<")?;
-                write_identifier(buffer, name, Pascal, Some(direction))?;
-                write!(buffer, ">")?;
-            }
-            schema::Cardinality::Required => {}
+        let fallback = match field.cardinality {
+            schema::Cardinality::Optional => true,
+            schema::Cardinality::Required => false,
             schema::Cardinality::Unstable => match direction {
-                Direction::Out => {
-                    write!(buffer, ", Box<")?;
-                    write_identifier(buffer, name, Pascal, Some(direction))?;
-                    write!(buffer, ">")?;
-                }
-                Direction::In => {}
+                Direction::Out => true,
+                Direction::In => false,
             },
+        };
+        if fallback {
+            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                write!(buffer, "(Box<")?;
+            } else {
+                write!(buffer, "(")?;
+                write_type(buffer, imports, namespace, &field.r#type, direction)?;
+                write!(buffer, ", Box<")?;
+            }
+            write_identifier(buffer, name, Pascal, Some(direction))?;
+            writeln!(buffer, ">),")?;
+        } else if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+            writeln!(buffer, ",")?;
+        } else {
+            write!(buffer, "(")?;
+            write_type(buffer, imports, namespace, &field.r#type, direction)?;
+            writeln!(buffer, "),")?;
         }
-        writeln!(buffer, "),")?;
     }
 
     write_indentation(buffer, indentation)?;
@@ -2115,7 +2161,7 @@ pub mod metasyntactic {
             WRequired(i64),
             XRequired(String),
             YRequired(u64),
-            ZRequired(()),
+            ZRequired,
             PUnstable(Vec<()>, Box<BarOut>),
             QUnstable(Vec<f64>, Box<BarOut>),
             RUnstable(Vec<i64>, Box<BarOut>),
@@ -2126,7 +2172,7 @@ pub mod metasyntactic {
             WUnstable(i64, Box<BarOut>),
             XUnstable(String, Box<BarOut>),
             YUnstable(u64, Box<BarOut>),
-            ZUnstable((), Box<BarOut>),
+            ZUnstable(Box<BarOut>),
             POptional(Vec<()>, Box<BarOut>),
             QOptional(Vec<f64>, Box<BarOut>),
             ROptional(Vec<i64>, Box<BarOut>),
@@ -2137,7 +2183,7 @@ pub mod metasyntactic {
             WOptional(i64, Box<BarOut>),
             XOptional(String, Box<BarOut>),
             YOptional(u64, Box<BarOut>),
-            ZOptional((), Box<BarOut>),
+            ZOptional(Box<BarOut>),
         }
 
         #[derive(Clone, Debug)]
@@ -2152,7 +2198,7 @@ pub mod metasyntactic {
             WRequired(i64),
             XRequired(String),
             YRequired(u64),
-            ZRequired(()),
+            ZRequired,
             PUnstable(Vec<()>),
             QUnstable(Vec<f64>),
             RUnstable(Vec<i64>),
@@ -2163,7 +2209,7 @@ pub mod metasyntactic {
             WUnstable(i64),
             XUnstable(String),
             YUnstable(u64),
-            ZUnstable(()),
+            ZUnstable,
             POptional(Vec<()>, Box<BarIn>),
             QOptional(Vec<f64>, Box<BarIn>),
             ROptional(Vec<i64>, Box<BarIn>),
@@ -2174,7 +2220,7 @@ pub mod metasyntactic {
             WOptional(i64, Box<BarIn>),
             XOptional(String, Box<BarIn>),
             YOptional(u64, Box<BarIn>),
-            ZOptional((), Box<BarIn>),
+            ZOptional(Box<BarIn>),
         }
 
         impl super::super::Serialize for BarOut {
@@ -2240,7 +2286,7 @@ pub mod metasyntactic {
                         super::super::varint_field_header_size(9) +
                             payload_size
                     }
-                    BarOut::ZRequired(ref payload) => {
+                    BarOut::ZRequired => {
                         let payload_size = 0_u64;
                         super::super::non_varint_field_header_size(10, payload_size) +
                             payload_size
@@ -2315,7 +2361,7 @@ pub mod metasyntactic {
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::ZUnstable(ref payload, ref fallback) => {
+                    BarOut::ZUnstable(ref fallback) => {
                         let payload_size = 0_u64;
                         super::super::non_varint_field_header_size(21, payload_size) +
                             payload_size +
@@ -2391,7 +2437,7 @@ pub mod metasyntactic {
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::ZOptional(ref payload, ref fallback) => {
+                    BarOut::ZOptional(ref fallback) => {
                         let payload_size = 0_u64;
                         super::super::non_varint_field_header_size(32, payload_size) +
                             payload_size +
@@ -2480,7 +2526,7 @@ pub mod metasyntactic {
                         super::super::serialize_varint(*payload, writer)?;
                         Ok(())
                     }
-                    BarOut::ZRequired(ref payload) => {
+                    BarOut::ZRequired => {
                         super::super::serialize_non_varint_field_header(writer, 10, 0_u64)?;
                         ();
                         Ok(())
@@ -2563,7 +2609,7 @@ pub mod metasyntactic {
                         super::super::serialize_varint(*payload, writer)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::ZUnstable(ref payload, ref fallback) => {
+                    BarOut::ZUnstable(ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 21, 0_u64)?;
                         ();
                         fallback.serialize(writer)
@@ -2646,7 +2692,7 @@ pub mod metasyntactic {
                         super::super::serialize_varint(*payload, writer)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::ZOptional(ref payload, ref fallback) => {
+                    BarOut::ZOptional(ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 32, 0_u64)?;
                         ();
                         fallback.serialize(writer)
@@ -2816,7 +2862,7 @@ pub mod metasyntactic {
                         }
                         10 => {
                             let payload = ();
-                            return Ok(BarIn::ZRequired(payload));
+                            return Ok(BarIn::ZRequired);
                         }
                         11 => {
                             let payload = vec![(); super::super::deserialize_varint(&mut \
@@ -2967,7 +3013,7 @@ pub mod metasyntactic {
                         }
                         21 => {
                             let payload = ();
-                            return Ok(BarIn::ZUnstable(payload));
+                            return Ok(BarIn::ZUnstable);
                         }
                         22 => {
                             let payload = vec![(); super::super::deserialize_varint(&mut \
@@ -3140,7 +3186,7 @@ pub mod metasyntactic {
                             let payload = ();
                             let fallback = Box::new(<BarIn as \
                                 super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::ZOptional(payload, fallback));
+                            return Ok(BarIn::ZOptional(fallback));
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -3163,18 +3209,18 @@ pub mod metasyntactic {
                     BarOut::WRequired(payload) => BarIn::WRequired(payload.into()),
                     BarOut::XRequired(payload) => BarIn::XRequired(payload.into()),
                     BarOut::YRequired(payload) => BarIn::YRequired(payload.into()),
-                    BarOut::ZRequired(payload) => BarIn::ZRequired(payload.into()),
-                    BarOut::PUnstable(payload, _) => BarIn::PUnstable(payload.into()),
-                    BarOut::QUnstable(payload, _) => BarIn::QUnstable(payload.into()),
-                    BarOut::RUnstable(payload, _) => BarIn::RUnstable(payload.into()),
-                    BarOut::SUnstable(payload, _) => BarIn::SUnstable(payload.into()),
-                    BarOut::TUnstable(payload, _) => BarIn::TUnstable(payload.into()),
-                    BarOut::UUnstable(payload, _) => BarIn::UUnstable(payload.into()),
-                    BarOut::VUnstable(payload, _) => BarIn::VUnstable(payload.into()),
-                    BarOut::WUnstable(payload, _) => BarIn::WUnstable(payload.into()),
-                    BarOut::XUnstable(payload, _) => BarIn::XUnstable(payload.into()),
-                    BarOut::YUnstable(payload, _) => BarIn::YUnstable(payload.into()),
-                    BarOut::ZUnstable(payload, _) => BarIn::ZUnstable(payload.into()),
+                    BarOut::ZRequired => BarIn::ZRequired,
+                    BarOut::PUnstable(payload, fallback) => BarIn::PUnstable(payload.into()),
+                    BarOut::QUnstable(payload, fallback) => BarIn::QUnstable(payload.into()),
+                    BarOut::RUnstable(payload, fallback) => BarIn::RUnstable(payload.into()),
+                    BarOut::SUnstable(payload, fallback) => BarIn::SUnstable(payload.into()),
+                    BarOut::TUnstable(payload, fallback) => BarIn::TUnstable(payload.into()),
+                    BarOut::UUnstable(payload, fallback) => BarIn::UUnstable(payload.into()),
+                    BarOut::VUnstable(payload, fallback) => BarIn::VUnstable(payload.into()),
+                    BarOut::WUnstable(payload, fallback) => BarIn::WUnstable(payload.into()),
+                    BarOut::XUnstable(payload, fallback) => BarIn::XUnstable(payload.into()),
+                    BarOut::YUnstable(payload, fallback) => BarIn::YUnstable(payload.into()),
+                    BarOut::ZUnstable(fallback) => BarIn::ZUnstable,
                     BarOut::POptional(payload, fallback) => BarIn::POptional(payload.into(), \
                         Box::new((*fallback).into())),
                     BarOut::QOptional(payload, fallback) => BarIn::QOptional(payload.into(), \
@@ -3195,8 +3241,7 @@ pub mod metasyntactic {
                         Box::new((*fallback).into())),
                     BarOut::YOptional(payload, fallback) => BarIn::YOptional(payload.into(), \
                         Box::new((*fallback).into())),
-                    BarOut::ZOptional(payload, fallback) => BarIn::ZOptional(payload.into(), \
-                        Box::new((*fallback).into())),
+                    BarOut::ZOptional(fallback) => BarIn::ZOptional(Box::new((*fallback).into())),
                 }
             }
         }

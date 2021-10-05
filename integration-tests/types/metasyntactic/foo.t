@@ -9,7 +9,7 @@ struct foo {
   w_required: s64 = 7
   x_required: string = 8
   y_required: u64 = 9
-  z_required: unit = 10
+  z_required = 10
 
   unstable p_unstable: [unit] = 11
   unstable q_unstable: [f64] = 12
@@ -21,7 +21,7 @@ struct foo {
   unstable w_unstable: s64 = 18
   unstable x_unstable: string = 19
   unstable y_unstable: u64 = 20
-  unstable z_unstable: unit = 21
+  unstable z_unstable = 21
 
   optional p_optional: [unit] = 22
   optional q_optional: [f64] = 23
@@ -33,5 +33,5 @@ struct foo {
   optional w_optional: s64 = 29
   optional x_optional: string = 30
   optional y_optional: u64 = 31
-  optional z_optional: unit = 32
+  optional z_optional = 32
 }
