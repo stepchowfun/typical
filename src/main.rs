@@ -12,21 +12,23 @@ mod token;
 mod tokenizer;
 mod validator;
 
-use crate::{
-    count::count,
-    error::{listing, throw, Error},
-    format::CodeStr,
-    parser::parse,
-    tokenizer::tokenize,
-    validator::validate,
-};
-use clap::{App, AppSettings, Arg, Shell, SubCommand};
-use std::{
-    collections::{BTreeMap, HashSet},
-    fs::{create_dir_all, read_to_string, write},
-    io::stdout,
-    path::{Component, Path, PathBuf},
-    process::exit,
+use {
+    crate::{
+        count::count,
+        error::{listing, throw, Error},
+        format::CodeStr,
+        parser::parse,
+        tokenizer::tokenize,
+        validator::validate,
+    },
+    clap::{App, AppSettings, Arg, Shell, SubCommand},
+    std::{
+        collections::{BTreeMap, HashSet},
+        fs::{create_dir_all, read_to_string, write},
+        io::stdout,
+        path::{Component, Path, PathBuf},
+        process::exit,
+    },
 };
 
 // The program version
