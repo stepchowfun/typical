@@ -113,6 +113,7 @@ fn split_words(name: &str) -> Vec<String> {
 
     snaked
         .split('_')
+        .flat_map(|word| word.split('-'))
         .filter_map(|word| {
             if word.is_empty() {
                 None
@@ -275,6 +276,32 @@ mod tests {
     }
 
     #[test]
+    fn hash_hyphen_case() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("hello-world").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "hello_world".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn hash_hyphen_case_extra_delimiters() {
+        let mut hasher = DefaultHasher::new();
+        Identifier::from("--hello-world--").hash(&mut hasher);
+        let actual = hasher.finish();
+
+        let mut hasher = DefaultHasher::new();
+        "hello_world".hash(&mut hasher);
+        let expected = hasher.finish();
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
     fn hash_camel_case() {
         let mut hasher = DefaultHasher::new();
         Identifier::from("helloWorld").hash(&mut hasher);
@@ -334,6 +361,28 @@ mod tests {
     }
 
     #[test]
+    fn from_hyphen_case() {
+        assert_eq!(
+            Identifier::from("hello-world"),
+            Identifier {
+                original: "hello-world".to_owned(),
+                snake_case: "hello_world".to_owned(),
+            },
+        );
+    }
+
+    #[test]
+    fn from_hyphen_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("--hello-world--"),
+            Identifier {
+                original: "--hello-world--".to_owned(),
+                snake_case: "hello_world".to_owned(),
+            },
+        );
+    }
+
+    #[test]
     fn from_camel_case() {
         assert_eq!(
             Identifier::from("helloWorld"),
@@ -380,6 +429,22 @@ mod tests {
     }
 
     #[test]
+    fn code_str_hyphen_case() {
+        assert_eq!(
+            format!("{}", Identifier::from("hello-world").code_str()),
+            "`hello-world`".to_owned(),
+        );
+    }
+
+    #[test]
+    fn code_str_hyphen_case_extra_delimiters() {
+        assert_eq!(
+            format!("{}", Identifier::from("--hello-world--").code_str()),
+            "`--hello-world--`".to_owned(),
+        );
+    }
+
+    #[test]
     fn code_str_camel_case() {
         assert_eq!(
             format!("{}", Identifier::from("helloWorld").code_str()),
@@ -413,6 +478,22 @@ mod tests {
         assert_eq!(
             Identifier::from("__hello_world__").original(),
             "__hello_world__".to_owned(),
+        );
+    }
+
+    #[test]
+    fn original_hyphen_case() {
+        assert_eq!(
+            Identifier::from("hello-world").original(),
+            "hello-world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn original_hyphen_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("--hello-world--").original(),
+            "--hello-world--".to_owned(),
         );
     }
 
@@ -454,6 +535,22 @@ mod tests {
     }
 
     #[test]
+    fn snake_case_hyphen_case() {
+        assert_eq!(
+            Identifier::from("hello-world").snake_case(),
+            "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn snake_case_hyphen_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("--hello-world--").snake_case(),
+            "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
     fn snake_case_camel_case() {
         assert_eq!(
             Identifier::from("helloWorld").snake_case(),
@@ -486,6 +583,22 @@ mod tests {
     fn pascal_case_snake_case_extra_delimiters() {
         assert_eq!(
             Identifier::from("__hello_world__").pascal_case(),
+            "HelloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn pascal_case_hyphen_case() {
+        assert_eq!(
+            Identifier::from("hello-world").pascal_case(),
+            "HelloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn pascal_case_hyphen_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("--hello-world--").pascal_case(),
             "HelloWorld".to_owned(),
         );
     }
