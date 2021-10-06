@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses an efficient binary encoding, and this encoding allows you to change the types over time with forward and backward compatibility as your requirements evolve.
+*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses an compact binary encoding that allows you to change the types over time with forward and backward compatibility as your requirements evolve.
 
 The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching—especially in languages with those features, such as Rust, Kotlin, Haskell, etc. Typical has a [new solution](#required-optional-and-unstable-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
@@ -21,24 +21,24 @@ Suppose you want to build an API for sending emails. You need to decide how requ
 
 Or, you can use *Typical*, which doesn't suffer from those two issues. Moreover, Typical has a great story to tell about type safety and how to safely make changes to your API.
 
-You could start with a *schema file* called `email_api.t` with the request and response types for your email sending API:
+You might start with a *schema file* called `email_api.t` with the request and response types for your email API:
 
 ```perl
 # This is the request type for our API.
 struct send_email_request {
-  to:      string = 0
-  subject: string = 1
-  body:    string = 2
+    to: string = 0
+    subject: string = 1
+    body: string = 2
 }
 
 # This is the response type for our API.
 choice send_email_response {
-  success        = 0
-  error:  string = 1
+    success = 0
+    error: string = 1
 }
 ```
 
-A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields. A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a set of possibilities. Types built from `struct`s and `choice`s are called *algebraic data types*, due to their correspondence to an idea from category theory called *initial algebras*. You don't need to know about initial algebras to use Typical.
+A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a set of possibilities (in this case, `success` and `error`). Types built from `struct`s and `choice`s are called *algebraic data types*, due to their connection to an idea from category theory called *initial algebras*. You don't need to know anything about initial algebras to use Typical.
 
 Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
@@ -64,10 +64,10 @@ Experience has taught us that it can be difficult to introduce a required field 
 
 ```perl
 struct send_email_request {
-  to:      string = 0
-  from:    string = 3 # A new field!
-  subject: string = 1
-  body:    string = 2
+    to: string = 0
+    from: string = 3 # A new field!
+    subject: string = 1
+    body: string = 2
 }
 ```
 
@@ -100,10 +100,10 @@ Let's make that more concrete with our email API example. Instead of directly in
 
 ```perl
 struct send_email_request {
-  to:            string = 0
-  unstable from: string = 3 # A new field!
-  subject:       string = 1
-  body:          string = 2
+    to: string = 0
+    unstable from: string = 3 # A new field!
+    subject: string = 1
+    body: string = 2
 }
 ```
 
@@ -111,17 +111,17 @@ Let's take a look at the generated Rust code for this schema. We actually end up
 
 ```rust
 pub struct SendEmailRequestOut {
-    pub to:      String,
-    pub from:    String,
+    pub to: String,
+    pub from: String,
     pub subject: String,
-    pub body:    String,
+    pub body: String,
 }
 
 pub struct SendEmailRequestIn {
-    pub to:      String,
-    pub from:    Option<String>,
+    pub to: String,
+    pub from: Option<String>,
     pub subject: String,
-    pub body:    String,
+    pub body: String,
 }
 
 impl Serialize for SendEmailRequestOut {
@@ -171,8 +171,8 @@ You don't need to fit all your type definitions in one schema file. You can orga
 
 ```perl
 struct address {
-  local_part: string = 0
-  domain:     string = 1
+    local_part: string = 0
+    domain: string = 1
 }
 ```
 
@@ -182,9 +182,9 @@ Then you can import it in `email_api.t`:
 import 'email_util.t'
 
 struct send_email_request {
-  to:      email_util.address = 0
-  subject: string             = 1
-  body:    string             = 2
+    to: email_util.address = 0
+    subject: string = 1
+    body: string = 2
 }
 
 # The response type has been omitted.
@@ -203,8 +203,8 @@ import 'apis/email.t'
 import 'util/email.t'
 
 struct employee {
-  name:  string        = 0
-  email: email.address = 1 # Uh oh! Which schema is this type from?
+    name: string = 0
+    email: email.address = 1 # Uh oh! Which schema is this type from?
 }
 ```
 
@@ -215,34 +215,34 @@ import 'apis/email.t' as email_api
 import 'util/email.t' as email_util
 
 struct employee {
-  name:  string             = 0
-  email: email_util.address = 1
+    name: string = 0
+    email: email_util.address = 1
 }
 ```
 
 
 ### User-defined types
 
-Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name and a list of fields. A field consists of an optional cardinality, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
+Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name and a list of fields. A field consists of an optional rule, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
 
 ```perl
 import 'apis/email.t'
 import 'net/ip.t'
 
 choice device_ip_address {
-  v4: ip.v4_address = 0
-  v6: ip.v6_address = 1
-  dynamic           = 2
+    v4: ip.v4_address = 0
+    v6: ip.v6_address = 1
+    dynamic = 2
 }
 
 struct device {
-  hostname:            string            = 0
-  unstable ip_address: device_ip_address = 1
-  optional owner:      email.address     = 2
+    hostname: string = 0
+    unstable ip_address: device_ip_address = 1
+    optional owner: email.address = 2
 }
 ```
 
-The cardinality, if present, is either `optional` or `unstable`. The absence of a cardinality indicates that the field is required.
+The rule, if present, is either `optional` or `unstable`. The absence of a rule indicates that the field is required.
 
 The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name does not affect the size of the encoded messages, so be as descriptive as you want.
 
@@ -250,11 +250,11 @@ The type, if present, is either a built-in type (e.g., `string`), the name of a 
 
 ```perl
 choice weekday {
-  monday    = 0
-  tuesday   = 1
-  wednesday = 2
-  thursday  = 3
-  friday    = 4
+    monday = 0
+    tuesday = 1
+    wednesday = 2
+    thursday = 3
+    friday = 4
 }
 ```
 

@@ -37,14 +37,14 @@ pub enum DeclarationVariant {
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
-    pub cardinality: Cardinality,
+    pub rule: Rule,
     pub name: Identifier,
     pub r#type: Type,
     pub index: usize,
 }
 
 #[derive(Clone, Debug)]
-pub enum Cardinality {
+pub enum Rule {
     Optional,
     Required,
     Unstable,
@@ -177,14 +177,14 @@ impl DeclarationVariant {
 
 impl Field {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
-        match self.cardinality {
-            Cardinality::Optional => {
+        match self.rule {
+            Rule::Optional => {
                 write!(f, "  {} ", OPTIONAL_KEYWORD)?;
             }
-            Cardinality::Required => {
+            Rule::Required => {
                 write!(f, "  ")?;
             }
-            Cardinality::Unstable => {
+            Rule::Unstable => {
                 write!(f, "  {} ", UNSTABLE_KEYWORD)?;
             }
         }
@@ -281,8 +281,8 @@ mod tests {
         assert_same,
         error::SourceRange,
         schema::{
-            relativize_namespace, Cardinality, Declaration, DeclarationVariant, Field, Import,
-            Namespace, Schema, Type, TypeVariant,
+            relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace, Rule,
+            Schema, Type, TypeVariant,
         },
     };
     use std::{collections::BTreeMap, path::Path};
@@ -471,7 +471,7 @@ mod tests {
         let foo_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Required,
+                rule: Rule::Required,
                 name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -481,7 +481,7 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Optional,
+                rule: Rule::Optional,
                 name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -494,7 +494,7 @@ mod tests {
         let bar_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Required,
+                rule: Rule::Required,
                 name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -504,7 +504,7 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Unstable,
+                rule: Rule::Unstable,
                 name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -578,7 +578,7 @@ mod tests {
         let foo_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Required,
+                rule: Rule::Required,
                 name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -588,7 +588,7 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Optional,
+                rule: Rule::Optional,
                 name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -601,7 +601,7 @@ mod tests {
         let bar_fields = vec![
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Required,
+                rule: Rule::Required,
                 name: "x".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -611,7 +611,7 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                cardinality: Cardinality::Unstable,
+                rule: Rule::Unstable,
                 name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
