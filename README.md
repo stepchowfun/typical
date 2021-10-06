@@ -73,9 +73,9 @@ struct send_email_request {
 }
 ```
 
-The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers.
+The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
 
-That may not be feasible. For example, you may not be in control of when clients or servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it's not possible to update one before the other.
+That kind of rollout may not be feasible. For example, you may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it's not possible to update one before the other no matter how careful you are.
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
@@ -147,7 +147,11 @@ Our discussion so far has been framed around `struct`s, since they are more fami
 
 <TODO>
 
-All told, Typical's solution to this classic problem can be seen as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
+### Conclusion
+
+Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they are not well-supported by other data interchange formats. Typical's notion of unstable fields casts light on a new point in the design space that allows us to have our cake and eat it too: we get the enhanced type safety, and we can make forward and backward compatible changes.
+
+All told, that solution can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
 
 ## A simple naming convention
 
