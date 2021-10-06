@@ -164,7 +164,7 @@ The following built-in types are supported:
 - `string` is the type of Unicode strings.
 - Arrays (e.g., `[u64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[string]]`).
 
-# Conventions
+### Conventions
 
 Typical does not require any particular naming convention for the names of types, fields, files, etc. However, it is valuable to establish a convention for consistency. The following are recommended:
 
