@@ -426,13 +426,13 @@ fn write_schema<T: Write>(
                     if is_first {
                         write_indentation(buffer, indentation + 2)?;
                     }
-                    match field.cardinality {
-                        schema::Cardinality::Optional => {
+                    match field.rule {
+                        schema::Rule::Optional => {
                             write!(buffer, "self.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ".as_ref().map_or(0, |payload| {{")?;
                         }
-                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                        schema::Rule::Required | schema::Rule::Unstable => {
                             writeln!(buffer, "({{")?;
                             write_indentation(buffer, indentation + 3)?;
                             write!(buffer, "let payload = &self.")?;
@@ -477,14 +477,14 @@ fn write_schema<T: Write>(
                         ::std::io::Result<()> {{",
                 )?;
                 for field in fields {
-                    match field.cardinality {
-                        schema::Cardinality::Optional => {
+                    match field.rule {
+                        schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 2)?;
                             write!(buffer, "if let Some(payload) = &self.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, " {{")?;
                         }
-                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                        schema::Rule::Required | schema::Rule::Unstable => {
                             write_indentation(buffer, indentation + 2)?;
                             writeln!(buffer, "{{")?;
                             write_indentation(buffer, indentation + 3)?;
@@ -620,17 +620,17 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
-                if fields.iter().any(|field| match field.cardinality {
-                    schema::Cardinality::Optional | schema::Cardinality::Unstable => false,
-                    schema::Cardinality::Required => true,
+                if fields.iter().any(|field| match field.rule {
+                    schema::Rule::Optional | schema::Rule::Unstable => false,
+                    schema::Rule::Required => true,
                 }) {
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "if ")?;
                     let mut first = true;
                     for field in fields {
-                        match field.cardinality {
-                            schema::Cardinality::Optional | schema::Cardinality::Unstable => {}
-                            schema::Cardinality::Required => {
+                        match field.rule {
+                            schema::Rule::Optional | schema::Rule::Unstable => {}
+                            schema::Rule::Required => {
                                 if first {
                                     first = false;
                                 } else {
@@ -661,9 +661,9 @@ fn write_schema<T: Write>(
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {}
-                        schema::Cardinality::Required => {
+                    match field.rule {
+                        schema::Rule::Optional | schema::Rule::Unstable => {}
+                        schema::Rule::Required => {
                             write!(buffer, ": ")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ".unwrap()")?;
@@ -694,22 +694,22 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 for field in fields {
-                    match field.cardinality {
-                        schema::Cardinality::Optional => {
+                    match field.rule {
+                        schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": message.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ".map(|payload| payload.into()),")?;
                         }
-                        schema::Cardinality::Required => {
+                        schema::Rule::Required => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": message.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ".into(),")?;
                         }
-                        schema::Cardinality::Unstable => {
+                        schema::Rule::Unstable => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": Some(message.")?;
@@ -751,15 +751,15 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                    match field.rule {
+                        schema::Rule::Optional | schema::Rule::Unstable => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(ref fallback) => {{")?;
                             } else {
                                 writeln!(buffer, "(ref payload, ref fallback) => {{")?;
                             }
                         }
-                        schema::Cardinality::Required => {
+                        schema::Rule::Required => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, " => {{")?;
                             } else {
@@ -784,13 +784,13 @@ fn write_schema<T: Write>(
                     }
                     write_indentation(buffer, indentation + 5)?;
                     write!(buffer, "payload_size")?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                    match field.rule {
+                        schema::Rule::Optional | schema::Rule::Unstable => {
                             writeln!(buffer, " +")?;
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, "fallback.size()")?;
                         }
-                        schema::Cardinality::Required => {
+                        schema::Rule::Required => {
                             writeln!(buffer)?;
                         }
                     }
@@ -815,15 +815,15 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                    match field.rule {
+                        schema::Rule::Optional | schema::Rule::Unstable => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(ref fallback) => {{")?;
                             } else {
                                 writeln!(buffer, "(ref payload, ref fallback) => {{")?;
                             }
                         }
-                        schema::Cardinality::Required => {
+                        schema::Rule::Required => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, " => {{")?;
                             } else {
@@ -854,12 +854,12 @@ fn write_schema<T: Write>(
                         indentation,
                         &field.r#type,
                     )?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                    match field.rule {
+                        schema::Rule::Optional | schema::Rule::Unstable => {
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "fallback.serialize(writer)")?;
                         }
-                        schema::Cardinality::Required => {
+                        schema::Rule::Required => {
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "Ok(())")?;
                         }
@@ -921,8 +921,8 @@ fn write_schema<T: Write>(
                         namespace,
                         &field.r#type,
                     )?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional => {
+                    match field.rule {
+                        schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "let fallback = Box::new(<")?;
                             write_identifier(buffer, name, Pascal, Some(In))?;
@@ -940,7 +940,7 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, "(payload, fallback));")?;
                             }
                         }
-                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                        schema::Rule::Required | schema::Rule::Unstable => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
                             write_identifier(buffer, name, Pascal, Some(In))?;
@@ -991,15 +991,15 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional | schema::Cardinality::Unstable => {
+                    match field.rule {
+                        schema::Rule::Optional | schema::Rule::Unstable => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 write!(buffer, "(fallback) => ")?;
                             } else {
                                 write!(buffer, "(payload, fallback) => ")?;
                             }
                         }
-                        schema::Cardinality::Required => {
+                        schema::Rule::Required => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 write!(buffer, " => ")?;
                             } else {
@@ -1010,8 +1010,8 @@ fn write_schema<T: Write>(
                     write_identifier(buffer, name, Pascal, Some(In))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
-                    match field.cardinality {
-                        schema::Cardinality::Optional => {
+                    match field.rule {
+                        schema::Rule::Optional => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(Box::new((*fallback).into())),")?;
                             } else {
@@ -1021,7 +1021,7 @@ fn write_schema<T: Write>(
                                 )?;
                             }
                         }
-                        schema::Cardinality::Required | schema::Cardinality::Unstable => {
+                        schema::Rule::Required | schema::Rule::Unstable => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, ",")?;
                             } else {
@@ -1069,12 +1069,12 @@ fn write_struct<T: Write>(
         write!(buffer, "pub ")?;
         write_identifier(buffer, &field.name, Snake, None)?;
         write!(buffer, ": ")?;
-        match field.cardinality {
-            schema::Cardinality::Optional => {
+        match field.rule {
+            schema::Rule::Optional => {
                 write!(buffer, "Option<")?;
             }
-            schema::Cardinality::Required => {}
-            schema::Cardinality::Unstable => match direction {
+            schema::Rule::Required => {}
+            schema::Rule::Unstable => match direction {
                 Direction::Out => {}
                 Direction::In => {
                     write!(buffer, "Option<")?;
@@ -1082,12 +1082,12 @@ fn write_struct<T: Write>(
             },
         }
         write_type(buffer, imports, namespace, &field.r#type, direction)?;
-        match field.cardinality {
-            schema::Cardinality::Optional => {
+        match field.rule {
+            schema::Rule::Optional => {
                 write!(buffer, ">")?;
             }
-            schema::Cardinality::Required => {}
-            schema::Cardinality::Unstable => match direction {
+            schema::Rule::Required => {}
+            schema::Rule::Unstable => match direction {
                 Direction::Out => {}
                 Direction::In => {
                     write!(buffer, ">")?;
@@ -1123,10 +1123,10 @@ fn write_choice<T: Write>(
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
         write_identifier(buffer, &field.name, Pascal, None)?;
-        let fallback = match field.cardinality {
-            schema::Cardinality::Optional => true,
-            schema::Cardinality::Required => false,
-            schema::Cardinality::Unstable => match direction {
+        let fallback = match field.rule {
+            schema::Rule::Optional => true,
+            schema::Rule::Required => false,
+            schema::Rule::Unstable => match direction {
                 Direction::Out => true,
                 Direction::In => false,
             },

@@ -538,22 +538,22 @@ fn parse_field(
 ) -> Option<schema::Field> {
     let start = *position;
 
-    // Parse the cardinality.
-    let cardinality = if *position == tokens.len() {
-        schema::Cardinality::Required
+    // Parse the rule.
+    let rule = if *position == tokens.len() {
+        schema::Rule::Required
     } else {
         match tokens[*position].variant {
             token::Variant::Optional => {
                 *position += 1;
 
-                schema::Cardinality::Optional
+                schema::Rule::Optional
             }
             token::Variant::Unstable => {
                 *position += 1;
 
-                schema::Cardinality::Unstable
+                schema::Rule::Unstable
             }
-            _ => schema::Cardinality::Required,
+            _ => schema::Rule::Required,
         }
     };
 
@@ -637,7 +637,7 @@ fn parse_field(
     // Return the field.
     Some(schema::Field {
         source_range: span_tokens(tokens, start, *position),
-        cardinality,
+        rule,
         name,
         r#type,
         index,
@@ -883,7 +883,7 @@ mod tests {
                     end: 150,
                 },
                 name: "w".into(),
-                cardinality: schema::Cardinality::Required,
+                rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 139,
@@ -899,7 +899,7 @@ mod tests {
                     end: 184,
                 },
                 name: "x".into(),
-                cardinality: schema::Cardinality::Optional,
+                rule: schema::Rule::Optional,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 177,
@@ -915,7 +915,7 @@ mod tests {
                     end: 212,
                 },
                 name: "y".into(),
-                cardinality: schema::Cardinality::Required,
+                rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 202,
@@ -937,7 +937,7 @@ mod tests {
                     end: 232,
                 },
                 name: "z".into(),
-                cardinality: schema::Cardinality::Required,
+                rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 229,
@@ -956,7 +956,7 @@ mod tests {
                     end: 335,
                 },
                 name: "w".into(),
-                cardinality: schema::Cardinality::Required,
+                rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 322,
@@ -972,7 +972,7 @@ mod tests {
                     end: 373,
                 },
                 name: "x".into(),
-                cardinality: schema::Cardinality::Unstable,
+                rule: schema::Rule::Unstable,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 362,
@@ -994,7 +994,7 @@ mod tests {
                     end: 398,
                 },
                 name: "y".into(),
-                cardinality: schema::Cardinality::Required,
+                rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 391,
@@ -1010,7 +1010,7 @@ mod tests {
                     end: 418,
                 },
                 name: "z".into(),
-                cardinality: schema::Cardinality::Required,
+                rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
                         start: 415,
