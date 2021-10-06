@@ -1,10 +1,10 @@
-# Typical: language-neutral algebraic data types for data interchange
+# Typical: algebraic data types for data interchange
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
 *Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses an efficient binary encoding, and this encoding allows you to change the types over time with forward and backward compatibility as your requirements evolve.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching—especially in languages with those features, such as Rust, Kotlin, Haskell, etc. Typical has a [novel solution](#required-optional-and-unstable-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching—especially in languages with those features, such as Rust, Kotlin, Haskell, etc. Typical has a [new solution](#required-optional-and-unstable-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
 Typical's design was inspired by insights from a branch of mathematics called [category theory](https://en.wikipedia.org/wiki/Category_theory), especially the duality of limits and colimits and the notions of covariance and contravariance. Happily, you don't need to know about any of that to use it.
 
@@ -16,10 +16,10 @@ Typical's design was inspired by insights from a branch of mathematics called [c
 
 Suppose you want to build an API for sending emails. You need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but there are some downsides worth considering:
 
-1. It can be difficult to ensure the client and server agree on the shape of the data, especially if they are written in different programming languages and cannot share code.
+1. It can be difficult to ensure the client and server agree on the shape of the data, especially if they are written in different programming languages and can't share code.
 2. Text-based formats like JSON and XML are generally less efficient to serialize and deserialize than binary formats, in both time and space.
 
-Or, you can use *Typical*, which doesn't suffer from those two issues. Moreover, Typical has a great story to tell about how to safely make changes to your API.
+Or, you can use *Typical*, which doesn't suffer from those two issues. Moreover, Typical has a great story to tell about type safety and how to safely make changes to your API.
 
 You could start with a *schema file* called `email_api.t` with the request and response types for your email sending API:
 
@@ -33,14 +33,14 @@ struct send_email_request {
 
 # This is the response type for our API.
 choice send_email_response {
-  success       = 0
-  error: string = 1
+  success        = 0
+  error:  string = 1
 }
 ```
 
 A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields. A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a set of possibilities. Types built from `struct`s and `choice`s are called *algebraic data types*, due to their correspondence to an idea from category theory called *initial algebras*. You don't need to know about initial algebras to use Typical.
 
-Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `2`). The name is for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
 Each field also has a type, either explicitly or implicitly. Note that the `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type equivalent to an empty `struct`.
 
@@ -60,9 +60,7 @@ Fields are required by default. This is an unusual design decision, since requir
 
 ### The trouble with required fields
 
-Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. Messages created by the old code will not have the new field and thus cannot be deserialized by the updated code which expects that field.
-
-For example, suppose your new email API is up and running, and you want to add a new `from` field to the request type:
+Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. For example, suppose your new email API is up and running, and you want to add a new `from` field to the request type:
 
 ```perl
 struct send_email_request {
@@ -75,7 +73,7 @@ struct send_email_request {
 
 The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
 
-That kind of rollout may not be feasible. For example, you may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it's not possible to update one before the other no matter how careful you are.
+That kind of rollout may not be feasible. You may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it's not possible to update one before the other no matter how careful you are.
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
@@ -145,7 +143,9 @@ This works in reverse too. Suppose we now want to remove the field. We can't jus
 
 Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. But the discussion applies analogously to `choice`s as well.
 
-<TODO>
+The danger with `struct`s is that a message will fail to parse due to a missing required field. The analogous danger with `choice`s is that a message will contain a choice that the receiver doesn't know how to handle.
+
+What does it mean for a field in a `choice` to be optional?
 
 ### Conclusion
 
@@ -250,11 +250,11 @@ The type, if present, is either a built-in type (e.g., `string`), the name of a 
 
 ```perl
 choice weekday {
-  monday = 0
-  tuesday = 1
+  monday    = 0
+  tuesday   = 1
   wednesday = 2
-  thursday = 3
-  friday = 4
+  thursday  = 3
+  friday    = 4
 }
 ```
 

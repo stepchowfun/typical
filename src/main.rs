@@ -50,7 +50,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         .version(VERSION)
         .version_short("v")
         .author("Stephan Boyer <stephan@stephanboyer.com>")
-        .about("Typical is a language-neutral algebraic type system for data interchange.")
+        .about("Algebraic data types for data interchange.")
         .setting(AppSettings::ColoredHelp)
         .setting(AppSettings::NextLineHelp)
         .setting(AppSettings::SubcommandRequiredElseHelp) // [tag:subcommand_required_else_help],
