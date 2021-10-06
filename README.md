@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This is useful for marshalling messages between services, storing structured data on disk, etc. Typical uses an efficient binary encoding that still allows you to change the types over time with forward and backward compatibility as your requirements evolve.
+*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This is useful for marshalling messages between services, storing structured data on disk, etc. Typical uses an efficient binary encoding, and this encoding allows you to change the types over time with forward and backward compatibility as your requirements evolve.
 
 The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types. Typical has a [novel solution](#changing-types-safely) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
@@ -17,19 +17,21 @@ Typical's design was inspired by insights from a branch of mathematics called [c
 Suppose you want to build an API for sending emails. You need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but there are some downsides worth considering:
 
 1. It can be difficult to ensure the client and server agree on the shape of the data, especially if they are written in different programming languages and cannot share code.
-2. Text-based formats like JSON and XML are generally less efficient to serialize and deserialize than binary formats, both in time and space.
+2. Text-based formats like JSON and XML are generally less efficient to serialize and deserialize than binary formats, in both time and space.
 
-Instead, you can describe the shape of your data with Typical. Create a *schema file* called `email_api.t` with the request and response types for a simple email sending endpoint:
+Instead, you can codify the shape of your data with Typical, which doesn't suffer from those two issues. Moreover, Typical has a great story to tell about how to safely make changes to your API.
 
-```sh
-# This is the request type for the email sending endpoint.
+To begin, create a *schema file* called `email_api.t` with the request and response types for your email sending API:
+
+```perl
+# This is the request type for our API.
 struct send_email_request {
   to:   string = 0
   from: string = 1
   body: string = 2
 }
 
-# This is the response type for the email sending endpoint.
+# This is the response type for our API.
 choice send_email_response {
   success       = 0
   error: string = 1
@@ -40,7 +42,7 @@ A `struct`, such as our `send_email_request` type, describes messages containing
 
 Each field in a `struct` or a `choice` has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is only for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-Fields also have a type. Note that the `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type that carries no information.
+Each fields also has a type, either explicitly or implicitly. Note that the `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type that carries no information.
 
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
@@ -58,11 +60,23 @@ TODO
 
 All told, Typical's solution to this classic problem can be seen as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
 
-## Importing schemas from other schemas
+## A simple naming convention
 
-You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you want to define a structured `email_address` type your email API, rather than representing email addresses as strings. You could create a schema called `email_util.t` next to your `email_api.t` schema with the following contents:
+Typical does not require any particular naming convention for the names of types, fields, schemas, etc. However, it is valuable to establish a convention for consistency. To that end, the following simple convention is recommended:
 
-```sh
+> Use `lower_snake_case` for everything.
+
+Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddress` in the generated code if the target language is Rust, since that is the most popular convention for Rust.
+
+## Schema reference
+
+A schema contains only two kinds of things: imports and user-defined types. The order of these things doesn't matter.
+
+### Imports
+
+You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you want to define a custom type to represent email addresses for your email API, rather than representing email addresses as strings. You could create a new schema called `email_util.t` next to `email_api.t` with the following contents:
+
+```perl
 struct address {
   local_part: string = 0
   domain: string = 0
@@ -71,7 +85,7 @@ struct address {
 
 Then you can import it in `email_api.t`:
 
-```sh
+```perl
 import 'email_util.t'
 
 struct send_email_request {
@@ -80,10 +94,7 @@ struct send_email_request {
   body: string = 2
 }
 
-choice send_email_response {
-  success = 0
-  error: string = 1
-}
+# The response type has been omitted.
 ```
 
 If you generate the code for `email_api.t` with the same command as above, the generated code will now include the types from both `email_api.t` and `email_util.t`, as the latter is imported by the former.
@@ -94,7 +105,7 @@ A useful convention is to create a `main.t` schema that simply imports all the o
 
 If you import two schemas with the same name from different directories, you will need to disambiguate usages of those schemas. Suppose, for example, you attempted the following:
 
-```sh
+```perl
 import 'apis/email.t'
 import 'util/email.t'
 
@@ -106,7 +117,7 @@ struct employee {
 
 Fortunately, Typical will tell you about this problem and ask you to clarify what you mean. You can do so as follows:
 
-```sh
+```perl
 import 'apis/email.t' as email_api
 import 'util/email.t' as email_util
 
@@ -116,13 +127,12 @@ struct employee {
 }
 ```
 
-## Type system reference
 
 ### User-defined types
 
 Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name and a list of fields. A field consists of an optional cardinality, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
 
-```sh
+```perl
 struct server {
   hostname:         string        = 0
   unstable address: ip_address    = 1
@@ -138,11 +148,11 @@ choice ip_address {
 
 The cardinality, if present, is either `optional` or `unstable`. The absence of a cardinality indicates that the field is required.
 
-The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name does not affect the size of the encoded messages.
+The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name does not affect the size of the encoded messages, so be as descriptive as you want.
 
-The type, if present, is either a built-in type, the name of a user-defined type in the same schema, or the name of an import and the name of a type from the schema corresponding to that import. If the type is missing, it defaults to `unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
+The type, if present, is either a built-in type (e.g., `string`), the name of a user-defined type in the same schema (e.g., `server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.address`). If the type is missing, it defaults to `unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
 
-```sh
+```perl
 choice weekday {
   monday = 0
   tuesday = 1
@@ -152,14 +162,14 @@ choice weekday {
 }
 ```
 
-The index is a non-negative integer which is required to be unique within the type. The indices aren't required to be consecutive or in any particular order.
+The index is a non-negative integer which is required to be unique within the type. The indices aren't required to be consecutive or in any particular order, but starting with consecutive indices is a good convention.
 
 ### Built-in types
 
 The following built-in types are supported:
 
 - `unit` is a type which holds no information. It's mainly used for the fields of `choice`s which represent enumerated types.
-- `f64` the type of double-precision floating-point numbers as defined by IEEE 754 (*binary64*/*double*).
+- `f64` the type of double-precision floating-point numbers as defined by IEEE 754.
 - `u64` is the type of unsigned 64-bit integers.
 - `s64` is the type of signed 64-bit integers.
 - `bool` is the type of Booleans.
@@ -168,15 +178,9 @@ The following built-in types are supported:
 - `string` is the type of Unicode strings.
 - Arrays (e.g., `[u64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[string]]`).
 
-### Naming conventions
+### Identifiers
 
-Typical does not require any particular naming convention for the names of types, fields, schemas, etc. However, it is valuable to establish a convention for consistency. The following simple convention is recommended:
-
-> All identifiers and schema names should be in `lower_snake_case`.
-
-Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddress` in the generated code if the target language is Rust, since that is the most popular convention for Rust.
-
-An identifier must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
+An identifier (the name of a type, field, or import) must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
 
 ## Binary encoding
 
@@ -185,13 +189,13 @@ The following sections describe how Typical serializes data.
 ### Built-in types
 
 - `unit` takes 0 bytes to encode.
-- `f64` is encoded in the little-endian double-precision floating-point format defined by IEEE 754 (*binary64*/*double*). Thus, it takes 8 bytes to encode.
+- `f64` is encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it takes 8 bytes to encode.
 - `u64` is encoded in a variable-length integer format with bijective numeration. It takes 1-9 bytes to encode, depending on the value. See below for details.
 - `s64` is first converted into an unsigned "ZigZag" representation, which is then encoded in the same way as a `u64`. It takes 1-9 bytes to encode, depending on the magnitude of the value. See below for details.
 - `bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `u64`. It takes 1 byte to encode.
 - `bytes` is encoded verbatim, with zero additional space overhead.
 - `string` encoded as UTF-8.
-- Arrays (e.g., `[u64]`) are in encoded in one of three ways:
+- Arrays (e.g., `[u64]`) are encoded in one of three ways:
   - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
   - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it is implied by the length of the message.
   - Arrays of any other type (`bytes`, `string`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `u64`. The *element* is encoded according to its type.
@@ -220,12 +224,14 @@ If `n` is at least `2^7 + 2^14 = 16,512` but less than `2^7 + 2^14 + 2^21 = 2,11
 xxxx x100 xxxx xxxx xxxx xxxx
 ```
 
-And so on. Using this scheme, the largest 64-bit integer takes 9 bytes, compared to 8 for the native encoding. Thus, the encoding has a single byte of overhead in the worst case, but for most integers encountered in practice it saves 7 bytes.
+And so on. Notice that the number of trailing zeros in the first byte indicates how many subsequent bytes there are.
 
-The encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's compact protocol](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical makes two changes to this encoding:
+Using this encoding, the largest 64-bit integer takes 9 bytes, compared to 8 for the native encoding. Thus, the encoding has a single byte of overhead in the worst case, but for most integers encountered in practice it saves 7 bytes. This is such a good trade-off most of the time that Typical doesn't even offer fixed-width integer types. However, if you really need to store fixed-width integers, you can always encode them manually as `bytes`.
+
+The encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical makes two changes to this encoding:
 
 1. Typical moves all the continuation bits to the first byte. This allows the number of bytes in an encoded integer to be determined entirely from its first byte in a single instruction on modern processors (e.g., `BSF` or `TZCNT`). This is more efficient than checking each byte for a continuation bit separately.
-2. Typical's encoding uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses two bytes in Typical's encoding, but 3 bytes without bijective numeration. However, the space savings is small and comes with a small runtime performance penalty, so whether this is an improvement depends on how much you value time versus space.
+2. Typical's encoding uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses two bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*. However, the space savings is small and comes with a small runtime performance penalty, so whether this is an improvement depends on how much you value time versus space.
 
 #### `s64` encoding in depth
 
@@ -241,23 +247,22 @@ The conversion of signed integers to their ZigZag representations before their s
 
 A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
 
-  - The first part of the *header* is an 64-bit *tag*, which is encoded in the same was as a `u64`. The meaning of the *tag* is as follows:
+  - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `u64`. The meaning of the *tag* is as follows:
     - The two least significant bits of the *tag* (not its encoding) are called the *size indicator* and indicate how to compute the size of the *value*:
       - `00`: The size of the *value* is 0 bytes.
       - `01`: The size of the *value* is 8 bytes.
       - `10`: The size of the *value* is given by the second part of the *header* (below).
       - `11`: The *value* is encoded as a `u64` (i.e., it's a `u64`, `s64`, or `bool`), and its size can be determined from its first byte.
     - The remaining 62 bits of the *tag* (not its encoding) represent the index of the *tag* as an unsigned integer.
-  - The second part of the *header* is the size of the *value* encoded in the same was as a `u64`. It is only present if the *size indicator* is `10`.
+  - The second part of the *header* is the size of the *value* encoded in the same was as a `u64`. It's only present if the *size indicator* is `10`.
 
 A `struct` must follow these rules:
 
 - Encoding rules:
   - Optional fields may be missing, but required and unstable fields must be present.
 - Decoding rules:
-  - Unknown fields are ignored.
-  - If there are multiple fields with the same index, the first is used and the rest are ignored.
-  - Optional and unstable fields may be missing, but required fields must be present.
+  - Unrecognized fields are ignored.
+  - All required fields must be present, whereas optional and unstable fields may be missing.
 
 ### User-defined `choice`s
 
