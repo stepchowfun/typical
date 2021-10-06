@@ -12,38 +12,36 @@ Typical's design was inspired by insights from a branch of mathematics called [c
 
 Suppose you want to build an API for sending emails. You need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization). You could use a self-describing format like JSON or XML, but there are some downsides worth considering:
 
-1. There's no easy way to ensure the client and server agree on the structure of the data, especially if they are written in different programming languages and cannot share code.
-2. Text-based encodings like JSON and XML incur a performance penalty.
+1. There's no easy way to ensure the client and server agree on the shape of the data, especially if they are written in different programming languages and cannot share code.
+2. Text-based formats like JSON and XML are generally less efficient to serialize and deserialize than binary formats.
 
-Instead, you can describe the structure of your data with Typical. Create a file called `send-email.t` with the request and response types:
+Instead, you can describe the shape of your data with Typical. Create a file called `email_api.t` with the request and response types for a simple email sending endpoint:
 
 ```sh
 # This is the request type for the email sending API.
-struct request {
+struct send_email_request {
   to:   string = 0
   from: string = 1
   body: string = 2
 }
 
 # This is the response type for the email sending API.
-choice response {
+choice send_email_response {
   success       = 0
   error: string = 1
 }
 ```
 
-Notice that each field has both a name and an integer index. The name is only for humans, and the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+A `struct`, such as our `send_email_request` type, describes messages containing a collection of fields. A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a set of possibilities. More generally, types built from `struct`s and `choice`s are called *algebraic data types*.
 
-A `struct`, such as our `request` type, describes messages containing a collection of fields. This kind of type is also known as a *product type*, and its messages are variously called *records*, *objects*, or *tuples*.
+Each field in a `struct` or a `choice` has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is only for humans, and the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-A `choice`, such as our `response` type, describes messages containing exactly one field from a set of possibilities. This kind of type is lesser known among programmers, and it's also known as a *sum type*, *variant*, *discriminated union*, *disjoint union*, *tagged union*, or *coproduct*. Note that the `success` field in `response` doesn't have an explicit type; thus, its type implicitly defaults to `unit`, a built-in type that carries no extra information.
-
-More generally, types built from `struct`s and `choice`s are called *algebraic data types*.
+Fields also have a type. Note that the `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type that carries no information.
 
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
 ```sh
-$ typical generate send-email.t --rust-out-file send_email.rs
+$ typical generate email_api.t --rust-out-file email_api.rs
 ```
 
 The client and server can both use the generated code to serialize and deserialize messages, which ensures they will understand each other.
@@ -56,7 +54,7 @@ TODO
 
 ## Importing other files
 
-You don't need to fit all your type definitions in one file. You can organize your types into separate files at your leisure, and then import files from other files. For example, suppose you want to define a structured `email_address` type your email API, rather than representing email addresses as strings. You could create a file called `email.t` next to your `send-email.t` file with the following contents:
+You don't need to fit all your type definitions in one file. You can organize your types into separate files at your leisure, and then import files from other files. For example, suppose you want to define a structured `email_address` type your email API, rather than representing email addresses as strings. You could create a file called `email_util.t` next to your `email_api.t` file with the following contents:
 
 ```sh
 struct address {
@@ -65,24 +63,24 @@ struct address {
 }
 ```
 
-Then you can import it in `send-email.t`:
+Then you can import it in `email_api.t`:
 
 ```sh
-import 'email.t'
+import 'email_util.t'
 
-struct request {
-  to: email.address = 0
-  from: email.address = 1
+struct send_email_request {
+  to:   email_util.address = 0
+  from: email_util.address = 1
   body: string = 2
 }
 
-choice response {
+choice send_email_response {
   success = 0
   error: string = 1
 }
 ```
 
-If you generate the code for `send-email.t` with the same command as above, the generated code will now include the types from both `send-email.t` and `email.t`, as the latter is imported by the former.
+If you generate the code for `email_api.t` with the same command as above, the generated code will now include the types from both `email_api.t` and `email_util.t`, as the latter is imported by the former.
 
 Import paths are considered relative to the directory containing the file doing the importing. Typical has no notion of a "top-level" directory on which all paths are based.
 
@@ -92,10 +90,10 @@ If you import two files with the same name from different directories, you will 
 
 ```sh
 import 'apis/email.t'
-import 'helpers/email.t'
+import 'util/email.t'
 
 struct employee {
-  name: string = 0
+  name:  string = 0
   email: email.address = 1 # Uh oh! Which file is this type from?
 }
 ```
@@ -104,11 +102,11 @@ Fortunately, Typical will tell you about this problem and ask you to clarify wha
 
 ```sh
 import 'apis/email.t' as email_api
-import 'helpers/email.t' as email_helpers
+import 'util/email.t' as email_util
 
 struct employee {
-  name: string = 0
-  email: email_helpers.address = 1
+  name:  string = 0
+  email: email_util.address = 1
 }
 ```
 
@@ -116,17 +114,17 @@ struct employee {
 
 ### User-defined types
 
-Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a list of fields. A field consists of an optional cardinality, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
+Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name and a list of fields. A field consists of an optional cardinality, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
 
 ```sh
 struct server {
-  hostname: string = 0
-  unstable address: ip_address = 1
-  optional owner: email.address = 2
+  hostname:         string        = 0
+  unstable address: ip_address    = 1
+  optional owner:   email.address = 2
 }
 
 choice ip_address {
-  unknown: 0
+  unknown   = 0
   v4: ip.v4 = 1
   v6: ip.v6 = 2
 }
@@ -164,18 +162,19 @@ The following built-in types are supported:
 - `string` is the type of Unicode strings.
 - Arrays (e.g., `[u64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[string]]`).
 
-### Conventions
+### Naming conventions
 
-Typical does not require any particular naming convention for the names of types, fields, files, etc. However, it is valuable to establish a convention for consistency. The following are recommended:
+Typical does not require any particular naming convention for the names of types, fields, files, etc. However, it is valuable to establish a convention for consistency. The following simple convention is recommended:
 
-- All identifiers should be `snake_case`.
-- All files should be in `hyphen-case.t`.
+> All identifiers and file names should be in `lower_snake_case`.
 
 Note that Typical generates code that uses the most popular naming convention for the relevant programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddress` in the generated code if the programming language is Rust, since that is the most popular convention for Rust.
 
+An identifier must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
+
 ## Binary encoding
 
-The following sections describe Typical's efficient binary encoding.
+The following sections describe the binary encoding used by Typical for serializing messages.
 
 ### Built-in types
 
@@ -187,15 +186,15 @@ The following sections describe Typical's efficient binary encoding.
 - `bytes` is encoded verbatim, with zero additional space overhead.
 - `string` encoded as UTF-8.
 - Arrays (e.g., `[u64]`) are in encoded in one of three ways:
-  - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it must be encoded explicitly.
+  - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
   - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it is implied by the length of the message.
   - Arrays of any other type (`bytes`, `string`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `u64`. The *element* is encoded according to its type.
 
-#### How `u64` is encoded
+#### In depth: `u64` encoding
 
 TODO
 
-#### How `s64` is encoded
+#### In depth: `s64` encoding
 
 TODO
 
