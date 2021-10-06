@@ -2,11 +2,11 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This is useful for marshalling messages between services, storing structured data on disk, etc. Typical uses an efficient binary encoding, and this encoding allows you to change the types over time with forward and backward compatibility as your requirements evolve.
+*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses an efficient binary encoding, and this encoding allows you to change the types over time with forward and backward compatibility as your requirements evolve.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types. Typical has a [novel solution](#changing-types-safely) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching—especially in languages with those features, such as Rust, Kotlin, Haskell, etc. Typical has a [novel solution](#required-optional-and-unstable-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
-Typical's design was inspired by insights from a branch of mathematics called [category theory](https://en.wikipedia.org/wiki/Category_theory), especially the duality of limits and colimits and the notions of covariance and contravariance. Happily, you don't need to know about any of that to use Typical.
+Typical's design was inspired by insights from a branch of mathematics called [category theory](https://en.wikipedia.org/wiki/Category_theory), especially the duality of limits and colimits and the notions of covariance and contravariance. Happily, you don't need to know about any of that to use it.
 
 **Currently supported languages:**
 
@@ -19,16 +19,16 @@ Suppose you want to build an API for sending emails. You need to decide how requ
 1. It can be difficult to ensure the client and server agree on the shape of the data, especially if they are written in different programming languages and cannot share code.
 2. Text-based formats like JSON and XML are generally less efficient to serialize and deserialize than binary formats, in both time and space.
 
-Instead, you can codify the shape of your data with Typical, which doesn't suffer from those two issues. Moreover, Typical has a great story to tell about how to safely make changes to your API.
+Or, you can use *Typical*, which doesn't suffer from those two issues. Moreover, Typical has a great story to tell about how to safely make changes to your API.
 
-To begin, create a *schema file* called `email_api.t` with the request and response types for your email sending API:
+You could start with a *schema file* called `email_api.t` with the request and response types for your email sending API:
 
 ```perl
 # This is the request type for our API.
 struct send_email_request {
-  to:   string = 0
-  from: string = 1
-  body: string = 2
+  to:      string = 0
+  subject: string = 1
+  body:    string = 2
 }
 
 # This is the response type for our API.
@@ -40,9 +40,9 @@ choice send_email_response {
 
 A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields. A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a set of possibilities. Types built from `struct`s and `choice`s are called *algebraic data types*, due to their correspondence to an idea from category theory called *initial algebras*. You don't need to know about initial algebras to use Typical.
 
-Each field in a `struct` or a `choice` has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is only for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `2`). The name is for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-Each fields also has a type, either explicitly or implicitly. Note that the `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type that carries no information.
+Each field also has a type, either explicitly or implicitly. Note that the `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type equivalent to an empty `struct`.
 
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
@@ -54,9 +54,98 @@ The client and server can use the generated code to serialize and deserialize me
 
 Note that Typical only does serialization and deserialization. It has nothing to do with service meshes, encryption, authentication, or authorization, but it can be used together with those technologies.
 
-## Changing types safely
+## Required, optional, and unstable fields
 
-TODO
+Fields are required by default. This is an unusual design decision, since required fields are typically (no pun intended) fraught with danger. Let's explore this topic in detail and see how Typical deals with it.
+
+### The trouble with required fields
+
+Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. Messages created by the old code will not have the new field and thus cannot be deserialized by the updated code which expects that field.
+
+For example, suppose your new email API is up and running, and you want to add a new `from` field to the request type:
+
+```perl
+struct send_email_request {
+  to:      string = 0
+  from:    string = 3 # A new field!
+  subject: string = 1
+  body:    string = 2
+}
+```
+
+The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers.
+
+That may not be feasible. For example, you may not be in control of when clients or servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it's not possible to update one before the other.
+
+Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
+
+### Conventional wisdom
+
+Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be optional.
+
+However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as optional can lead to the following problems:
+
+- A client might not set the field, either because the authors of the client weren't aware that the field is semantically required, or because they were aware of it but still forgot to set it by mistake. The outcome is that either the request fails, or the server inappropriately supplies a default value, thereby hiding the problem.
+- If the server is written in a language with a null-safe type system, the code may need to be overly defensive to satisfy the type checker. It will be forced to handle the null case even though there is no way for it to proceed in that case.
+
+A similar policy is: it's acceptable to start with required fields, but then no required fields can be added or removed once the type is being used. This policy is commonly known by the adage ["required is forever"](https://developers.google.com/protocol-buffers/docs/proto#specifying_field_rules). However, we wish to avoid any policy that forbids changes unilaterally. We must be able to safely handle changing requirements when needed.
+
+For those of us who haven't given up on the idea of required fields, the standard process for introducing a required field is to first introduce it as optional, update all the clients to set the field, and finally promote the field to required once you're confident it's always being set. But how do you gain that confidence?
+
+### Typical's solution: `unstable` fields
+
+Before an optional field can be promoted to required, you have to rely on instrumentation (logging, metrics, etc.) to ascertain that the field is always being set. Depending on your system's observability, this may be non-trivial.
+
+Typical offers a much easier solution: `unstable` fields. A field in a `struct` that is declared as `unstable` is asymmetrically considered required during serialization, but optional during deserialization. For request types, this means clients are forced to set the field, but servers cannot rely on it being set.
+
+Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as `unstable`:
+
+```perl
+struct send_email_request {
+  to:            string = 0
+  unstable from: string = 3 # A new field!
+  subject:       string = 1
+  body:          string = 2
+}
+```
+
+Let's take a look at the generated Rust code for this schema. We actually end up with two different types, one for serialization and the other for deserialization:
+
+```rust
+pub struct SendEmailRequestOut {
+    pub to:      String,
+    pub from:    String,
+    pub subject: String,
+    pub body:    String,
+}
+
+pub struct SendEmailRequestIn {
+    pub to:      String,
+    pub from:    Option<String>,
+    pub subject: String,
+    pub body:    String,
+}
+
+impl Serialize for SendEmailRequestOut {
+    // Omitted.
+}
+
+impl Deserialize for SendEmailRequestIn {
+    // Omitted.
+}
+```
+
+Notice that the type of `from` is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. Clients would use `SendEmailRequestOut` to serialize requests, and servers would use `SendEmailRequestIn` to deserializate them.
+
+Thanks to Rust's type system, our client and server code doesn't even compile unless we obey the rules: clients must start setting the field, but servers can't yet rely on it. We roll out that change, and then we can safely promote the new field to `required`. We have turned a difficult problem (instrumenting whether it's safe to promote an optional field to required) into an easy one (using the type system to catch any violations at compile time).
+
+This works in reverse too. Suppose we now want to remove the field. We can't just delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to unstable, which forces servers to consider it optional and handle its potential absence while clients are still required to set it. Once that change has rolled out, we can confidently delete the field (or demote it to optional), as the servers no longer require it.
+
+### What about `choice`s?
+
+Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. But the discussion applies analogously to `choice`s as well.
+
+<TODO>
 
 All told, Typical's solution to this classic problem can be seen as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
 
@@ -66,20 +155,20 @@ Typical does not require any particular naming convention for the names of types
 
 > Use `lower_snake_case` for everything.
 
-Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddress` in the generated code if the target language is Rust, since that is the most popular convention for Rust.
+Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddress` in the generated code if the target language is Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
 
 ## Schema reference
 
-A schema contains only two kinds of things: imports and user-defined types. The order of these things doesn't matter.
+A schema contains only two kinds of things: imports and user-defined types. The order of those things doesn't matter. Whitespace doesn't matter either.
 
 ### Imports
 
-You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you want to define a custom type to represent email addresses for your email API, rather than representing email addresses as strings. You could create a new schema called `email_util.t` next to `email_api.t` with the following contents:
+You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you want to introduce a custom type to represent email addresses for your email API, rather than representing email addresses as strings. You could create a new schema called `email_util.t` next to `email_api.t` with the following contents:
 
 ```perl
 struct address {
   local_part: string = 0
-  domain: string = 0
+  domain:     string = 1
 }
 ```
 
@@ -89,15 +178,15 @@ Then you can import it in `email_api.t`:
 import 'email_util.t'
 
 struct send_email_request {
-  to:   email_util.address = 0
-  from: email_util.address = 1
-  body: string = 2
+  to:      email_util.address = 0
+  subject: string             = 1
+  body:    string             = 2
 }
 
 # The response type has been omitted.
 ```
 
-If you generate the code for `email_api.t` with the same command as above, the generated code will now include the types from both `email_api.t` and `email_util.t`, as the latter is imported by the former.
+The generated code for `email_api.t` will now include the types from both `email_api.t` and `email_util.t`, as the latter is imported by the former.
 
 Import paths are considered relative to the directory containing the schema doing the importing. Typical has no notion of a "top-level" directory on which all paths are based.
 
@@ -110,7 +199,7 @@ import 'apis/email.t'
 import 'util/email.t'
 
 struct employee {
-  name:  string = 0
+  name:  string        = 0
   email: email.address = 1 # Uh oh! Which schema is this type from?
 }
 ```
@@ -122,7 +211,7 @@ import 'apis/email.t' as email_api
 import 'util/email.t' as email_util
 
 struct employee {
-  name:  string = 0
+  name:  string             = 0
   email: email_util.address = 1
 }
 ```
@@ -133,16 +222,19 @@ struct employee {
 Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name and a list of fields. A field consists of an optional cardinality, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
 
 ```perl
-struct server {
-  hostname:         string        = 0
-  unstable address: ip_address    = 1
-  optional owner:   email.address = 2
+import 'apis/email.t'
+import 'net/ip.t'
+
+choice device_ip_address {
+  v4: ip.v4_address = 0
+  v6: ip.v6_address = 1
+  dynamic           = 2
 }
 
-choice ip_address {
-  unknown   = 0
-  v4: ip.v4 = 1
-  v6: ip.v6 = 2
+struct device {
+  hostname:            string            = 0
+  unstable ip_address: device_ip_address = 1
+  optional owner:      email.address     = 2
 }
 ```
 
@@ -178,13 +270,17 @@ The following built-in types are supported:
 - `string` is the type of Unicode strings.
 - Arrays (e.g., `[u64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[string]]`).
 
+### Comments
+
+Comments can be used to add helpful context to your schemas. A comment begins with a `#` and continues to the end of the line, as with Python, Ruby, Perl, etc.
+
 ### Identifiers
 
 An identifier (the name of a type, field, or import) must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
 
 ## Binary encoding
 
-The following sections describe how Typical serializes data.
+The following sections describe how Typical serializes your data.
 
 ### Built-in types
 
@@ -256,6 +352,8 @@ A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs
     - The remaining 62 bits of the *tag* (not its encoding) represent the index of the *tag* as an unsigned integer.
   - The second part of the *header* is the size of the *value* encoded in the same was as a `u64`. It's only present if the *size indicator* is `10`.
 
+For a `struct` with up to 32 fields, the *header* for fields of type `unit`, `f64`, `u64`, `s64`, or `bool` is encoded as a single byte.
+
 A `struct` must follow these rules:
 
 - Encoding rules:
@@ -273,6 +371,8 @@ A `choice` is encoded in the same way as a struct, but with different rules:
 - Decoding rules:
   - The first field recognized by the receiver is used.
   - At least one required or unstable field must be present.
+
+A simple enumerated type with up to 32 fields (such as `weekday` above) is encoded as a single byte.
 
 ## Usage
 
