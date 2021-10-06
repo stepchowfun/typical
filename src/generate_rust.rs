@@ -1622,35 +1622,35 @@ mod tests {
             components: vec!["comprehensive".into(), "bar".into()],
         };
         let comprehensive_bar_path =
-            Path::new("integration-tests/types/comprehensive/bar.t").to_owned();
+            Path::new("integration_tests/types/comprehensive/bar.t").to_owned();
         let comprehensive_bar_contents = read_to_string(&comprehensive_bar_path).unwrap();
 
         let comprehensive_foo_namespace = schema::Namespace {
             components: vec!["comprehensive".into(), "foo".into()],
         };
         let comprehensive_foo_path =
-            Path::new("integration-tests/types/comprehensive/foo.t").to_owned();
+            Path::new("integration_tests/types/comprehensive/foo.t").to_owned();
         let comprehensive_foo_contents = read_to_string(&comprehensive_foo_path).unwrap();
 
         let comprehensive_main_namespace = schema::Namespace {
             components: vec!["comprehensive".into(), "main".into()],
         };
         let comprehensive_main_path =
-            Path::new("integration-tests/types/comprehensive/main.t").to_owned();
+            Path::new("integration_tests/types/comprehensive/main.t").to_owned();
         let comprehensive_main_contents = read_to_string(&comprehensive_main_path).unwrap();
 
         let schema_evolution_after_namespace = schema::Namespace {
             components: vec!["schema_evolution".into(), "after".into()],
         };
         let schema_evolution_after_path =
-            Path::new("integration-tests/types/schema-evolution/after.t").to_owned();
+            Path::new("integration_tests/types/schema_evolution/after.t").to_owned();
         let schema_evolution_after_contents = read_to_string(&schema_evolution_after_path).unwrap();
 
         let schema_evolution_before_namespace = schema::Namespace {
             components: vec!["schema_evolution".into(), "before".into()],
         };
         let schema_evolution_before_path =
-            Path::new("integration-tests/types/schema-evolution/before.t").to_owned();
+            Path::new("integration_tests/types/schema_evolution/before.t").to_owned();
         let schema_evolution_before_contents =
             read_to_string(&schema_evolution_before_path).unwrap();
 
@@ -1658,13 +1658,13 @@ mod tests {
             components: vec!["schema_evolution".into(), "main".into()],
         };
         let schema_evolution_main_path =
-            Path::new("integration-tests/types/schema-evolution/main.t").to_owned();
+            Path::new("integration_tests/types/schema_evolution/main.t").to_owned();
         let schema_evolution_main_contents = read_to_string(&schema_evolution_main_path).unwrap();
 
         let main_namespace = schema::Namespace {
             components: vec!["main".into()],
         };
-        let main_path = Path::new("integration-tests/types/main.t").to_owned();
+        let main_path = Path::new("integration_tests/types/main.t").to_owned();
         let main_contents = read_to_string(&main_path).unwrap();
 
         let comprehensive_bar_tokens =

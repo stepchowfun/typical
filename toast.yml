@@ -116,7 +116,7 @@ tasks:
     dependencies:
       - build
     input_paths:
-      - integration-tests/types
+      - integration_tests/types
     command: |
       # Run the tests with Cargo. The `NO_COLOR` variable is used to disable colored output for
       # tests that make assertions regarding the output. [tag:colorless_tests]
@@ -127,18 +127,18 @@ tasks:
     dependencies:
       - build
     input_paths:
-      - integration-tests/rust/Cargo.lock
-      - integration-tests/rust/Cargo.toml
-      - integration-tests/rust/src
-      - integration-tests/types
+      - integration_tests/rust/Cargo.lock
+      - integration_tests/rust/Cargo.toml
+      - integration_tests/rust/src
+      - integration_tests/types
     command: |
       # Run Typical on the integration test scenario.
-      cargo-offline run generate integration-tests/types/main.t \
-        --rust-out-file integration-tests/rust/src/types.rs
+      cargo-offline run generate integration_tests/types/main.t \
+        --rust-out-file integration_tests/rust/src/types.rs
 
       # Validate the resulting Rust code.
       (
-        cd integration-tests/rust && \
+        cd integration_tests/rust && \
         cargo-offline check && \
         cargo-offline clippy --all-features --all-targets --workspace && \
         cargo-fmt --check && \
@@ -156,8 +156,8 @@ tasks:
 
       # [tag:excluded_input_paths] Keep this in sync with [ref:gitignore].
       - artifacts
-      - integration-tests/rust/src/types.rs
-      - integration-tests/rust/target
+      - integration_tests/rust/src/types.rs
+      - integration_tests/rust/target
       - target
     command: |
       # Lint the code with Clippy.

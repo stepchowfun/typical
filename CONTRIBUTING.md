@@ -48,14 +48,14 @@ macro_rules! my_macro {
 
 ### The Rust code generation unit test
 
-The Rust code generator has a unit test which contains a large string of generated code produced from the schemas in `integration-tests/types`. This generated code generally doesn't adhere to the 100-column line length limit enforced by the lint CI check. The following Ruby script can be used to wrap the lines for inclusion in the unit test such that they conform to the line length limit:
+The Rust code generator has a unit test which contains a large string of generated code produced from the schemas in `integration_tests/types`. This generated code generally doesn't adhere to the 100-column line length limit enforced by the lint CI check. The following Ruby script can be used to wrap the lines for inclusion in the unit test such that they conform to the line length limit:
 
 ```ruby
 #!/usr/bin/env ruby
 
 MAX_COLUMNS = 100
 
-File.read('integration-tests/rust/src/types.rs').each_line do |line|
+File.read('integration_tests/rust/src/types.rs').each_line do |line|
   line.gsub!('\\', '\\\\\\\\')
   line.gsub!('"', '\\"')
 
