@@ -14,7 +14,7 @@ Typical's design was inspired by insights from a branch of mathematics called [c
 
 ## Introduction
 
-Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but you'd prefer to have more type safety and performance. *Typical* has a great story to tell about those things.
+Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but you may prefer to have more type safety and performance. *Typical* has a great story to tell about those things.
 
 You might start with a *schema file* called `email_api.t` with the request and response types for your email API:
 
@@ -33,7 +33,7 @@ choice send_email_response {
 }
 ```
 
-A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). These kinds of types are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
+A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). `struct`s and `choice`s are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
 Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
