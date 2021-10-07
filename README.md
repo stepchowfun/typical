@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral way, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses an compact binary encoding that allows you to change the types over time with forward and backward compatibility as your requirements evolve.
+*Typical* is a so-called "[interface definition language](https://en.wikipedia.org/wiki/Interface_description_language)", or IDL. You define types in a language-neutral schema, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses an compact binary encoding which supports forward and backward compatibility between versions of your schema to accommodate evolving requirements.
 
 The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching—especially in languages with those features, such as Rust, Kotlin, Haskell, etc. Typical proposes a [new solution](#required-optional-and-unstable-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
@@ -294,19 +294,19 @@ The following sections describe how Typical serializes your data.
 
 - `unit` takes 0 bytes to encode.
 - `f64` is encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it takes 8 bytes to encode.
-- `u64` is encoded in a variable-length integer format with bijective numeration. It takes 1-9 bytes to encode, depending on the value. See below for details.
+- `u64` is encoded in a variable-width integer format with bijective numeration. It takes 1-9 bytes to encode, depending on the value. See below for details.
 - `s64` is first converted into an unsigned "ZigZag" representation, which is then encoded in the same way as a `u64`. It takes 1-9 bytes to encode, depending on the magnitude of the value. See below for details.
 - `bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `u64`. It takes 1 byte to encode.
 - `bytes` is encoded verbatim, with zero additional space overhead.
 - `string` encoded as UTF-8.
 - Arrays (e.g., `[u64]`) are encoded in one of three ways:
   - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
-  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it is implied by the length of the message.
+  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it is implied by the width of the message.
   - Arrays of any other type (`bytes`, `string`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `u64`. The *element* is encoded according to its type.
 
 #### `u64` encoding in depth
 
-Typical encodes `u64` using a variable-length encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
+Typical encodes `u64` using a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
 
 The encoding is as follows. Let `n` be the integer to be encoded. If `n` is less than `2^7 = 128`, it can fit into a single byte:
 
