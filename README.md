@@ -14,12 +14,7 @@ Typical's design was inspired by insights from a branch of mathematics called [c
 
 ## Introduction
 
-Suppose you want to build an API for sending emails. You need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but there are some downsides worth considering:
-
-1. It can be difficult to ensure the client and server agree on the shape of the data, especially if they are written in different programming languages and can't share code.
-2. Text-based formats like JSON and XML are generally less efficient to serialize and deserialize than binary formats, in both time and space.
-
-*Typical* doesn't suffer from those two issues. Moreover, Typical has a great story to tell about type safety and how to safely make changes to your API.
+Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but you'd prefer to have more type safety and performance. *Typical* has a great story to tell about those things.
 
 You might start with a *schema file* called `email_api.t` with the request and response types for your email API:
 
@@ -40,7 +35,7 @@ choice send_email_response {
 
 A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). These kinds of types are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
-Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is for humans, and only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
 Each field also has a type, either explicitly or implicitly. The `success` field in `send_email_response` doesn't have an explicit type; that means its type implicitly defaults to `unit`, a built-in type equivalent to an empty `struct`.
 
