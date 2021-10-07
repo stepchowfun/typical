@@ -1,7 +1,9 @@
-use crate::{error::SourceRange, identifier::Identifier};
-use std::{
-    fmt::{Display, Formatter, Result},
-    path::PathBuf,
+use {
+    crate::{error::SourceRange, identifier::Identifier},
+    std::{
+        fmt::{Display, Formatter, Result},
+        path::PathBuf,
+    },
 };
 
 // Keywords

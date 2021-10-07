@@ -1,14 +1,16 @@
-use crate::{
-    error::{listing, throw, Error, SourceRange},
-    format::CodeStr,
-    token::{
-        Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
-        IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD,
-        UNIT_KEYWORD, UNSTABLE_KEYWORD,
+use {
+    crate::{
+        error::{listing, throw, Error, SourceRange},
+        format::CodeStr,
+        token::{
+            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
+            IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD,
+            U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
+        },
     },
+    std::path::Path,
+    unicode_segmentation::GraphemeCursor,
 };
-use std::path::Path;
-use unicode_segmentation::GraphemeCursor;
 
 // An identifier can be prefixed with this character to avoid being parsed as a keyword.
 const RAW_IDENTIFIER_SIGIL: char = '$';
