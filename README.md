@@ -166,7 +166,7 @@ A schema contains only two kinds of things: imports and user-defined types. The 
 
 ### Imports
 
-You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you want to introduce a custom type to represent email addresses for your email API, rather than representing email addresses as strings. You could create a new schema called `email_util.t` next to `email_api.t` with the following contents:
+You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you have a schema called `email_util.t` with the following contents:
 
 ```perl
 struct address {
@@ -175,7 +175,7 @@ struct address {
 }
 ```
 
-Then you can import it in `email_api.t`:
+Then you can import it from another file, say `email_api.t`:
 
 ```perl
 import 'email_util.t'
@@ -185,8 +185,6 @@ struct send_email_request {
     subject: string = 1
     body: string = 2
 }
-
-# The response type has been omitted.
 ```
 
 The generated code for `email_api.t` will now include the types from both `email_api.t` and `email_util.t`, as the latter is imported by the former.
