@@ -1,8 +1,10 @@
-use crate::{
-    round_trip::check_ok,
-    types::schema_evolution::{after, before},
+use {
+    crate::{
+        round_trip::check_ok,
+        types::schema_evolution::{after, before},
+    },
+    std::io,
 };
-use std::io;
 
 pub fn run() -> io::Result<()> {
     check_ok::<before::ExampleStructOut, after::ExampleStructIn>(&before::ExampleStructOut {

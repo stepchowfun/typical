@@ -3,6 +3,7 @@
 mod assertions;
 mod count;
 mod error;
+mod error_merger;
 mod format;
 mod generate_rust;
 mod identifier;
@@ -16,6 +17,7 @@ use {
     crate::{
         count::count,
         error::{listing, throw, Error},
+        error_merger::merge_errors,
         format::CodeStr,
         parser::parse,
         tokenizer::tokenize,
@@ -306,37 +308,6 @@ fn load_schemas(
         Ok(schemas)
     } else {
         Err(errors)
-    }
-}
-
-// Merge a list of errors into a single one.
-fn merge_errors(errors: &[Error]) -> Error {
-    Error {
-        message: errors
-            .iter()
-            .fold(String::new(), |acc, error| {
-                format!(
-                    "{}\n{}{}",
-                    acc,
-                    // Only render an empty line between errors here if the previous line doesn't
-                    // already visually look like an empty line. See [ref:overline_u203e].
-                    if acc
-                        .split('\n')
-                        .last()
-                        .unwrap() // Safe since `split` always results in at least one item
-                        .chars()
-                        .all(|c| c == ' ' || c == '\u{203e}')
-                    {
-                        ""
-                    } else {
-                        "\n"
-                    },
-                    error,
-                )
-            })
-            .trim()
-            .to_owned(),
-        reason: None,
     }
 }
 
