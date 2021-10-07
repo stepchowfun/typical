@@ -1,5 +1,5 @@
-import 'foo.t'
 import 'bar.t'
+import 'foo.t'
 
 struct empty_struct {
 }
