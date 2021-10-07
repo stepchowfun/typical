@@ -1,11 +1,13 @@
-use crate::format::CodeStr;
-use colored::{control::SHOULD_COLORIZE, Colorize};
-use pad::{Alignment, PadStr};
-use std::{
-    cmp::{max, min},
-    error, fmt,
-    path::Path,
-    rc::Rc,
+use {
+    crate::format::CodeStr,
+    colored::{control::SHOULD_COLORIZE, Colorize},
+    pad::{Alignment, PadStr},
+    std::{
+        cmp::{max, min},
+        error, fmt,
+        path::Path,
+        rc::Rc,
+    },
 };
 
 // This is the primary error type we'll be using everywhere.
