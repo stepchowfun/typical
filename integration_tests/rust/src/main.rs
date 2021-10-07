@@ -1,6 +1,7 @@
 #![deny(clippy::all, clippy::pedantic, warnings)]
 
 mod comprehensive;
+mod round_trip;
 mod schema_evolution;
 mod types;
 

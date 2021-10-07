@@ -1,24 +1,23 @@
 use {
-    crate::types::{
-        comprehensive::{
+    crate::{
+        round_trip::check_match,
+        types::comprehensive::{
             bar::{BarIn, BarOut},
             foo::{FooIn, FooOut},
             main::{
                 EmptyStructIn, EmptyStructOut, FooAndBarIn, FooAndBarOut, FooOrBarIn, FooOrBarOut,
             },
         },
-        Deserialize, Serialize,
     },
     std::{
         f64::consts::{E, PI},
-        fmt::Debug,
-        io::{self, Error, ErrorKind},
+        io,
     },
 };
 
 #[allow(clippy::too_many_lines)]
 pub fn run() -> io::Result<()> {
-    round_trip_match::<FooOut, FooIn>(FooOut {
+    check_match::<FooOut, FooIn>(FooOut {
         p_required: vec![(), (), ()],
         q_required: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
         r_required: vec![i64::MIN, 0, i64::MAX],
@@ -66,7 +65,7 @@ pub fn run() -> io::Result<()> {
 
     println!();
 
-    round_trip_match::<FooOut, FooIn>(FooOut {
+    check_match::<FooOut, FooIn>(FooOut {
         p_required: vec![(), (), ()],
         q_required: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
         r_required: vec![i64::MIN, 0, i64::MAX],
@@ -118,103 +117,103 @@ pub fn run() -> io::Result<()> {
 
     println!();
 
-    round_trip_match::<BarOut, BarIn>(BarOut::PRequired(vec![]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::PRequired(vec![()]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::PRequired(vec![(), ()]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::PRequired(vec![(), (), ()]))?;
+    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![]))?;
+    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![()]))?;
+    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![(), ()]))?;
+    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![(), (), ()]))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::QRequired(vec![]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::QRequired(vec![f64::NEG_INFINITY]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::QRequired(vec![f64::NEG_INFINITY, f64::INFINITY]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::QRequired(vec![
+    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![]))?;
+    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![f64::NEG_INFINITY]))?;
+    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![f64::NEG_INFINITY, f64::INFINITY]))?;
+    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![
         f64::NEG_INFINITY,
         f64::INFINITY,
         f64::NAN,
     ]))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::RRequired(vec![]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN, 0]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN, 0, i64::MAX]))?;
+    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![]))?;
+    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN]))?;
+    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN, 0]))?;
+    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![i64::MIN, 0, i64::MAX]))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![]]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![]]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![], vec![]]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![]))?;
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![]]))?;
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![]]))?;
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![], vec![]]))?;
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![
         "Hello".to_owned(),
         "World".to_owned(),
     ]]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![
         vec!["Hello".to_owned(), "World".to_owned()],
         vec!["Hello".to_owned(), "Earth".to_owned()],
     ]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SRequired(vec![
+    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![
         vec!["Hello".to_owned(), "World".to_owned()],
         vec!["Hello".to_owned(), "Earth".to_owned()],
         vec!["Hello".to_owned(), "Planet".to_owned()],
     ]))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::TRequired(false))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::TRequired(true))?;
+    check_match::<BarOut, BarIn>(BarOut::TRequired(false))?;
+    check_match::<BarOut, BarIn>(BarOut::TRequired(true))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::URequired(vec![]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::URequired(vec![0]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::URequired(vec![0, 42]))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::URequired(vec![0, 42, 255]))?;
+    check_match::<BarOut, BarIn>(BarOut::URequired(vec![]))?;
+    check_match::<BarOut, BarIn>(BarOut::URequired(vec![0]))?;
+    check_match::<BarOut, BarIn>(BarOut::URequired(vec![0, 42]))?;
+    check_match::<BarOut, BarIn>(BarOut::URequired(vec![0, 42, 255]))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(0.0_f64))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(E))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(PI))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::EPSILON))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::INFINITY))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::MAX))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::MIN))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::MIN_POSITIVE))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::NAN))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VRequired(f64::NEG_INFINITY))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(0.0_f64))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(E))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(PI))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::EPSILON))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::INFINITY))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::MAX))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::MIN))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::MIN_POSITIVE))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::NAN))?;
+    check_match::<BarOut, BarIn>(BarOut::VRequired(f64::NEG_INFINITY))?;
 
     for i in i64::MIN..=i64::MIN + 1000 {
-        round_trip_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
+        check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
     }
     for i in -1000_i64..=1000_i64 {
-        round_trip_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
+        check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
     }
     for i in i64::MAX - 1000..=i64::MAX {
-        round_trip_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
+        check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
     }
 
-    round_trip_match::<BarOut, BarIn>(BarOut::XRequired("".to_owned()))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::XRequired("=8 bytes".to_owned()))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::XRequired("Hello, World!".to_owned()))?;
+    check_match::<BarOut, BarIn>(BarOut::XRequired("".to_owned()))?;
+    check_match::<BarOut, BarIn>(BarOut::XRequired("=8 bytes".to_owned()))?;
+    check_match::<BarOut, BarIn>(BarOut::XRequired("Hello, World!".to_owned()))?;
 
     for i in u64::MIN..=u64::MIN + 1000 {
-        round_trip_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
+        check_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
     }
     for i in u64::MAX / 2 - 1000..=u64::MAX / 2 + 1000 {
-        round_trip_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
+        check_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
     }
     for i in u64::MAX - 1000..=u64::MAX {
-        round_trip_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
+        check_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
     }
 
-    round_trip_match::<BarOut, BarIn>(BarOut::ZRequired)?;
+    check_match::<BarOut, BarIn>(BarOut::ZRequired)?;
 
     let fallback = BarOut::TRequired(true);
 
-    round_trip_match::<BarOut, BarIn>(BarOut::PUnstable(
+    check_match::<BarOut, BarIn>(BarOut::PUnstable(
         vec![(), (), ()],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::QUnstable(
+    check_match::<BarOut, BarIn>(BarOut::QUnstable(
         vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::RUnstable(
+    check_match::<BarOut, BarIn>(BarOut::RUnstable(
         vec![i64::MIN, 0, i64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SUnstable(
+    check_match::<BarOut, BarIn>(BarOut::SUnstable(
         vec![
             vec!["Hello".to_owned(), "World".to_owned()],
             vec!["Hello".to_owned(), "Earth".to_owned()],
@@ -222,33 +221,33 @@ pub fn run() -> io::Result<()> {
         ],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::TUnstable(true, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::UUnstable(
+    check_match::<BarOut, BarIn>(BarOut::TUnstable(true, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::UUnstable(
         vec![0, 42, 255],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VUnstable(PI, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::WUnstable(i64::MAX, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::XUnstable(
+    check_match::<BarOut, BarIn>(BarOut::VUnstable(PI, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::WUnstable(i64::MAX, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::XUnstable(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::YUnstable(u64::MAX, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::ZUnstable(Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::YUnstable(u64::MAX, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::ZUnstable(Box::new(fallback.clone())))?;
 
-    round_trip_match::<BarOut, BarIn>(BarOut::POptional(
+    check_match::<BarOut, BarIn>(BarOut::POptional(
         vec![(), (), ()],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::QOptional(
+    check_match::<BarOut, BarIn>(BarOut::QOptional(
         vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::ROptional(
+    check_match::<BarOut, BarIn>(BarOut::ROptional(
         vec![i64::MIN, 0, i64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::SOptional(
+    check_match::<BarOut, BarIn>(BarOut::SOptional(
         vec![
             vec!["Hello".to_owned(), "World".to_owned()],
             vec!["Hello".to_owned(), "Earth".to_owned()],
@@ -256,23 +255,23 @@ pub fn run() -> io::Result<()> {
         ],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::TOptional(true, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::UOptional(
+    check_match::<BarOut, BarIn>(BarOut::TOptional(true, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::UOptional(
         vec![0, 42, 255],
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::VOptional(PI, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::WOptional(i64::MAX, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::XOptional(
+    check_match::<BarOut, BarIn>(BarOut::VOptional(PI, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::WOptional(i64::MAX, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::XOptional(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::YOptional(u64::MAX, Box::new(fallback.clone())))?;
-    round_trip_match::<BarOut, BarIn>(BarOut::ZOptional(Box::new(fallback)))?;
+    check_match::<BarOut, BarIn>(BarOut::YOptional(u64::MAX, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::ZOptional(Box::new(fallback)))?;
 
     println!();
 
-    round_trip_match::<FooAndBarOut, FooAndBarIn>(FooAndBarOut {
+    check_match::<FooAndBarOut, FooAndBarIn>(FooAndBarOut {
         x: FooOut {
             p_required: vec![(), (), ()],
             q_required: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
@@ -323,30 +322,11 @@ pub fn run() -> io::Result<()> {
 
     println!();
 
-    round_trip_match::<FooOrBarOut, FooOrBarIn>(FooOrBarOut::Y(BarOut::TRequired(true)))?;
+    check_match::<FooOrBarOut, FooOrBarIn>(FooOrBarOut::Y(BarOut::TRequired(true)))?;
 
     println!();
 
-    round_trip_match::<EmptyStructOut, EmptyStructIn>(EmptyStructOut {})?;
+    check_match::<EmptyStructOut, EmptyStructIn>(EmptyStructOut {})?;
 
     Ok(())
-}
-
-fn round_trip_match<T: Debug + Serialize, U: Debug + Deserialize + From<T>>(
-    x: T,
-) -> io::Result<()> {
-    println!("Value to be serialized: {:?}", x);
-
-    let mut buffer = Vec::<u8>::new();
-    x.serialize(&mut buffer)?;
-    println!("Bytes from serialization: {:?}", buffer);
-
-    let y = U::deserialize(&mut buffer.as_slice())?;
-    println!("Value deserialized from those bytes: {:?}", y);
-
-    if format!("{:?}", y) == format!("{:?}", U::from(x)) {
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::Other, "Mismatch!"))
-    }
 }
