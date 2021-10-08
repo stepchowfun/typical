@@ -1,11 +1,13 @@
-use crate::{
-    identifier::Identifier,
-    schema::{self, relativize_namespace},
-};
-use std::{
-    collections::BTreeMap,
-    fmt::{self, Write},
-    path::PathBuf,
+use {
+    crate::{
+        identifier::Identifier,
+        schema::{self, relativize_namespace},
+    },
+    std::{
+        collections::BTreeMap,
+        fmt::{self, Write},
+        path::PathBuf,
+    },
 };
 
 // The string to be used for each indentation level.
@@ -1610,10 +1612,13 @@ fn varint_encoded(r#type: &schema::Type) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        generate_rust::generate, parser::parse, schema, tokenizer::tokenize, validator::validate,
+    use {
+        crate::{
+            generate_rust::generate, parser::parse, schema, tokenizer::tokenize,
+            validator::validate,
+        },
+        std::{collections::BTreeMap, fs::read_to_string, path::Path},
     };
-    use std::{collections::BTreeMap, fs::read_to_string, path::Path};
 
     #[allow(clippy::too_many_lines)]
     #[test]

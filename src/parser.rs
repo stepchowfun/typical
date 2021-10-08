@@ -1,10 +1,12 @@
-use crate::{
-    error::{listing, throw, Error, SourceRange},
-    format::CodeStr,
-    identifier::Identifier,
-    schema, token,
+use {
+    crate::{
+        error::{listing, throw, Error, SourceRange},
+        format::CodeStr,
+        identifier::Identifier,
+        schema, token,
+    },
+    std::{char::REPLACEMENT_CHARACTER, collections::BTreeMap, path::Path},
 };
-use std::{char::REPLACEMENT_CHARACTER, collections::BTreeMap, path::Path};
 
 // This function computes the source range for a token, or the empty range at the end of the source
 // file in the case where the given position is at the end of the token stream.
@@ -810,10 +812,13 @@ fn parse_type(
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_fails, assert_same, error::SourceRange, parser::parse, schema, tokenizer::tokenize,
+    use {
+        crate::{
+            assert_fails, assert_same, error::SourceRange, parser::parse, schema,
+            tokenizer::tokenize,
+        },
+        std::{collections::BTreeMap, path::Path},
     };
-    use std::{collections::BTreeMap, path::Path};
 
     #[test]
     fn parse_empty() {
