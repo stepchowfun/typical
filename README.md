@@ -125,7 +125,7 @@ impl Deserialize for SendEmailRequestIn {
 }
 ```
 
-Typical also generates code (not shown above) for converting `SendEmailRequestOut` into `SendEmailRequestIn`, which is logically equivalent to serialization followed by deserialization, but faster. Conversion in the other direction, however, is up to you.
+Typical also generates code (not shown above) for converting `SendEmailRequestOut` into `SendEmailRequestIn`, which is logically equivalent to serialization followed by deserialization, but faster.
 
 Notice that the type of `from` is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. Our clients use the former to construct requests, and our servers will decode them into the latter.
 
@@ -143,13 +143,15 @@ The code generated for `choice`s supports case analysis, so clients can take dif
 
 That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start using it before readers can understand it. Conversely, if you remove a required field, readers may no longer be able to handle it while writers are still using it.
 
-Not to worry—Typical supports optional and asymmetric fields in `choice`s too!
+Not to worry—`choice`s support optional and asymmetric fields too!
 
 An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the optional field. So readers are not required to handle optional fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
-An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. Messages can be deserialized without any fallbacks, since readers do not use them. That may sound useless, but this arrangement is exactly what's needed to safely introduce or remove required fields from `choice`s, just as they are with `struct`s.
+An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. Messages without any fallbacks can be deserialized, since readers do not use them. In summary, `asymmetric` fields in `choice`s behave like optional fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
-Let's see what the generated code looks like for optional and asymmetric fields. Consider a more elaborate version of our API response type:
+That may sound useless, but it's exactly what's needed to safely introduce or remove required fields from `choice`s.
+
+To see what the generated code looks like for optional and asymmetric fields, consider a more elaborate version of our API response type:
 
 ```perl
 choice send_email_response {
@@ -186,7 +188,7 @@ impl Deserialize for SendEmailResponseIn {
 }
 ```
 
-As with `struct`s, Typical also generates code (not shown above) for converting `SendEmailResponseOut` into `SendEmailResponseIn`, which is logically equivalent to serialization followed by deserialization, but faster. Conversion in the other direction, however, is up to you.
+Typical also generates code (not shown above) for converting `SendEmailResponseOut` into `SendEmailResponseIn`, which is logically equivalent to serialization followed by deserialization, but faster.
 
 The required cases (`Success` and `Error`) are as you would expect in both types.
 
@@ -204,7 +206,7 @@ The rules are as follows:
 - You can safely add and remove optional and asymmetric fields.
 - You can safely convert optional fields to asymmetric and vice versa.
 - You can safely convert asymmetric fields to required and vice versa.
-- You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field, and vice versa.
+- You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field and vice versa.
 - No other changes are guaranteed to be safe. In particular, it may be unsafe to add or remove required fields, unless you can carefully manage the order in which writers and readers are updated.
 
 All told, the idea of asymmetric fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
