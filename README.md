@@ -198,12 +198,13 @@ The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallba
 
 Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they are not well-supported by most data interchange formats. Typical, on the other hand, embraces them.
 
-The rules are simple:
+The rules are as follows:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove optional and asymmetric fields.
 - You can safely convert optional fields to asymmetric and vice versa.
 - You can safely convert asymmetric fields to required and vice versa.
+- You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field, and vice versa.
 - No other changes are guaranteed to be safe. In particular, it may be unsafe to add or remove required fields, unless you can carefully manage the order in which writers and readers are updated.
 
 All told, the idea of asymmetric fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
