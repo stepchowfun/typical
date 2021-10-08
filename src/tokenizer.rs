@@ -324,17 +324,19 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_fails, assert_same,
-        error::SourceRange,
-        token::{
-            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
-            IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD,
-            U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
+    use {
+        crate::{
+            assert_fails, assert_same,
+            error::SourceRange,
+            token::{
+                Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+                F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD,
+                STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
+            },
+            tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
         },
-        tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
+        std::path::Path,
     };
-    use std::path::Path;
 
     #[test]
     fn tokenize_example() {

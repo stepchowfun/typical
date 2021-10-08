@@ -210,11 +210,13 @@ pub fn listing(source_contents: &str, source_range: SourceRange) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_same,
-        error::{listing, throw, Error, SourceRange},
+    use {
+        crate::{
+            assert_same,
+            error::{listing, throw, Error, SourceRange},
+        },
+        std::{path::Path, rc::Rc},
     };
-    use std::{path::Path, rc::Rc};
 
     #[test]
     fn error_no_reason_display() {

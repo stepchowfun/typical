@@ -1,12 +1,14 @@
-use crate::{
-    error::SourceRange,
-    identifier::Identifier,
-    token::{OPTIONAL_KEYWORD, UNSTABLE_KEYWORD},
-};
-use std::{
-    collections::BTreeMap,
-    fmt::{self, Display, Formatter, Write},
-    path::PathBuf,
+use {
+    crate::{
+        error::SourceRange,
+        identifier::Identifier,
+        token::{OPTIONAL_KEYWORD, UNSTABLE_KEYWORD},
+    },
+    std::{
+        collections::BTreeMap,
+        fmt::{self, Display, Formatter, Write},
+        path::PathBuf,
+    },
 };
 
 #[derive(Clone, Debug)]
@@ -277,15 +279,17 @@ impl Display for Namespace {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        assert_same,
-        error::SourceRange,
-        schema::{
-            relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace, Rule,
-            Schema, Type, TypeVariant,
+    use {
+        crate::{
+            assert_same,
+            error::SourceRange,
+            schema::{
+                relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace,
+                Rule, Schema, Type, TypeVariant,
+            },
         },
+        std::{collections::BTreeMap, path::Path},
     };
-    use std::{collections::BTreeMap, path::Path};
 
     #[test]
     fn relativize_namespace_both_empty() {
