@@ -440,7 +440,7 @@ A simple enumerated type with up to 32 fields (such as `weekday` above) is encod
 
 ## Usage
 
-Once Typical is [installed](#installation), you can use it to generate code for a schema called `main.t` with the following:
+Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `main.t` with the following:
 
 ```sh
 $ typical generate main.t --rust-out-file main.rs
