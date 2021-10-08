@@ -38,7 +38,7 @@ A `struct`, such as our `send_email_request` type, describes messages containing
 
 Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-Each field also has a type, either explicitly or implicitly. If the type is missing, as it is for the `success` field above, then its type implicitly defaults to a built-in type called `unit`.
+Each field also has a type, either explicitly or implicitly. If the type is missing, as it is for the `success` field above, then it implicitly defaults to a built-in type called `unit`.
 
 ### Generate code for serialization and deserialization
 
@@ -323,7 +323,7 @@ The index is a non-negative integer which is required to be unique within the ty
 The following built-in types are supported:
 
 - `unit` is a type which holds no information. It's mainly used for the fields of `choice`s which represent enumerated types.
-- `f64` the type of double-precision floating-point numbers as defined by IEEE 754.
+- `f64` is the type of double-precision floating-point numbers as defined by IEEE 754.
 - `u64` is the type of unsigned 64-bit integers.
 - `s64` is the type of signed 64-bit integers.
 - `bool` is the type of Booleans.
