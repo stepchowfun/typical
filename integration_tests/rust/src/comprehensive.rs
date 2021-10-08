@@ -34,21 +34,21 @@ pub fn run() -> io::Result<()> {
         y_required: u64::MAX,
         z_required: (),
 
-        p_unstable: vec![(), (), ()],
-        q_unstable: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
-        r_unstable: vec![i64::MIN, 0, i64::MAX],
-        s_unstable: vec![
+        p_asymmetric: vec![(), (), ()],
+        q_asymmetric: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
+        r_asymmetric: vec![i64::MIN, 0, i64::MAX],
+        s_asymmetric: vec![
             vec!["Hello".to_owned(), "World".to_owned()],
             vec!["Hello".to_owned(), "Earth".to_owned()],
             vec!["Hello".to_owned(), "Planet".to_owned()],
         ],
-        t_unstable: true,
-        u_unstable: vec![0, 42, 255],
-        v_unstable: PI,
-        w_unstable: i64::MAX,
-        x_unstable: "Hello, World!".to_owned(),
-        y_unstable: u64::MAX,
-        z_unstable: (),
+        t_asymmetric: true,
+        u_asymmetric: vec![0, 42, 255],
+        v_asymmetric: PI,
+        w_asymmetric: i64::MAX,
+        x_asymmetric: "Hello, World!".to_owned(),
+        y_asymmetric: u64::MAX,
+        z_asymmetric: (),
 
         p_optional: None,
         q_optional: None,
@@ -82,21 +82,21 @@ pub fn run() -> io::Result<()> {
         y_required: u64::MAX,
         z_required: (),
 
-        p_unstable: vec![(), (), ()],
-        q_unstable: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
-        r_unstable: vec![i64::MIN, 0, i64::MAX],
-        s_unstable: vec![
+        p_asymmetric: vec![(), (), ()],
+        q_asymmetric: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
+        r_asymmetric: vec![i64::MIN, 0, i64::MAX],
+        s_asymmetric: vec![
             vec!["Hello".to_owned(), "World".to_owned()],
             vec!["Hello".to_owned(), "Earth".to_owned()],
             vec!["Hello".to_owned(), "Planet".to_owned()],
         ],
-        t_unstable: true,
-        u_unstable: vec![0, 42, 255],
-        v_unstable: PI,
-        w_unstable: i64::MAX,
-        x_unstable: "Hello, World!".to_owned(),
-        y_unstable: u64::MAX,
-        z_unstable: (),
+        t_asymmetric: true,
+        u_asymmetric: vec![0, 42, 255],
+        v_asymmetric: PI,
+        w_asymmetric: i64::MAX,
+        x_asymmetric: "Hello, World!".to_owned(),
+        y_asymmetric: u64::MAX,
+        z_asymmetric: (),
 
         p_optional: Some(vec![(), (), ()]),
         q_optional: Some(vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN]),
@@ -201,19 +201,19 @@ pub fn run() -> io::Result<()> {
 
     let fallback = BarOut::TRequired(true);
 
-    check_match::<BarOut, BarIn>(BarOut::PUnstable(
+    check_match::<BarOut, BarIn>(BarOut::PAsymmetric(
         vec![(), (), ()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::QUnstable(
+    check_match::<BarOut, BarIn>(BarOut::QAsymmetric(
         vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::RUnstable(
+    check_match::<BarOut, BarIn>(BarOut::RAsymmetric(
         vec![i64::MIN, 0, i64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SUnstable(
+    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(
         vec![
             vec!["Hello".to_owned(), "World".to_owned()],
             vec!["Hello".to_owned(), "Earth".to_owned()],
@@ -221,19 +221,19 @@ pub fn run() -> io::Result<()> {
         ],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TUnstable(true, Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::UUnstable(
+    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(true, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(
         vec![0, 42, 255],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VUnstable(PI, Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::WUnstable(i64::MAX, Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::XUnstable(
+    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(PI, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(i64::MAX, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YUnstable(u64::MAX, Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::ZUnstable(Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(u64::MAX, Box::new(fallback.clone())))?;
+    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(Box::new(fallback.clone())))?;
 
     check_match::<BarOut, BarIn>(BarOut::POptional(
         vec![(), (), ()],
@@ -289,21 +289,21 @@ pub fn run() -> io::Result<()> {
             y_required: u64::MAX,
             z_required: (),
 
-            p_unstable: vec![(), (), ()],
-            q_unstable: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
-            r_unstable: vec![i64::MIN, 0, i64::MAX],
-            s_unstable: vec![
+            p_asymmetric: vec![(), (), ()],
+            q_asymmetric: vec![f64::NEG_INFINITY, f64::INFINITY, f64::NAN],
+            r_asymmetric: vec![i64::MIN, 0, i64::MAX],
+            s_asymmetric: vec![
                 vec!["Hello".to_owned(), "World".to_owned()],
                 vec!["Hello".to_owned(), "Earth".to_owned()],
                 vec!["Hello".to_owned(), "Planet".to_owned()],
             ],
-            t_unstable: true,
-            u_unstable: vec![0, 42, 255],
-            v_unstable: PI,
-            w_unstable: i64::MAX,
-            x_unstable: "Hello, World!".to_owned(),
-            y_unstable: u64::MAX,
-            z_unstable: (),
+            t_asymmetric: true,
+            u_asymmetric: vec![0, 42, 255],
+            v_asymmetric: PI,
+            w_asymmetric: i64::MAX,
+            x_asymmetric: "Hello, World!".to_owned(),
+            y_asymmetric: u64::MAX,
+            z_asymmetric: (),
 
             p_optional: None,
             q_optional: None,

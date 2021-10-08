@@ -9,18 +9,18 @@ use {
 pub fn run() -> io::Result<()> {
     check_ok::<before::ExampleStructOut, after::ExampleStructIn>(&before::ExampleStructOut {
         required_to_required: "required_to_required".to_owned(),
-        required_to_unstable: "required_to_unstable".to_owned(),
+        required_to_asymmetric: "required_to_asymmetric".to_owned(),
         required_to_optional: "required_to_optional".to_owned(),
         required_to_nonexistent: "required_to_nonexistent".to_owned(),
-        unstable_to_required: "unstable_to_required".to_owned(),
-        unstable_to_unstable: "unstable_to_unstable".to_owned(),
-        unstable_to_optional: "unstable_to_optional".to_owned(),
-        unstable_to_nonexistent: "unstable_to_nonexistent".to_owned(),
-        optional_none_to_unstable: None,
+        asymmetric_to_required: "asymmetric_to_required".to_owned(),
+        asymmetric_to_asymmetric: "asymmetric_to_asymmetric".to_owned(),
+        asymmetric_to_optional: "asymmetric_to_optional".to_owned(),
+        asymmetric_to_nonexistent: "asymmetric_to_nonexistent".to_owned(),
+        optional_none_to_asymmetric: None,
         optional_none_to_optional: None,
         optional_none_to_nonexistent: None,
         optional_some_to_required: Some("optional_some_to_required".to_owned()),
-        optional_some_to_unstable: Some("optional_some_to_unstable".to_owned()),
+        optional_some_to_asymmetric: Some("optional_some_to_asymmetric".to_owned()),
         optional_some_to_optional: Some("optional_some_to_optional".to_owned()),
         optional_some_to_nonexistent: Some("optional_some_to_nonexistent".to_owned()),
     })?;
@@ -32,40 +32,40 @@ pub fn run() -> io::Result<()> {
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::RequiredToUnstable("RequiredToUnstable".to_owned()),
+        &before::ExampleChoiceOut::RequiredToAsymmetric("RequiredToAsymmetric".to_owned()),
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::UnstableToRequired(
-            "UnstableToRequired".to_owned(),
+        &before::ExampleChoiceOut::AsymmetricToRequired(
+            "AsymmetricToRequired".to_owned(),
             Box::new(fallback.clone()),
         ),
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::UnstableToUnstable(
-            "UnstableToUnstable".to_owned(),
+        &before::ExampleChoiceOut::AsymmetricToAsymmetric(
+            "AsymmetricToAsymmetric".to_owned(),
             Box::new(fallback.clone()),
         ),
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::UnstableToOptionalHandled(
-            "UnstableToOptionalHandled".to_owned(),
+        &before::ExampleChoiceOut::AsymmetricToOptionalHandled(
+            "AsymmetricToOptionalHandled".to_owned(),
             Box::new(fallback.clone()),
         ),
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::UnstableToOptionalFallback(
-            "UnstableToOptionalFallback".to_owned(),
+        &before::ExampleChoiceOut::AsymmetricToOptionalFallback(
+            "AsymmetricToOptionalFallback".to_owned(),
             Box::new(fallback.clone()),
         ),
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::UnstableToNonexistent(
-            "UnstableToNonexistent".to_owned(),
+        &before::ExampleChoiceOut::AsymmetricToNonexistent(
+            "AsymmetricToNonexistent".to_owned(),
             Box::new(fallback.clone()),
         ),
     )?;
@@ -78,8 +78,8 @@ pub fn run() -> io::Result<()> {
     )?;
 
     check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::OptionalToUnstable(
-            "OptionalToUnstable".to_owned(),
+        &before::ExampleChoiceOut::OptionalToAsymmetric(
+            "OptionalToAsymmetric".to_owned(),
             Box::new(fallback.clone()),
         ),
     )?;
