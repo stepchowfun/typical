@@ -214,7 +214,7 @@ All told, the idea of asymmetric fields can be understood as an application of t
 
 ## A style guide
 
-Typical does not require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
+Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
 
 - Use `lower_snake_case` for the names of everything: types, fields, etc.
 - Indent fields with 4 spaces.
@@ -302,7 +302,7 @@ struct device {
 
 The rule, if present, is either `optional` or `asymmetric`. The absence of a rule indicates that the field is required.
 
-The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name does not affect the size of the encoded messages, so be as descriptive as you want.
+The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
 
 The type, if present, is either a built-in type (e.g., `string`), the name of a user-defined type in the same schema (e.g., `server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.address`). If the type is missing, it defaults to `unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
 
@@ -357,7 +357,7 @@ Note that the generated deserialization code is designed to be safe from malicio
 - `string` encoded as UTF-8.
 - Arrays (e.g., `[u64]`) are encoded in one of three ways:
   - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
-  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it's implied by the width of the message.
+  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it's implied by the length of the message.
   - Arrays of any other type (`bytes`, `string`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `u64`. The *element* is encoded according to its type.
 
 #### `u64` encoding in depth
@@ -407,7 +407,7 @@ The conversion of signed integers to their ZigZag representations before their s
 
 A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
 
-  - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `u64`. The meaning of the *tag* is as follows:
+  - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `u64` (i.e., as a variable-width integer). The meaning of the *tag* is as follows:
     - The two least significant bits of the *tag* (not its encoding) are called the *size indicator* and indicate how to compute the size of the *value*:
       - `00`: The size of the *value* is 0 bytes.
       - `01`: The size of the *value* is 8 bytes.
@@ -416,7 +416,7 @@ A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs
     - The remaining 62 bits of the *tag* (not its encoding) represent the index of the field as an unsigned integer.
   - The second part of the *header* is the size of the *value* encoded in the same was as a `u64`. It's only present if the *size indicator* is `10`.
 
-For a `struct` with up to 32 fields, the *header* for fields of type `unit`, `f64`, `u64`, `s64`, or `bool` is encoded as a single byte.
+For fields of type `unit`, `f64`, `u64`, `s64`, or `bool` for which the index is less than 32, the *header* is encoded as a single byte.
 
 A `struct` must follow these rules:
 
@@ -436,7 +436,7 @@ A `choice` is encoded in the same way as a struct, but with different rules:
   - The first field recognized by the receiver is used.
   - At least one required or asymmetric field must be present.
 
-A simple enumerated type with up to 32 fields (such as `weekday` above) is encoded as a single byte.
+For a simple enumerated type (such as `weekday` above), the encoding of a field with an index less than 32 takes up a single byte.
 
 ## Usage
 
