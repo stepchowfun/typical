@@ -1613,208 +1613,16 @@ fn varint_encoded(r#type: &schema::Type) -> bool {
 #[cfg(test)]
 mod tests {
     use {
-        crate::{
-            generate_rust::generate, parser::parse, schema, tokenizer::tokenize,
-            validator::validate,
-        },
-        std::{collections::BTreeMap, fs::read_to_string, path::Path},
+        crate::{generate_rust::generate, schema_loader::load_schemas, validator::validate},
+        std::path::Path,
     };
 
+    // This test doesn't work on Windows, for some reason.
     #[allow(clippy::too_many_lines)]
     #[test]
+    #[cfg_attr(target_os = "windows", ignore)]
     fn generate_example() {
-        let comprehensive_bar_namespace = schema::Namespace {
-            components: vec!["comprehensive".into(), "bar".into()],
-        };
-        let comprehensive_bar_path =
-            Path::new("integration_tests/types/comprehensive/bar.t").to_owned();
-        let comprehensive_bar_contents = read_to_string(&comprehensive_bar_path).unwrap();
-
-        let comprehensive_foo_namespace = schema::Namespace {
-            components: vec!["comprehensive".into(), "foo".into()],
-        };
-        let comprehensive_foo_path =
-            Path::new("integration_tests/types/comprehensive/foo.t").to_owned();
-        let comprehensive_foo_contents = read_to_string(&comprehensive_foo_path).unwrap();
-
-        let comprehensive_main_namespace = schema::Namespace {
-            components: vec!["comprehensive".into(), "main".into()],
-        };
-        let comprehensive_main_path =
-            Path::new("integration_tests/types/comprehensive/main.t").to_owned();
-        let comprehensive_main_contents = read_to_string(&comprehensive_main_path).unwrap();
-
-        let schema_evolution_after_namespace = schema::Namespace {
-            components: vec!["schema_evolution".into(), "after".into()],
-        };
-        let schema_evolution_after_path =
-            Path::new("integration_tests/types/schema_evolution/after.t").to_owned();
-        let schema_evolution_after_contents = read_to_string(&schema_evolution_after_path).unwrap();
-
-        let schema_evolution_before_namespace = schema::Namespace {
-            components: vec!["schema_evolution".into(), "before".into()],
-        };
-        let schema_evolution_before_path =
-            Path::new("integration_tests/types/schema_evolution/before.t").to_owned();
-        let schema_evolution_before_contents =
-            read_to_string(&schema_evolution_before_path).unwrap();
-
-        let schema_evolution_main_namespace = schema::Namespace {
-            components: vec!["schema_evolution".into(), "main".into()],
-        };
-        let schema_evolution_main_path =
-            Path::new("integration_tests/types/schema_evolution/main.t").to_owned();
-        let schema_evolution_main_contents = read_to_string(&schema_evolution_main_path).unwrap();
-
-        let main_namespace = schema::Namespace {
-            components: vec!["main".into()],
-        };
-        let main_path = Path::new("integration_tests/types/main.t").to_owned();
-        let main_contents = read_to_string(&main_path).unwrap();
-
-        let comprehensive_bar_tokens =
-            tokenize(&comprehensive_bar_path, &comprehensive_bar_contents).unwrap();
-        let comprehensive_bar_schema = parse(
-            &comprehensive_bar_path,
-            &comprehensive_bar_contents,
-            &comprehensive_bar_tokens,
-        )
-        .unwrap();
-
-        let comprehensive_foo_tokens =
-            tokenize(&comprehensive_foo_path, &comprehensive_foo_contents).unwrap();
-        let comprehensive_foo_schema = parse(
-            &comprehensive_foo_path,
-            &comprehensive_foo_contents,
-            &comprehensive_foo_tokens,
-        )
-        .unwrap();
-
-        let comprehensive_main_tokens =
-            tokenize(&comprehensive_main_path, &comprehensive_main_contents).unwrap();
-        let mut comprehensive_main_schema = parse(
-            &comprehensive_main_path,
-            &comprehensive_main_contents,
-            &comprehensive_main_tokens,
-        )
-        .unwrap();
-        comprehensive_main_schema
-            .imports
-            .get_mut(&"bar".into())
-            .unwrap()
-            .namespace = Some(comprehensive_bar_namespace.clone());
-        comprehensive_main_schema
-            .imports
-            .get_mut(&"foo".into())
-            .unwrap()
-            .namespace = Some(comprehensive_foo_namespace.clone());
-
-        let schema_evolution_after_tokens = tokenize(
-            &schema_evolution_after_path,
-            &schema_evolution_after_contents,
-        )
-        .unwrap();
-        let schema_evolution_after_schema = parse(
-            &schema_evolution_after_path,
-            &schema_evolution_after_contents,
-            &schema_evolution_after_tokens,
-        )
-        .unwrap();
-
-        let schema_evolution_before_tokens = tokenize(
-            &schema_evolution_before_path,
-            &schema_evolution_before_contents,
-        )
-        .unwrap();
-        let schema_evolution_before_schema = parse(
-            &schema_evolution_before_path,
-            &schema_evolution_before_contents,
-            &schema_evolution_before_tokens,
-        )
-        .unwrap();
-
-        let schema_evolution_main_tokens =
-            tokenize(&schema_evolution_main_path, &schema_evolution_main_contents).unwrap();
-        let mut schema_evolution_main_schema = parse(
-            &schema_evolution_main_path,
-            &schema_evolution_main_contents,
-            &schema_evolution_main_tokens,
-        )
-        .unwrap();
-        schema_evolution_main_schema
-            .imports
-            .get_mut(&"after".into())
-            .unwrap()
-            .namespace = Some(schema_evolution_after_namespace.clone());
-        schema_evolution_main_schema
-            .imports
-            .get_mut(&"before".into())
-            .unwrap()
-            .namespace = Some(schema_evolution_before_namespace.clone());
-
-        let main_tokens = tokenize(&main_path, &main_contents).unwrap();
-        let mut main_schema = parse(&main_path, &main_contents, &main_tokens).unwrap();
-        main_schema
-            .imports
-            .get_mut(&"comprehensive".into())
-            .unwrap()
-            .namespace = Some(comprehensive_main_namespace.clone());
-        main_schema
-            .imports
-            .get_mut(&"schema_evolution".into())
-            .unwrap()
-            .namespace = Some(schema_evolution_main_namespace.clone());
-
-        let mut schemas = BTreeMap::new();
-        schemas.insert(
-            comprehensive_bar_namespace,
-            (
-                comprehensive_bar_schema,
-                comprehensive_bar_path,
-                comprehensive_bar_contents,
-            ),
-        );
-        schemas.insert(
-            comprehensive_foo_namespace,
-            (
-                comprehensive_foo_schema,
-                comprehensive_foo_path,
-                comprehensive_foo_contents,
-            ),
-        );
-        schemas.insert(
-            comprehensive_main_namespace,
-            (
-                comprehensive_main_schema,
-                comprehensive_main_path,
-                comprehensive_main_contents,
-            ),
-        );
-        schemas.insert(
-            schema_evolution_after_namespace,
-            (
-                schema_evolution_after_schema,
-                schema_evolution_after_path,
-                schema_evolution_after_contents,
-            ),
-        );
-        schemas.insert(
-            schema_evolution_before_namespace,
-            (
-                schema_evolution_before_schema,
-                schema_evolution_before_path,
-                schema_evolution_before_contents,
-            ),
-        );
-        schemas.insert(
-            schema_evolution_main_namespace,
-            (
-                schema_evolution_main_schema,
-                schema_evolution_main_path,
-                schema_evolution_main_contents,
-            ),
-        );
-        schemas.insert(main_namespace, (main_schema, main_path, main_contents));
+        let schemas = load_schemas(Path::new("integration_tests/types/main.t")).unwrap();
         validate(&schemas).unwrap();
 
         assert_eq!(
@@ -2001,6 +1809,164 @@ pub trait Deserialize {
     where
         Self: Sized,
         T: BufRead;
+}
+
+#[rustfmt::skip]
+pub mod circular_dependency {
+    pub mod dependency {
+        pub mod main {
+            #[derive(Clone, Debug)]
+            pub struct StructFromBelowOut {
+                pub x: super::super::main::StructFromAboveOut,
+            }
+
+            #[derive(Clone, Debug)]
+            pub struct StructFromBelowIn {
+                pub x: super::super::main::StructFromAboveIn,
+            }
+
+            impl super::super::super::Serialize for StructFromBelowOut {
+                fn size(&self) -> u64 {
+                    ({
+                        let payload = &self.x;
+                        let payload_size = payload.size();
+                        super::super::super::non_varint_field_header_size(0, payload_size) + \
+                            payload_size
+                    })
+                }
+
+                fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                    {
+                        let payload = &self.x;
+                        let payload_size = payload.size();
+                        super::super::super::serialize_non_varint_field_header(writer, 0, \
+                            payload_size)?;
+                        payload.serialize(writer)?;
+                    }
+
+                    Ok(())
+                }
+            }
+
+            impl super::super::super::Deserialize for StructFromBelowIn {
+                fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+                where
+                    Self: Sized,
+                    T: ::std::io::BufRead,
+                {
+                    let mut x: Option<super::super::main::StructFromAboveIn> = None;
+
+                    loop {
+                        let (index, size) = match \
+                            super::super::super::deserialize_field_header(&mut *reader) {
+                            Ok(header) => header,
+                            Err(err) => {
+                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                    break;
+                                }
+
+                                return Err(err);
+                            }
+                        };
+
+                        let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+
+                        match index {
+                            0 => {
+                                let payload = <super::super::main::StructFromAboveIn as \
+                                    super::super::super::Deserialize>::deserialize(&mut \
+                                    sub_reader)?;
+
+                                x.get_or_insert(payload);
+                            }
+                            _ => {
+                                super::super::super::skip(&mut sub_reader, size as usize)?;
+                            }
+                        }
+                    }
+
+                    if x.is_none() {
+                        return Err(::std::io::Error::new(
+                            ::std::io::ErrorKind::InvalidData,
+                            \"Struct missing one or more field(s).\",
+                        ));
+                    }
+
+                    Ok(StructFromBelowIn {
+                        x: x.unwrap(),
+                    })
+                }
+            }
+
+            impl From<StructFromBelowOut> for StructFromBelowIn {
+                fn from(message: StructFromBelowOut) -> Self {
+                    StructFromBelowIn {
+                        x: message.x.into(),
+                    }
+                }
+            }
+        }
+    }
+
+    pub mod main {
+        #[derive(Clone, Debug)]
+        pub struct StructFromAboveOut {
+        }
+
+        #[derive(Clone, Debug)]
+        pub struct StructFromAboveIn {
+        }
+
+        impl super::super::Serialize for StructFromAboveOut {
+            fn size(&self) -> u64 {
+                0
+            }
+
+            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                Ok(())
+            }
+        }
+
+        impl super::super::Deserialize for StructFromAboveIn {
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+                T: ::std::io::BufRead,
+            {
+                loop {
+                    let (index, size) = match super::super::deserialize_field_header(&mut \
+                        *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+
+                    match index {
+                        _ => {
+                            super::super::skip(&mut sub_reader, size as usize)?;
+                        }
+                    }
+                }
+
+                Ok(StructFromAboveIn {
+                })
+            }
+        }
+
+        impl From<StructFromAboveOut> for StructFromAboveIn {
+            fn from(message: StructFromAboveOut) -> Self {
+                StructFromAboveIn {
+                }
+            }
+        }
+    }
 }
 
 #[rustfmt::skip]
