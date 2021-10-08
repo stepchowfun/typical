@@ -2,9 +2,9 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* helps you serialize data in a language-independent fashion. You define data types in a *schema*, then Typical generates code in various languages for serializing and deserializing data based on those types. This can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
+*Typical* helps you serialize data in a language-independent fashion. You define data types in a file called a *schema*, then Typical uses that schema to generate the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching—especially in languages with those features, such as Rust, Swift, Kotlin, Haskell, etc. Typical proposes a [new solution](#required-optional-and-asymmetric-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), enabling a safer programming style with non-nullable types and pattern matching. It'll feel right at home if you have experience with languages that embrace those features, such as Rust, Swift, Kotlin, Haskell, etc. Typical proposes a [new solution](#required-optional-and-asymmetric-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
 **Currently supported languages:**
 
@@ -12,11 +12,11 @@ The main difference between Typical and related toolchains like Protocol Buffers
 
 ## Introduction
 
-Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but you may prefer to have more type safety and performance. *Typical* has a great story to tell about those things.
+Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but you may prefer to have better type safety and performance. *Typical* has a great story to tell about those things.
 
 ### Write a schema
 
-You might start with a schema file called `email_api.t` with the request and response types for your email API:
+You can start by creating a schema file called `email_api.t` with the request and response types for your email API:
 
 ```perl
 # This is the request type for our API.
@@ -74,13 +74,15 @@ That kind of rollout may not be feasible. You may not be in control of the order
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
-### The conventional wisdom
+### The trouble with optional fields
 
 Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be optional.
 
 However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared as required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as optional places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the field, and readers must handle the case of the field missing to satisfy the type checker even though that field is always supposed to be set.
 
-For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to (1) introduce the field as optional, (2) update all the writers to set the new field, and (3) finally promote it to required. The problem is that you can't rely on the type system to ensure you've done step (2) correctly. That step can be nontrivial in a large system.
+For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to (1) introduce the field as optional, (2) update all the writers to set the new field, and (3) finally promote it to required. Unfortunately, you can't rely on the type system to ensure you've done step (2) correctly. That step can be nontrivial in a large system.
+
+To remove a required field, the standard process is to (1) demote it to optional, but ensure that writers are still setting it, (2) start allowing the field to be unset or delete the field entirely. Here, step (1) is the potentially difficult one, since the type system no longer guarantees that the field is still being set by writers during that time.
 
 ### Introducing: `asymmetric` fields
 
@@ -133,11 +135,11 @@ It works in reverse too. Suppose we now want to remove the field. It could be un
 
 For some kinds of changes, a field might stay in the `asymmetric` state for months, say, if you are waiting for users to update your mobile app. Typical helps immensely in that situation.
 
-### What about `choice`?
+### What about `choice`s?
 
 Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. However, the same kind of consideration must be given to `choice`s.
 
-The code generated for `choice`s supports case analysis, like a `switch` construct, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases when you use it. This is called *exhaustive* pattern matching, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if the field is not recognized.
+The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases when you use it. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if the field is not recognized.
 
 That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start using it before readers can understand it. Conversely, if you remove a required field, readers may no longer be able to handle it while writers are still using it.
 
@@ -160,7 +162,7 @@ choice send_email_response {
 
 As with `struct`s, the generated code for a `choice` has separate types for serialization and deserialization:
 
-```perl
+```rust
 pub enum SendEmailResponseOut {
     Success,
     Error(String),
@@ -184,21 +186,31 @@ impl Deserialize for SendEmailResponseIn {
 }
 ```
 
+As with `struct`s, Typical also generates code (not shown above) for converting `SendEmailResponseOut` into `SendEmailResponseIn`, which is logically equivalent to serialization followed by deserialization, but faster. Conversion in the other direction, however, is up to you.
+
 The required cases (`Success` and `Error`) are as you would expect in both types.
 
 The optional case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback field. Readers can use the fallback if they don't wish to handle this case, and readers which don't even know about this case will use the fallback automatically.
 
 The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to something else (which will stop readers from having to handle it).
 
-### Conclusion
+### Summary
 
-Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they are not well-supported by most data interchange formats. Typical embraces them.
+Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they are not well-supported by most data interchange formats. Typical, on the other hand, embraces them.
+
+The rules are simple:
+
+- You can safely rename and reorder fields, as long as you don't change their indices.
+- You can safely add and remove optional and asymmetric fields.
+- You can safely convert optional fields to asymmetric and vice versa.
+- You can safely convert asymmetric fields to required and vice versa.
+- No other changes are guaranteed to be safe. In particular, it may be unsafe to add or remove required fields, unless you can carefully manage the order in which writers and readers are updated.
 
 All told, the idea of asymmetric fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
 
 ## A style guide
 
-Typical does not require any particular naming convention or formatting style. However, it is valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
+Typical does not require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
 
 - Use `lower_snake_case` for the names of everything: types, fields, etc.
 - Indent fields with 4 spaces.
@@ -339,7 +351,7 @@ The following sections describe how Typical serializes your data.
 - `string` encoded as UTF-8.
 - Arrays (e.g., `[u64]`) are encoded in one of three ways:
   - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
-  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it is implied by the width of the message.
+  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it's implied by the width of the message.
   - Arrays of any other type (`bytes`, `string`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `u64`. The *element* is encoded according to its type.
 
 #### `u64` encoding in depth
@@ -387,7 +399,7 @@ The conversion of signed integers to their ZigZag representations before their s
 
 ### User-defined `struct`s
 
-A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
+A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
 
   - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `u64`. The meaning of the *tag* is as follows:
     - The two least significant bits of the *tag* (not its encoding) are called the *size indicator* and indicate how to compute the size of the *value*:
@@ -395,7 +407,7 @@ A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs
       - `01`: The size of the *value* is 8 bytes.
       - `10`: The size of the *value* is given by the second part of the *header* (below).
       - `11`: The *value* is encoded as a `u64` (i.e., it's a `u64`, `s64`, or `bool`), and its size can be determined from its first byte.
-    - The remaining 62 bits of the *tag* (not its encoding) represent the index of the *tag* as an unsigned integer.
+    - The remaining 62 bits of the *tag* (not its encoding) represent the index of the field as an unsigned integer.
   - The second part of the *header* is the size of the *value* encoded in the same was as a `u64`. It's only present if the *size indicator* is `10`.
 
 For a `struct` with up to 32 fields, the *header* for fields of type `unit`, `f64`, `u64`, `s64`, or `bool` is encoded as a single byte.
