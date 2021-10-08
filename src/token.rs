@@ -19,7 +19,7 @@ pub const STRING_KEYWORD: &str = "string";
 pub const STRUCT_KEYWORD: &str = "struct";
 pub const U64_KEYWORD: &str = "u64";
 pub const UNIT_KEYWORD: &str = "unit";
-pub const UNSTABLE_KEYWORD: &str = "unstable";
+pub const ASYMMETRIC_KEYWORD: &str = "asymmetric";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
 // represents a single token.
@@ -54,7 +54,7 @@ pub enum Variant {
     Struct,
     U64,
     Unit,
-    Unstable,
+    Asymmetric,
 }
 
 impl Display for Token {
@@ -88,7 +88,7 @@ impl Display for Variant {
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
             Self::U64 => write!(f, "{}", U64_KEYWORD),
             Self::Unit => write!(f, "{}", UNIT_KEYWORD),
-            Self::Unstable => write!(f, "{}", UNSTABLE_KEYWORD),
+            Self::Asymmetric => write!(f, "{}", ASYMMETRIC_KEYWORD),
         }
     }
 }
@@ -99,9 +99,9 @@ mod tests {
         crate::{
             error::SourceRange,
             token::{
-                Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-                F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD,
-                STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
+                Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
+                CHOICE_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+                STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
             },
         },
         std::path::Path,
@@ -235,7 +235,7 @@ mod tests {
     }
 
     #[test]
-    fn variant_unstable_display() {
-        assert_eq!(format!("{}", Variant::Unstable), UNSTABLE_KEYWORD);
+    fn variant_asymmetric_display() {
+        assert_eq!(format!("{}", Variant::Asymmetric), ASYMMETRIC_KEYWORD);
     }
 }

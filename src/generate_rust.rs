@@ -434,7 +434,7 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ".as_ref().map_or(0, |payload| {{")?;
                         }
-                        schema::Rule::Required | schema::Rule::Unstable => {
+                        schema::Rule::Required | schema::Rule::Asymmetric => {
                             writeln!(buffer, "({{")?;
                             write_indentation(buffer, indentation + 3)?;
                             write!(buffer, "let payload = &self.")?;
@@ -486,7 +486,7 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, " {{")?;
                         }
-                        schema::Rule::Required | schema::Rule::Unstable => {
+                        schema::Rule::Required | schema::Rule::Asymmetric => {
                             write_indentation(buffer, indentation + 2)?;
                             writeln!(buffer, "{{")?;
                             write_indentation(buffer, indentation + 3)?;
@@ -623,7 +623,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 if fields.iter().any(|field| match field.rule {
-                    schema::Rule::Optional | schema::Rule::Unstable => false,
+                    schema::Rule::Optional | schema::Rule::Asymmetric => false,
                     schema::Rule::Required => true,
                 }) {
                     write_indentation(buffer, indentation + 2)?;
@@ -631,7 +631,7 @@ fn write_schema<T: Write>(
                     let mut first = true;
                     for field in fields {
                         match field.rule {
-                            schema::Rule::Optional | schema::Rule::Unstable => {}
+                            schema::Rule::Optional | schema::Rule::Asymmetric => {}
                             schema::Rule::Required => {
                                 if first {
                                     first = false;
@@ -664,7 +664,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Unstable => {}
+                        schema::Rule::Optional | schema::Rule::Asymmetric => {}
                         schema::Rule::Required => {
                             write!(buffer, ": ")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
@@ -711,7 +711,7 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ".into(),")?;
                         }
-                        schema::Rule::Unstable => {
+                        schema::Rule::Asymmetric => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": Some(message.")?;
@@ -754,7 +754,7 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Unstable => {
+                        schema::Rule::Optional | schema::Rule::Asymmetric => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(ref fallback) => {{")?;
                             } else {
@@ -787,7 +787,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 5)?;
                     write!(buffer, "payload_size")?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Unstable => {
+                        schema::Rule::Optional | schema::Rule::Asymmetric => {
                             writeln!(buffer, " +")?;
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, "fallback.size()")?;
@@ -818,7 +818,7 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Unstable => {
+                        schema::Rule::Optional | schema::Rule::Asymmetric => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(ref fallback) => {{")?;
                             } else {
@@ -857,7 +857,7 @@ fn write_schema<T: Write>(
                         &field.r#type,
                     )?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Unstable => {
+                        schema::Rule::Optional | schema::Rule::Asymmetric => {
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "fallback.serialize(writer)")?;
                         }
@@ -942,7 +942,7 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, "(payload, fallback));")?;
                             }
                         }
-                        schema::Rule::Required | schema::Rule::Unstable => {
+                        schema::Rule::Required | schema::Rule::Asymmetric => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
                             write_identifier(buffer, name, Pascal, Some(In))?;
@@ -994,7 +994,7 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Unstable => {
+                        schema::Rule::Optional | schema::Rule::Asymmetric => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 write!(buffer, "(fallback) => ")?;
                             } else {
@@ -1023,7 +1023,7 @@ fn write_schema<T: Write>(
                                 )?;
                             }
                         }
-                        schema::Rule::Required | schema::Rule::Unstable => {
+                        schema::Rule::Required | schema::Rule::Asymmetric => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, ",")?;
                             } else {
@@ -1076,7 +1076,7 @@ fn write_struct<T: Write>(
                 write!(buffer, "Option<")?;
             }
             schema::Rule::Required => {}
-            schema::Rule::Unstable => match direction {
+            schema::Rule::Asymmetric => match direction {
                 Direction::Out => {}
                 Direction::In => {
                     write!(buffer, "Option<")?;
@@ -1089,7 +1089,7 @@ fn write_struct<T: Write>(
                 write!(buffer, ">")?;
             }
             schema::Rule::Required => {}
-            schema::Rule::Unstable => match direction {
+            schema::Rule::Asymmetric => match direction {
                 Direction::Out => {}
                 Direction::In => {
                     write!(buffer, ">")?;
@@ -1128,7 +1128,7 @@ fn write_choice<T: Write>(
         let fallback = match field.rule {
             schema::Rule::Optional => true,
             schema::Rule::Required => false,
-            schema::Rule::Unstable => match direction {
+            schema::Rule::Asymmetric => match direction {
                 Direction::Out => true,
                 Direction::In => false,
             },
@@ -1985,17 +1985,17 @@ pub mod comprehensive {
             XRequired(String),
             YRequired(u64),
             ZRequired,
-            PUnstable(Vec<()>, Box<BarOut>),
-            QUnstable(Vec<f64>, Box<BarOut>),
-            RUnstable(Vec<i64>, Box<BarOut>),
-            SUnstable(Vec<Vec<String>>, Box<BarOut>),
-            TUnstable(bool, Box<BarOut>),
-            UUnstable(Vec<u8>, Box<BarOut>),
-            VUnstable(f64, Box<BarOut>),
-            WUnstable(i64, Box<BarOut>),
-            XUnstable(String, Box<BarOut>),
-            YUnstable(u64, Box<BarOut>),
-            ZUnstable(Box<BarOut>),
+            PAsymmetric(Vec<()>, Box<BarOut>),
+            QAsymmetric(Vec<f64>, Box<BarOut>),
+            RAsymmetric(Vec<i64>, Box<BarOut>),
+            SAsymmetric(Vec<Vec<String>>, Box<BarOut>),
+            TAsymmetric(bool, Box<BarOut>),
+            UAsymmetric(Vec<u8>, Box<BarOut>),
+            VAsymmetric(f64, Box<BarOut>),
+            WAsymmetric(i64, Box<BarOut>),
+            XAsymmetric(String, Box<BarOut>),
+            YAsymmetric(u64, Box<BarOut>),
+            ZAsymmetric(Box<BarOut>),
             POptional(Vec<()>, Box<BarOut>),
             QOptional(Vec<f64>, Box<BarOut>),
             ROptional(Vec<i64>, Box<BarOut>),
@@ -2022,17 +2022,17 @@ pub mod comprehensive {
             XRequired(String),
             YRequired(u64),
             ZRequired,
-            PUnstable(Vec<()>),
-            QUnstable(Vec<f64>),
-            RUnstable(Vec<i64>),
-            SUnstable(Vec<Vec<String>>),
-            TUnstable(bool),
-            UUnstable(Vec<u8>),
-            VUnstable(f64),
-            WUnstable(i64),
-            XUnstable(String),
-            YUnstable(u64),
-            ZUnstable,
+            PAsymmetric(Vec<()>),
+            QAsymmetric(Vec<f64>),
+            RAsymmetric(Vec<i64>),
+            SAsymmetric(Vec<Vec<String>>),
+            TAsymmetric(bool),
+            UAsymmetric(Vec<u8>),
+            VAsymmetric(f64),
+            WAsymmetric(i64),
+            XAsymmetric(String),
+            YAsymmetric(u64),
+            ZAsymmetric,
             POptional(Vec<()>, Box<BarIn>),
             QOptional(Vec<f64>, Box<BarIn>),
             ROptional(Vec<i64>, Box<BarIn>),
@@ -2114,20 +2114,20 @@ pub mod comprehensive {
                         super::super::non_varint_field_header_size(10, payload_size) +
                             payload_size
                     }
-                    BarOut::PUnstable(ref payload, ref fallback) => {
+                    BarOut::PAsymmetric(ref payload, ref fallback) => {
                         let payload_size = super::super::varint_size_from_value(payload.len() as \
                             u64);
                         super::super::non_varint_field_header_size(11, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::QUnstable(ref payload, ref fallback) => {
+                    BarOut::QAsymmetric(ref payload, ref fallback) => {
                         let payload_size = 8_u64 * (payload.len() as u64);
                         super::super::non_varint_field_header_size(12, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::RUnstable(ref payload, ref fallback) => {
+                    BarOut::RAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload)));
@@ -2135,7 +2135,7 @@ pub mod comprehensive {
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::SUnstable(ref payload, ref fallback) => {
+                    BarOut::SAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
                             payload_size = payload.iter().fold(0_u64, |x, payload| { let \
                             payload_size = payload.len() as u64; x + \
@@ -2146,25 +2146,25 @@ pub mod comprehensive {
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::TUnstable(ref payload, ref fallback) => {
+                    BarOut::TAsymmetric(ref payload, ref fallback) => {
                         let payload_size = 1_u64;
                         super::super::varint_field_header_size(15) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::UUnstable(ref payload, ref fallback) => {
+                    BarOut::UAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(16, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::VUnstable(ref payload, ref fallback) => {
+                    BarOut::VAsymmetric(ref payload, ref fallback) => {
                         let payload_size = 8_u64;
                         super::super::non_varint_field_header_size(17, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::WUnstable(ref payload, ref fallback) => {
+                    BarOut::WAsymmetric(ref payload, ref fallback) => {
                         let payload_size = \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload));
@@ -2172,19 +2172,19 @@ pub mod comprehensive {
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::XUnstable(ref payload, ref fallback) => {
+                    BarOut::XAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(19, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::YUnstable(ref payload, ref fallback) => {
+                    BarOut::YAsymmetric(ref payload, ref fallback) => {
                         let payload_size = super::super::varint_size_from_value(*payload);
                         super::super::varint_field_header_size(20) +
                             payload_size +
                             fallback.size()
                     }
-                    BarOut::ZUnstable(ref fallback) => {
+                    BarOut::ZAsymmetric(ref fallback) => {
                         let payload_size = 0_u64;
                         super::super::non_varint_field_header_size(21, payload_size) +
                             payload_size +
@@ -2354,13 +2354,13 @@ pub mod comprehensive {
                         ();
                         Ok(())
                     }
-                    BarOut::PUnstable(ref payload, ref fallback) => {
+                    BarOut::PAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 11, \
                             super::super::varint_size_from_value(payload.len() as u64))?;
                         super::super::serialize_varint(payload.len() as u64, writer)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::QUnstable(ref payload, ref fallback) => {
+                    BarOut::QAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 12, 8_u64 * \
                             (payload.len() as u64))?;
                         for payload in payload {
@@ -2368,7 +2368,7 @@ pub mod comprehensive {
                         }
                         fallback.serialize(writer)
                     }
-                    BarOut::RUnstable(ref payload, ref fallback) => {
+                    BarOut::RAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 13, \
                             payload.iter().fold(0_u64, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
@@ -2379,7 +2379,7 @@ pub mod comprehensive {
                         }
                         fallback.serialize(writer)
                     }
-                    BarOut::SUnstable(ref payload, ref fallback) => {
+                    BarOut::SAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 14, \
                             payload.iter().fold(0_u64, |x, payload| { let payload_size = \
                             payload.iter().fold(0_u64, |x, payload| { let payload_size = \
@@ -2399,40 +2399,40 @@ pub mod comprehensive {
                         }
                         fallback.serialize(writer)
                     }
-                    BarOut::TUnstable(ref payload, ref fallback) => {
+                    BarOut::TAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_varint_field_header(writer, 15)?;
                         super::super::serialize_varint(*payload as u64, writer)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::UUnstable(ref payload, ref fallback) => {
+                    BarOut::UAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 16, payload.len() \
                             as u64)?;
                         writer.write_all(payload)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::VUnstable(ref payload, ref fallback) => {
+                    BarOut::VAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 17, 8_u64)?;
                         writer.write_all(&payload.to_le_bytes())?;
                         fallback.serialize(writer)
                     }
-                    BarOut::WUnstable(ref payload, ref fallback) => {
+                    BarOut::WAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_varint_field_header(writer, 18)?;
                         super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                             writer)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::XUnstable(ref payload, ref fallback) => {
+                    BarOut::XAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 19, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    BarOut::YUnstable(ref payload, ref fallback) => {
+                    BarOut::YAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_varint_field_header(writer, 20)?;
                         super::super::serialize_varint(*payload, writer)?;
                         fallback.serialize(writer)
                     }
-                    BarOut::ZUnstable(ref fallback) => {
+                    BarOut::ZAsymmetric(ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 21, 0_u64)?;
                         ();
                         fallback.serialize(writer)
@@ -2690,7 +2690,7 @@ pub mod comprehensive {
                         11 => {
                             let payload = vec![(); super::super::deserialize_varint(&mut \
                                 sub_reader)? as usize];
-                            return Ok(BarIn::PUnstable(payload));
+                            return Ok(BarIn::PAsymmetric(payload));
                         }
                         12 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -2716,7 +2716,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            return Ok(BarIn::QUnstable(payload));
+                            return Ok(BarIn::QAsymmetric(payload));
                         }
                         13 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -2742,7 +2742,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            return Ok(BarIn::RUnstable(payload));
+                            return Ok(BarIn::RAsymmetric(payload));
                         }
                         14 => {
                             let mut payload = Vec::new();
@@ -2796,30 +2796,30 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            return Ok(BarIn::SUnstable(payload));
+                            return Ok(BarIn::SAsymmetric(payload));
                         }
                         15 => {
                             let mut buffer = [0_u8];
                             ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
                             let payload = buffer[0] != 0b0000_0001;
-                            return Ok(BarIn::TUnstable(payload));
+                            return Ok(BarIn::TAsymmetric(payload));
                         }
                         16 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            return Ok(BarIn::UUnstable(payload));
+                            return Ok(BarIn::UAsymmetric(payload));
                         }
                         17 => {
                             let mut buffer = [0; 8];
                             ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                             let payload = f64::from_le_bytes(buffer);
-                            return Ok(BarIn::VUnstable(payload));
+                            return Ok(BarIn::VAsymmetric(payload));
                         }
                         18 => {
                             let payload = \
                                 super::super::zigzag_decode(super::super::deserialize_varint(&mut \
                                 sub_reader)?);
-                            return Ok(BarIn::WUnstable(payload));
+                            return Ok(BarIn::WAsymmetric(payload));
                         }
                         19 => {
                             let mut buffer = vec![];
@@ -2828,15 +2828,15 @@ pub mod comprehensive {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(BarIn::XUnstable(payload));
+                            return Ok(BarIn::XAsymmetric(payload));
                         }
                         20 => {
                             let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                            return Ok(BarIn::YUnstable(payload));
+                            return Ok(BarIn::YAsymmetric(payload));
                         }
                         21 => {
                             let payload = ();
-                            return Ok(BarIn::ZUnstable);
+                            return Ok(BarIn::ZAsymmetric);
                         }
                         22 => {
                             let payload = vec![(); super::super::deserialize_varint(&mut \
@@ -3033,17 +3033,17 @@ pub mod comprehensive {
                     BarOut::XRequired(payload) => BarIn::XRequired(payload.into()),
                     BarOut::YRequired(payload) => BarIn::YRequired(payload.into()),
                     BarOut::ZRequired => BarIn::ZRequired,
-                    BarOut::PUnstable(payload, fallback) => BarIn::PUnstable(payload.into()),
-                    BarOut::QUnstable(payload, fallback) => BarIn::QUnstable(payload.into()),
-                    BarOut::RUnstable(payload, fallback) => BarIn::RUnstable(payload.into()),
-                    BarOut::SUnstable(payload, fallback) => BarIn::SUnstable(payload.into()),
-                    BarOut::TUnstable(payload, fallback) => BarIn::TUnstable(payload.into()),
-                    BarOut::UUnstable(payload, fallback) => BarIn::UUnstable(payload.into()),
-                    BarOut::VUnstable(payload, fallback) => BarIn::VUnstable(payload.into()),
-                    BarOut::WUnstable(payload, fallback) => BarIn::WUnstable(payload.into()),
-                    BarOut::XUnstable(payload, fallback) => BarIn::XUnstable(payload.into()),
-                    BarOut::YUnstable(payload, fallback) => BarIn::YUnstable(payload.into()),
-                    BarOut::ZUnstable(fallback) => BarIn::ZUnstable,
+                    BarOut::PAsymmetric(payload, fallback) => BarIn::PAsymmetric(payload.into()),
+                    BarOut::QAsymmetric(payload, fallback) => BarIn::QAsymmetric(payload.into()),
+                    BarOut::RAsymmetric(payload, fallback) => BarIn::RAsymmetric(payload.into()),
+                    BarOut::SAsymmetric(payload, fallback) => BarIn::SAsymmetric(payload.into()),
+                    BarOut::TAsymmetric(payload, fallback) => BarIn::TAsymmetric(payload.into()),
+                    BarOut::UAsymmetric(payload, fallback) => BarIn::UAsymmetric(payload.into()),
+                    BarOut::VAsymmetric(payload, fallback) => BarIn::VAsymmetric(payload.into()),
+                    BarOut::WAsymmetric(payload, fallback) => BarIn::WAsymmetric(payload.into()),
+                    BarOut::XAsymmetric(payload, fallback) => BarIn::XAsymmetric(payload.into()),
+                    BarOut::YAsymmetric(payload, fallback) => BarIn::YAsymmetric(payload.into()),
+                    BarOut::ZAsymmetric(fallback) => BarIn::ZAsymmetric,
                     BarOut::POptional(payload, fallback) => BarIn::POptional(payload.into(), \
                         Box::new((*fallback).into())),
                     BarOut::QOptional(payload, fallback) => BarIn::QOptional(payload.into(), \
@@ -3084,17 +3084,17 @@ pub mod comprehensive {
             pub x_required: String,
             pub y_required: u64,
             pub z_required: (),
-            pub p_unstable: Vec<()>,
-            pub q_unstable: Vec<f64>,
-            pub r_unstable: Vec<i64>,
-            pub s_unstable: Vec<Vec<String>>,
-            pub t_unstable: bool,
-            pub u_unstable: Vec<u8>,
-            pub v_unstable: f64,
-            pub w_unstable: i64,
-            pub x_unstable: String,
-            pub y_unstable: u64,
-            pub z_unstable: (),
+            pub p_asymmetric: Vec<()>,
+            pub q_asymmetric: Vec<f64>,
+            pub r_asymmetric: Vec<i64>,
+            pub s_asymmetric: Vec<Vec<String>>,
+            pub t_asymmetric: bool,
+            pub u_asymmetric: Vec<u8>,
+            pub v_asymmetric: f64,
+            pub w_asymmetric: i64,
+            pub x_asymmetric: String,
+            pub y_asymmetric: u64,
+            pub z_asymmetric: (),
             pub p_optional: Option<Vec<()>>,
             pub q_optional: Option<Vec<f64>>,
             pub r_optional: Option<Vec<i64>>,
@@ -3121,17 +3121,17 @@ pub mod comprehensive {
             pub x_required: String,
             pub y_required: u64,
             pub z_required: (),
-            pub p_unstable: Option<Vec<()>>,
-            pub q_unstable: Option<Vec<f64>>,
-            pub r_unstable: Option<Vec<i64>>,
-            pub s_unstable: Option<Vec<Vec<String>>>,
-            pub t_unstable: Option<bool>,
-            pub u_unstable: Option<Vec<u8>>,
-            pub v_unstable: Option<f64>,
-            pub w_unstable: Option<i64>,
-            pub x_unstable: Option<String>,
-            pub y_unstable: Option<u64>,
-            pub z_unstable: Option<()>,
+            pub p_asymmetric: Option<Vec<()>>,
+            pub q_asymmetric: Option<Vec<f64>>,
+            pub r_asymmetric: Option<Vec<i64>>,
+            pub s_asymmetric: Option<Vec<Vec<String>>>,
+            pub t_asymmetric: Option<bool>,
+            pub u_asymmetric: Option<Vec<u8>>,
+            pub v_asymmetric: Option<f64>,
+            pub w_asymmetric: Option<i64>,
+            pub x_asymmetric: Option<String>,
+            pub y_asymmetric: Option<u64>,
+            pub z_asymmetric: Option<()>,
             pub p_optional: Option<Vec<()>>,
             pub q_optional: Option<Vec<f64>>,
             pub r_optional: Option<Vec<i64>>,
@@ -3200,21 +3200,21 @@ pub mod comprehensive {
                     let payload_size = 0_u64;
                     super::super::non_varint_field_header_size(10, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.p_unstable;
+                    let payload = &self.p_asymmetric;
                     let payload_size = super::super::varint_size_from_value(payload.len() as u64);
                     super::super::non_varint_field_header_size(11, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.q_unstable;
+                    let payload = &self.q_asymmetric;
                     let payload_size = 8_u64 * (payload.len() as u64);
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.r_unstable;
+                    let payload = &self.r_asymmetric;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.s_unstable;
+                    let payload = &self.s_asymmetric;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
                         payload_size = payload.iter().fold(0_u64, |x, payload| { let \
                         payload_size = payload.len() as u64; x + \
@@ -3222,33 +3222,33 @@ pub mod comprehensive {
                         super::super::varint_size_from_value(payload_size) + payload_size });
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.t_unstable;
+                    let payload = &self.t_asymmetric;
                     let payload_size = 1_u64;
                     super::super::varint_field_header_size(15) + payload_size
                 }) + ({
-                    let payload = &self.u_unstable;
+                    let payload = &self.u_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(16, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.v_unstable;
+                    let payload = &self.v_asymmetric;
                     let payload_size = 8_u64;
                     super::super::non_varint_field_header_size(17, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.w_unstable;
+                    let payload = &self.w_asymmetric;
                     let payload_size = \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         ));
                     super::super::varint_field_header_size(18) + payload_size
                 }) + ({
-                    let payload = &self.x_unstable;
+                    let payload = &self.x_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(19, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.y_unstable;
+                    let payload = &self.y_asymmetric;
                     let payload_size = super::super::varint_size_from_value(*payload);
                     super::super::varint_field_header_size(20) + payload_size
                 }) + ({
-                    let payload = &self.z_unstable;
+                    let payload = &self.z_asymmetric;
                     let payload_size = 0_u64;
                     super::super::non_varint_field_header_size(21, payload_size) + payload_size
                 }) + self.p_optional.as_ref().map_or(0, |payload| {
@@ -3396,14 +3396,14 @@ pub mod comprehensive {
                 }
 
                 {
-                    let payload = &self.p_unstable;
+                    let payload = &self.p_asymmetric;
                     let payload_size = super::super::varint_size_from_value(payload.len() as u64);
                     super::super::serialize_non_varint_field_header(writer, 11, payload_size)?;
                     super::super::serialize_varint(payload.len() as u64, writer)?;
                 }
 
                 {
-                    let payload = &self.q_unstable;
+                    let payload = &self.q_asymmetric;
                     let payload_size = 8_u64 * (payload.len() as u64);
                     super::super::serialize_non_varint_field_header(writer, 12, payload_size)?;
                     for payload in payload {
@@ -3412,7 +3412,7 @@ pub mod comprehensive {
                 }
 
                 {
-                    let payload = &self.r_unstable;
+                    let payload = &self.r_asymmetric;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
@@ -3424,7 +3424,7 @@ pub mod comprehensive {
                 }
 
                 {
-                    let payload = &self.s_unstable;
+                    let payload = &self.s_asymmetric;
                     let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
                         payload_size = payload.iter().fold(0_u64, |x, payload| { let \
                         payload_size = payload.len() as u64; x + \
@@ -3444,28 +3444,28 @@ pub mod comprehensive {
                 }
 
                 {
-                    let payload = &self.t_unstable;
+                    let payload = &self.t_asymmetric;
                     let payload_size = 1_u64;
                     super::super::serialize_varint_field_header(writer, 15)?;
                     super::super::serialize_varint(*payload as u64, writer)?;
                 }
 
                 {
-                    let payload = &self.u_unstable;
+                    let payload = &self.u_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 16, payload_size)?;
                     writer.write_all(payload)?;
                 }
 
                 {
-                    let payload = &self.v_unstable;
+                    let payload = &self.v_asymmetric;
                     let payload_size = 8_u64;
                     super::super::serialize_non_varint_field_header(writer, 17, payload_size)?;
                     writer.write_all(&payload.to_le_bytes())?;
                 }
 
                 {
-                    let payload = &self.w_unstable;
+                    let payload = &self.w_asymmetric;
                     let payload_size = \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         ));
@@ -3474,21 +3474,21 @@ pub mod comprehensive {
                 }
 
                 {
-                    let payload = &self.x_unstable;
+                    let payload = &self.x_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 19, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.y_unstable;
+                    let payload = &self.y_asymmetric;
                     let payload_size = super::super::varint_size_from_value(*payload);
                     super::super::serialize_varint_field_header(writer, 20)?;
                     super::super::serialize_varint(*payload, writer)?;
                 }
 
                 {
-                    let payload = &self.z_unstable;
+                    let payload = &self.z_asymmetric;
                     let payload_size = 0_u64;
                     super::super::serialize_non_varint_field_header(writer, 21, payload_size)?;
                     ();
@@ -3603,17 +3603,17 @@ pub mod comprehensive {
                 let mut x_required: Option<String> = None;
                 let mut y_required: Option<u64> = None;
                 let mut z_required: Option<()> = None;
-                let mut p_unstable: Option<Vec<()>> = None;
-                let mut q_unstable: Option<Vec<f64>> = None;
-                let mut r_unstable: Option<Vec<i64>> = None;
-                let mut s_unstable: Option<Vec<Vec<String>>> = None;
-                let mut t_unstable: Option<bool> = None;
-                let mut u_unstable: Option<Vec<u8>> = None;
-                let mut v_unstable: Option<f64> = None;
-                let mut w_unstable: Option<i64> = None;
-                let mut x_unstable: Option<String> = None;
-                let mut y_unstable: Option<u64> = None;
-                let mut z_unstable: Option<()> = None;
+                let mut p_asymmetric: Option<Vec<()>> = None;
+                let mut q_asymmetric: Option<Vec<f64>> = None;
+                let mut r_asymmetric: Option<Vec<i64>> = None;
+                let mut s_asymmetric: Option<Vec<Vec<String>>> = None;
+                let mut t_asymmetric: Option<bool> = None;
+                let mut u_asymmetric: Option<Vec<u8>> = None;
+                let mut v_asymmetric: Option<f64> = None;
+                let mut w_asymmetric: Option<i64> = None;
+                let mut x_asymmetric: Option<String> = None;
+                let mut y_asymmetric: Option<u64> = None;
+                let mut z_asymmetric: Option<()> = None;
                 let mut p_optional: Option<Vec<()>> = None;
                 let mut q_optional: Option<Vec<f64>> = None;
                 let mut r_optional: Option<Vec<i64>> = None;
@@ -3808,7 +3808,7 @@ pub mod comprehensive {
                             let payload = vec![(); super::super::deserialize_varint(&mut \
                                 sub_reader)? as usize];
 
-                            p_unstable.get_or_insert(payload);
+                            p_asymmetric.get_or_insert(payload);
                         }
                         12 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -3835,7 +3835,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            q_unstable.get_or_insert(payload);
+                            q_asymmetric.get_or_insert(payload);
                         }
                         13 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -3862,7 +3862,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            r_unstable.get_or_insert(payload);
+                            r_asymmetric.get_or_insert(payload);
                         }
                         14 => {
                             let mut payload = Vec::new();
@@ -3917,34 +3917,34 @@ pub mod comprehensive {
                                 });
                             }
 
-                            s_unstable.get_or_insert(payload);
+                            s_asymmetric.get_or_insert(payload);
                         }
                         15 => {
                             let mut buffer = [0_u8];
                             ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
                             let payload = buffer[0] != 0b0000_0001;
 
-                            t_unstable.get_or_insert(payload);
+                            t_asymmetric.get_or_insert(payload);
                         }
                         16 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
 
-                            u_unstable.get_or_insert(payload);
+                            u_asymmetric.get_or_insert(payload);
                         }
                         17 => {
                             let mut buffer = [0; 8];
                             ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                             let payload = f64::from_le_bytes(buffer);
 
-                            v_unstable.get_or_insert(payload);
+                            v_asymmetric.get_or_insert(payload);
                         }
                         18 => {
                             let payload = \
                                 super::super::zigzag_decode(super::super::deserialize_varint(&mut \
                                 sub_reader)?);
 
-                            w_unstable.get_or_insert(payload);
+                            w_asymmetric.get_or_insert(payload);
                         }
                         19 => {
                             let mut buffer = vec![];
@@ -3954,17 +3954,17 @@ pub mod comprehensive {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            x_unstable.get_or_insert(payload);
+                            x_asymmetric.get_or_insert(payload);
                         }
                         20 => {
                             let payload = super::super::deserialize_varint(&mut sub_reader)?;
 
-                            y_unstable.get_or_insert(payload);
+                            y_asymmetric.get_or_insert(payload);
                         }
                         21 => {
                             let payload = ();
 
-                            z_unstable.get_or_insert(payload);
+                            z_asymmetric.get_or_insert(payload);
                         }
                         22 => {
                             let payload = vec![(); super::super::deserialize_varint(&mut \
@@ -4156,17 +4156,17 @@ pub mod comprehensive {
                     x_required: x_required.unwrap(),
                     y_required: y_required.unwrap(),
                     z_required: z_required.unwrap(),
-                    p_unstable,
-                    q_unstable,
-                    r_unstable,
-                    s_unstable,
-                    t_unstable,
-                    u_unstable,
-                    v_unstable,
-                    w_unstable,
-                    x_unstable,
-                    y_unstable,
-                    z_unstable,
+                    p_asymmetric,
+                    q_asymmetric,
+                    r_asymmetric,
+                    s_asymmetric,
+                    t_asymmetric,
+                    u_asymmetric,
+                    v_asymmetric,
+                    w_asymmetric,
+                    x_asymmetric,
+                    y_asymmetric,
+                    z_asymmetric,
                     p_optional,
                     q_optional,
                     r_optional,
@@ -4196,17 +4196,17 @@ pub mod comprehensive {
                     x_required: message.x_required.into(),
                     y_required: message.y_required.into(),
                     z_required: message.z_required.into(),
-                    p_unstable: Some(message.p_unstable.into()),
-                    q_unstable: Some(message.q_unstable.into()),
-                    r_unstable: Some(message.r_unstable.into()),
-                    s_unstable: Some(message.s_unstable.into()),
-                    t_unstable: Some(message.t_unstable.into()),
-                    u_unstable: Some(message.u_unstable.into()),
-                    v_unstable: Some(message.v_unstable.into()),
-                    w_unstable: Some(message.w_unstable.into()),
-                    x_unstable: Some(message.x_unstable.into()),
-                    y_unstable: Some(message.y_unstable.into()),
-                    z_unstable: Some(message.z_unstable.into()),
+                    p_asymmetric: Some(message.p_asymmetric.into()),
+                    q_asymmetric: Some(message.q_asymmetric.into()),
+                    r_asymmetric: Some(message.r_asymmetric.into()),
+                    s_asymmetric: Some(message.s_asymmetric.into()),
+                    t_asymmetric: Some(message.t_asymmetric.into()),
+                    u_asymmetric: Some(message.u_asymmetric.into()),
+                    v_asymmetric: Some(message.v_asymmetric.into()),
+                    w_asymmetric: Some(message.w_asymmetric.into()),
+                    x_asymmetric: Some(message.x_asymmetric.into()),
+                    y_asymmetric: Some(message.y_asymmetric.into()),
+                    z_asymmetric: Some(message.z_asymmetric.into()),
                     p_optional: message.p_optional.map(|payload| payload.into()),
                     q_optional: message.q_optional.map(|payload| payload.into()),
                     r_optional: message.r_optional.map(|payload| payload.into()),
@@ -4536,17 +4536,17 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub enum ExampleChoiceOut {
             RequiredToRequired(String),
-            RequiredToUnstable(String, Box<ExampleChoiceOut>),
-            UnstableToRequired(String),
-            UnstableToUnstable(String, Box<ExampleChoiceOut>),
-            UnstableToOptionalHandled(String, Box<ExampleChoiceOut>),
-            UnstableToOptionalFallback(String, Box<ExampleChoiceOut>),
+            RequiredToAsymmetric(String, Box<ExampleChoiceOut>),
+            AsymmetricToRequired(String),
+            AsymmetricToAsymmetric(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptionalHandled(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptionalFallback(String, Box<ExampleChoiceOut>),
             OptionalToRequired(String),
-            OptionalToUnstable(String, Box<ExampleChoiceOut>),
+            OptionalToAsymmetric(String, Box<ExampleChoiceOut>),
             OptionalToOptionalHandled(String, Box<ExampleChoiceOut>),
             OptionalToOptionalFallback(String, Box<ExampleChoiceOut>),
             NonexistentToRequired(String),
-            NonexistentToUnstable(String, Box<ExampleChoiceOut>),
+            NonexistentToAsymmetric(String, Box<ExampleChoiceOut>),
             NonexistentToOptionalHandled(String, Box<ExampleChoiceOut>),
             NonexistentToOptionalFallback(String, Box<ExampleChoiceOut>),
         }
@@ -4554,17 +4554,17 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub enum ExampleChoiceIn {
             RequiredToRequired(String),
-            RequiredToUnstable(String),
-            UnstableToRequired(String),
-            UnstableToUnstable(String),
-            UnstableToOptionalHandled(String, Box<ExampleChoiceIn>),
-            UnstableToOptionalFallback(String, Box<ExampleChoiceIn>),
+            RequiredToAsymmetric(String),
+            AsymmetricToRequired(String),
+            AsymmetricToAsymmetric(String),
+            AsymmetricToOptionalHandled(String, Box<ExampleChoiceIn>),
+            AsymmetricToOptionalFallback(String, Box<ExampleChoiceIn>),
             OptionalToRequired(String),
-            OptionalToUnstable(String),
+            OptionalToAsymmetric(String),
             OptionalToOptionalHandled(String, Box<ExampleChoiceIn>),
             OptionalToOptionalFallback(String, Box<ExampleChoiceIn>),
             NonexistentToRequired(String),
-            NonexistentToUnstable(String),
+            NonexistentToAsymmetric(String),
             NonexistentToOptionalHandled(String, Box<ExampleChoiceIn>),
             NonexistentToOptionalFallback(String, Box<ExampleChoiceIn>),
         }
@@ -4577,30 +4577,30 @@ pub mod schema_evolution {
                         super::super::non_varint_field_header_size(0, payload_size) +
                             payload_size
                     }
-                    ExampleChoiceOut::RequiredToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(1, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToRequired(ref payload) => {
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(5, payload_size) +
                             payload_size
                     }
-                    ExampleChoiceOut::UnstableToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(6, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(7, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToOptionalFallback(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(8, payload_size) +
                             payload_size +
@@ -4611,7 +4611,7 @@ pub mod schema_evolution {
                         super::super::non_varint_field_header_size(10, payload_size) +
                             payload_size
                     }
-                    ExampleChoiceOut::OptionalToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(11, payload_size) +
                             payload_size +
@@ -4634,7 +4634,7 @@ pub mod schema_evolution {
                         super::super::non_varint_field_header_size(15, payload_size) +
                             payload_size
                     }
-                    ExampleChoiceOut::NonexistentToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::NonexistentToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(16, payload_size) +
                             payload_size +
@@ -4663,31 +4663,31 @@ pub mod schema_evolution {
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::RequiredToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 1, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToRequired(ref payload) => {
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
                         super::super::serialize_non_varint_field_header(writer, 5, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::UnstableToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 6, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 7, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToOptionalFallback(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 8, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
@@ -4699,7 +4699,7 @@ pub mod schema_evolution {
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::OptionalToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 11, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
@@ -4723,7 +4723,7 @@ pub mod schema_evolution {
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::NonexistentToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::NonexistentToAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 16, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
@@ -4773,7 +4773,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::RequiredToUnstable(payload));
+                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -4782,7 +4782,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToRequired(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -4791,7 +4791,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToUnstable(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
                         }
                         7 => {
                             let mut buffer = vec![];
@@ -4802,7 +4802,7 @@ pub mod schema_evolution {
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as \
                                 super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::UnstableToOptionalHandled(payload, \
+                            return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload, \
                                 fallback));
                         }
                         8 => {
@@ -4814,7 +4814,7 @@ pub mod schema_evolution {
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as \
                                 super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::UnstableToOptionalFallback(payload, \
+                            return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload, \
                                 fallback));
                         }
                         10 => {
@@ -4833,7 +4833,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::OptionalToUnstable(payload));
+                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload));
                         }
                         12 => {
                             let mut buffer = vec![];
@@ -4875,7 +4875,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::NonexistentToUnstable(payload));
+                            return Ok(ExampleChoiceIn::NonexistentToAsymmetric(payload));
                         }
                         17 => {
                             let mut buffer = vec![];
@@ -4914,22 +4914,22 @@ pub mod schema_evolution {
                 match message {
                     ExampleChoiceOut::RequiredToRequired(payload) => \
                         ExampleChoiceIn::RequiredToRequired(payload.into()),
-                    ExampleChoiceOut::RequiredToUnstable(payload, fallback) => \
-                        ExampleChoiceIn::RequiredToUnstable(payload.into()),
-                    ExampleChoiceOut::UnstableToRequired(payload) => \
-                        ExampleChoiceIn::UnstableToRequired(payload.into()),
-                    ExampleChoiceOut::UnstableToUnstable(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToUnstable(payload.into()),
-                    ExampleChoiceOut::UnstableToOptionalHandled(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToOptionalHandled(payload.into(), \
+                    ExampleChoiceOut::RequiredToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::RequiredToAsymmetric(payload.into()),
+                    ExampleChoiceOut::AsymmetricToRequired(payload) => \
+                        ExampleChoiceIn::AsymmetricToRequired(payload.into()),
+                    ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToAsymmetric(payload.into()),
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToOptionalHandled(payload.into(), \
                         Box::new((*fallback).into())),
-                    ExampleChoiceOut::UnstableToOptionalFallback(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToOptionalFallback(payload.into(), \
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToOptionalFallback(payload.into(), \
                         Box::new((*fallback).into())),
                     ExampleChoiceOut::OptionalToRequired(payload) => \
                         ExampleChoiceIn::OptionalToRequired(payload.into()),
-                    ExampleChoiceOut::OptionalToUnstable(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToUnstable(payload.into()),
+                    ExampleChoiceOut::OptionalToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToAsymmetric(payload.into()),
                     ExampleChoiceOut::OptionalToOptionalHandled(payload, fallback) => \
                         ExampleChoiceIn::OptionalToOptionalHandled(payload.into(), \
                         Box::new((*fallback).into())),
@@ -4938,8 +4938,8 @@ pub mod schema_evolution {
                         Box::new((*fallback).into())),
                     ExampleChoiceOut::NonexistentToRequired(payload) => \
                         ExampleChoiceIn::NonexistentToRequired(payload.into()),
-                    ExampleChoiceOut::NonexistentToUnstable(payload, fallback) => \
-                        ExampleChoiceIn::NonexistentToUnstable(payload.into()),
+                    ExampleChoiceOut::NonexistentToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::NonexistentToAsymmetric(payload.into()),
                     ExampleChoiceOut::NonexistentToOptionalHandled(payload, fallback) => \
                         ExampleChoiceIn::NonexistentToOptionalHandled(payload.into(), \
                         Box::new((*fallback).into())),
@@ -4953,34 +4953,34 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub struct ExampleStructOut {
             pub required_to_required: String,
-            pub required_to_unstable: String,
+            pub required_to_asymmetric: String,
             pub required_to_optional: Option<String>,
-            pub unstable_to_required: String,
-            pub unstable_to_unstable: String,
-            pub unstable_to_optional: Option<String>,
-            pub optional_none_to_unstable: String,
+            pub asymmetric_to_required: String,
+            pub asymmetric_to_asymmetric: String,
+            pub asymmetric_to_optional: Option<String>,
+            pub optional_none_to_asymmetric: String,
             pub optional_none_to_optional: Option<String>,
             pub optional_some_to_required: String,
-            pub optional_some_to_unstable: String,
+            pub optional_some_to_asymmetric: String,
             pub optional_some_to_optional: Option<String>,
-            pub nonexistent_to_unstable: String,
+            pub nonexistent_to_asymmetric: String,
             pub nonexistent_to_optional: Option<String>,
         }
 
         #[derive(Clone, Debug)]
         pub struct ExampleStructIn {
             pub required_to_required: String,
-            pub required_to_unstable: Option<String>,
+            pub required_to_asymmetric: Option<String>,
             pub required_to_optional: Option<String>,
-            pub unstable_to_required: String,
-            pub unstable_to_unstable: Option<String>,
-            pub unstable_to_optional: Option<String>,
-            pub optional_none_to_unstable: Option<String>,
+            pub asymmetric_to_required: String,
+            pub asymmetric_to_asymmetric: Option<String>,
+            pub asymmetric_to_optional: Option<String>,
+            pub optional_none_to_asymmetric: Option<String>,
             pub optional_none_to_optional: Option<String>,
             pub optional_some_to_required: String,
-            pub optional_some_to_unstable: Option<String>,
+            pub optional_some_to_asymmetric: Option<String>,
             pub optional_some_to_optional: Option<String>,
-            pub nonexistent_to_unstable: Option<String>,
+            pub nonexistent_to_asymmetric: Option<String>,
             pub nonexistent_to_optional: Option<String>,
         }
 
@@ -4991,25 +4991,25 @@ pub mod schema_evolution {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(0, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.required_to_unstable;
+                    let payload = &self.required_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(1, payload_size) + payload_size
                 }) + self.required_to_optional.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(2, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.unstable_to_required;
+                    let payload = &self.asymmetric_to_required;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(4, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.unstable_to_unstable;
+                    let payload = &self.asymmetric_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(5, payload_size) + payload_size
-                }) + self.unstable_to_optional.as_ref().map_or(0, |payload| {
+                }) + self.asymmetric_to_optional.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(6, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.optional_none_to_unstable;
+                    let payload = &self.optional_none_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(9, payload_size) + payload_size
                 }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
@@ -5020,14 +5020,14 @@ pub mod schema_evolution {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.optional_some_to_unstable;
+                    let payload = &self.optional_some_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.nonexistent_to_unstable;
+                    let payload = &self.nonexistent_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(17, payload_size) + payload_size
                 }) + self.nonexistent_to_optional.as_ref().map_or(0, |payload| {
@@ -5045,7 +5045,7 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.required_to_unstable;
+                    let payload = &self.required_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 1, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5058,27 +5058,27 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.unstable_to_required;
+                    let payload = &self.asymmetric_to_required;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 4, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.unstable_to_unstable;
+                    let payload = &self.asymmetric_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 5, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.unstable_to_optional {
+                if let Some(payload) = &self.asymmetric_to_optional {
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 6, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.optional_none_to_unstable;
+                    let payload = &self.optional_none_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 9, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5098,7 +5098,7 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.optional_some_to_unstable;
+                    let payload = &self.optional_some_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 13, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5111,7 +5111,7 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.nonexistent_to_unstable;
+                    let payload = &self.nonexistent_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 17, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5134,17 +5134,17 @@ pub mod schema_evolution {
                 T: ::std::io::BufRead,
             {
                 let mut required_to_required: Option<String> = None;
-                let mut required_to_unstable: Option<String> = None;
+                let mut required_to_asymmetric: Option<String> = None;
                 let mut required_to_optional: Option<String> = None;
-                let mut unstable_to_required: Option<String> = None;
-                let mut unstable_to_unstable: Option<String> = None;
-                let mut unstable_to_optional: Option<String> = None;
-                let mut optional_none_to_unstable: Option<String> = None;
+                let mut asymmetric_to_required: Option<String> = None;
+                let mut asymmetric_to_asymmetric: Option<String> = None;
+                let mut asymmetric_to_optional: Option<String> = None;
+                let mut optional_none_to_asymmetric: Option<String> = None;
                 let mut optional_none_to_optional: Option<String> = None;
                 let mut optional_some_to_required: Option<String> = None;
-                let mut optional_some_to_unstable: Option<String> = None;
+                let mut optional_some_to_asymmetric: Option<String> = None;
                 let mut optional_some_to_optional: Option<String> = None;
-                let mut nonexistent_to_unstable: Option<String> = None;
+                let mut nonexistent_to_asymmetric: Option<String> = None;
                 let mut nonexistent_to_optional: Option<String> = None;
 
                 loop {
@@ -5181,7 +5181,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_unstable.get_or_insert(payload);
+                            required_to_asymmetric.get_or_insert(payload);
                         }
                         2 => {
                             let mut buffer = vec![];
@@ -5201,7 +5201,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_required.get_or_insert(payload);
+                            asymmetric_to_required.get_or_insert(payload);
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -5211,7 +5211,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_unstable.get_or_insert(payload);
+                            asymmetric_to_asymmetric.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -5221,7 +5221,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_optional.get_or_insert(payload);
+                            asymmetric_to_optional.get_or_insert(payload);
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -5231,7 +5231,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_unstable.get_or_insert(payload);
+                            optional_none_to_asymmetric.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -5261,7 +5261,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_unstable.get_or_insert(payload);
+                            optional_some_to_asymmetric.get_or_insert(payload);
                         }
                         14 => {
                             let mut buffer = vec![];
@@ -5281,7 +5281,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            nonexistent_to_unstable.get_or_insert(payload);
+                            nonexistent_to_asymmetric.get_or_insert(payload);
                         }
                         18 => {
                             let mut buffer = vec![];
@@ -5299,7 +5299,7 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required.is_none() || unstable_to_required.is_none() || \
+                if required_to_required.is_none() || asymmetric_to_required.is_none() || \
                     optional_some_to_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
@@ -5309,17 +5309,17 @@ pub mod schema_evolution {
 
                 Ok(ExampleStructIn {
                     required_to_required: required_to_required.unwrap(),
-                    required_to_unstable,
+                    required_to_asymmetric,
                     required_to_optional,
-                    unstable_to_required: unstable_to_required.unwrap(),
-                    unstable_to_unstable,
-                    unstable_to_optional,
-                    optional_none_to_unstable,
+                    asymmetric_to_required: asymmetric_to_required.unwrap(),
+                    asymmetric_to_asymmetric,
+                    asymmetric_to_optional,
+                    optional_none_to_asymmetric,
                     optional_none_to_optional,
                     optional_some_to_required: optional_some_to_required.unwrap(),
-                    optional_some_to_unstable,
+                    optional_some_to_asymmetric,
                     optional_some_to_optional,
-                    nonexistent_to_unstable,
+                    nonexistent_to_asymmetric,
                     nonexistent_to_optional,
                 })
             }
@@ -5329,21 +5329,21 @@ pub mod schema_evolution {
             fn from(message: ExampleStructOut) -> Self {
                 ExampleStructIn {
                     required_to_required: message.required_to_required.into(),
-                    required_to_unstable: Some(message.required_to_unstable.into()),
+                    required_to_asymmetric: Some(message.required_to_asymmetric.into()),
                     required_to_optional: message.required_to_optional.map(|payload| \
                         payload.into()),
-                    unstable_to_required: message.unstable_to_required.into(),
-                    unstable_to_unstable: Some(message.unstable_to_unstable.into()),
-                    unstable_to_optional: message.unstable_to_optional.map(|payload| \
+                    asymmetric_to_required: message.asymmetric_to_required.into(),
+                    asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
+                    asymmetric_to_optional: message.asymmetric_to_optional.map(|payload| \
                         payload.into()),
-                    optional_none_to_unstable: Some(message.optional_none_to_unstable.into()),
+                    optional_none_to_asymmetric: Some(message.optional_none_to_asymmetric.into()),
                     optional_none_to_optional: message.optional_none_to_optional.map(|payload| \
                         payload.into()),
                     optional_some_to_required: message.optional_some_to_required.into(),
-                    optional_some_to_unstable: Some(message.optional_some_to_unstable.into()),
+                    optional_some_to_asymmetric: Some(message.optional_some_to_asymmetric.into()),
                     optional_some_to_optional: message.optional_some_to_optional.map(|payload| \
                         payload.into()),
-                    nonexistent_to_unstable: Some(message.nonexistent_to_unstable.into()),
+                    nonexistent_to_asymmetric: Some(message.nonexistent_to_asymmetric.into()),
                     nonexistent_to_optional: message.nonexistent_to_optional.map(|payload| \
                         payload.into()),
                 }
@@ -5355,14 +5355,14 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub enum ExampleChoiceOut {
             RequiredToRequired(String),
-            RequiredToUnstable(String),
-            UnstableToRequired(String, Box<ExampleChoiceOut>),
-            UnstableToUnstable(String, Box<ExampleChoiceOut>),
-            UnstableToOptionalHandled(String, Box<ExampleChoiceOut>),
-            UnstableToOptionalFallback(String, Box<ExampleChoiceOut>),
-            UnstableToNonexistent(String, Box<ExampleChoiceOut>),
+            RequiredToAsymmetric(String),
+            AsymmetricToRequired(String, Box<ExampleChoiceOut>),
+            AsymmetricToAsymmetric(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptionalHandled(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptionalFallback(String, Box<ExampleChoiceOut>),
+            AsymmetricToNonexistent(String, Box<ExampleChoiceOut>),
             OptionalToRequired(String, Box<ExampleChoiceOut>),
-            OptionalToUnstable(String, Box<ExampleChoiceOut>),
+            OptionalToAsymmetric(String, Box<ExampleChoiceOut>),
             OptionalToOptionalHandled(String, Box<ExampleChoiceOut>),
             OptionalToOptionalFallback(String, Box<ExampleChoiceOut>),
             OptionalToNonexistent(String, Box<ExampleChoiceOut>),
@@ -5371,14 +5371,14 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub enum ExampleChoiceIn {
             RequiredToRequired(String),
-            RequiredToUnstable(String),
-            UnstableToRequired(String),
-            UnstableToUnstable(String),
-            UnstableToOptionalHandled(String),
-            UnstableToOptionalFallback(String),
-            UnstableToNonexistent(String),
+            RequiredToAsymmetric(String),
+            AsymmetricToRequired(String),
+            AsymmetricToAsymmetric(String),
+            AsymmetricToOptionalHandled(String),
+            AsymmetricToOptionalFallback(String),
+            AsymmetricToNonexistent(String),
             OptionalToRequired(String, Box<ExampleChoiceIn>),
-            OptionalToUnstable(String, Box<ExampleChoiceIn>),
+            OptionalToAsymmetric(String, Box<ExampleChoiceIn>),
             OptionalToOptionalHandled(String, Box<ExampleChoiceIn>),
             OptionalToOptionalFallback(String, Box<ExampleChoiceIn>),
             OptionalToNonexistent(String, Box<ExampleChoiceIn>),
@@ -5392,36 +5392,36 @@ pub mod schema_evolution {
                         super::super::non_varint_field_header_size(0, payload_size) +
                             payload_size
                     }
-                    ExampleChoiceOut::RequiredToUnstable(ref payload) => {
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(1, payload_size) +
                             payload_size
                     }
-                    ExampleChoiceOut::UnstableToRequired(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(5, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(6, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(7, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToOptionalFallback(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(8, payload_size) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::UnstableToNonexistent(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(9, payload_size) +
                             payload_size +
@@ -5433,7 +5433,7 @@ pub mod schema_evolution {
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::OptionalToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.len() as u64;
                         super::super::non_varint_field_header_size(11, payload_size) +
                             payload_size +
@@ -5468,37 +5468,37 @@ pub mod schema_evolution {
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::RequiredToUnstable(ref payload) => {
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
                         super::super::serialize_non_varint_field_header(writer, 1, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::UnstableToRequired(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 5, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 6, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 7, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToOptionalFallback(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 8, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::UnstableToNonexistent(ref payload, ref fallback) => {
+                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 9, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
@@ -5510,7 +5510,7 @@ pub mod schema_evolution {
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::OptionalToUnstable(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 11, payload.len() \
                             as u64)?;
                         writer.write_all(payload.as_bytes())?;
@@ -5566,7 +5566,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::RequiredToUnstable(payload));
+                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -5575,7 +5575,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToRequired(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -5584,7 +5584,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToUnstable(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
                         }
                         7 => {
                             let mut buffer = vec![];
@@ -5593,7 +5593,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToOptionalHandled(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload));
                         }
                         8 => {
                             let mut buffer = vec![];
@@ -5602,7 +5602,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToOptionalFallback(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload));
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -5611,7 +5611,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(ExampleChoiceIn::UnstableToNonexistent(payload));
+                            return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -5633,7 +5633,7 @@ pub mod schema_evolution {
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as \
                                 super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToUnstable(payload, fallback));
+                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
                         }
                         12 => {
                             let mut buffer = vec![];
@@ -5683,23 +5683,23 @@ pub mod schema_evolution {
                 match message {
                     ExampleChoiceOut::RequiredToRequired(payload) => \
                         ExampleChoiceIn::RequiredToRequired(payload.into()),
-                    ExampleChoiceOut::RequiredToUnstable(payload) => \
-                        ExampleChoiceIn::RequiredToUnstable(payload.into()),
-                    ExampleChoiceOut::UnstableToRequired(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToRequired(payload.into()),
-                    ExampleChoiceOut::UnstableToUnstable(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToUnstable(payload.into()),
-                    ExampleChoiceOut::UnstableToOptionalHandled(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToOptionalHandled(payload.into()),
-                    ExampleChoiceOut::UnstableToOptionalFallback(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToOptionalFallback(payload.into()),
-                    ExampleChoiceOut::UnstableToNonexistent(payload, fallback) => \
-                        ExampleChoiceIn::UnstableToNonexistent(payload.into()),
+                    ExampleChoiceOut::RequiredToAsymmetric(payload) => \
+                        ExampleChoiceIn::RequiredToAsymmetric(payload.into()),
+                    ExampleChoiceOut::AsymmetricToRequired(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToRequired(payload.into()),
+                    ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToAsymmetric(payload.into()),
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToOptionalHandled(payload.into()),
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToOptionalFallback(payload.into()),
+                    ExampleChoiceOut::AsymmetricToNonexistent(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToNonexistent(payload.into()),
                     ExampleChoiceOut::OptionalToRequired(payload, fallback) => \
                         ExampleChoiceIn::OptionalToRequired(payload.into(), \
                         Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToUnstable(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToUnstable(payload.into(), \
+                    ExampleChoiceOut::OptionalToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToAsymmetric(payload.into(), \
                         Box::new((*fallback).into())),
                     ExampleChoiceOut::OptionalToOptionalHandled(payload, fallback) => \
                         ExampleChoiceIn::OptionalToOptionalHandled(payload.into(), \
@@ -5717,18 +5717,18 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub struct ExampleStructOut {
             pub required_to_required: String,
-            pub required_to_unstable: String,
+            pub required_to_asymmetric: String,
             pub required_to_optional: String,
             pub required_to_nonexistent: String,
-            pub unstable_to_required: String,
-            pub unstable_to_unstable: String,
-            pub unstable_to_optional: String,
-            pub unstable_to_nonexistent: String,
-            pub optional_none_to_unstable: Option<String>,
+            pub asymmetric_to_required: String,
+            pub asymmetric_to_asymmetric: String,
+            pub asymmetric_to_optional: String,
+            pub asymmetric_to_nonexistent: String,
+            pub optional_none_to_asymmetric: Option<String>,
             pub optional_none_to_optional: Option<String>,
             pub optional_none_to_nonexistent: Option<String>,
             pub optional_some_to_required: Option<String>,
-            pub optional_some_to_unstable: Option<String>,
+            pub optional_some_to_asymmetric: Option<String>,
             pub optional_some_to_optional: Option<String>,
             pub optional_some_to_nonexistent: Option<String>,
         }
@@ -5736,18 +5736,18 @@ pub mod schema_evolution {
         #[derive(Clone, Debug)]
         pub struct ExampleStructIn {
             pub required_to_required: String,
-            pub required_to_unstable: String,
+            pub required_to_asymmetric: String,
             pub required_to_optional: String,
             pub required_to_nonexistent: String,
-            pub unstable_to_required: Option<String>,
-            pub unstable_to_unstable: Option<String>,
-            pub unstable_to_optional: Option<String>,
-            pub unstable_to_nonexistent: Option<String>,
-            pub optional_none_to_unstable: Option<String>,
+            pub asymmetric_to_required: Option<String>,
+            pub asymmetric_to_asymmetric: Option<String>,
+            pub asymmetric_to_optional: Option<String>,
+            pub asymmetric_to_nonexistent: Option<String>,
+            pub optional_none_to_asymmetric: Option<String>,
             pub optional_none_to_optional: Option<String>,
             pub optional_none_to_nonexistent: Option<String>,
             pub optional_some_to_required: Option<String>,
-            pub optional_some_to_unstable: Option<String>,
+            pub optional_some_to_asymmetric: Option<String>,
             pub optional_some_to_optional: Option<String>,
             pub optional_some_to_nonexistent: Option<String>,
         }
@@ -5759,7 +5759,7 @@ pub mod schema_evolution {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(0, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.required_to_unstable;
+                    let payload = &self.required_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(1, payload_size) + payload_size
                 }) + ({
@@ -5771,22 +5771,22 @@ pub mod schema_evolution {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(3, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.unstable_to_required;
+                    let payload = &self.asymmetric_to_required;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(4, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.unstable_to_unstable;
+                    let payload = &self.asymmetric_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(5, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.unstable_to_optional;
+                    let payload = &self.asymmetric_to_optional;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(6, payload_size) + payload_size
                 }) + ({
-                    let payload = &self.unstable_to_nonexistent;
+                    let payload = &self.asymmetric_to_nonexistent;
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(7, payload_size) + payload_size
-                }) + self.optional_none_to_unstable.as_ref().map_or(0, |payload| {
+                }) + self.optional_none_to_asymmetric.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(9, payload_size) + payload_size
                 }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
@@ -5798,7 +5798,7 @@ pub mod schema_evolution {
                 }) + self.optional_some_to_required.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
-                }) + self.optional_some_to_unstable.as_ref().map_or(0, |payload| {
+                }) + self.optional_some_to_asymmetric.as_ref().map_or(0, |payload| {
                     let payload_size = payload.len() as u64;
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
@@ -5819,7 +5819,7 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.required_to_unstable;
+                    let payload = &self.required_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 1, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5840,34 +5840,34 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.unstable_to_required;
+                    let payload = &self.asymmetric_to_required;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 4, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.unstable_to_unstable;
+                    let payload = &self.asymmetric_to_asymmetric;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 5, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.unstable_to_optional;
+                    let payload = &self.asymmetric_to_optional;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 6, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.unstable_to_nonexistent;
+                    let payload = &self.asymmetric_to_nonexistent;
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 7, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.optional_none_to_unstable {
+                if let Some(payload) = &self.optional_none_to_asymmetric {
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 9, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5891,7 +5891,7 @@ pub mod schema_evolution {
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.optional_some_to_unstable {
+                if let Some(payload) = &self.optional_some_to_asymmetric {
                     let payload_size = payload.len() as u64;
                     super::super::serialize_non_varint_field_header(writer, 13, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
@@ -5920,18 +5920,18 @@ pub mod schema_evolution {
                 T: ::std::io::BufRead,
             {
                 let mut required_to_required: Option<String> = None;
-                let mut required_to_unstable: Option<String> = None;
+                let mut required_to_asymmetric: Option<String> = None;
                 let mut required_to_optional: Option<String> = None;
                 let mut required_to_nonexistent: Option<String> = None;
-                let mut unstable_to_required: Option<String> = None;
-                let mut unstable_to_unstable: Option<String> = None;
-                let mut unstable_to_optional: Option<String> = None;
-                let mut unstable_to_nonexistent: Option<String> = None;
-                let mut optional_none_to_unstable: Option<String> = None;
+                let mut asymmetric_to_required: Option<String> = None;
+                let mut asymmetric_to_asymmetric: Option<String> = None;
+                let mut asymmetric_to_optional: Option<String> = None;
+                let mut asymmetric_to_nonexistent: Option<String> = None;
+                let mut optional_none_to_asymmetric: Option<String> = None;
                 let mut optional_none_to_optional: Option<String> = None;
                 let mut optional_none_to_nonexistent: Option<String> = None;
                 let mut optional_some_to_required: Option<String> = None;
-                let mut optional_some_to_unstable: Option<String> = None;
+                let mut optional_some_to_asymmetric: Option<String> = None;
                 let mut optional_some_to_optional: Option<String> = None;
                 let mut optional_some_to_nonexistent: Option<String> = None;
 
@@ -5969,7 +5969,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_unstable.get_or_insert(payload);
+                            required_to_asymmetric.get_or_insert(payload);
                         }
                         2 => {
                             let mut buffer = vec![];
@@ -5999,7 +5999,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_required.get_or_insert(payload);
+                            asymmetric_to_required.get_or_insert(payload);
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -6009,7 +6009,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_unstable.get_or_insert(payload);
+                            asymmetric_to_asymmetric.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -6019,7 +6019,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_optional.get_or_insert(payload);
+                            asymmetric_to_optional.get_or_insert(payload);
                         }
                         7 => {
                             let mut buffer = vec![];
@@ -6029,7 +6029,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            unstable_to_nonexistent.get_or_insert(payload);
+                            asymmetric_to_nonexistent.get_or_insert(payload);
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -6039,7 +6039,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_unstable.get_or_insert(payload);
+                            optional_none_to_asymmetric.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -6079,7 +6079,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_unstable.get_or_insert(payload);
+                            optional_some_to_asymmetric.get_or_insert(payload);
                         }
                         14 => {
                             let mut buffer = vec![];
@@ -6107,7 +6107,7 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required.is_none() || required_to_unstable.is_none() || \
+                if required_to_required.is_none() || required_to_asymmetric.is_none() || \
                     required_to_optional.is_none() || required_to_nonexistent.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
@@ -6117,18 +6117,18 @@ pub mod schema_evolution {
 
                 Ok(ExampleStructIn {
                     required_to_required: required_to_required.unwrap(),
-                    required_to_unstable: required_to_unstable.unwrap(),
+                    required_to_asymmetric: required_to_asymmetric.unwrap(),
                     required_to_optional: required_to_optional.unwrap(),
                     required_to_nonexistent: required_to_nonexistent.unwrap(),
-                    unstable_to_required,
-                    unstable_to_unstable,
-                    unstable_to_optional,
-                    unstable_to_nonexistent,
-                    optional_none_to_unstable,
+                    asymmetric_to_required,
+                    asymmetric_to_asymmetric,
+                    asymmetric_to_optional,
+                    asymmetric_to_nonexistent,
+                    optional_none_to_asymmetric,
                     optional_none_to_optional,
                     optional_none_to_nonexistent,
                     optional_some_to_required,
-                    optional_some_to_unstable,
+                    optional_some_to_asymmetric,
                     optional_some_to_optional,
                     optional_some_to_nonexistent,
                 })
@@ -6139,14 +6139,14 @@ pub mod schema_evolution {
             fn from(message: ExampleStructOut) -> Self {
                 ExampleStructIn {
                     required_to_required: message.required_to_required.into(),
-                    required_to_unstable: message.required_to_unstable.into(),
+                    required_to_asymmetric: message.required_to_asymmetric.into(),
                     required_to_optional: message.required_to_optional.into(),
                     required_to_nonexistent: message.required_to_nonexistent.into(),
-                    unstable_to_required: Some(message.unstable_to_required.into()),
-                    unstable_to_unstable: Some(message.unstable_to_unstable.into()),
-                    unstable_to_optional: Some(message.unstable_to_optional.into()),
-                    unstable_to_nonexistent: Some(message.unstable_to_nonexistent.into()),
-                    optional_none_to_unstable: message.optional_none_to_unstable.map(|payload| \
+                    asymmetric_to_required: Some(message.asymmetric_to_required.into()),
+                    asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
+                    asymmetric_to_optional: Some(message.asymmetric_to_optional.into()),
+                    asymmetric_to_nonexistent: Some(message.asymmetric_to_nonexistent.into()),
+                    optional_none_to_asymmetric: message.optional_none_to_asymmetric.map(|payload| \
                         payload.into()),
                     optional_none_to_optional: message.optional_none_to_optional.map(|payload| \
                         payload.into()),
@@ -6154,7 +6154,7 @@ pub mod schema_evolution {
                         message.optional_none_to_nonexistent.map(|payload| payload.into()),
                     optional_some_to_required: message.optional_some_to_required.map(|payload| \
                         payload.into()),
-                    optional_some_to_unstable: message.optional_some_to_unstable.map(|payload| \
+                    optional_some_to_asymmetric: message.optional_some_to_asymmetric.map(|payload| \
                         payload.into()),
                     optional_some_to_optional: message.optional_some_to_optional.map(|payload| \
                         payload.into()),

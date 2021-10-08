@@ -3,9 +3,9 @@ use {
         error::{listing, throw, Error, SourceRange},
         format::CodeStr,
         token::{
-            Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD, F64_KEYWORD,
-            IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD,
-            U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
+            Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
+            CHOICE_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+            STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
         },
     },
     std::path::Path,
@@ -173,10 +173,10 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Unit,
                     });
-                } else if &schema_contents[i..end] == UNSTABLE_KEYWORD {
+                } else if &schema_contents[i..end] == ASYMMETRIC_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
-                        variant: Variant::Unstable,
+                        variant: Variant::Asymmetric,
                     });
                 } else {
                     let start = if c == RAW_IDENTIFIER_SIGIL { i + 1 } else { i };
@@ -329,9 +329,9 @@ mod tests {
             assert_fails, assert_same,
             error::SourceRange,
             token::{
-                Token, Variant, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-                F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD, STRING_KEYWORD,
-                STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD, UNSTABLE_KEYWORD,
+                Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
+                CHOICE_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+                STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
             },
             tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
         },
@@ -729,15 +729,15 @@ mod tests {
     }
 
     #[test]
-    fn tokenize_unstable() {
+    fn tokenize_asymmetric() {
         assert_same!(
-            tokenize(Path::new("foo.t"), UNSTABLE_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), ASYMMETRIC_KEYWORD).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
-                    end: UNSTABLE_KEYWORD.len(),
+                    end: ASYMMETRIC_KEYWORD.len(),
                 },
-                variant: Variant::Unstable,
+                variant: Variant::Asymmetric,
             }],
         );
     }

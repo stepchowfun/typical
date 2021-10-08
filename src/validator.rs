@@ -385,7 +385,7 @@ mod tests {
             struct foo {
               x: bar.bar = 0
               y: [bar.bar] = 1
-              unstable z: string = 2
+              asymmetric z: string = 2
             }
         "
         .to_owned();

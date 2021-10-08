@@ -11,17 +11,17 @@ choice bar {
     y_required: u64 = 9
     z_required = 10
 
-    unstable p_unstable: [unit] = 11
-    unstable q_unstable: [f64] = 12
-    unstable r_unstable: [s64] = 13
-    unstable s_unstable: [[string]] = 14
-    unstable t_unstable: bool = 15
-    unstable u_unstable: bytes = 16
-    unstable v_unstable: f64 = 17
-    unstable w_unstable: s64 = 18
-    unstable x_unstable: string = 19
-    unstable y_unstable: u64 = 20
-    unstable z_unstable = 21
+    asymmetric p_asymmetric: [unit] = 11
+    asymmetric q_asymmetric: [f64] = 12
+    asymmetric r_asymmetric: [s64] = 13
+    asymmetric s_asymmetric: [[string]] = 14
+    asymmetric t_asymmetric: bool = 15
+    asymmetric u_asymmetric: bytes = 16
+    asymmetric v_asymmetric: f64 = 17
+    asymmetric w_asymmetric: s64 = 18
+    asymmetric x_asymmetric: string = 19
+    asymmetric y_asymmetric: u64 = 20
+    asymmetric z_asymmetric = 21
 
     optional p_optional: [unit] = 22
     optional q_optional: [f64] = 23

@@ -550,10 +550,10 @@ fn parse_field(
 
                 schema::Rule::Optional
             }
-            token::Variant::Unstable => {
+            token::Variant::Asymmetric => {
                 *position += 1;
 
-                schema::Rule::Unstable
+                schema::Rule::Asymmetric
             }
             _ => schema::Rule::Required,
         }
@@ -854,7 +854,7 @@ mod tests {
             # This is a choice.
             choice bar {
               w: corge.qux = 0
-              unstable x: [bytes] = 1
+              asymmetric x: [bytes] = 1
               y: f64 = 2
               z = 3
             }
@@ -974,19 +974,19 @@ mod tests {
             schema::Field {
                 source_range: SourceRange {
                     start: 350,
-                    end: 373,
+                    end: 375,
                 },
                 name: "x".into(),
-                rule: schema::Rule::Unstable,
+                rule: schema::Rule::Asymmetric,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 362,
-                        end: 369,
+                        start: 364,
+                        end: 371,
                     },
                     variant: schema::TypeVariant::Array(Box::new(schema::Type {
                         source_range: SourceRange {
-                            start: 363,
-                            end: 368,
+                            start: 365,
+                            end: 370,
                         },
                         variant: schema::TypeVariant::Bytes,
                     })),
@@ -995,15 +995,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 388,
-                    end: 398,
+                    start: 390,
+                    end: 400,
                 },
                 name: "y".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 391,
-                        end: 394,
+                        start: 393,
+                        end: 396,
                     },
                     variant: schema::TypeVariant::F64,
                 },
@@ -1011,15 +1011,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 413,
-                    end: 418,
+                    start: 415,
+                    end: 420,
                 },
                 name: "z".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 415,
-                        end: 415,
+                        start: 417,
+                        end: 417,
                     },
                     variant: schema::TypeVariant::Unit,
                 },
@@ -1045,7 +1045,7 @@ mod tests {
             schema::Declaration {
                 source_range: SourceRange {
                     start: 292,
-                    end: 432,
+                    end: 434,
                 },
                 variant: schema::DeclarationVariant::Choice(bar_fields),
             },

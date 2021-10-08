@@ -2,7 +2,7 @@ use {
     crate::{
         error::SourceRange,
         identifier::Identifier,
-        token::{OPTIONAL_KEYWORD, UNSTABLE_KEYWORD},
+        token::{ASYMMETRIC_KEYWORD, OPTIONAL_KEYWORD},
     },
     std::{
         collections::BTreeMap,
@@ -49,7 +49,7 @@ pub struct Field {
 pub enum Rule {
     Optional,
     Required,
-    Unstable,
+    Asymmetric,
 }
 
 #[derive(Clone, Debug)]
@@ -186,8 +186,8 @@ impl Field {
             Rule::Required => {
                 write!(f, "  ")?;
             }
-            Rule::Unstable => {
-                write!(f, "  {} ", UNSTABLE_KEYWORD)?;
+            Rule::Asymmetric => {
+                write!(f, "  {} ", ASYMMETRIC_KEYWORD)?;
             }
         }
 
@@ -508,7 +508,7 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Unstable,
+                rule: Rule::Asymmetric,
                 name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -544,7 +544,7 @@ mod tests {
         let expected = "\
             choice bar {\n\
             \x20 x: bool = 0\n\
-            \x20 unstable y: f64 = 1\n\
+            \x20 asymmetric y: f64 = 1\n\
             }\n\
             \n\
             struct foo {\n\
@@ -615,7 +615,7 @@ mod tests {
             },
             Field {
                 source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Unstable,
+                rule: Rule::Asymmetric,
                 name: "y".into(),
                 r#type: Type {
                     source_range: SourceRange { start: 0, end: 0 },
@@ -654,7 +654,7 @@ mod tests {
             \n\
             choice bar {\n\
             \x20 x: bool = 0\n\
-            \x20 unstable y: f64 = 1\n\
+            \x20 asymmetric y: f64 = 1\n\
             }\n\
             \n\
             struct foo {\n\
