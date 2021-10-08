@@ -4,11 +4,12 @@
 
 *Typical* helps you serialize data in a language-independent fashion. You define data types in a file called a *schema*, then Typical uses that schema to generate the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. It'll feel natural if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical proposes a [new solution](#required-optional-and-asymmetric-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical proposes a [new solution](#required-optional-and-asymmetric-fields) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
-**Currently supported languages:**
+**Supported languages:**
 
 - Rust
+- *Coming soon:* TypeScript
 
 ## Introduction
 
@@ -80,9 +81,9 @@ Due to the trouble associated with required fields, the conventional wisdom is s
 
 However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared as required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as optional places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the field, and readers must handle the case of the field missing to satisfy the type checker even though that field is always supposed to be set.
 
-For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to (1) introduce the field as optional, (2) update all the writers to set the new field, and (3) finally promote it to required. Unfortunately, you can't rely on the type system to ensure you've done step (2) correctly. That step can be nontrivial in a large system.
+For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to (1) introduce the field as optional, (2) update all the writers to set the new field, and (3) finally promote it to required. Unfortunately, you can't rely on the type system to ensure you've done step (2) completely. That step can be nontrivial in a large system, and you may forget to set the field somewhere.
 
-To remove a required field, the standard process is to (1) demote it to optional, but ensure that writers are still setting it, (2) start allowing the field to be unset or delete the field entirely. Here, step (1) is the potentially difficult one, since the type system no longer guarantees that the field is still being set by writers during that time.
+To remove a required field, the standard process is to (1) demote it to optional, but ensure that writers are still setting it, (2) start allowing the field to be unset or delete the field entirely. Here, step (1) is the troublesome one, since the type system no longer guarantees that the field is still being set by writers during that time.
 
 ### Introducing: `asymmetric` fields
 
@@ -342,6 +343,8 @@ An identifier (the name of a type, field, or import) must start with a letter or
 ## Binary encoding
 
 The following sections describe how Typical serializes your data.
+
+Note that the generated deserialization code is designed to be safe from malicious inputs, in that it protects against unsafe memory accesses like buffer over-reading and overflowing, denial-of-service attacks like [billion laughs](https://en.wikipedia.org/wiki/Billion_laughs_attack), and arbitrary code execution.
 
 ### Built-in types
 
