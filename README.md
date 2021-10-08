@@ -212,7 +212,7 @@ The rules are as follows:
 
 All told, the idea of asymmetric fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
 
-## A style guide
+## Schema style guide
 
 Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
 
