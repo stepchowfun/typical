@@ -172,7 +172,7 @@ The code generated for `choice`s supports case analysis, so clients can take dif
 
 That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start using it before readers can understand it. Conversely, if you remove a required field, readers may no longer be able to handle it while writers are still using it.
 
-Not to worry—`choice`s support `optional` and `asymmetric` fields too!
+Not to worry—**`choice`s can have `optional` and `asymmetric` fields too!**
 
 An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers are not required to handle optional fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
