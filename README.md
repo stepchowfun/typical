@@ -87,13 +87,13 @@ Experience has taught us that it can be difficult to introduce a required field 
 ```perl
 struct send_email_request {
     to: string = 0
-    from: string = 3 # A new field!
+    from: string = 3 # A new required field!
     subject: string = 1
     body: string = 2
 }
 ```
 
-The only safe way to roll out this change is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
+The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
 
 That kind of rollout may not be feasible. You may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
 
@@ -118,7 +118,7 @@ Let's make that more concrete with our email API example. Instead of directly in
 ```perl
 struct send_email_request {
     to: string = 0
-    asymmetric from: string = 3 # A new field!
+    asymmetric from: string = 3 # A new asymmetric field!
     subject: string = 1
     body: string = 2
 }
