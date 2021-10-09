@@ -50,7 +50,7 @@ The client and server can then use the generated code to serialize and deseriali
 
 Note that Typical only does serialization and deserialization. It has nothing to do with service meshes, encryption, authentication, or authorization, but it can be used together with those technologies.
 
-### Serialize a message!
+### Serialize and deserialize messages
 
 A program could then construct a request and serialize it to a file:
 
@@ -65,7 +65,7 @@ let mut file = BufWriter::new(File::create("/tmp/request")?);
 request.serialize(&mut file)
 ```
 
-A different program could read the request from disk and deserialize it:
+A different program, possibly written in a different language, could read the request from disk and deserialize it:
 
 ```rust
 let mut file = BufReader::new(File::open("/tmp/request")?);
