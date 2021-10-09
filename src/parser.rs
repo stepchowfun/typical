@@ -844,18 +844,18 @@ mod tests {
             import 'qux.t' as corge
 
             # This is a struct.
-            struct foo {
-              w: baz.baz = 0
-              optional x: u64 = 1
-              y: [bool] = 2
+            struct Foo {
+              w: baz.Baz = 0
+              optional x: U64 = 1
+              y: [Bool] = 2
               z = 3
             }
 
             # This is a choice.
-            choice bar {
-              w: corge.qux = 0
-              asymmetric x: [bytes] = 1
-              y: f64 = 2
+            choice Bar {
+              w: corge.Qux = 0
+              asymmetric x: [Bytes] = 1
+              y: F64 = 2
               z = 3
             }
         ";
@@ -894,7 +894,7 @@ mod tests {
                         start: 139,
                         end: 146,
                     },
-                    variant: schema::TypeVariant::Custom(Some("baz".into()), "baz".into()),
+                    variant: schema::TypeVariant::Custom(Some("baz".into()), "Baz".into()),
                 },
                 index: 0,
             },
@@ -967,7 +967,7 @@ mod tests {
                         start: 322,
                         end: 331,
                     },
-                    variant: schema::TypeVariant::Custom(Some("corge".into()), "qux".into()),
+                    variant: schema::TypeVariant::Custom(Some("corge".into()), "Qux".into()),
                 },
                 index: 0,
             },
@@ -1030,7 +1030,7 @@ mod tests {
         let mut declarations = BTreeMap::new();
 
         declarations.insert(
-            "foo".into(),
+            "Foo".into(),
             schema::Declaration {
                 source_range: SourceRange {
                     start: 109,
@@ -1041,7 +1041,7 @@ mod tests {
         );
 
         declarations.insert(
-            "bar".into(),
+            "Bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
                     start: 292,
@@ -1079,17 +1079,17 @@ mod tests {
     fn parse_duplicate_declaration() {
         let source_path = Path::new("foo.t");
         let source = "
-            struct foo {
+            struct Foo {
             }
 
-            choice foo {
+            choice Foo {
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
 
         assert_fails!(
             parse(source_path, source, &tokens[..]),
-            "A declaration named `foo` already exists in this file.",
+            "A declaration named `Foo` already exists in this file.",
         );
     }
 }

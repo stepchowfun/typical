@@ -8,17 +8,17 @@ use {
 
 // Keywords
 pub const AS_KEYWORD: &str = "as";
-pub const BOOL_KEYWORD: &str = "bool";
-pub const BYTES_KEYWORD: &str = "bytes";
+pub const BOOL_KEYWORD: &str = "Bool";
+pub const BYTES_KEYWORD: &str = "Bytes";
 pub const CHOICE_KEYWORD: &str = "choice";
-pub const F64_KEYWORD: &str = "f64";
+pub const F64_KEYWORD: &str = "F64";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const OPTIONAL_KEYWORD: &str = "optional";
-pub const S64_KEYWORD: &str = "s64";
-pub const STRING_KEYWORD: &str = "string";
+pub const S64_KEYWORD: &str = "S64";
+pub const STRING_KEYWORD: &str = "String";
 pub const STRUCT_KEYWORD: &str = "struct";
-pub const U64_KEYWORD: &str = "u64";
-pub const UNIT_KEYWORD: &str = "unit";
+pub const U64_KEYWORD: &str = "U64";
+pub const UNIT_KEYWORD: &str = "Unit";
 pub const ASYMMETRIC_KEYWORD: &str = "asymmetric";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct

@@ -382,10 +382,10 @@ mod tests {
         let foo_contents = "
             import 'bar.t'
 
-            struct foo {
-              x: bar.bar = 0
-              y: [bar.bar] = 1
-              asymmetric z: string = 2
+            struct Foo {
+              x: bar.Bar = 0
+              y: [bar.Bar] = 1
+              asymmetric z: String = 2
             }
         "
         .to_owned();
@@ -395,10 +395,10 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            choice bar {
-              x: bool = 0
-              y: f64 = 1
-              optional z: u64 = 2
+            choice Bar {
+              x: Bool = 0
+              y: F64 = 1
+              optional z: U64 = 2
             }
         "
         .to_owned();
@@ -424,9 +424,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct bar {
-              x: bool = 0
-              x: f64 = 1
+            struct Bar {
+              x: Bool = 0
+              x: F64 = 1
             }
         "
         .to_owned();
@@ -449,9 +449,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct bar {
-              x: bool = 0
-              y: f64 = 0
+            struct Bar {
+              x: Bool = 0
+              y: F64 = 0
             }
         "
         .to_owned();
@@ -474,9 +474,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice bar {
-              x: bool = 0
-              x: f64 = 1
+            choice Bar {
+              x: Bool = 0
+              x: F64 = 1
             }
         "
         .to_owned();
@@ -499,9 +499,9 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice bar {
-              x: bool = 0
-              y: f64 = 0
+            choice Bar {
+              x: Bool = 0
+              y: F64 = 0
             }
         "
         .to_owned();
@@ -524,8 +524,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct foo {
-              x: bar.bar = 0
+            struct Foo {
+              x: bar.Bar = 0
             }
         "
         .to_owned();
@@ -548,8 +548,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct foo {
-              x: [bar.bar] = 0
+            struct Foo {
+              x: [bar.Bar] = 0
             }
         "
         .to_owned();
@@ -572,8 +572,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct foo {
-              x: bar = 0
+            struct Foo {
+              x: Bar = 0
             }
         "
         .to_owned();
@@ -585,7 +585,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "There is no type named `bar` in this file.",
+            "There is no type named `Bar` in this file.",
         );
     }
 
@@ -596,8 +596,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct foo {
-              x: [bar] = 0
+            struct Foo {
+              x: [Bar] = 0
             }
         "
         .to_owned();
@@ -609,7 +609,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "There is no type named `bar` in this file.",
+            "There is no type named `Bar` in this file.",
         );
     }
 
@@ -622,8 +622,8 @@ mod tests {
         let foo_contents = "
             import 'bar.t'
 
-            struct foo {
-              x: bar.bar = 0
+            struct Foo {
+              x: bar.Bar = 0
             }
         "
         .to_owned();
@@ -633,7 +633,7 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            struct qux {
+            struct Qux {
             }
         "
         .to_owned();
@@ -651,7 +651,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "There is no type named `bar` in import `bar`.",
+            "There is no type named `Bar` in import `bar`.",
         );
     }
 
@@ -664,8 +664,8 @@ mod tests {
         let foo_contents = "
             import 'bar.t'
 
-            struct foo {
-              x: [bar.bar] = 0
+            struct Foo {
+              x: [bar.Bar] = 0
             }
         "
         .to_owned();
@@ -675,7 +675,7 @@ mod tests {
         };
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
-            struct qux {
+            struct Qux {
             }
         "
         .to_owned();
@@ -693,7 +693,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "There is no type named `bar` in import `bar`.",
+            "There is no type named `Bar` in import `bar`.",
         );
     }
 
@@ -706,8 +706,8 @@ mod tests {
         let foo_contents = "
             import 'bar.t'
 
-            struct foo {
-              x: bar.bar = 0
+            struct Foo {
+              x: bar.Bar = 0
             }
         "
         .to_owned();
@@ -719,8 +719,8 @@ mod tests {
         let bar_contents = "
             import 'foo.t'
 
-            choice bar {
-              x: foo.foo = 0
+            choice Bar {
+              x: foo.Foo = 0
             }
         "
         .to_owned();
@@ -739,7 +739,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "Cycle detected: `bar.bar` \u{2192} `foo.foo` \u{2192} `bar.bar`.",
+            "Cycle detected: `bar.Bar` \u{2192} `foo.Foo` \u{2192} `bar.Bar`.",
         );
     }
 
@@ -752,8 +752,8 @@ mod tests {
         let foo_contents = "
             import 'bar.t'
 
-            struct foo {
-              x: [bar.bar] = 0
+            struct Foo {
+              x: [bar.Bar] = 0
             }
         "
         .to_owned();
@@ -765,8 +765,8 @@ mod tests {
         let bar_contents = "
             import 'foo.t'
 
-            choice bar {
-              x: foo.foo = 0
+            choice Bar {
+              x: foo.Foo = 0
             }
         "
         .to_owned();
@@ -785,7 +785,7 @@ mod tests {
 
         assert_fails!(
             validate(&schemas),
-            "Cycle detected: `bar.bar` \u{2192} `foo.foo` \u{2192} `bar.bar`.",
+            "Cycle detected: `bar.Bar` \u{2192} `foo.Foo` \u{2192} `bar.Bar`.",
         );
     }
 }

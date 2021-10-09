@@ -342,11 +342,11 @@ mod tests {
     fn tokenize_example() {
         let source = "
             # This is a struct.
-            struct {
+            struct Foo {
             }
 
             # This is a choice.
-            choice {
+            choice Bar {
             }
         ";
 
@@ -358,31 +358,42 @@ mod tests {
                     variant: Variant::Struct,
                 },
                 Token {
-                    source_range: SourceRange { start: 52, end: 53 },
+                    source_range: SourceRange { start: 52, end: 55 },
+                    variant: Variant::Identifier("Foo".into()),
+                },
+                Token {
+                    source_range: SourceRange { start: 56, end: 57 },
                     variant: Variant::LeftCurly,
                 },
                 Token {
-                    source_range: SourceRange { start: 66, end: 67 },
+                    source_range: SourceRange { start: 70, end: 71 },
                     variant: Variant::RightCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 113,
-                        end: 119,
+                        start: 117,
+                        end: 123,
                     },
                     variant: Variant::Choice,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 120,
-                        end: 121,
+                        start: 124,
+                        end: 127,
+                    },
+                    variant: Variant::Identifier("Bar".into()),
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 128,
+                        end: 129,
                     },
                     variant: Variant::LeftCurly,
                 },
                 Token {
                     source_range: SourceRange {
-                        start: 134,
-                        end: 135,
+                        start: 142,
+                        end: 143,
                     },
                     variant: Variant::RightCurly,
                 },
