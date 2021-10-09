@@ -1611,7 +1611,7 @@ fn varint_encoded(r#type: &schema::Type) -> bool {
 #[cfg(test)]
 mod tests {
     use {
-        crate::{generate_rust::generate, schema_loader::load_schemas, validator::validate},
+        crate::{generate_typescript::generate, schema_loader::load_schemas, validator::validate},
         std::path::Path,
     };
 
