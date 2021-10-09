@@ -1,7 +1,10 @@
 use {
     crate::{
         round_trip::check_ok,
-        types::schema_evolution::{after, before},
+        types::schema_evolution::{
+            after, before,
+            main::{SingletonChoiceIn, SingletonChoiceOut, SingletonStructIn, SingletonStructOut},
+        },
     },
     std::io,
 };
@@ -104,6 +107,12 @@ pub fn run() -> io::Result<()> {
             Box::new(fallback),
         ),
     )?;
+
+    check_ok::<SingletonStructOut, SingletonChoiceIn>(&SingletonStructOut {
+        x: "foo".to_owned(),
+    })?;
+
+    check_ok::<SingletonChoiceOut, SingletonStructIn>(&SingletonChoiceOut::X("foo".to_owned()))?;
 
     Ok(())
 }

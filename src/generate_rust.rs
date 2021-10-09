@@ -6146,16 +6146,16 @@ pub mod schema_evolution {
                     asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
                     asymmetric_to_optional: Some(message.asymmetric_to_optional.into()),
                     asymmetric_to_nonexistent: Some(message.asymmetric_to_nonexistent.into()),
-                    optional_none_to_asymmetric: message.optional_none_to_asymmetric.map(|payload| \
-                        payload.into()),
+                    optional_none_to_asymmetric: \
+                        message.optional_none_to_asymmetric.map(|payload| payload.into()),
                     optional_none_to_optional: message.optional_none_to_optional.map(|payload| \
                         payload.into()),
                     optional_none_to_nonexistent: \
                         message.optional_none_to_nonexistent.map(|payload| payload.into()),
                     optional_some_to_required: message.optional_some_to_required.map(|payload| \
                         payload.into()),
-                    optional_some_to_asymmetric: message.optional_some_to_asymmetric.map(|payload| \
-                        payload.into()),
+                    optional_some_to_asymmetric: \
+                        message.optional_some_to_asymmetric.map(|payload| payload.into()),
                     optional_some_to_optional: message.optional_some_to_optional.map(|payload| \
                         payload.into()),
                     optional_some_to_nonexistent: \
@@ -6166,6 +6166,167 @@ pub mod schema_evolution {
     }
 
     pub mod main {
+        #[derive(Clone, Debug)]
+        pub enum SingletonChoiceOut {
+            X(String),
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum SingletonChoiceIn {
+            X(String),
+        }
+
+        impl super::super::Serialize for SingletonChoiceOut {
+            fn size(&self) -> u64 {
+                match *self {
+                    SingletonChoiceOut::X(ref payload) => {
+                        let payload_size = payload.len() as u64;
+                        super::super::non_varint_field_header_size(0, payload_size) +
+                            payload_size
+                    }
+                }
+            }
+
+            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                match *self {
+                    SingletonChoiceOut::X(ref payload) => {
+                        super::super::serialize_non_varint_field_header(writer, 0, payload.len() \
+                            as u64)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                }
+            }
+        }
+
+        impl super::super::Deserialize for SingletonChoiceIn {
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+                T: ::std::io::BufRead,
+            {
+                loop {
+                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+
+                    match index {
+                        0 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(SingletonChoiceIn::X(payload));
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, size as usize)?;
+                        }
+                    }
+                }
+            }
+        }
+
+        impl From<SingletonChoiceOut> for SingletonChoiceIn {
+            fn from(message: SingletonChoiceOut) -> Self {
+                match message {
+                    SingletonChoiceOut::X(payload) => SingletonChoiceIn::X(payload.into()),
+                }
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub struct SingletonStructOut {
+            pub x: String,
+        }
+
+        #[derive(Clone, Debug)]
+        pub struct SingletonStructIn {
+            pub x: String,
+        }
+
+        impl super::super::Serialize for SingletonStructOut {
+            fn size(&self) -> u64 {
+                ({
+                    let payload = &self.x;
+                    let payload_size = payload.len() as u64;
+                    super::super::non_varint_field_header_size(0, payload_size) + payload_size
+                })
+            }
+
+            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.x;
+                    let payload_size = payload.len() as u64;
+                    super::super::serialize_non_varint_field_header(writer, 0, payload_size)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                Ok(())
+            }
+        }
+
+        impl super::super::Deserialize for SingletonStructIn {
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+                T: ::std::io::BufRead,
+            {
+                let mut x: Option<String> = None;
+
+                loop {
+                    let (index, size) = match super::super::deserialize_field_header(&mut \
+                        *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+
+                    match index {
+                        0 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            x.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, size as usize)?;
+                        }
+                    }
+                }
+
+                if x.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        \"Struct missing one or more field(s).\",
+                    ));
+                }
+
+                Ok(SingletonStructIn {
+                    x: x.unwrap(),
+                })
+            }
+        }
+
+        impl From<SingletonStructOut> for SingletonStructIn {
+            fn from(message: SingletonStructOut) -> Self {
+                SingletonStructIn {
+                    x: message.x.into(),
+                }
+            }
+        }
     }
 }
 ",
