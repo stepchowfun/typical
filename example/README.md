@@ -3,6 +3,6 @@
 To run this demonstration, first [install Typical](https://github.com/stepchowfun/typical#installation-instructions) if you haven't already. Then issue the following commands in this directory:
 
 ```sh
-$ typical generate types.t --rust-out-file src/types.rs
+$ typical generate types.t --rust-out src/types.rs
 $ cargo run
 ```

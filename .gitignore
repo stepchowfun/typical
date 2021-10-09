@@ -4,4 +4,5 @@
 /example/target/
 /integration_tests/rust/src/types.rs
 /integration_tests/rust/target/
+/integration_tests/typescript/node_modules/
 /target/

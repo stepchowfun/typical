@@ -745,8 +745,6 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> u64 {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
-                // https://github.com/rust-lang/rust/issues/78123.
                 writeln!(buffer, "match *self {{")?;
                 for field in fields {
                     write_indentation(buffer, indentation + 3)?;

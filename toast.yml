@@ -33,6 +33,13 @@ tasks:
       apt-get update
       apt-get install --yes build-essential curl ripgrep shellcheck
 
+      # Install the following packages:
+      #
+      # - nodejs - Used for the TypeScript integration test
+      curl -LSs https://deb.nodesource.com/setup_16.x | bash -
+      apt-get update
+      apt-get install --yes nodejs
+
   install_tagref:
     description: Install Tagref, a reference checking tool.
     dependencies:
@@ -123,7 +130,7 @@ tasks:
       NO_COLOR=true cargo-offline test
 
   test_rust_integration:
-    description: Run an integration test for the Rust code generator.
+    description: Run integration tests for the Rust code generator.
     dependencies:
       - build
     input_paths:
@@ -138,11 +145,11 @@ tasks:
     command: |
       # Run Typical on the example scenario.
       cargo-offline run generate example/types.t \
-        --rust-out-file example/src/types.rs
+        --rust-out example/src/types.rs
 
       # Run Typical on the integration test scenario.
       cargo-offline run generate integration_tests/types/main.t \
-        --rust-out-file integration_tests/rust/src/types.rs
+        --rust-out integration_tests/rust/src/types.rs
 
       # Validate the resulting Rust code.
       for SCENARIO in integration_tests/rust example; do
@@ -155,6 +162,19 @@ tasks:
         )
       done
 
+  test_typescript_integration:
+    description: Run integration tests for the TypeScript code generator.
+    dependencies:
+      - build
+    input_paths:
+      - integration_tests/typescript
+    command: |
+      # Run Typical on the integration test scenario.
+      cargo-offline run generate integration_tests/types/main.t \
+        --typescript-out integration_tests/typescript/src/types.rs
+
+      # Validate the resulting TypeScript code.
+      (cd integration_tests/typescript && npm ci && npx)
   lint:
     description: Run the linters.
     dependencies:
@@ -170,6 +190,7 @@ tasks:
       - example/target
       - integration_tests/rust/src/types.rs
       - integration_tests/rust/target
+      - integration_tests/typescript/node_modules/
       - target
     command: |
       # Lint the code with Clippy.
