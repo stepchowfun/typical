@@ -50,6 +50,32 @@ The client and server can then use the generated code to serialize and deseriali
 
 Note that Typical only does serialization and deserialization. It has nothing to do with service meshes, encryption, authentication, or authorization, but it can be used together with those technologies.
 
+### Serialize a message!
+
+A program could then construct a request and serialize it to a file:
+
+```rust
+let request = SendEmailRequestOut {
+    to: "typical@example.com".to_owned(),
+    subject: "I love Typical!".to_owned(),
+    body: "It makes serialization easy and safe.".to_owned(),
+};
+
+let mut file = BufWriter::new(File::create("/tmp/request")?);
+request.serialize(&mut file)
+```
+
+A different program could read the request from disk and deserialize it:
+
+```rust
+let mut file = BufReader::new(File::open("/tmp/request")?);
+let request = SendEmailRequestIn::deserialize(&mut file)?;
+```
+
+The full code for the example can be found [here](https://github.com/stepchowfun/typical/tree/main/example).
+
+We'll see in the next section why our `send_email_request` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
+
 ## Required, optional, and asymmetric fields
 
 Fields are required by default. This is an unusual design decision, since required fields are often thought to cause trouble for backward and forward compatibility between schema versions. Let's explore this topic in detail and see how Typical deals with it.
