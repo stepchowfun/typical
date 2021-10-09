@@ -17,17 +17,15 @@ Suppose you want to build an API for sending emails, and you need to decide how 
 
 ### Write a schema
 
-You can start by creating a schema file called `email_api.t` with the request and response types for your email API:
+You can start by creating a schema file called `email_api.t` with the relevant types for your email API:
 
 ```perl
-# This is the request type for our API.
 struct send_email_request {
     to: string = 0
     subject: string = 1
     body: string = 2
 }
 
-# This is the response type for our API.
 choice send_email_response {
     success = 0
     error: string = 1
@@ -54,7 +52,7 @@ Note that Typical only does serialization and deserialization. It has nothing to
 
 ## Required, optional, and asymmetric fields
 
-Fields are required by default. This is an unusual design decision, since required fields are typically (no pun intended) fraught with danger. Let's explore this topic in detail and see how Typical deals with it.
+Fields are required by default. This is an unusual design decision, since required fields are often thought to cause trouble for backward and forward compatibility between schema versions. Let's explore this topic in detail and see how Typical deals with it.
 
 ### The trouble with required fields
 
