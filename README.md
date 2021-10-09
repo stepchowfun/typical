@@ -20,19 +20,19 @@ Suppose you want to build an API for sending emails, and you need to decide how 
 You can start by creating a schema file called `email_api.t` with the relevant types for your email API:
 
 ```perl
-struct send_email_request {
+struct SendEmailRequest {
     to: string = 0
     subject: string = 1
     body: string = 2
 }
 
-choice send_email_response {
+choice SendEmailResponse {
     success = 0
     error: string = 1
 }
 ```
 
-A `struct`, such as our `send_email_request` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `send_email_response` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). `struct`s and `choice`s are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
+A `struct`, such as our `SendEmailRequest` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `SendEmailResponse` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). `struct`s and `choice`s are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
 Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
@@ -78,7 +78,7 @@ println!("body: {}", request.body);
 
 The full code for the example can be found [here](https://github.com/stepchowfun/typical/tree/main/example).
 
-We'll see in the next section why our `send_email_request` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
+We'll see in the next section why our `SendEmailRequest` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
 
 ## Required, `optional`, and `asymmetric` fields
 
@@ -89,7 +89,7 @@ Fields are required by default. This is an unusual design decision, since requir
 Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. For example, suppose your new email API is up and running, and you want to add a new `from` field to the request type:
 
 ```perl
-struct send_email_request {
+struct SendEmailRequest {
     to: string = 0
     from: string = 3 # A new required field
     subject: string = 1
@@ -120,7 +120,7 @@ Typical offers an intermediate state between `optional` and required: `asymmetri
 Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as `asymmetric`:
 
 ```perl
-struct send_email_request {
+struct SendEmailRequest {
     to: string = 0
     asymmetric from: string = 3 # A new asymmetric field
     subject: string = 1
@@ -183,7 +183,7 @@ That may sound useless, but it's exactly what's needed to safely introduce or re
 To see what the generated code looks like for `optional` and `asymmetric` fields, consider a more elaborate version of our API response type:
 
 ```perl
-choice send_email_response {
+choice SendEmailResponse {
     success = 0
     error: string = 1
     optional authentication_error: string = 2 # A specific type of error
@@ -244,10 +244,11 @@ All told, the idea of `asymmetric` fields can be understood as an application of
 
 Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
 
-- Use `lower_snake_case` for the names of everything: types, fields, etc.
+- Use `UpperCamelCase` for the names of types.
+- Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema file names.
 - Indent fields with 4 spaces.
 
-Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddress` (or `EmailAddressOut`/`EmailAddressIn`) in the generated code if the target language is Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
+Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
 
 ## Schema reference
 
@@ -258,7 +259,7 @@ A schema contains only two kinds of things: imports and user-defined types. The 
 You don't need to fit all your type definitions in one schema file. You can organize your types into separate schema files at your leisure, and then import schemas from other schemas. For example, suppose you have a schema called `email_util.t` with the following contents:
 
 ```perl
-struct address {
+struct Address {
     local_part: string = 0
     domain: string = 1
 }
@@ -269,8 +270,8 @@ Then you can import it from another file, say `email_api.t`:
 ```perl
 import 'email_util.t'
 
-struct send_email_request {
-    to: email_util.address = 0
+struct SendEmailRequest {
+    to: email_util.Address = 0
     subject: string = 1
     body: string = 2
 }
@@ -288,21 +289,21 @@ If you import two schemas with the same name from different directories, you'll 
 import 'apis/email.t'
 import 'util/email.t'
 
-struct employee {
+struct Employee {
     name: string = 0
-    email: email.address = 1 # Uh oh! Which schema is this type from?
+    email: email.Address = 1 # Uh oh! Which schema is this type from?
 }
 ```
 
-Fortunately, Typical will tell you about this problem and ask you to clarify what you mean. You can do so as follows:
+Fortunately, Typical will tell you about this problem and ask you to clarify what you mean. You can do so with import aliases as follows:
 
 ```perl
 import 'apis/email.t' as email_api
 import 'util/email.t' as email_util
 
-struct employee {
+struct Employee {
     name: string = 0
-    email: email_util.address = 1
+    email: email_util.Address = 1
 }
 ```
 
@@ -315,16 +316,16 @@ Every user-defined type is either a `struct` or a `choice`, and they have the sa
 import 'apis/email.t'
 import 'net/ip.t'
 
-choice device_ip_address {
-    static_v4: ip.v4_address = 0
-    static_v6: ip.v6_address = 1
+choice DeviceIpAddress {
+    static_v4: ip.V4Address = 0
+    static_v6: ip.V6Address = 1
     dynamic = 2
 }
 
-struct device {
+struct Device {
     hostname: string = 0
-    asymmetric ip_address: device_ip_address = 1
-    optional owner: email.address = 2
+    asymmetric ip_address: DeviceIpAddress = 1
+    optional owner: email.Address = 2
 }
 ```
 
@@ -332,10 +333,10 @@ The rule, if present, is either `optional` or `asymmetric`. The absence of a rul
 
 The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
 
-The type, if present, is either a built-in type (e.g., `string`), the name of a user-defined type in the same schema (e.g., `server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.address`). If the type is missing, it defaults to `unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
+The type, if present, is either a built-in type (e.g., `string`), the name of a user-defined type in the same schema (e.g., `server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.Address`). If the type is missing, it defaults to `unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
 
 ```perl
-choice weekday {
+choice Weekday {
     monday = 0
     tuesday = 1
     wednesday = 2
@@ -464,7 +465,7 @@ A `choice` is encoded in the same way as a `struct`, but with different rules:
   - The first field recognized by the receiver is used.
   - At least one required or `asymmetric` field must be present.
 
-For a simple enumerated type (such as `weekday` above), the encoding of a field with an index less than 32 takes up a single byte.
+For a simple enumerated type (such as `Weekday` above), the encoding of a field with an index less than 32 takes up a single byte.
 
 ## Usage
 

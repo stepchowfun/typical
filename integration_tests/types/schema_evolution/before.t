@@ -1,4 +1,4 @@
-struct example_struct {
+struct ExampleStruct {
     required_to_required: string = 0
     required_to_asymmetric: string = 1
     required_to_optional: string = 2
@@ -25,7 +25,7 @@ struct example_struct {
     # nonexistent_to_nonexistent: string = 19
 }
 
-choice example_choice {
+choice ExampleChoice {
     required_to_required: string = 0
     required_to_asymmetric: string = 1
     # required_to_optional_handled: string = 2 # This case would be an error.

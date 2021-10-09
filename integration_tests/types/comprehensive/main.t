@@ -1,18 +1,18 @@
 import 'bar.t'
 import 'foo.t'
 
-struct empty_struct {
+struct EmptyStruct {
 }
 
-choice empty_choice {
+choice EmptyChoice {
 }
 
-struct foo_and_bar {
-    x: foo.foo = 0
-    y: bar.bar = 1
+struct FooAndBar {
+    x: foo.Foo = 0
+    y: bar.Bar = 1
 }
 
-choice foo_or_bar {
-    x: foo.foo = 0
-    y: bar.bar = 1
+choice FooOrBar {
+    x: foo.Foo = 0
+    y: bar.Bar = 1
 }

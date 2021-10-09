@@ -1,4 +1,4 @@
-choice bar {
+choice Bar {
     p_required: [unit] = 0
     q_required: [f64] = 1
     r_required: [s64] = 2
