@@ -43,7 +43,7 @@ Each field also has a type, either explicitly or implicitly. If the type is miss
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
 ```sh
-$ typical generate email_api.t --rust-out-file email_api.rs
+$ typical generate email_api.t --rust-out email_api.rs
 ```
 
 The client and server can then use the generated code to serialize and deserialize messages for mutual communication. If the client and server are written in different languages, you can generate code for each language.
@@ -468,10 +468,10 @@ For a simple enumerated type (such as `Weekday` above), the encoding of a field 
 Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `main.t` with the following:
 
 ```sh
-$ typical generate main.t --rust-out-file main.rs
+$ typical generate main.t --rust-out types.rs --typescript-out types.ts
 ```
 
-You can change the `--rust-out-file` flag as appropriate to select the programming language.
+You can change the `--rust-out flag as appropriate to select the programming language.
 
 Here are the supported command-line options:
 
@@ -505,7 +505,8 @@ FLAGS:
     -h, --help    Prints help information
 
 OPTIONS:
-        --rust-out-file <PATH>    Sets the path of the Rust file to emit
+        --rust-out <PATH>          Sets the path of the Rust file to emit
+        --typescript-out <PATH>    Sets the path of the TypeScript file to emit
 
 ARGS:
     <SCHEMA_PATH>    Sets the path of the schema
