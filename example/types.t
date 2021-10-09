@@ -1,5 +1,5 @@
 struct SendEmailRequest {
-    to: string = 0
-    subject: string = 1
-    body: string = 2
+    to: String = 0
+    subject: String = 1
+    body: String = 2
 }

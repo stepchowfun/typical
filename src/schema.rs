@@ -212,10 +212,10 @@ impl TypeVariant {
                 write!(f, "[{}]", inner_type)?;
             }
             Self::Bool => {
-                write!(f, "bool")?;
+                write!(f, "Bool")?;
             }
             Self::Bytes => {
-                write!(f, "bytes")?;
+                write!(f, "Bytes")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -225,19 +225,19 @@ impl TypeVariant {
                 }
             }
             Self::F64 => {
-                write!(f, "f64")?;
+                write!(f, "F64")?;
             }
             Self::S64 => {
-                write!(f, "s64")?;
+                write!(f, "S64")?;
             }
             Self::String => {
-                write!(f, "string")?;
+                write!(f, "String")?;
             }
             Self::U64 => {
-                write!(f, "u64")?;
+                write!(f, "U64")?;
             }
             Self::Unit => {
-                write!(f, "unit")?;
+                write!(f, "Unit")?;
             }
         }
         Ok(())
@@ -521,7 +521,7 @@ mod tests {
         let mut declarations = BTreeMap::new();
 
         declarations.insert(
-            "foo".into(),
+            "Foo".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Struct(foo_fields),
@@ -529,7 +529,7 @@ mod tests {
         );
 
         declarations.insert(
-            "bar".into(),
+            "Bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Choice(bar_fields),
@@ -542,14 +542,14 @@ mod tests {
         };
 
         let expected = "\
-            choice bar {\n\
-            \x20 x: bool = 0\n\
-            \x20 asymmetric y: f64 = 1\n\
+            choice Bar {\n\
+            \x20 x: Bool = 0\n\
+            \x20 asymmetric y: F64 = 1\n\
             }\n\
             \n\
-            struct foo {\n\
-            \x20 x: bool = 0\n\
-            \x20 optional y: u64 = 1\n\
+            struct Foo {\n\
+            \x20 x: Bool = 0\n\
+            \x20 optional y: U64 = 1\n\
             }\n\
         ";
 
@@ -628,7 +628,7 @@ mod tests {
         let mut declarations = BTreeMap::new();
 
         declarations.insert(
-            "foo".into(),
+            "Foo".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Struct(foo_fields),
@@ -636,7 +636,7 @@ mod tests {
         );
 
         declarations.insert(
-            "bar".into(),
+            "Bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
                 variant: DeclarationVariant::Choice(bar_fields),
@@ -652,14 +652,14 @@ mod tests {
             import 'foo.t'\n\
             import 'bar.t' as qux\n\
             \n\
-            choice bar {\n\
-            \x20 x: bool = 0\n\
-            \x20 asymmetric y: f64 = 1\n\
+            choice Bar {\n\
+            \x20 x: Bool = 0\n\
+            \x20 asymmetric y: F64 = 1\n\
             }\n\
             \n\
-            struct foo {\n\
-            \x20 x: bool = 0\n\
-            \x20 optional y: u64 = 1\n\
+            struct Foo {\n\
+            \x20 x: Bool = 0\n\
+            \x20 optional y: U64 = 1\n\
             }\n\
         ";
 
@@ -676,7 +676,7 @@ mod tests {
             })),
         };
 
-        let expected = "[bool]";
+        let expected = "[Bool]";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -688,7 +688,7 @@ mod tests {
             variant: TypeVariant::Bool,
         };
 
-        let expected = "bool";
+        let expected = "Bool";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -700,7 +700,7 @@ mod tests {
             variant: TypeVariant::Bytes,
         };
 
-        let expected = "bytes";
+        let expected = "Bytes";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -709,10 +709,10 @@ mod tests {
     fn type_display_custom_no_import() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Custom(None, "int".into()),
+            variant: TypeVariant::Custom(None, "Int".into()),
         };
 
-        let expected = "int";
+        let expected = "Int";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -721,10 +721,10 @@ mod tests {
     fn type_display_custom_import() {
         let r#type = Type {
             source_range: SourceRange { start: 0, end: 0 },
-            variant: TypeVariant::Custom(Some("foo".into()), "int".into()),
+            variant: TypeVariant::Custom(Some("foo".into()), "Int".into()),
         };
 
-        let expected = "foo.int";
+        let expected = "foo.Int";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -736,7 +736,7 @@ mod tests {
             variant: TypeVariant::F64,
         };
 
-        let expected = "f64";
+        let expected = "F64";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -748,7 +748,7 @@ mod tests {
             variant: TypeVariant::S64,
         };
 
-        let expected = "s64";
+        let expected = "S64";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -760,7 +760,7 @@ mod tests {
             variant: TypeVariant::String,
         };
 
-        let expected = "string";
+        let expected = "String";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -772,7 +772,7 @@ mod tests {
             variant: TypeVariant::U64,
         };
 
-        let expected = "u64";
+        let expected = "U64";
 
         assert_eq!(r#type.to_string(), expected);
     }
@@ -784,7 +784,7 @@ mod tests {
             variant: TypeVariant::Unit,
         };
 
-        let expected = "unit";
+        let expected = "Unit";
 
         assert_eq!(r#type.to_string(), expected);
     }

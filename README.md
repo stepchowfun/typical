@@ -21,14 +21,14 @@ You can start by creating a schema file called `email_api.t` with the relevant t
 
 ```perl
 struct SendEmailRequest {
-    to: string = 0
-    subject: string = 1
-    body: string = 2
+    to: String = 0
+    subject: String = 1
+    body: String = 2
 }
 
 choice SendEmailResponse {
     success = 0
-    error: string = 1
+    error: String = 1
 }
 ```
 
@@ -36,7 +36,7 @@ A `struct`, such as our `SendEmailRequest` type, describes messages containing a
 
 Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-Each field also has a type, either explicitly or implicitly. If the type is missing, as it is for the `success` field above, then it implicitly defaults to a built-in type called `unit`.
+Each field also has a type, either explicitly or implicitly. If the type is missing, as it is for the `success` field above, then it implicitly defaults to a built-in type called `Unit`.
 
 ### Generate code for serialization and deserialization
 
@@ -90,10 +90,10 @@ Experience has taught us that it can be difficult to introduce a required field 
 
 ```perl
 struct SendEmailRequest {
-    to: string = 0
-    from: string = 3 # A new required field
-    subject: string = 1
-    body: string = 2
+    to: String = 0
+    from: String = 3 # A new required field
+    subject: String = 1
+    body: String = 2
 }
 ```
 
@@ -121,10 +121,10 @@ Let's make that more concrete with our email API example. Instead of directly in
 
 ```perl
 struct SendEmailRequest {
-    to: string = 0
-    asymmetric from: string = 3 # A new asymmetric field
-    subject: string = 1
-    body: string = 2
+    to: String = 0
+    asymmetric from: String = 3 # A new asymmetric field
+    subject: String = 1
+    body: String = 2
 }
 ```
 
@@ -185,8 +185,8 @@ To see what the generated code looks like for `optional` and `asymmetric` fields
 ```perl
 choice SendEmailResponse {
     success = 0
-    error: string = 1
-    optional authentication_error: string = 2 # A specific type of error
+    error: String = 1
+    optional authentication_error: String = 2 # A specific type of error
     asymmetric please_try_again = 3
 }
 ```
@@ -260,8 +260,8 @@ You don't need to fit all your type definitions in one schema file. You can orga
 
 ```perl
 struct Address {
-    local_part: string = 0
-    domain: string = 1
+    local_part: String = 0
+    domain: String = 1
 }
 ```
 
@@ -272,8 +272,8 @@ import 'email_util.t'
 
 struct SendEmailRequest {
     to: email_util.Address = 0
-    subject: string = 1
-    body: string = 2
+    subject: String = 1
+    body: String = 2
 }
 ```
 
@@ -290,7 +290,7 @@ import 'apis/email.t'
 import 'util/email.t'
 
 struct Employee {
-    name: string = 0
+    name: String = 0
     email: email.Address = 1 # Uh oh! Which schema is this type from?
 }
 ```
@@ -302,7 +302,7 @@ import 'apis/email.t' as email_api
 import 'util/email.t' as email_util
 
 struct Employee {
-    name: string = 0
+    name: String = 0
     email: email_util.Address = 1
 }
 ```
@@ -323,7 +323,7 @@ choice DeviceIpAddress {
 }
 
 struct Device {
-    hostname: string = 0
+    hostname: String = 0
     asymmetric ip_address: DeviceIpAddress = 1
     optional owner: email.Address = 2
 }
@@ -333,7 +333,7 @@ The rule, if present, is either `optional` or `asymmetric`. The absence of a rul
 
 The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
 
-The type, if present, is either a built-in type (e.g., `string`), the name of a user-defined type in the same schema (e.g., `server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.Address`). If the type is missing, it defaults to `unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
+The type, if present, is either a built-in type (e.g., `String`), the name of a user-defined type in the same schema (e.g., `Server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.Address`). If the type is missing, it defaults to `Unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
 
 ```perl
 choice Weekday {
@@ -351,15 +351,15 @@ The index is a non-negative integer which is required to be unique within the ty
 
 The following built-in types are supported:
 
-- `unit` is a type which holds no information. It's mainly used for the fields of `choice`s which represent enumerated types.
-- `f64` is the type of double-precision floating-point numbers as defined by IEEE 754.
-- `u64` is the type of unsigned 64-bit integers.
-- `s64` is the type of signed 64-bit integers.
-- `bool` is the type of Booleans.
-  - You could define your own Boolean type as a `choice` with two fields, and it would use the exact same space on the wire. However, the built-in `bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
-- `bytes` is the type of binary blobs with no further structure.
-- `string` is the type of Unicode strings.
-- Arrays (e.g., `[u64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[string]]`).
+- `Unit` is a type which holds no information. It's mainly used for the fields of `choice`s which represent enumerated types.
+- `F64` is the type of double-precision floating-point numbers as defined by IEEE 754.
+- `U64` is the type of unsigned 64-bit integers.
+- `S64` is the type of signed 64-bit integers.
+- `Bool` is the type of Booleans.
+  - You could define your own Boolean type as a `choice` with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
+- `Bytes` is the type of binary blobs with no further structure.
+- `String` is the type of Unicode strings.
+- Arrays (e.g., `[U64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[String]]`).
 
 ### Comments
 
@@ -377,21 +377,21 @@ Note that the generated deserialization code is designed to be safe from malicio
 
 ### Built-in types
 
-- `unit` takes 0 bytes to encode.
-- `f64` is encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it takes 8 bytes to encode.
-- `u64` is encoded in a variable-width integer format with bijective numeration. It takes 1-9 bytes to encode, depending on the value. See below for details.
-- `s64` is first converted into an unsigned "ZigZag" representation, which is then encoded in the same way as a `u64`. It takes 1-9 bytes to encode, depending on the magnitude of the value. See below for details.
-- `bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `u64`. It takes 1 byte to encode.
-- `bytes` is encoded verbatim, with zero additional space overhead.
-- `string` encoded as UTF-8.
-- Arrays (e.g., `[u64]`) are encoded in one of three ways:
-  - Arrays of `unit` are represented by the number of elements encoded the same way as a `u64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
-  - Arrays of `f64`, `u64`, `s64`, or `bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it's implied by the length of the message.
-  - Arrays of any other type (`bytes`, `string`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `u64`. The *element* is encoded according to its type.
+- `Unit` takes 0 bytes to encode.
+- `F64` is encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it takes 8 bytes to encode.
+- `U64` is encoded in a variable-width integer format with bijective numeration. It takes 1-9 bytes to encode, depending on the value. See below for details.
+- `S64` is first converted into an unsigned "ZigZag" representation, which is then encoded in the same way as a `U64`. It takes 1-9 bytes to encode, depending on the magnitude of the value. See below for details.
+- `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`. It takes 1 byte to encode.
+- `Bytes` is encoded verbatim, with zero additional space overhead.
+- `String` encoded as UTF-8.
+- Arrays (e.g., `[U64]`) are encoded in one of three ways:
+  - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
+  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it's implied by the length of the message.
+  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `U64`. The *element* is encoded according to its type.
 
-#### `u64` encoding in depth
+#### `U64` encoding in depth
 
-Typical encodes `u64` using a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
+Typical encodes `U64` using a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
 
 The encoding is as follows. Let `n` be the integer to be encoded. If `n` is less than `2^7 = 128`, it can fit into a single byte:
 
@@ -415,16 +415,16 @@ xxxx x100 xxxx xxxx xxxx xxxx
 
 And so on. Notice that the number of trailing zeros in the first byte indicates how many subsequent bytes there are.
 
-Using this encoding, the largest 64-bit integer takes 9 bytes, compared to 8 for the native encoding. Thus, the encoding has a single byte of overhead in the worst case, but for most integers encountered in practice it saves 7 bytes. This is such a good trade-off most of the time that Typical doesn't even offer fixed-width integer types. However, if you really need to store fixed-width integers, you can always encode them as `bytes` at the expense of some type safety.
+Using this encoding, the largest 64-bit integer takes 9 bytes, compared to 8 for the native encoding. Thus, the encoding has a single byte of overhead in the worst case, but for most integers encountered in practice it saves 7 bytes. This is such a good trade-off most of the time that Typical doesn't even offer fixed-width integer types. However, if you really need to store fixed-width integers, you can always encode them as `Bytes` at the expense of some type safety.
 
 The encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical's encoding differs in two ways:
 
 1. Typical moves all the continuation bits to the first byte. This allows the number of bytes in an encoded integer to be determined entirely from its first byte in a single instruction on modern processors (e.g., `BSF` or `TZCNT`). This is more efficient than checking each byte for a continuation bit separately.
 2. Typical's encoding uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses two bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*. However, the space savings is small and comes with a small runtime performance penalty, so whether this is an improvement depends on how much you value time versus space.
 
-#### `s64` encoding in depth
+#### `S64` encoding in depth
 
-Typical converts an `s64` into an unsigned "ZigZag" representation, and then encodes the result in the same way as a `u64`. The ZigZag representation converts signed integers with small magnitudes into unsigned integers with small magnitudes, and signed integers with large magnitudes into unsigned integers with large magnitudes. This allows integers with small magnitudes to be encoded using fewer bytes, thanks to the variable-width encoding used for `u64`.
+Typical converts an `S64` into an unsigned "ZigZag" representation, and then encodes the result in the same way as a `U64`. The ZigZag representation converts signed integers with small magnitudes into unsigned integers with small magnitudes, and signed integers with large magnitudes into unsigned integers with large magnitudes. This allows integers with small magnitudes to be encoded using fewer bytes, thanks to the variable-width encoding used for `U64`.
 
 Specifically, the ZigZag representation of a [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement) 64-bit integer `n` is `(n >> 63) ^ (n << 1)`, where `>>` is an [arithmetic shift](https://en.wikipedia.org/wiki/Arithmetic_shift). The inverse operation is `(n >> 1) ^ -(n & 1)`, where `>>` is a [logical shift](https://en.wikipedia.org/wiki/Logical_shift).
 
@@ -436,16 +436,16 @@ The conversion of signed integers to their ZigZag representations before their s
 
 A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
 
-  - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `u64` (i.e., as a variable-width integer). The meaning of the *tag* is as follows:
+  - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `U64` (i.e., as a variable-width integer). The meaning of the *tag* is as follows:
     - The two least significant bits of the *tag* (not its encoding) are called the *size indicator* and indicate how to compute the size of the *value*:
       - `00`: The size of the *value* is 0 bytes.
       - `01`: The size of the *value* is 8 bytes.
       - `10`: The size of the *value* is given by the second part of the *header* (below).
-      - `11`: The *value* is encoded as a `u64` (i.e., it's a `u64`, `s64`, or `bool`), and its size can be determined from its first byte.
+      - `11`: The *value* is encoded as a `U64` (i.e., it's a `U64`, `S64`, or `Bool`), and its size can be determined from its first byte.
     - The remaining 62 bits of the *tag* (not its encoding) represent the index of the field as an unsigned integer.
-  - The second part of the *header* is the size of the *value* encoded in the same was as a `u64`. It's only present if the *size indicator* is `10`.
+  - The second part of the *header* is the size of the *value* encoded in the same was as a `U64`. It's only present if the *size indicator* is `10`.
 
-For fields of type `unit`, `f64`, `u64`, `s64`, or `bool` for which the index is less than 32, the *header* is encoded as a single byte.
+For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the *header* is encoded as a single byte.
 
 A `struct` must follow these rules:
 
