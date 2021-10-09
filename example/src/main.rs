@@ -28,9 +28,11 @@ fn write_to_file() -> io::Result<()> {
 
 fn read_from_file() -> io::Result<()> {
     let mut file = BufReader::new(File::open(FILE_PATH)?);
-
     let request = SendEmailRequestIn::deserialize(&mut file)?;
-    println!("Message read from disk: {:?}", request);
+
+    println!("to: {}", request.to);
+    println!("subject: {}", request.subject);
+    println!("body: {}", request.body);
 
     remove_file(FILE_PATH)
 }

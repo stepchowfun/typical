@@ -70,6 +70,10 @@ A different program, possibly written in a different language, could read the re
 ```rust
 let mut file = BufReader::new(File::open("/tmp/request")?);
 let request = SendEmailRequestIn::deserialize(&mut file)?;
+
+println!("to: {}", request.to);
+println!("subject: {}", request.subject);
+println!("body: {}", request.body);
 ```
 
 The full code for the example can be found [here](https://github.com/stepchowfun/typical/tree/main/example).
