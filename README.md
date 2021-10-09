@@ -80,7 +80,7 @@ The full code for the example can be found [here](https://github.com/stepchowfun
 
 We'll see in the next section why our `send_email_request` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
 
-## Required, optional, and asymmetric fields
+## Required, `optional`, and `asymmetric` fields
 
 Fields are required by default. This is an unusual design decision, since required fields are often thought to cause trouble for backward and forward compatibility between schema versions. Let's explore this topic in detail and see how Typical deals with it.
 
@@ -91,7 +91,7 @@ Experience has taught us that it can be difficult to introduce a required field 
 ```perl
 struct send_email_request {
     to: string = 0
-    from: string = 3 # A new required field!
+    from: string = 3 # A new required field
     subject: string = 1
     body: string = 2
 }
@@ -103,26 +103,26 @@ That kind of rollout may not be feasible. You may not be in control of the order
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
-### The trouble with optional fields
+### The trouble with `optional` fields
 
-Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be optional.
+Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be `optional`.
 
-However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared as required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as optional places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the field, and readers must handle the case of the field being missing to satisfy the type checker even though that field is always supposed to be set.
+However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared as required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as `optional` places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the field, and readers must handle the case of the field being missing to satisfy the type checker even though that field is always supposed to be set.
 
-For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to transition between three phases: (1) introduce the field as optional, (2) update all the writers to set the new field, and finally (3) promote it to required. Unfortunately, you can't rely on the type system to ensure you've done phase (2) completely. That phase can be nontrivial in a large system, and you may forget to set the field somewhere.
+For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to transition between three phases: (1) introduce the field as `optional`, (2) update all the writers to set the new field, and finally (3) promote it to required. Unfortunately, you can't rely on the type system to ensure you've done phase (2) completely. That phase can be nontrivial in a large system, and you may forget to set the field somewhere.
 
-To remove a required field, the standard process is to transition through two phases: (1) demote it to optional, but ensure that writers are still setting it, and (2) start allowing the field to be unset or delete the field entirely. Here, phase (1) is the troublesome one, since the type system no longer guarantees that the field is still being set by writers during that time.
+To remove a required field, the standard process is to transition through two phases: (1) demote it to `optional`, but ensure that writers are still setting it, and (2) start allowing the field to be unset or delete the field entirely. Here, phase (1) is the troublesome one, since the type system no longer guarantees that the field is still being set by writers during that time.
 
 ### Introducing: `asymmetric` fields
 
-Typical offers an intermediate state between optional and required: `asymmetric`. An `asymmetric` field in a struct is considered required for the writer, but optional for the reader. This state allows you to safely introduce and remove required fields.
+Typical offers an intermediate state between `optional` and required: `asymmetric`. An `asymmetric` field in a `struct` is considered required for the writer, but `optional` for the reader. This state allows you to safely introduce and remove required fields.
 
 Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as `asymmetric`:
 
 ```perl
 struct send_email_request {
     to: string = 0
-    asymmetric from: string = 3 # A new asymmetric field!
+    asymmetric from: string = 3 # A new asymmetric field
     subject: string = 1
     body: string = 2
 }
@@ -156,11 +156,11 @@ impl Deserialize for SendEmailRequestIn {
 
 Typical also generates code (not shown above) for converting `SendEmailRequestOut` into `SendEmailRequestIn`, which is logically equivalent to serialization followed by deserialization, but faster.
 
-Notice that the type of `from` is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. Our clients use the former to construct requests, and our servers will decode them into the latter.
+We can see the effect of `from` being an `asymmetric` field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. Our clients use the former to construct requests, and our servers will decode them into the latter.
 
-Once this schema change has been rolled out, clients are setting the new field, but servers are not yet relying on it. We need to go through this intermediate state before we can safely promote the field to required. **This notion of `asymmetric` fields is what makes Typical special.**
+Once this schema change has been rolled out, clients are setting the new field, but servers are not yet relying on it. We need to go through this intermediate phase before we can safely promote the field to required. **This notion of `asymmetric` fields is what makes Typical special.**
 
-It works in reverse too. Suppose we now want to remove the field. It could be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it optional and handle its potential absence while clients are still required to set it. Once that change has rolled out, we can confidently delete the field (or demote it to optional), as the servers no longer require it.
+It works in reverse too. Suppose we now want to remove the field. It could be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it `optional` and handle its potential absence while clients are still required to set it. Once that change has rolled out, we can confidently delete the field (or demote it to `optional`), as the servers no longer require it.
 
 For some kinds of changes, a field might stay in the `asymmetric` state for months, say, if you are waiting for users to update your mobile app. Typical helps immensely in that situation.
 
@@ -172,21 +172,21 @@ The code generated for `choice`s supports case analysis, so clients can take dif
 
 That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start using it before readers can understand it. Conversely, if you remove a required field, readers may no longer be able to handle it while writers are still using it.
 
-Not to worry—`choice`s support optional and asymmetric fields too!
+Not to worry—`choice`s support `optional` and `asymmetric` fields too!
 
-An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the optional field. So readers are not required to handle optional fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
+An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers are not required to handle optional fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
 An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. Messages without any fallbacks can be deserialized, since readers do not use them. In summary, `asymmetric` fields in `choice`s behave like optional fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
 That may sound useless, but it's exactly what's needed to safely introduce or remove required fields from `choice`s.
 
-To see what the generated code looks like for optional and asymmetric fields, consider a more elaborate version of our API response type:
+To see what the generated code looks like for `optional` and `asymmetric` fields, consider a more elaborate version of our API response type:
 
 ```perl
 choice send_email_response {
     success = 0
     error: string = 1
-    optional authentication_error: string = 2
+    optional authentication_error: string = 2 # A specific type of error
     asymmetric please_try_again = 3
 }
 ```
@@ -221,9 +221,9 @@ Typical also generates code (not shown above) for converting `SendEmailResponseO
 
 The required cases (`Success` and `Error`) are as you would expect in both types.
 
-The optional case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback field. Readers can use the fallback if they don't wish to handle this case, and readers which don't even know about this case will use the fallback automatically.
+The `optional` case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback field. Readers can use the fallback if they don't wish to handle this case, and readers which don't even know about this case will use the fallback automatically.
 
-The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to something else (which will stop readers from having to handle it).
+The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to something else (which will stop readers from having to handle it).
 
 ### Summary
 
@@ -232,13 +232,13 @@ Non-nullable types and exhaustive pattern matching are important safety features
 The rules are as follows:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
-- You can safely add and remove optional and asymmetric fields.
-- You can safely convert optional fields to asymmetric and vice versa.
-- You can safely convert asymmetric fields to required and vice versa.
+- You can safely add and remove `optional` and `asymmetric` fields.
+- You can safely convert `optional` fields to `asymmetric` and vice versa.
+- You can safely convert `asymmetric` fields to required and vice versa.
 - You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field and vice versa.
 - No other changes are guaranteed to be safe. In particular, it may be unsafe to add or remove required fields, unless you can carefully manage the order in which writers and readers are updated.
 
-All told, the idea of asymmetric fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
+All told, the idea of `asymmetric` fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
 
 ## Schema style guide
 
@@ -449,20 +449,20 @@ For fields of type `unit`, `f64`, `u64`, `s64`, or `bool` for which the index is
 A `struct` must follow these rules:
 
 - Encoding rules:
-  - Optional fields may be missing, but required and asymmetric fields must be present.
+  - Optional fields may be missing, but required and `asymmetric` fields must be present.
 - Decoding rules:
   - Unrecognized fields are ignored.
-  - All required fields must be present, whereas optional and asymmetric fields may be missing.
+  - All required fields must be present, whereas `optional` and `asymmetric` fields may be missing.
 
 ### User-defined `choice`s
 
-A `choice` is encoded in the same way as a struct, but with different rules:
+A `choice` is encoded in the same way as a `struct`, but with different rules:
 
 - Encoding rules:
   - At least one required field must be present.
 - Decoding rules:
   - The first field recognized by the receiver is used.
-  - At least one required or asymmetric field must be present.
+  - At least one required or `asymmetric` field must be present.
 
 For a simple enumerated type (such as `weekday` above), the encoding of a field with an index less than 32 takes up a single byte.
 
