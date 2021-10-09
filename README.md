@@ -115,7 +115,7 @@ To remove a required field, the standard process is to transition through two ph
 
 ### Introducing: `asymmetric` fields
 
-Typical offers an intermediate state between `optional` and required: `asymmetric`. An `asymmetric` field in a `struct` is considered required for the writer, but `optional` for the reader. This state allows you to safely introduce and remove required fields.
+Typical offers an intermediate state between `optional` and required: `asymmetric`. An `asymmetric` field in a `struct` is considered required for the writer, but `optional` for the reader. Unlike `optional` fields, an `asymmetric` field can be safely promoted to required and vice versa.
 
 Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as `asymmetric`:
 
@@ -128,7 +128,7 @@ struct SendEmailRequest {
 }
 ```
 
-Let's take a look at the generated code for this schema. In Rust, for example, we actually end up with two different types, one for serialization and another for deserialization:
+Let's take a look at the generated code for this schema; we'll choose Rust for this example. The generated code has two flavors of our `SendEmailRequest` type, one for serialization and another for deserialization:
 
 ```rust
 pub struct SendEmailRequestOut {
@@ -154,33 +154,31 @@ impl Deserialize for SendEmailRequestIn {
 }
 ```
 
-Typical also generates code (not shown above) for converting `SendEmailRequestOut` into `SendEmailRequestIn`, which is logically equivalent to serialization followed by deserialization, but faster.
+We can see the effect of `from` being an `asymmetric` field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) are not yet allowed to rely on it. Once this change has been rolled out, we can safely promote the field to required in a subsequent change.
 
-We can see the effect of `from` being an `asymmetric` field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. Our clients use the former to construct requests, and our servers will decode them into the latter.
+**This notion of `asymmetric` fields is what makes Typical special.**
 
-Once this schema change has been rolled out, clients are setting the new field, but servers are not yet relying on it. We need to go through this intermediate phase before we can safely promote the field to required. **This notion of `asymmetric` fields is what makes Typical special.**
+It works in reverse too. Suppose we now want to remove a required field. It may be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it `optional` and handle its potential absence, even though clients are still required to set it. Once that change has been rolled out, we can confidently delete the field (or demote it to `optional`), as the servers no longer rely on it.
 
-It works in reverse too. Suppose we now want to remove the field. It could be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it `optional` and handle its potential absence while clients are still required to set it. Once that change has rolled out, we can confidently delete the field (or demote it to `optional`), as the servers no longer require it.
-
-For some kinds of changes, a field might stay in the `asymmetric` state for months, say, if you are waiting for users to update your mobile app. Typical helps immensely in that situation.
+In some schemas, a field might stay in the `asymmetric` state for months, say, if you are waiting for users to update your mobile app. Typical can help immensely in that situation by preventing new code which uses the field inappropriately from being introduced during that period.
 
 ### What about `choice`s?
 
 Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. However, the same kind of consideration must be given to `choice`s.
 
-The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases when you use it. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if the field is not recognized.
+The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases when you use it. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
 
-That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start using it before readers can understand it. Conversely, if you remove a required field, readers may no longer be able to handle it while writers are still using it.
+That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start setting it before readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though old writers may still be using it.
 
 Not to worry—**`choice`s can have `optional` and `asymmetric` fields too!**
 
 An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers are not required to handle optional fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
-An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. Messages without any fallbacks can be deserialized, since readers do not use them. In summary, `asymmetric` fields in `choice`s behave like optional fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
+An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. In summary, `asymmetric` fields in `choice`s behave like optional fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
-That may sound useless, but it's exactly what's needed to safely introduce or remove required fields from `choice`s.
+As with `struct`s, an `asymmetric` field in a `choice` can be safely promoted to required and vice versa.
 
-To see what the generated code looks like for `optional` and `asymmetric` fields, consider a more elaborate version of our API response type:
+Consider a more elaborate version of our API response type:
 
 ```perl
 choice SendEmailResponse {
@@ -191,7 +189,7 @@ choice SendEmailResponse {
 }
 ```
 
-As with `struct`s, the generated code for a `choice` has separate types for serialization and deserialization:
+Let's inspect the generated code. As with `struct`s, we end up with separate types for serialization and deserialization:
 
 ```rust
 pub enum SendEmailResponseOut {
@@ -217,13 +215,11 @@ impl Deserialize for SendEmailResponseIn {
 }
 ```
 
-Typical also generates code (not shown above) for converting `SendEmailResponseOut` into `SendEmailResponseIn`, which is logically equivalent to serialization followed by deserialization, but faster.
-
 The required cases (`Success` and `Error`) are as you would expect in both types.
 
 The `optional` case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback field. Readers can use the fallback if they don't wish to handle this case, and readers which don't even know about this case will use the fallback automatically.
 
-The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to something else (which will stop readers from having to handle it).
+The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to optional or nonexistent (which will stop readers from having to handle it).
 
 ### Summary
 
