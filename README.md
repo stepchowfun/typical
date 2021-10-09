@@ -471,8 +471,6 @@ Once Typical is [installed](#installation-instructions), you can use it to gener
 $ typical generate main.t --rust-out types.rs --typescript-out types.ts
 ```
 
-You can change the `--rust-out flag as appropriate to select the programming language.
-
 Here are the supported command-line options:
 
 ```
