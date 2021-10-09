@@ -245,7 +245,7 @@ All told, the idea of `asymmetric` fields can be understood as an application of
 Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
 
 - Use `UpperCamelCase` for the names of types.
-- Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema file names.
+- Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema files.
 - Indent fields with 4 spaces.
 
 Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
