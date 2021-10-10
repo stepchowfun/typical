@@ -177,9 +177,9 @@ tasks:
       - integration_tests/typescript/node_modules/
       - integration_tests/typescript/src/main.js
     command: |
-      # Run Typical on the integration test scenario.
-      cargo-offline run generate integration_tests/types/main.t \
-        --typescript-out integration_tests/typescript/src/types.rs
+      # TODO: Run Typical on the integration test scenario.
+      # cargo-offline run generate integration_tests/types/main.t \
+      #   --typescript-out integration_tests/typescript/src/types.ts
 
       # Validate the resulting TypeScript code.
       (cd integration_tests/typescript && npm run check)
