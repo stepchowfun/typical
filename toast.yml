@@ -181,12 +181,7 @@ tasks:
         --typescript-out integration_tests/typescript/src/types.rs
 
       # Validate the resulting TypeScript code.
-      (
-        cd integration_tests/typescript && \
-        npm ci && \
-        npx tsc --project tsconfig.json && \
-        node src/main.js
-      )
+      (cd integration_tests/typescript && npm run run)
   lint:
     description: Run the linters.
     dependencies:
