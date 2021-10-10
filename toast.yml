@@ -142,6 +142,9 @@ tasks:
       - integration_tests/rust/Cargo.toml
       - integration_tests/rust/src
       - integration_tests/types
+    excluded_input_paths:
+      - example/src/types.rs
+      - integration_tests/rust/src/types.rs
     command: |
       # Run Typical on the example scenario.
       cargo-offline run generate example/types.t \
@@ -167,14 +170,23 @@ tasks:
     dependencies:
       - build
     input_paths:
+      - integration_tests/types
       - integration_tests/typescript
+    excluded_input_paths:
+      - integration_tests/typescript/node_modules/
+      - integration_tests/typescript/src/main.js
     command: |
       # Run Typical on the integration test scenario.
       cargo-offline run generate integration_tests/types/main.t \
         --typescript-out integration_tests/typescript/src/types.rs
 
       # Validate the resulting TypeScript code.
-      (cd integration_tests/typescript && npm ci && npx)
+      (
+        cd integration_tests/typescript && \
+        npm ci && \
+        npx tsc --project tsconfig.json && \
+        node src/main.js
+      )
   lint:
     description: Run the linters.
     dependencies:
@@ -191,6 +203,7 @@ tasks:
       - integration_tests/rust/src/types.rs
       - integration_tests/rust/target
       - integration_tests/typescript/node_modules/
+      - integration_tests/typescript/src/main.js
       - target
     command: |
       # Lint the code with Clippy.

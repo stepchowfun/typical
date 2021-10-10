@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "strict": true,
+    "target": "ES2020"
+  },
+  "include": ["src/**/*"]
+}
