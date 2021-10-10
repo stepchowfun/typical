@@ -170,6 +170,7 @@ tasks:
     dependencies:
       - build
     input_paths:
+      - .gitignore
       - integration_tests/types
       - integration_tests/typescript
     excluded_input_paths:
@@ -181,7 +182,7 @@ tasks:
         --typescript-out integration_tests/typescript/src/types.rs
 
       # Validate the resulting TypeScript code.
-      (cd integration_tests/typescript && npm run run)
+      (cd integration_tests/typescript && npm run check)
   lint:
     description: Run the linters.
     dependencies:
