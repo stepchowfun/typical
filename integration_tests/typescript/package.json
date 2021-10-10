@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "run": "npm ci && npx tsc --project tsconfig.json && node src/main.js"
+    "check": "npm ci && tsc --project tsconfig.json && prettier --config .prettierrc.js --ignore-path ../../.gitignore --check . && node src/main.js",
+    "format": "prettier --config .prettierrc.js --ignore-path ../../.gitignore --write ."
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.33.0",
@@ -11,6 +12,7 @@
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.24.2",
+    "prettier": "2.4.1",
     "typescript": "^4.4.3"
   }
 }
