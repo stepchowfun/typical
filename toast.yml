@@ -176,10 +176,12 @@ tasks:
     excluded_input_paths:
       - integration_tests/typescript/node_modules/
       - integration_tests/typescript/src/main.js
+      - integration_tests/typescript/src/types.js
+      - integration_tests/typescript/src/types.ts
     command: |
-      # Run Typical on the integration test scenario.
-      cargo-offline run generate integration_tests/types/main.t \
-        --typescript-out integration_tests/typescript/src/types.rs
+      # TODO: Run Typical on the integration test scenario.
+      # cargo-offline run generate integration_tests/types/main.t \
+      #   --typescript-out integration_tests/typescript/src/types.ts
 
       # Validate the resulting TypeScript code.
       (cd integration_tests/typescript && npm run check)
@@ -200,6 +202,8 @@ tasks:
       - integration_tests/rust/target
       - integration_tests/typescript/node_modules/
       - integration_tests/typescript/src/main.js
+      - integration_tests/typescript/src/types.js
+      - integration_tests/typescript/src/types.ts
       - target
     command: |
       # Lint the code with Clippy.
