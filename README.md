@@ -54,7 +54,7 @@ Note that Typical only does serialization and deserialization. It has nothing to
 
 ### Serialize and deserialize messages
 
-With the code generated in the previous section, a program could construct a request and serialize it to a file as follows:
+With the code generated in the previous section, a program could construct a message and serialize it to a file (for example) as follows:
 
 ```rust
 let request = SendEmailRequestOut {
@@ -67,7 +67,7 @@ let mut file = BufWriter::new(File::create("/tmp/request")?);
 request.serialize(&mut file)?;
 ```
 
-A different program, possibly written in a different language, could read the request from disk and deserialize it:
+Another program, possibly written in a different language, could read the message from disk and deserialize it:
 
 ```rust
 let mut file = BufReader::new(File::open("/tmp/request")?);
@@ -107,7 +107,7 @@ Removing a required field can present analogous difficulties. Suppose, despite t
 
 ### The trouble with promoting `optional` fields to required and vice versa
 
-One way to introduce a required field is to first introduce it as `optional`, and later promote it to required. For example, you can safely introduce this change:
+A somewhat safer way to introduce a required field is to first introduce it as `optional`, and later promote it to required. For example, you can safely introduce this change:
 
 ```perl
 struct SendEmailRequest {
@@ -118,9 +118,11 @@ struct SendEmailRequest {
 }
 ```
 
-You would then update clients to set the new field. Once you're confident that the new field is always being set, you can promote it to required. The trouble is that, as long as the field is `optional`, you can't rely on the type system to ensure the new field is always being set. Even if you're confident that you've updated the client code appropriately, a coworker might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
+You would then update clients to set the new field. Once you're confident that the new field is always being set, you can promote it to required.
 
-You can run into analogous trouble when demoting a required field to `optional`. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated quickly enough.
+The trouble is that, as long as the field is `optional`, you can't rely on the type system to ensure the new field is always being set. Even if you're confident you've updated the client code appropriately, a collaborator might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
+
+You can run into analogous trouble when demoting a required field to `optional`. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated promptly enough.
 
 ### The trouble with making every field `optional`
 
