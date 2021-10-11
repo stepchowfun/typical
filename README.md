@@ -4,7 +4,9 @@
 
 *Typical* helps you serialize data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution ([asymmetric fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs as well as the lesser-known dual problem of how to safely add and remove cases from sum types in the presence of exhaustive pattern matching.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs as well as the lesser-known dual problem of how to safely add and remove cases in sum types while supporting exhaustive pattern matching.
+
+In short, Typical offers two important features that are conventionally thought to conflict with each other: (1) excellent type safety and (2) excellent compatibility between schema versions.
 
 **Supported languages:**
 
@@ -84,7 +86,7 @@ We'll see in the next section why our `SendEmailRequest` type turned into `SendE
 
 Fields are required by default. This is an unusual design decision, since required fields are often thought to cause trouble for backward and forward compatibility between schema versions. Let's explore this topic in detail and see how Typical deals with it.
 
-### The trouble with required fields
+### The trouble with adding and removing required fields directly
 
 Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. For example, suppose your new email API is up and running, and you want to add a new `from` field to the request type:
 
@@ -103,15 +105,36 @@ That kind of attentive rollout may not be feasible. You may not be in control of
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
-### The trouble with `optional` fields
+### The trouble with promoting `optional` fields to required and vice versa
 
-Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared `optional`.
+One way to introduce a required field is to first introduce it as `optional`, and later promote it to required. For example, you can safely introduce this change:
 
-However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared as required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as `optional` places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the field, and readers must handle the case of the field being missing to satisfy the type checker even though that field is always supposed to be set.
+```perl
+struct SendEmailRequest {
+    to: String = 0
+    optional from: String = 3 # A new optional field
+    subject: String = 1
+    body: String = 2
+}
+```
 
-For those of us who haven't given up on the idea of required fields, the standard process for introducing one is to transition between three phases: (1) introduce the field as `optional`, (2) update all the writers to set the new field, and finally (3) promote it to required. Unfortunately, you can't rely on the type system to ensure you've done phase (2) completely. That phase can be nontrivial in a large system, and you may forget to set the field somewhere.
+You would then update clients to set the new field. Once you're confident that the new field is always being set, you can promote it to required. The trouble is that, as long as the field is `optional`, you can't rely on the type system to ensure the new field is always being set. Even if you're confident that you've updated the client code appropriately, a coworker might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
 
-To remove a required field, the standard process is to transition through two phases: (1) demote it to `optional`, but ensure that writers are still setting it, and (2) start allowing the field to be unset or delete the field entirely. Here, phase (1) is the troublesome one, since the type system no longer guarantees that the field is still being set by writers during that time.
+You can run into analogous trouble when demoting a required field to `optional`. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated quickly enough.
+
+### The trouble with making every field `optional`
+
+Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared `optional`. For example:
+
+```perl
+struct SendEmailRequest {
+    optional to: String = 0
+    optional subject: String = 1
+    optional body: String = 2
+}
+```
+
+However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as `optional` places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the fields, and readers must address the case of the fields being missing to satisfy the type checker even though those fields are always supposed to be set.
 
 ### Introducing: `asymmetric` fields
 
@@ -154,13 +177,11 @@ impl Deserialize for SendEmailRequestIn {
 }
 ```
 
-We can see the effect of `from` being an `asymmetric` field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) are not yet allowed to rely on it. Once this change has been rolled out, we can safely promote the field to required in a subsequent change.
+We can see the effect of `from` being an `asymmetric` field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) aren't yet allowed to rely on it. Once this change has been rolled out (at least to clients), we can safely promote the field to required in a subsequent change.
 
-**This notion of `asymmetric` fields is what makes Typical special.**
+It works in reverse too. Suppose we now want to remove a required field. It may be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it `optional` and handle its potential absence, even though clients are still required to set it. Once that change has been rolled out (at least to servers), we can confidently delete the field (or demote it to `optional`), as the servers no longer rely on it.
 
-It works in reverse too. Suppose we now want to remove a required field. It may be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it `optional` and handle its potential absence, even though clients are still required to set it. Once that change has been rolled out, we can confidently delete the field (or demote it to `optional`), as the servers no longer rely on it.
-
-In some schemas, a field might stay in the `asymmetric` state for months, say, if you are waiting for users to update your mobile app. Typical can help immensely in that situation by preventing new code which uses the field inappropriately from being introduced during that period.
+In some situations, a field might stay in the `asymmetric` state for months, say, if you're waiting for a sufficient fraction of your users to update your mobile app. Typical can help immensely in those situations by preventing new code which uses the field inappropriately from being introduced during that period.
 
 ### What about `choice`s?
 
@@ -168,13 +189,13 @@ Our discussion so far has been framed around `struct`s, since they are more fami
 
 The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases when you use it. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
 
-That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, writers might start setting it before readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though old writers may still be using it.
+That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
 
-Not to worry—**`choice`s can have `optional` and `asymmetric` fields too!**
+Not to worry—`choice`s can have `optional` and `asymmetric` fields, just like `struct`s!
 
-An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers are not required to handle optional fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
+An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers aren't required to handle `optional` fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
-An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. In summary, `asymmetric` fields in `choice`s behave like optional fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
+An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. In summary, `asymmetric` fields in `choice`s behave like `optional` fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
 As with `struct`s, an `asymmetric` field in a `choice` can be safely promoted to required and vice versa.
 
@@ -219,11 +240,15 @@ The required cases (`Success` and `Error`) are as you would expect in both types
 
 The `optional` case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback field. Readers can use the fallback if they don't wish to handle this case, and readers which don't even know about this case will use the fallback automatically.
 
-The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to optional or nonexistent (which will stop readers from having to handle it).
+The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to `optional` or nonexistent (which will stop readers from having to handle it).
+
+### Default values
+
+Typical has no notion of a "default" value for each type. This means, for example, if a reader sees the value `0` for a field, it can be confident that this value was explicitly set by a writer, and that the writer didn't just accidentally forget to set it. Zeroes, empty strings, empty arrays, and so on aren't special in any way.
 
 ### Summary
 
-Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they are not well-supported by most data interchange formats. Typical, on the other hand, embraces them.
+Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they aren't well-supported by most data interchange formats. Typical, on the other hand, embraces them.
 
 The rules are as follows:
 
@@ -381,9 +406,9 @@ Note that the generated deserialization code is designed to be safe from malicio
 - `Bytes` is encoded verbatim, with zero additional space overhead.
 - `String` encoded as UTF-8.
 - Arrays (e.g., `[U64]`) are encoded in one of three ways:
-  - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the message. Thus, it's encoded explicitly.
-  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded, since it's implied by the length of the message.
-  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `U64`. The *element* is encoded according to its type.
+  - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
+  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
+  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `U64`. The *element* is encoded according to its type. The number of elements is not explicitly encoded.
 
 #### `U64` encoding in depth
 
