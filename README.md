@@ -6,7 +6,7 @@
 
 The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs as well as the lesser-known dual problem of how to safely add and remove cases in sum types while supporting exhaustive pattern matching.
 
-In short, Typical offers two important features that are conventionally thought to conflict with each other: (1) excellent type safety and (2) excellent compatibility between schema versions.
+In short, Typical offers two important features that are conventionally thought to be at odds: (1) uncompromising type safety and (2) binary compatibility between schema versions.
 
 **Supported languages:**
 
@@ -67,7 +67,7 @@ let mut file = BufWriter::new(File::create("/tmp/request")?);
 request.serialize(&mut file)?;
 ```
 
-Another program, possibly written in a different language, could read the message from disk and deserialize it:
+Another program, possibly written in a different language, could read the message from disk (for example) and deserialize it as follows:
 
 ```rust
 let mut file = BufReader::new(File::open("/tmp/request")?);
@@ -197,7 +197,7 @@ Not to worry—`choice`s can have `optional` and `asymmetric` fields, just like 
 
 An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers aren't required to handle `optional` fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
-An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers: they must be able to handle the `asymmetric` field directly. In summary, `asymmetric` fields in `choice`s behave like `optional` fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
+An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the `asymmetric` field directly. Thus, `asymmetric` fields in `choice`s behave like `optional` fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
 As with `struct`s, an `asymmetric` field in a `choice` can be safely promoted to required and vice versa.
 
@@ -244,7 +244,7 @@ The `optional` case, `AuthenticationError`, has a `String` for the error message
 
 The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to `optional` or nonexistent (which will stop readers from having to handle it).
 
-### Default values
+### What about default values?
 
 Typical has no notion of a "default" value for each type. This means, for example, if a reader sees the value `0` for a field, it can be confident that this value was explicitly set by a writer, and that the writer didn't just accidentally forget to set it. Zeroes, empty strings, empty arrays, and so on aren't special in any way.
 
@@ -252,7 +252,7 @@ Typical has no notion of a "default" value for each type. This means, for exampl
 
 Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they aren't well-supported by most data interchange formats. Typical, on the other hand, embraces them.
 
-The rules are as follows:
+The rules for what is allowed in a single change are as follows:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove `optional` and `asymmetric` fields.
@@ -261,17 +261,7 @@ The rules are as follows:
 - You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field and vice versa.
 - No other changes are guaranteed to be safe. In particular, it may be unsafe to add or remove required fields, unless you can carefully manage the order in which writers and readers are updated.
 
-All told, the idea of `asymmetric` fields can be understood as an application of the [robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) to algebraic data types.
-
-## Schema style guide
-
-Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
-
-- Use `UpperCamelCase` for the names of types.
-- Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema files.
-- Indent fields with 4 spaces.
-
-Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
+With these rules, any schema can be safely migrated to any other schema through a series of backward and forward compatible changes.
 
 ## Schema reference
 
@@ -391,6 +381,16 @@ Comments can be used to add helpful context to your schemas. A comment begins wi
 ### Identifiers
 
 An identifier (the name of a type, field, or import) must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
+
+## Schema style guide
+
+Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
+
+- Use `UpperCamelCase` for the names of types.
+- Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema files.
+- Indent fields with 4 spaces.
+
+Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
 
 ## Binary encoding
 
