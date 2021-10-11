@@ -2,9 +2,9 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* helps you serialize data in a language-independent fashion. You define data types in a file called a *schema*, then Typical uses that schema to generate the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
+*Typical* helps you serialize data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution ([asymmetric fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs and the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution ([asymmetric fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs as well as the lesser-known dual problem of how to safely perform exhaustive pattern matching on sum types as cases are added and removed over time.
 
 **Supported languages:**
 
@@ -52,7 +52,7 @@ Note that Typical only does serialization and deserialization. It has nothing to
 
 ### Serialize and deserialize messages
 
-A program could then construct a request and serialize it to a file:
+With the code generated in the previous section, a program could construct a request and serialize it to a file as follows:
 
 ```rust
 let request = SendEmailRequestOut {
@@ -62,7 +62,7 @@ let request = SendEmailRequestOut {
 };
 
 let mut file = BufWriter::new(File::create("/tmp/request")?);
-request.serialize(&mut file)
+request.serialize(&mut file)?;
 ```
 
 A different program, possibly written in a different language, could read the request from disk and deserialize it:
@@ -76,7 +76,7 @@ println!("subject: {}", request.subject);
 println!("body: {}", request.body);
 ```
 
-The full code for the example can be found [here](https://github.com/stepchowfun/typical/tree/main/example).
+The full code for this example can be found [here](https://github.com/stepchowfun/typical/tree/main/example).
 
 We'll see in the next section why our `SendEmailRequest` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
 
@@ -99,13 +99,13 @@ struct SendEmailRequest {
 
 The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
 
-That kind of rollout may not be feasible. You may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
+That kind of attentive rollout may not be feasible. You may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
 ### The trouble with `optional` fields
 
-Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be `optional`.
+Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared `optional`.
 
 However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared as required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as `optional` places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the field, and readers must handle the case of the field being missing to satisfy the type checker even though that field is always supposed to be set.
 
