@@ -187,9 +187,9 @@ In some situations, a field might stay in the `asymmetric` state for months, say
 
 Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. However, the same kind of consideration must be given to `choice`s.
 
-The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases when you use it. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
+The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
 
-That means it's unsafe, in general, to add or remove required fields—just like with `struct`s. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
+That means it's unsafe, in general, to add or remove required fields to a `choice`—just like with `struct`s. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
 
 Not to worry—`choice`s can have `optional` and `asymmetric` fields, just like `struct`s!
 
@@ -205,8 +205,8 @@ Consider a more elaborate version of our API response type:
 choice SendEmailResponse {
     success = 0
     error: String = 1
-    optional authentication_error: String = 2 # A specific type of error
-    asymmetric please_try_again = 3
+    optional authentication_error: String = 2 # A more specific type of error for curious clients
+    asymmetric please_try_again = 3 # To be promoted to required in the future
 }
 ```
 
@@ -238,7 +238,7 @@ impl Deserialize for SendEmailResponseIn {
 
 The required cases (`Success` and `Error`) are as you would expect in both types.
 
-The `optional` case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback field. Readers can use the fallback if they don't wish to handle this case, and readers which don't even know about this case will use the fallback automatically.
+The `optional` case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback. A writer might set the less specific `Error` case as the fallback. Readers can use the fallback if they don't wish to handle the optional case, and readers which don't even know about the optional case will use the fallback automatically.
 
 The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to `optional` or nonexistent (which will stop readers from having to handle it).
 
