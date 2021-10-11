@@ -13,6 +13,89 @@ use {
 // The string to be used for each indentation level.
 const INDENTATION: &str = "    ";
 
+// This is the full list of TypeScript keywords, both in use and reserved.
+const TYPESCRIPT_KEYWORDS: &[&str] = &[
+    "abstract",
+    "any",
+    "as",
+    "assert",
+    "asserts",
+    "async",
+    "await",
+    "bigint",
+    "boolean",
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "constructor",
+    "continue",
+    "debugger",
+    "declare",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "enum",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "from",
+    "function",
+    "get",
+    "global",
+    "if",
+    "implements",
+    "import",
+    "in",
+    "infer",
+    "instanceof",
+    "interface",
+    "intrinsic",
+    "is",
+    "keyof",
+    "let",
+    "module",
+    "namespace",
+    "never",
+    "new",
+    "null",
+    "number",
+    "object",
+    "of",
+    "override",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "readonly",
+    "require",
+    "return",
+    "set",
+    "static",
+    "string",
+    "super",
+    "switch",
+    "symbol",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "type",
+    "typeof",
+    "undefined",
+    "unique",
+    "unknown",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+];
+
 // This struct represents a tree of schemas organized in a module hierarchy.
 #[derive(Clone, Debug)]
 struct Module {
@@ -1042,14 +1125,19 @@ fn write_identifier<T: Write>(
         },
     );
 
-    write!(
-        buffer,
-        "{}",
-        match case {
-            CaseConvention::Pascal => identifier_with_suffix.pascal_case(),
-            CaseConvention::Snake => identifier_with_suffix.snake_case(),
-        },
-    )?;
+    let converted_identifier = match case {
+        CaseConvention::Pascal => identifier_with_suffix.pascal_case(),
+        CaseConvention::Snake => identifier_with_suffix.snake_case(),
+    };
+
+    if TYPESCRIPT_KEYWORDS
+        .iter()
+        .any(|keyword| converted_identifier == *keyword)
+    {
+        write!(buffer, "$")?;
+    }
+
+    write!(buffer, "{}", converted_identifier)?;
 
     Ok(())
 }
