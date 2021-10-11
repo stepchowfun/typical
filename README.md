@@ -171,11 +171,11 @@ pub struct SendEmailRequestIn {
 }
 
 impl Serialize for SendEmailRequestOut {
-    // Implementation omitted.
+    // Serialization code omitted.
 }
 
 impl Deserialize for SendEmailRequestIn {
-    // Implementation omitted.
+    // Deserialization code omitted.
 }
 ```
 
@@ -189,13 +189,13 @@ In some situations, a field might stay in the `asymmetric` state for months, say
 
 Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. However, the same kind of consideration must be given to `choice`s.
 
-The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, the generated code ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
+The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, this is done in a way that ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
 
 That means it's unsafe, in general, to add or remove required fields to a `choice`—just like with `struct`s. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
 
 Not to worry—`choice`s can have `optional` and `asymmetric` fields, just like `struct`s!
 
-An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize the original field. So readers aren't required to handle `optional` fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
+An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. So readers aren't required to handle `optional` fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
 An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the `asymmetric` field directly. Thus, `asymmetric` fields in `choice`s behave like `optional` fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
@@ -230,11 +230,11 @@ pub enum SendEmailResponseIn {
 }
 
 impl Serialize for SendEmailResponseOut {
-    // Implementation omitted.
+    // Serialization code omitted.
 }
 
 impl Deserialize for SendEmailResponseIn {
-    // Implementation omitted.
+    // Deserialization code omitted.
 }
 ```
 
@@ -248,20 +248,18 @@ The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fall
 
 Typical has no notion of a "default" value for each type. This means, for example, if a reader sees the value `0` for a field, it can be confident that this value was explicitly set by a writer, and that the writer didn't just accidentally forget to set it. Zeroes, empty strings, empty arrays, and so on aren't special in any way.
 
-### Summary
+## Summary of what kinds of schema changes are safe
 
-Non-nullable types and exhaustive pattern matching are important safety features of modern type systems, but they aren't well-supported by most data interchange formats. Typical, on the other hand, embraces them.
-
-The rules for what is allowed in a single change are as follows:
+Any schema can be safely migrated to any other schema through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove `optional` and `asymmetric` fields.
 - You can safely convert `optional` fields to `asymmetric` and vice versa.
 - You can safely convert `asymmetric` fields to required and vice versa.
 - You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field and vice versa.
-- No other changes are guaranteed to be safe. In particular, it may be unsafe to add or remove required fields, unless you can carefully manage the order in which writers and readers are updated.
+- No other changes are guaranteed to be safe.
 
-With these rules, any schema can be safely migrated to any other schema through a series of backward and forward compatible changes.
+In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is reflexive (every schema is compatible with itself) and symmetric (forward compatibility and backward compatibility imply each other), but not transitive (two individually safe schema changes are not necessarily safe as a single change).
 
 ## Schema reference
 
