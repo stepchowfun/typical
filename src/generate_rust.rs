@@ -1243,10 +1243,9 @@ fn write_identifier<T: Write>(
         CaseConvention::Snake => identifier_with_suffix.snake_case(),
     };
 
-    if !converted_identifier.starts_with("r#")
-        && RUST_KEYWORDS
-            .iter()
-            .any(|keyword| converted_identifier == *keyword)
+    if RUST_KEYWORDS
+        .iter()
+        .any(|keyword| converted_identifier == *keyword)
     {
         write!(buffer, "r#")?;
     }
