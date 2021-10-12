@@ -144,7 +144,7 @@ fn generate_code(
 
     // Generate TypeScript code, if applicable.
     if let Some(typescript_out) = typescript_out {
-        eprintln!("Generating Rust\u{2026}");
+        eprintln!("Generating TypeScript\u{2026}");
 
         // Create any missing intermediate directories as needed.
         if let Some(parent) = typescript_out.parent() {

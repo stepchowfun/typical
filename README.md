@@ -404,7 +404,7 @@ Note that the generated deserialization code is designed to be safe from malicio
 - `S64` is first converted into an unsigned "ZigZag" representation, which is then encoded in the same way as a `U64`. It takes 1-9 bytes to encode, depending on the magnitude of the value. See below for details.
 - `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`. It takes 1 byte to encode.
 - `Bytes` is encoded verbatim, with zero additional space overhead.
-- `String` encoded as UTF-8.
+- `String` is encoded as UTF-8.
 - Arrays (e.g., `[U64]`) are encoded in one of three ways:
   - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
   - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
