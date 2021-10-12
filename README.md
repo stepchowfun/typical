@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* helps you serialize data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
+*Typical* helps you [serialize](https://en.wikipedia.org/wiki/Serialization) data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
 The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs as well as the lesser-known dual problem of how to safely add and remove cases in sum types while supporting exhaustive pattern matching.
 
@@ -15,7 +15,7 @@ In short, Typical offers two important features that are conventionally thought 
 
 ## Introduction
 
-Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be [serialized](https://en.wikipedia.org/wiki/Serialization) for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. *Typical* has a great story to tell about those things.
+Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. *Typical* has a great story to tell about those things.
 
 ### Write a schema
 
@@ -254,8 +254,7 @@ Any schema can be safely migrated to any other schema through a series of backwa
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove `optional` and `asymmetric` fields.
-- You can safely convert `optional` fields to `asymmetric` and vice versa.
-- You can safely convert `asymmetric` fields to required and vice versa.
+- You can safely convert any fields to `asymmetric` and vice versa.
 - You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field and vice versa.
 - No other changes are guaranteed to be safe.
 
