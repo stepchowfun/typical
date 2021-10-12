@@ -134,17 +134,14 @@ tasks:
     dependencies:
       - build
     input_paths:
-      - example/Cargo.lock
-      - example/Cargo.toml
-      - example/src
-      - example/types.t
-      - integration_tests/rust/Cargo.lock
-      - integration_tests/rust/Cargo.toml
-      - integration_tests/rust/src
+      - example
+      - integration_tests/rust
       - integration_tests/types
     excluded_input_paths:
       - example/src/types.rs
+      - example/target
       - integration_tests/rust/src/types.rs
+      - integration_tests/rust/target
     command: |
       # Run Typical on the example scenario.
       cargo-offline run generate example/types.t \
@@ -174,9 +171,8 @@ tasks:
       - integration_tests/types
       - integration_tests/typescript
     excluded_input_paths:
-      - integration_tests/typescript/node_modules/
-      - integration_tests/typescript/src/main.js
-      - integration_tests/typescript/src/types.js
+      - integration_tests/typescript/dist
+      - integration_tests/typescript/node_modules
       - integration_tests/typescript/src/types.ts
     command: |
       # TODO: Run Typical on the integration test scenario.
@@ -200,11 +196,10 @@ tasks:
       - example/target
       - integration_tests/rust/src/types.rs
       - integration_tests/rust/target
-      - integration_tests/typescript/node_modules/
-      - integration_tests/typescript/src/main.js
-      - integration_tests/typescript/src/types.js
+      - integration_tests/typescript/dist
+      - integration_tests/typescript/node_modules
       - integration_tests/typescript/src/types.ts
-      - target
+      - target/
     command: |
       # Lint the code with Clippy.
       cargo-offline clippy --all-features --all-targets --workspace
