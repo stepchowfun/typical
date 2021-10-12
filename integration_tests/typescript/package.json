@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "check": "npm ci && tsc --project tsconfig.json && prettier --config .prettierrc.js --ignore-path ../../.gitignore --check . && node src/main.js",
+    "check": "npm ci && tsc --project tsconfig.json && prettier --config .prettierrc.js --ignore-path ../../.gitignore --check . && node dist/main.js",
     "format": "prettier --config .prettierrc.js --ignore-path ../../.gitignore --write ."
   },
   "devDependencies": {
