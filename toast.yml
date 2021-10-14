@@ -141,8 +141,10 @@ tasks:
       - examples/rust/target
       - integration_tests/rust/target
     command: |
+      # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
+      # Validate and run the example project and the integration test.
       for SCENARIO in examples/rust integration_tests/rust; do
         (
           cd "$SCENARIO" && \
