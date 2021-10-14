@@ -134,25 +134,16 @@ tasks:
     dependencies:
       - build
     input_paths:
-      - example
+      - examples/rust
       - integration_tests/rust
       - integration_tests/types
     excluded_input_paths:
-      - example/src/types.rs
-      - example/target
-      - integration_tests/rust/src/types.rs
+      - examples/rust/target
       - integration_tests/rust/target
     command: |
-      # Run Typical on the example scenario.
-      cargo-offline run generate example/types.t \
-        --rust-out example/src/types.rs
+      export PATH="$PWD/target/debug:$PATH"
 
-      # Run Typical on the integration test scenario.
-      cargo-offline run generate integration_tests/types/main.t \
-        --rust-out integration_tests/rust/src/types.rs
-
-      # Validate the resulting Rust code.
-      for SCENARIO in integration_tests/rust example; do
+      for SCENARIO in examples/rust integration_tests/rust; do
         (
           cd "$SCENARIO" && \
           cargo-offline check && \
@@ -192,9 +183,7 @@ tasks:
 
       # [tag:excluded_input_paths] Keep this in sync with [ref:gitignore].
       - artifacts
-      - example/src/types.rs
-      - example/target
-      - integration_tests/rust/src/types.rs
+      - examples/rust/target
       - integration_tests/rust/target
       - integration_tests/typescript/dist
       - integration_tests/typescript/node_modules

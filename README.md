@@ -48,6 +48,8 @@ Now that we've defined some types, we can use Typical to generate the code for s
 $ typical generate email_api.t --rust-out email_api.rs
 ```
 
+Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/main/examples/rust) for how to automate this with a [Cargo build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
+
 The client and server can then use the generated code to serialize and deserialize messages for mutual communication. If the client and server are written in different languages, you can generate code for each language.
 
 Note that Typical only does serialization and deserialization. It has nothing to do with service meshes, encryption, authentication, or authorization, but it can be used together with those technologies.
@@ -78,7 +80,7 @@ println!("subject: {}", request.subject);
 println!("body: {}", request.body);
 ```
 
-The full code for this example can be found [here](https://github.com/stepchowfun/typical/tree/main/example).
+The full code for this example can be found [here](https://github.com/stepchowfun/typical/tree/main/examples/rust/src/main.rs).
 
 We'll see in the next section why our `SendEmailRequest` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
 

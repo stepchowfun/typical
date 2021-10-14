@@ -54,7 +54,7 @@ Each of the code generators has a unit test which contains a large string of gen
 #!/usr/bin/env ruby
 
 MAX_COLUMNS = 100
-GENERATED_CODE_PATH = 'integration_tests/rust/src/types.rs'
+GENERATED_CODE_PATH = 'types.rs'
 
 File.read(GENERATED_CODE_PATH).each_line do |line|
   line.gsub!('\\', '\\\\\\\\')
@@ -100,59 +100,30 @@ end
 
 ## Guidelines for generated code
 
+Generally speaking, we aim to have generated code follow the same standards as handwritten code, except when doing so would add significant complexity to the code generator. Below are some additional language-specific considerations.
+
 ### Rust
 
-Generated Rust code should aim to follow the same [guidelines](#rust-style-guide) as handwritten code, with the possible exception of the line length limit.
-
-To ensure that generated code will pass Rust and [Clippy](https://github.com/rust-lang/rust-clippy) lint checks now and in the future, it disables the lint checks as follows:
+Typical is designed to be invoked by a [Cargo build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html). See the [example project](https://github.com/stepchowfun/typical/tree/main/examples/rust) for how to set that up. The user is expected to create a dedicated source file which locally disables lint checks for that file and then includes the generated code as follows:
 
 ```rust
 #![allow(clippy::all, clippy::pedantic, clippy::nursery, warnings)]
+
+include!(concat!(env!("OUT_DIR"), "/types.rs"));
 ```
 
-However, our policy is that generated code should pass all checks in `clippy::all`, `clippy::pedantic`, and `warnings`, with the following exemptions:
-
-```rust
-#![allow(
-    clippy::cast_possible_truncation,
-    clippy::identity_op,
-    clippy::let_unit_value,
-    clippy::match_single_binding,
-    clippy::module_name_repetitions,
-    clippy::no_effect,
-    clippy::similar_names,
-    clippy::too_many_lines,
-    clippy::unit_arg,
-    clippy::useless_conversion,
-    dead_code,
-    unused_variables,
-)]
-```
-
-This isn't currently enforced by any CI check. The list of exempt checks can be amended as needed to accommodate future developments, but such amendments must be justified.
-
-To ensure that generated code doesn't cause code formatting checks to fail, the generated code also disables [Rustfmt](https://github.com/rust-lang/rustfmt) for all top-level constructs as follows:
-
-```rust
-#[rustfmt::skip]
-```
-
-Our policy is that generated code should be formatted in the same style as handwritten code when doing so doesn't add significant complexity to the code generator, although this is also not enforced by any CI check. The formatting of handwritten code is enforced by Rustfmt in a CI check.
+Note that the [Rust integration test](https://github.com/stepchowfun/typical/tree/main/integration_tests/rust) disables specific checks rather than all of them to help us keep track of which checks we are violating.
 
 ### TypeScript
 
-Generated Rust code should aim to follow the same standards as handwritten code, with the possible exception of the line length limit.
-
-To ensure that generated code will pass [ESLint](https://eslint.org/) checks now and in the future, it disables ESLint as follows:
-
-```typescript
-// eslint-disable
-```
-
-To ensure that generated code doesn't cause code formatting checks to fail, the it also disables [Prettier](https://prettier.io/) for all top-level constructs as follows:
+To ensure it will pass formatting checks now and in the future, the generated code should disable [Prettier](https://prettier.io/) for all top-level constructs as follows:
 
 ```typescript
 // prettier-ignore
 ```
 
-Our policy is that generated code should be formatted in the same style as handwritten code when doing so doesn't add significant complexity to the code generator, although this is also not enforced by any CI check. The formatting of handwritten code is enforced by Prettier in a CI check.
+To ensure it will pass lint checks now and in the future, the generated code should disable [ESLint](https://eslint.org/) at the file level as follows:
+
+```typescript
+// eslint-disable
+```
