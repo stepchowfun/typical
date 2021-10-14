@@ -112,7 +112,7 @@ Typical is designed to be invoked by a [Cargo build script](https://doc.rust-lan
 include!(concat!(env!("OUT_DIR"), "/types.rs"));
 ```
 
-Note that the [Rust integration test](https://github.com/stepchowfun/typical/tree/main/integration_tests/rust) disables specific checks rather than all of them to help us keep track of which checks we are violating.
+Note that the Rust integration test [disables specific checks](https://github.com/stepchowfun/typical/blob/main/integration_tests/rust/src/types.rs) rather than all of them to help us keep track of which checks we are violating.
 
 ### TypeScript
 

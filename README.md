@@ -45,7 +45,7 @@ Each field also has a type, either explicitly or implicitly. If the type is miss
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
 ```sh
-$ typical generate email_api.t --rust-out email_api.rs
+typical generate email_api.t --rust-out email_api.rs
 ```
 
 Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/main/examples/rust) for how to automate this with a [Cargo build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
@@ -494,7 +494,7 @@ For a simple enumerated type (such as `Weekday` above), the encoding of a field 
 Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `main.t` with the following:
 
 ```sh
-$ typical generate main.t --rust-out types.rs --typescript-out types.ts
+typical generate main.t --rust-out types.rs --typescript-out types.ts
 ```
 
 Here are the supported command-line options:
