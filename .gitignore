@@ -1,8 +1,6 @@
 # [tag:gitignore] Keep this in sync with [ref:excluded_input_paths].
 /artifacts/
-/example/src/types.rs
-/example/target/
-/integration_tests/rust/src/types.rs
+/examples/rust/target/
 /integration_tests/rust/target/
 /integration_tests/typescript/dist
 /integration_tests/typescript/node_modules/
