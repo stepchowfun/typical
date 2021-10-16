@@ -7,8 +7,10 @@ use {
         tokenizer::tokenize,
     },
     std::{
+        borrow::ToOwned,
         collections::{BTreeMap, HashSet},
         fs::read_to_string,
+        io::{self, ErrorKind},
         path::PathBuf,
         path::{Component, Path},
     },
@@ -46,28 +48,8 @@ pub fn load_schemas(
     // Any errors will end up here.
     let mut errors = vec![];
 
-    // Canonicalize the path. This ensures the path doesn't contain `..` or `.`.
-    let canonical_schema_path = match schema_path.canonicalize() {
-        Ok(canonical_schema_path) => canonical_schema_path,
-        Err(error) => {
-            errors.push(throw(
-                &format!(
-                    "Unable to load {}.",
-                    schema_path.to_string_lossy().code_str(),
-                ),
-                None,
-                None,
-                Some(error),
-            ));
-
-            return Err(errors);
-        }
-    };
-
-    // Compute the base directory for the schema's dependencies. Any canonical path which starts
-    // with this base directory can be safely converted into a namespace
-    // [tag:canonical_based_paths_are_namespaces].
-    let base_path = if let Some(base_path) = canonical_schema_path.parent() {
+    // The base directory for the schema's dependencies is the directory containing the schema.
+    let base_path = if let Some(base_path) = schema_path.parent() {
         base_path
     } else {
         errors.push(throw::<Error>(
@@ -83,20 +65,68 @@ pub fn load_schemas(
         return Err(errors);
     };
 
-    // Strip the base path from the schema path, i.e., compute the schema file name. The `unwrap`
-    // is safe because we know `base_path` is the parent of `canonical_schema_path`.
-    let based_schema_path = canonical_schema_path.strip_prefix(base_path).unwrap();
+    // Canonicalize the path to the base directory. This will be used to calculate namespaces below.
+    // Note that even with this we still need `base_path` from above, because canonicalization on
+    // Windows adds a `\\?\` prefix to the path, which changes the meaning of `..` and thus prevents
+    // us from joining it with other paths containing `..`. Note also that we can't simply
+    // compute this by canonicalizing `base_path`, since `base_path` might have zero components,
+    // which is considered invalid for canonicalization. So, instead, we canonicalize `schma_path`
+    // and take the parent of the result.
+    let canonical_base_path = match schema_path
+        .canonicalize()
+        .and_then(|canonical_schema_path| {
+            canonical_schema_path
+                .parent()
+                .map(ToOwned::to_owned)
+                .ok_or_else(|| io::Error::from(ErrorKind::Other))
+        }) {
+        Ok(canonical_base_path) => canonical_base_path,
+        Err(error) => {
+            errors.push(throw(
+                &format!(
+                    "{} is not a file.",
+                    schema_path.to_string_lossy().code_str(),
+                ),
+                None,
+                None,
+                Some(error),
+            ));
+
+            return Err(errors);
+        }
+    };
+
+    // Relative to the base directory, the path to the schema is the name of the schema file
+    // [tag:based_schema_path_is_file_name].
+    let based_schema_path = if let Some(based_schema_path) = schema_path.file_name() {
+        AsRef::<Path>::as_ref(based_schema_path)
+    } else {
+        errors.push(throw::<Error>(
+            &format!(
+                "{} is not a file.",
+                schema_path.to_string_lossy().code_str(),
+            ),
+            None,
+            None,
+            None,
+        ));
+
+        return Err(errors);
+    };
+
+    // Compute the namespace of the schema. This is safe due to
+    // [ref:based_schema_path_is_file_name].
+    let schema_namespace = path_to_namespace(based_schema_path);
 
     // Initialize the "frontier" with the given path. Paths in the frontier are relative to
-    // `base_path` [tag:frontier_paths_based]. The path-to-namespace conversion is safe due to
-    // [ref:canonical_based_paths_are_namespaces].
+    // `base_path` [tag:frontier_paths_based].
     let mut schemas_to_load = vec![(
-        path_to_namespace(based_schema_path),
+        schema_namespace.clone(),
         based_schema_path.to_owned(),
         None as Option<(PathBuf, String)>,
     )];
-    let mut visited_paths = HashSet::new();
-    visited_paths.insert(based_schema_path.to_owned());
+    let mut visited_namespaces = HashSet::new();
+    visited_namespaces.insert(schema_namespace);
 
     // Perform a depth-first traversal of the transitive dependencies.
     while let Some((namespace, path, origin)) = schemas_to_load.pop() {
@@ -160,7 +190,7 @@ pub fn load_schemas(
                     errors.push(throw(
                         &format!(
                             "Unable to load {}.",
-                            import.path.to_string_lossy().code_str(),
+                            non_canonical_import_path.to_string_lossy().code_str(),
                         ),
                         Some(&path),
                         Some(&origin_listing),
@@ -171,35 +201,37 @@ pub fn load_schemas(
                 }
             };
 
-            // Strip the base path from the schema path.
-            let based_import_path =
-                if let Ok(based_import_path) = canonical_import_path.strip_prefix(base_path) {
-                    based_import_path.to_owned()
-                } else {
-                    errors.push(throw::<Error>(
-                        &format!(
-                            "{} is not a descendant of {}, which is the base directory for this \
-                                run.",
-                            canonical_import_path.to_string_lossy().code_str(),
-                            base_path.to_string_lossy().code_str(),
-                        ),
-                        Some(&path),
-                        Some(&origin_listing),
-                        None,
-                    ));
+            // Strip the base path from the schema path. Since this is computed from two canonical
+            // paths, its guaranteed to contain only normal components
+            // [tag:based_import_path_only_has_normal_components].
+            let based_import_path = if let Ok(based_import_path) =
+                canonical_import_path.strip_prefix(&canonical_base_path)
+            {
+                based_import_path.to_owned()
+            } else {
+                errors.push(throw::<Error>(
+                    &format!(
+                        "{} is not a descendant of {}, which is the base directory for this run.",
+                        canonical_import_path.to_string_lossy().code_str(),
+                        canonical_base_path.to_string_lossy().code_str(),
+                    ),
+                    Some(&path),
+                    Some(&origin_listing),
+                    None,
+                ));
 
-                    continue;
-                };
+                continue;
+            };
 
             // Populate the namespace of the import [tag:namespace_populated]. The
             // path-to-namespace conversion is safe due to
-            // [ref:canonical_based_paths_are_namespaces].
+            // [ref:based_import_path_only_has_normal_components].
             let import_namespace = path_to_namespace(&based_import_path);
             import.namespace = Some(import_namespace.clone());
 
             // Visit this import if it hasn't been visited already.
-            if !visited_paths.contains(&based_import_path) {
-                visited_paths.insert(based_import_path.clone());
+            if !visited_namespaces.contains(&import_namespace) {
+                visited_namespaces.insert(import_namespace.clone());
                 schemas_to_load.push((
                     import_namespace,
                     based_import_path,
@@ -283,7 +315,6 @@ mod tests {
 
     // This test doesn't work on Windows, for some reason.
     #[test]
-    #[cfg_attr(target_os = "windows", ignore)]
     fn load_schemas_example() {
         load_schemas(Path::new("integration_tests/types/main.t")).unwrap();
     }
