@@ -1597,7 +1597,6 @@ mod tests {
     // This test doesn't work on Windows, for some reason.
     #[allow(clippy::too_many_lines)]
     #[test]
-    #[cfg_attr(target_os = "windows", ignore)]
     fn generate_example() {
         let schemas = load_schemas(Path::new("integration_tests/types/main.t")).unwrap();
         validate(&schemas).unwrap();
