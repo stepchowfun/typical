@@ -14,7 +14,7 @@
   DESTINATION="${PREFIX:-/usr/local/bin}/typical"
 
   # Which version to download
-  RELEASE="v${VERSION:-0.0.3}"
+  RELEASE="v${VERSION:-0.0.4}"
 
   # Determine which binary to download.
   FILENAME=''
