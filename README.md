@@ -409,62 +409,48 @@ Typical doesn't require any particular naming convention or formatting style. Ho
 
 Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
 
+## Security
+
+The generated deserialization code is designed to be safe from malicious inputs in the sense that it protects against unsafe memory accesses like buffer over-reading, buffer overflowing, and arbitrary code execution.
+
+There is currently no way to configure resource limits, so it's good practice to reject implausibly large messages before attempting to deserialize them. It's also good practice to apply techniques like [rate limiting](https://en.wikipedia.org/wiki/Rate_limiting) to mitigate [denial-of-service attacks](https://en.wikipedia.org/wiki/Denial-of-service_attack).
+
+In general, you can expect the size of a deserialized message in memory to be within the same order of magnitude as the size of the corresponding serialized message on the wire. However, there is one exception: for values of type `[Unit]` (array of units), only the number of elements is encoded, since the `Unit` values themselves take up zero bytes on the wire. That means an attacker can force the deserialization logic to reconstruct arbitrarily large arrays of units given only the number of elements (cf. [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack)). For this reason, we strongly recommend avoiding the use of `[Unit]` in your schema if you intend to consume untrusted inputs. This isn't a major loss, however, since that type is generally useless anyway. It's only supported for the uniformity of the type system; the array [type constructor](https://en.wikipedia.org/wiki/Type_constructor) accepts any type for its argument, even if some combinations have no practical purpose.
+
 ## Binary encoding
 
 The following sections describe how Typical serializes your data.
 
-Note that the generated deserialization code is designed to be safe from malicious inputs, in that it protects against unsafe memory accesses like buffer over-reading and overflowing, denial-of-service attacks like [billion laughs](https://en.wikipedia.org/wiki/Billion_laughs_attack), and arbitrary code execution.
+### Variable-width integers
 
-### Built-in types
+Many situations require Typical to serialize integer values, e.g., field indices, user-provided integers, etc. Typical uses a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
 
-- `Unit` takes 0 bytes to encode.
-- `F64` is encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it takes 8 bytes to encode.
-- `U64` is encoded in a variable-width integer format with bijective numeration. It takes 1-9 bytes to encode, depending on the value. See below for details.
-- `S64` is first converted into an unsigned "ZigZag" representation, which is then encoded in the same way as a `U64`. It takes 1-9 bytes to encode, depending on the magnitude of the value. See below for details.
-- `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`. It takes 1 byte to encode.
-- `Bytes` is encoded verbatim, with zero additional space overhead.
-- `String` is encoded as UTF-8.
-- Arrays (e.g., `[U64]`) are encoded in one of three ways:
-  - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`. Since the elements themselves take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
-  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
-  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded in the same way as a `U64`. The *element* is encoded according to its type. The number of elements is not explicitly encoded.
+#### Unsigned variable-width integers
 
-#### `U64` encoding in depth
+For unsigned integers, the valid range is [`0`, `2^64`).
 
-Typical encodes `U64` using a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
+Let `n` be the integer to be encoded. The encoding scheme described below is [little-endian](https://en.wikipedia.org/wiki/Endianness), so the last byte contains the most significant bits.
 
-The encoding is as follows. Let `n` be the integer to be encoded. If `n` is less than `2^7 = 128`, it can fit into a single byte:
+- If `0 <= n < 128`, embed the 7 bits of `n` in 1 byte as follows: `xxxxxxx1`.
+- If `128 <= n < 16,512`, embed the 14 bits of `n - 128` in 2 bytes as follows: `xxxxxx10 xxxxxxxx`.
+- If `16,512 <= n < 2,113,664`, embed the 21 bits of `n - 16,512` in 3 bytes as follows: `xxxxx100 xxxxxxxx xxxxxxxx`.
+- If `2,113,664 <= n < 270,549,120`, embed the 28 bits of `n - 2,113,664` in 4 bytes as follows: `xxxx1000 xxxxxxxx xxxxxxxx xxxxxxxx`.
+- If `270,549,120 <= n < 34,630,287,488`, embed the 35 bits of `n - 270,549,120` in 5 bytes as follows: `xxx10000 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`.
+- If `34,630,287,488 <= n < 4,432,676,798,592`, embed the 42 bits of `n - 34,630,287,488` in 6 bytes as follows: `xx100000 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`.
+- If `4,432,676,798,592 <= n < 567,382,630,219,904`, embed the 49 bits of `n - 4,432,676,798,592` in 6 bytes as follows: `x1000000 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`.
+- If `567,382,630,219,904 <= n < 72,624,976,668,147,840`, embed the 56 bits of `n - 567,382,630,219,904` in 8 bytes as follows: `10000000 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`.
+- If `72,624,976,668,147,840 <= n < 18,446,744,073,709,551,616`, embed the 64 bits of `n - 72,624,976,668,147,840` in 9 bytes as follows: `00000000 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`.
 
-```
-xxxx xxx1
-```
-
-If `n` is at least `2^7 = 128` but less than `2^7 + 2^14 = 16,512`, subtract `128` so the result fits into 14 bits, and encode it as follows:
-
-```
-xxxx xx10 xxxx xxxx
-```
-
-The encoding is little-endian, so the last byte contains the most significant bits.
-
-If `n` is at least `2^7 + 2^14 = 16,512` but less than `2^7 + 2^14 + 2^21 = 2,113,664`, subtract `16,512` so the result fits into 21 bits, and encode it as follows:
-
-```
-xxxx x100 xxxx xxxx xxxx xxxx
-```
-
-And so on. Notice that the number of trailing zeros in the first byte indicates how many subsequent bytes there are.
-
-Using this encoding, the largest 64-bit integer takes 9 bytes, compared to 8 for the native encoding. Thus, the encoding has a single byte of overhead in the worst case, but for most integers encountered in practice it saves 7 bytes. This is such a good trade-off most of the time that Typical doesn't even offer fixed-width integer types. However, if you really need to store fixed-width integers, you can always encode them as `Bytes` at the expense of some type safety.
+The number of trailing zeros in the first byte indicates how many subsequent bytes there are. This allows the number of bytes in an encoded integer to be efficiently determined with a single instruction (e.g., `BSF` or `TZCNT`) on most modern processors.
 
 The encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical's encoding differs in two ways:
 
-1. Typical moves all the continuation bits to the first byte. This allows the number of bytes in an encoded integer to be determined entirely from its first byte in a single instruction on modern processors (e.g., `BSF` or `TZCNT`). This is more efficient than checking each byte for a continuation bit separately.
-2. Typical's encoding uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses two bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*. However, the space savings is small and comes with a small runtime performance penalty, so whether this is an improvement depends on how much you value time versus space.
+1. For time efficiency reasons, Typical moves all the continuation bits to the first byte. This allows the continuation bits to be counted with a single CPU instruction on most processors, as mentioned above.
+2. For space efficiency reasons, Typical uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses two bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*.
 
-#### `S64` encoding in depth
+#### Unsigned variable-width integers
 
-Typical converts an `S64` into an unsigned "ZigZag" representation, and then encodes the result in the same way as a `U64`. The ZigZag representation converts signed integers with small magnitudes into unsigned integers with small magnitudes, and signed integers with large magnitudes into unsigned integers with large magnitudes. This allows integers with small magnitudes to be encoded using fewer bytes, thanks to the variable-width encoding used for `U64`.
+To represent signed integers, Typical converts them into an unsigned "ZigZag" representation, and then encodes the unsigned result as described above. The ZigZag representation converts signed integers with small magnitudes into unsigned integers with small magnitudes, and signed integers with large magnitudes into unsigned integers with large magnitudes. This allows signed integers with small magnitudes to be encoded using fewer bytes.
 
 Specifically, the ZigZag representation of a [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement) 64-bit integer `n` is `(n >> 63) ^ (n << 1)`, where `>>` is an [arithmetic shift](https://en.wikipedia.org/wiki/Arithmetic_shift). The inverse operation is `(n >> 1) ^ -(n & 1)`, where `>>` is a [logical shift](https://en.wikipedia.org/wiki/Logical_shift).
 
@@ -474,18 +460,18 @@ The conversion of signed integers to their ZigZag representations before their s
 
 ### User-defined `struct`s
 
-A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
+A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the value is encoded according to its type and the header is encoded as one or two contiguous parts:
 
-  - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `U64` (i.e., as a variable-width integer). The meaning of the *tag* is as follows:
-    - The two least significant bits of the *tag* (not its encoding) are called the *size mode* and indicate how to compute the size of the *value*:
-      - `00`: The size of the *value* is 0 bytes.
-      - `01`: The size of the *value* is 8 bytes.
-      - `10`: The size of the *value* is given by the second part of the *header* (below).
-      - `11`: The *value* is encoded as a `U64` (i.e., it's a `U64`, `S64`, or `Bool`), and its size can be determined from its first byte.
-    - The remaining 62 bits of the *tag* (not its encoding) represent the index of the field as an unsigned integer.
-  - The second part of the *header* is the size of the *value* encoded in the same was as a `U64`. It's only present if the *size mode* is `10`.
+  - The first part of the header is an unsigned integer *tag*, which is encoded as a variable-width integer. The meaning of the tag is as follows:
+    - The two least significant bits of the tag (not its variable-width encoding) are called the *size mode* and indicate how to compute the size of the value:
+      - `0`: The size of the value is 0 bytes.
+      - `1`: The size of the value is 8 bytes.
+      - `2`: The size of the value is given by the second part of the header (below).
+      - `3`: The value is encoded as a variable-width integer, so its size can be determined from its first byte.
+    - The remaining bits of the tag (not its variable-width encoding) represent the index of the field as an unsigned integer.
+  - The second part of the header is the size of the value encoded as a variable-width integer. It's only present if the size mode is `2`.
 
-For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the *header* is encoded as a single byte.
+For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the header is encoded as a single byte.
 
 A `struct` must follow these rules:
 
@@ -505,7 +491,23 @@ A `choice` is encoded in the same way as a `struct`, but with different rules:
   - The first field recognized by the receiver is used.
   - At least one required or `asymmetric` field must be present.
 
-For a simple enumerated type (such as `Weekday` above), the encoding of a field with an index less than 32 takes up a single byte.
+For a simple enumerated type (such as `Weekday` above), a field with an index less than 32 takes up a single byte.
+
+### Built-in types
+
+- `Unit` takes 0 bytes to encode.
+- `F64` is normally encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it normally takes 8 bytes to encode. However, for field values (rather than, say, elements of an array), [positive zero](https://en.wikipedia.org/wiki/Signed_zero) is encoded as 0 bytes.
+- `U64` is normally encoded as a variable-width integer. Thus, it normally takes 1-9 bytes to encode, depending on the value. However, for field values (rather than, say, elements of an array), `0` is encoded as 0 bytes, and values equal to or greater than `567,382,630,219,904` are encoded as fixed-width 8-byte little-endian integers.
+- `S64` is normally first converted into an unsigned "ZigZag" representation, which is then encoded as a variable-width integer. Thus, it normally takes 1-9 bytes to encode, depending on the magnitude of the value. However, for field values (rather than, say, elements of an array), `0` is encoded as 0 bytes, and values for which the ZigZag representation is equal to or greater than `567,382,630,219,904` are encoded as fixed-width 8-byte [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement) little-endian integers (verbatim, not with a ZigZag representation).
+- `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`, including the special behavior in the case of field values if applicable. `false` takes 0 bytes to encode, and `true` takes 1 byte.
+- `Bytes` is encoded verbatim, with zero additional space overhead.
+- `String` is encoded as UTF-8.
+- Arrays (e.g., `[U64]`) are encoded in one of three ways:
+  - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`, including the special behavior in the case of field values if applicable. Since the elements (of type `Unit`) take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
+  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
+  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded as a variable-width integer. The *element* is encoded according to its type. The number of elements is not explicitly encoded.
+
+Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer takes 1-9 bytes to encode, but an integer field takes 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode in the field header.
 
 ## Usage
 
