@@ -106,69 +106,134 @@ fn zigzag_decode(value: u64) -> i64 {{
 }}
 
 fn varint_size_from_value(value: u64) -> usize {{
-    let mut size = 1_usize;
-    let mut upper_bound_exclusive = 0_u64;
-
-    while size < 9 {{
-        upper_bound_exclusive += 1_u64 << (size * 7);
-
-        if value < upper_bound_exclusive {{
-            break;
-        }}
-
-        size += 1;
+    match value {{
+        0..=127 => 1,
+        128..=16_511 => 2,
+        16_512..=2_113_663 => 3,
+        2_113_664..=270_549_119 => 4,
+        270_549_120..=34_630_287_487 => 5,
+        34_630_287_488..=4_432_676_798_591 => 6,
+        4_432_676_798_592..=567_382_630_219_903 => 7,
+        567_382_630_219_904..=72_624_976_668_147_839 => 8,
+        72_624_976_668_147_840..=18_446_744_073_709_551_615 => 9,
     }}
-
-    size
 }}
 
 fn varint_size_from_first_byte(first_byte: u8) -> u32 {{
     first_byte.trailing_zeros() + 1
 }}
 
-fn serialize_varint<T: Write>(value: u64, writer: &mut T) -> io::Result<()> {{
-    let size = varint_size_from_value(value);
-    let size_minus_one = size - 1;
-
-    let mut x = value;
-    for i in 1..size {{
-        x -= 1_u64 << (i * 7);
+fn serialize_varint<T: Write>(mut value: u64, writer: &mut T) -> io::Result<()> {{
+    match value {{
+        0..=127 => {{
+            writer.write_all(&[((value << 1) as u8) | 0b0000_0001])
+        }}
+        128..=16_511 => {{
+            value -= 128;
+            writer.write_all(&[
+                ((value << 2) as u8) | 0b0000_0010,
+                (value >> 6) as u8,
+            ])
+        }}
+        16_512..=2_113_663 => {{
+            value -= 16_512;
+            writer.write_all(&[
+                ((value << 3) as u8) | 0b0000_0100,
+                (value >> 5) as u8,
+                (value >> 13) as u8,
+            ])
+        }}
+        2_113_664..=270_549_119 => {{
+            value -= 2_113_664;
+            writer.write_all(&[
+                ((value << 4) as u8) | 0b0000_1000,
+                (value >> 4) as u8,
+                (value >> 12) as u8,
+                (value >> 20) as u8,
+            ])
+        }}
+        270_549_120..=34_630_287_487 => {{
+            value -= 270_549_120;
+            writer.write_all(&[
+                ((value << 5) as u8) | 0b0001_0000,
+                (value >> 3) as u8,
+                (value >> 11) as u8,
+                (value >> 19) as u8,
+                (value >> 27) as u8,
+            ])
+        }}
+        34_630_287_488..=4_432_676_798_591 => {{
+            value -= 34_630_287_488;
+            writer.write_all(&[
+                ((value << 6) as u8) | 0b0010_0000,
+                (value >> 2) as u8,
+                (value >> 10) as u8,
+                (value >> 18) as u8,
+                (value >> 26) as u8,
+                (value >> 34) as u8,
+            ])
+        }}
+        4_432_676_798_592..=567_382_630_219_903 => {{
+            value -= 4_432_676_798_592;
+            writer.write_all(&[
+                ((value << 7) as u8) | 0b0100_0000,
+                (value >> 1) as u8,
+                (value >> 9) as u8,
+                (value >> 17) as u8,
+                (value >> 25) as u8,
+                (value >> 33) as u8,
+                (value >> 41) as u8,
+            ])
+        }}
+        567_382_630_219_904..=72_624_976_668_147_839 => {{
+            value -= 72_624_976_668_147_839;
+            writer.write_all(&[
+                0b1000_0000,
+                value as u8,
+                (value >> 8) as u8,
+                (value >> 16) as u8,
+                (value >> 24) as u8,
+                (value >> 32) as u8,
+                (value >> 40) as u8,
+                (value >> 48) as u8,
+            ])
+        }}
+        72_624_976_668_147_840..=18_446_744_073_709_551_615 => {{
+            value -= 72_624_976_668_147_840;
+            writer.write_all(&[
+                0b0000_0000,
+                value as u8,
+                (value >> 8) as u8,
+                (value >> 16) as u8,
+                (value >> 24) as u8,
+                (value >> 32) as u8,
+                (value >> 40) as u8,
+                (value >> 48) as u8,
+                (value >> 56) as u8,
+            ])
+        }}
     }}
-
-    writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
-    x >>= 8_usize.saturating_sub(size);
-
-    for _ in 0..size_minus_one {{
-        writer.write_all(&[x as u8])?;
-        x >>= 8;
-    }}
-
-    Ok(())
 }}
 
 fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {{
-    let mut buffer = [0; 9];
-    reader.read_exact(&mut buffer[0..1])?;
-    let first_byte = buffer[0];
-    let size = varint_size_from_first_byte(first_byte) as usize;
-
-    reader.read_exact(&mut buffer[1..size])?;
-
-    let mut x = u64::from(first_byte) >> size;
-    let mut bits_read = 8_usize.saturating_sub(size);
-
-    for byte in buffer.iter().skip(1) {{
-        x |= u64::from(*byte) << bits_read;
-        bits_read += 8;
+    let mut first_byte_buffer = [0; 1];
+    reader.read_exact(&mut first_byte_buffer[..])?;
+    let first_byte = first_byte_buffer[0];
+    let size_minus_one = first_byte.trailing_zeros();
+    let mut remaining_bytes_buffer = [0; 8];
+    reader.read_exact(&mut remaining_bytes_buffer[0..size_minus_one as usize])?;
+    let remaining_bytes_value = u64::from_le_bytes(remaining_bytes_buffer);
+    match size_minus_one {{
+        0 => Ok(u64::from(first_byte >> 1)),
+        1 => Ok(128_u64 + u64::from(first_byte >> 2) + (remaining_bytes_value << 6)),
+        2 => Ok(16_512_u64 + u64::from(first_byte >> 3) + (remaining_bytes_value << 5)),
+        3 => Ok(2_113_664_u64 + u64::from(first_byte >> 4) + (remaining_bytes_value << 4)),
+        4 => Ok(270_549_120_u64 + u64::from(first_byte >> 5) + (remaining_bytes_value << 3)),
+        5 => Ok(34_630_287_488_u64 + u64::from(first_byte >> 6) + (remaining_bytes_value << 2)),
+        6 => Ok(4_432_676_798_592_u64 + u64::from(first_byte >> 7) + (remaining_bytes_value << 1)),
+        7 => Ok(567_382_630_219_904_u64 + remaining_bytes_value),
+        _ => Ok(72_624_976_668_147_840_u64.wrapping_add(remaining_bytes_value)),
     }}
-
-    for i in 1..size {{
-        x = x
-            .checked_add(1_u64 << (i * 7))
-            .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Error decoding varint.\"))?;
-    }}
-
-    Ok(x)
 }}
 
 fn non_varint_field_header_size(index: u64, value_size: usize) -> usize {{
@@ -1624,69 +1689,134 @@ fn zigzag_decode(value: u64) -> i64 {
 }
 
 fn varint_size_from_value(value: u64) -> usize {
-    let mut size = 1_usize;
-    let mut upper_bound_exclusive = 0_u64;
-
-    while size < 9 {
-        upper_bound_exclusive += 1_u64 << (size * 7);
-
-        if value < upper_bound_exclusive {
-            break;
-        }
-
-        size += 1;
+    match value {
+        0..=127 => 1,
+        128..=16_511 => 2,
+        16_512..=2_113_663 => 3,
+        2_113_664..=270_549_119 => 4,
+        270_549_120..=34_630_287_487 => 5,
+        34_630_287_488..=4_432_676_798_591 => 6,
+        4_432_676_798_592..=567_382_630_219_903 => 7,
+        567_382_630_219_904..=72_624_976_668_147_839 => 8,
+        72_624_976_668_147_840..=18_446_744_073_709_551_615 => 9,
     }
-
-    size
 }
 
 fn varint_size_from_first_byte(first_byte: u8) -> u32 {
     first_byte.trailing_zeros() + 1
 }
 
-fn serialize_varint<T: Write>(value: u64, writer: &mut T) -> io::Result<()> {
-    let size = varint_size_from_value(value);
-    let size_minus_one = size - 1;
-
-    let mut x = value;
-    for i in 1..size {
-        x -= 1_u64 << (i * 7);
+fn serialize_varint<T: Write>(mut value: u64, writer: &mut T) -> io::Result<()> {
+    match value {
+        0..=127 => {
+            writer.write_all(&[((value << 1) as u8) | 0b0000_0001])
+        }
+        128..=16_511 => {
+            value -= 128;
+            writer.write_all(&[
+                ((value << 2) as u8) | 0b0000_0010,
+                (value >> 6) as u8,
+            ])
+        }
+        16_512..=2_113_663 => {
+            value -= 16_512;
+            writer.write_all(&[
+                ((value << 3) as u8) | 0b0000_0100,
+                (value >> 5) as u8,
+                (value >> 13) as u8,
+            ])
+        }
+        2_113_664..=270_549_119 => {
+            value -= 2_113_664;
+            writer.write_all(&[
+                ((value << 4) as u8) | 0b0000_1000,
+                (value >> 4) as u8,
+                (value >> 12) as u8,
+                (value >> 20) as u8,
+            ])
+        }
+        270_549_120..=34_630_287_487 => {
+            value -= 270_549_120;
+            writer.write_all(&[
+                ((value << 5) as u8) | 0b0001_0000,
+                (value >> 3) as u8,
+                (value >> 11) as u8,
+                (value >> 19) as u8,
+                (value >> 27) as u8,
+            ])
+        }
+        34_630_287_488..=4_432_676_798_591 => {
+            value -= 34_630_287_488;
+            writer.write_all(&[
+                ((value << 6) as u8) | 0b0010_0000,
+                (value >> 2) as u8,
+                (value >> 10) as u8,
+                (value >> 18) as u8,
+                (value >> 26) as u8,
+                (value >> 34) as u8,
+            ])
+        }
+        4_432_676_798_592..=567_382_630_219_903 => {
+            value -= 4_432_676_798_592;
+            writer.write_all(&[
+                ((value << 7) as u8) | 0b0100_0000,
+                (value >> 1) as u8,
+                (value >> 9) as u8,
+                (value >> 17) as u8,
+                (value >> 25) as u8,
+                (value >> 33) as u8,
+                (value >> 41) as u8,
+            ])
+        }
+        567_382_630_219_904..=72_624_976_668_147_839 => {
+            value -= 72_624_976_668_147_839;
+            writer.write_all(&[
+                0b1000_0000,
+                value as u8,
+                (value >> 8) as u8,
+                (value >> 16) as u8,
+                (value >> 24) as u8,
+                (value >> 32) as u8,
+                (value >> 40) as u8,
+                (value >> 48) as u8,
+            ])
+        }
+        72_624_976_668_147_840..=18_446_744_073_709_551_615 => {
+            value -= 72_624_976_668_147_840;
+            writer.write_all(&[
+                0b0000_0000,
+                value as u8,
+                (value >> 8) as u8,
+                (value >> 16) as u8,
+                (value >> 24) as u8,
+                (value >> 32) as u8,
+                (value >> 40) as u8,
+                (value >> 48) as u8,
+                (value >> 56) as u8,
+            ])
+        }
     }
-
-    writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
-    x >>= 8_usize.saturating_sub(size);
-
-    for _ in 0..size_minus_one {
-        writer.write_all(&[x as u8])?;
-        x >>= 8;
-    }
-
-    Ok(())
 }
 
 fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {
-    let mut buffer = [0; 9];
-    reader.read_exact(&mut buffer[0..1])?;
-    let first_byte = buffer[0];
-    let size = varint_size_from_first_byte(first_byte) as usize;
-
-    reader.read_exact(&mut buffer[1..size])?;
-
-    let mut x = u64::from(first_byte) >> size;
-    let mut bits_read = 8_usize.saturating_sub(size);
-
-    for byte in buffer.iter().skip(1) {
-        x |= u64::from(*byte) << bits_read;
-        bits_read += 8;
+    let mut first_byte_buffer = [0; 1];
+    reader.read_exact(&mut first_byte_buffer[..])?;
+    let first_byte = first_byte_buffer[0];
+    let size_minus_one = first_byte.trailing_zeros();
+    let mut remaining_bytes_buffer = [0; 8];
+    reader.read_exact(&mut remaining_bytes_buffer[0..size_minus_one as usize])?;
+    let remaining_bytes_value = u64::from_le_bytes(remaining_bytes_buffer);
+    match size_minus_one {
+        0 => Ok(u64::from(first_byte >> 1)),
+        1 => Ok(128_u64 + u64::from(first_byte >> 2) + (remaining_bytes_value << 6)),
+        2 => Ok(16_512_u64 + u64::from(first_byte >> 3) + (remaining_bytes_value << 5)),
+        3 => Ok(2_113_664_u64 + u64::from(first_byte >> 4) + (remaining_bytes_value << 4)),
+        4 => Ok(270_549_120_u64 + u64::from(first_byte >> 5) + (remaining_bytes_value << 3)),
+        5 => Ok(34_630_287_488_u64 + u64::from(first_byte >> 6) + (remaining_bytes_value << 2)),
+        6 => Ok(4_432_676_798_592_u64 + u64::from(first_byte >> 7) + (remaining_bytes_value << 1)),
+        7 => Ok(567_382_630_219_904_u64 + remaining_bytes_value),
+        _ => Ok(72_624_976_668_147_840_u64.wrapping_add(remaining_bytes_value)),
     }
-
-    for i in 1..size {
-        x = x
-            .checked_add(1_u64 << (i * 7))
-            .ok_or_else(|| Error::new(ErrorKind::InvalidData, \"Error decoding varint.\"))?;
-    }
-
-    Ok(x)
 }
 
 fn non_varint_field_header_size(index: u64, value_size: usize) -> usize {
