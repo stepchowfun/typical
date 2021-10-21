@@ -27,8 +27,8 @@ tasks:
       # Install the following packages:
       #
       # - build-essential - Used for linking the binary
-      # - curl            - Used for installing Tagref
-      # - ripgrep         - Used for line length checking
+      # - curl            - Used for installing Tagref and Rust
+      # - ripgrep         - Used for various linting tasks
       # - shellcheck      - Used for linting shell scripts
       apt-get update
       apt-get install --yes build-essential curl ripgrep shellcheck
