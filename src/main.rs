@@ -56,7 +56,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         .about("Algebraic data types for data interchange.")
         .setting(AppSettings::ColoredHelp)
         .setting(AppSettings::NextLineHelp)
-        .setting(AppSettings::SubcommandRequiredElseHelp) // [tag:subcommand_required_else_help],
+        .setting(AppSettings::SubcommandRequiredElseHelp) // [tag:subcommand_required_else_help]
         .setting(AppSettings::UnifiedHelpMessage)
         .setting(AppSettings::VersionlessSubcommands)
         .subcommand(
@@ -66,7 +66,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
                     Arg::with_name(GENERATE_SUBCOMMAND_PATH_OPTION)
                         .value_name("SCHEMA_PATH")
                         .help("Sets the path of the schema")
-                        .required(true), // [tag:generate_subcommand_path_required],
+                        .required(true), // [tag:generate_subcommand_path_required]
                 )
                 .arg(
                     Arg::with_name(GENERATE_SUBCOMMAND_RUST_OUT_FILE_OPTION)
@@ -94,7 +94,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
                     Arg::with_name(SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION)
                         .value_name("SHELL")
                         .help("Bash, Fish, Zsh, PowerShell, or Elvish")
-                        .required(true), // [tag:shell_completion_subcommand_shell_required],
+                        .required(true), // [tag:shell_completion_subcommand_shell_required]
                 ),
         )
 }
