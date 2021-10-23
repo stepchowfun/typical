@@ -105,8 +105,8 @@ fn zigzag_decode(value: u64) -> i64 {{
     }}
 }}
 
-fn varint_size_from_value(value: u64) -> u64 {{
-    let mut size = 1_u64;
+fn varint_size_from_value(value: u64) -> usize {{
+    let mut size = 1_usize;
     let mut upper_bound_exclusive = 0_u64;
 
     while size < 9 {{
@@ -136,7 +136,7 @@ fn serialize_varint<T: Write>(value: u64, writer: &mut T) -> io::Result<()> {{
     }}
 
     writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
-    x >>= 8_u64.saturating_sub(size);
+    x >>= 8_usize.saturating_sub(size);
 
     for _ in 0..size_minus_one {{
         writer.write_all(&[x as u8])?;
@@ -171,29 +171,29 @@ fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {{
     Ok(x)
 }}
 
-fn non_varint_field_header_size(index: u64, value_size: u64) -> u64 {{
+fn non_varint_field_header_size(index: u64, value_size: usize) -> usize {{
     match value_size {{
         0 => varint_size_from_value((index << 2) | 0b00),
         8 => varint_size_from_value((index << 2) | 0b01),
-        size => varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size),
+        size => varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size as u64),
     }}
 }}
 
-fn varint_field_header_size(index: u64) -> u64 {{
+fn varint_field_header_size(index: u64) -> usize {{
     varint_size_from_value((index << 2) | 0b11)
 }}
 
 fn serialize_non_varint_field_header<T: Write>(
     writer: &mut T,
     index: u64,
-    payload_size: u64,
+    payload_size: usize,
 ) -> io::Result<()> {{
     match payload_size {{
         0 => serialize_varint((index << 2) | 0b00, writer),
         8 => serialize_varint((index << 2) | 0b01, writer),
         size => {{
             serialize_varint((index << 2) | 0b10, writer)?;
-            serialize_varint(size, writer)
+            serialize_varint(size as u64, writer)
         }}
     }}
 }}
@@ -202,7 +202,7 @@ fn serialize_varint_field_header<T: Write>(writer: &mut T, index: u64) -> io::Re
     serialize_varint((index << 2) | 0b11, writer)
 }}
 
-fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {{
+fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, usize)> {{
     let tag = deserialize_varint(&mut *reader)?;
 
     let index = tag >> 2;
@@ -210,7 +210,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
     let size = match tag & 0b11 {{
         0b00 => 0,
         0b01 => 8,
-        0b10 => deserialize_varint(&mut *reader)?,
+        0b10 => deserialize_varint(&mut *reader)? as usize,
         0b11 => {{
             let buffer = (&mut *reader).fill_buf()?;
 
@@ -218,7 +218,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
                 return Err(Error::new(ErrorKind::UnexpectedEof, \"Error decoding field.\"));
             }}
 
-            u64::from(varint_size_from_first_byte(buffer[0]))
+            varint_size_from_first_byte(buffer[0]) as usize
         }}
         _ => panic!(),
     }};
@@ -238,7 +238,7 @@ fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
 }}
 
 pub trait Serialize {{
-    fn size(&self) -> u64;
+    fn size(&self) -> usize;
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
 }}
@@ -395,7 +395,7 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "fn size(&self) -> u64 {{")?;
+                writeln!(buffer, "fn size(&self) -> usize {{")?;
                 if fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "0")?;
@@ -565,7 +565,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, size);",
+                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);",
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
@@ -721,7 +721,7 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "fn size(&self) -> u64 {{")?;
+                writeln!(buffer, "fn size(&self) -> usize {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
                 // https://github.com/rust-lang/rust/issues/78123.
@@ -885,7 +885,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, size);",
+                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);",
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
@@ -1265,33 +1265,31 @@ fn write_size_calculation_invocation<T: Write>(
             | schema::TypeVariant::String => {
                 write!(
                     buffer,
-                    "payload.iter().fold(0_u64, |x, payload| {{ let payload_size = ",
+                    "payload.iter().fold(0_usize, |x, payload| {{ let payload_size = ",
                 )?;
                 write_size_calculation_invocation(buffer, supers, inner_type)?;
                 write!(buffer, "; x + ")?;
                 write_supers(buffer, supers)?;
                 write!(
                     buffer,
-                    "varint_size_from_value(payload_size) + payload_size }})",
+                    "varint_size_from_value(payload_size as u64) + payload_size }})",
                 )
             }
             schema::TypeVariant::Bool | schema::TypeVariant::S64 | schema::TypeVariant::U64 => {
-                write!(buffer, "payload.iter().fold(0_u64, |x, payload| x + ")?;
+                write!(buffer, "payload.iter().fold(0_usize, |x, payload| x + ")?;
                 write_size_calculation_invocation(buffer, supers, inner_type)?;
                 write!(buffer, ")")
             }
-            schema::TypeVariant::F64 => write!(buffer, "8_u64 * (payload.len() as u64)"),
+            schema::TypeVariant::F64 => write!(buffer, "8_usize * payload.len()"),
             schema::TypeVariant::Unit => {
                 write_supers(buffer, supers)?;
                 write!(buffer, "varint_size_from_value(payload.len() as u64)")
             }
         },
-        schema::TypeVariant::Bool => write!(buffer, "1_u64"),
-        schema::TypeVariant::Bytes | schema::TypeVariant::String => {
-            write!(buffer, "payload.len() as u64")
-        }
+        schema::TypeVariant::Bool => write!(buffer, "1_usize"),
+        schema::TypeVariant::Bytes | schema::TypeVariant::String => write!(buffer, "payload.len()"),
         schema::TypeVariant::Custom(_, _) => write!(buffer, "payload.size()"),
-        schema::TypeVariant::F64 => write!(buffer, "8_u64"),
+        schema::TypeVariant::F64 => write!(buffer, "8_usize"),
         schema::TypeVariant::S64 => {
             write_supers(buffer, supers)?;
             write!(buffer, "varint_size_from_value(")?;
@@ -1302,7 +1300,7 @@ fn write_size_calculation_invocation<T: Write>(
             write_supers(buffer, supers)?;
             write!(buffer, "varint_size_from_value(*payload)")
         }
-        schema::TypeVariant::Unit => write!(buffer, "0_u64"),
+        schema::TypeVariant::Unit => write!(buffer, "0_usize"),
     }
 }
 
@@ -1326,7 +1324,7 @@ fn write_serialization_invocation<T: Write>(
                 write_supers(buffer, supers)?;
                 write!(buffer, "serialize_varint(")?;
                 write_size_calculation_invocation(buffer, supers, inner_type)?;
-                writeln!(buffer, ", writer)?;")?;
+                writeln!(buffer, " as u64, writer)?;")?;
                 write_serialization_invocation(buffer, indentation + 1, supers, inner_type)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
@@ -1418,7 +1416,7 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(
                     buffer,
                     "let mut sub_reader = ::std::io::Read::take(\
-                            &mut sub_reader, element_size);",
+                            &mut sub_reader, element_size as u64);",
                 )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "payload.push({{")?;
@@ -1625,8 +1623,8 @@ fn zigzag_decode(value: u64) -> i64 {
     }
 }
 
-fn varint_size_from_value(value: u64) -> u64 {
-    let mut size = 1_u64;
+fn varint_size_from_value(value: u64) -> usize {
+    let mut size = 1_usize;
     let mut upper_bound_exclusive = 0_u64;
 
     while size < 9 {
@@ -1656,7 +1654,7 @@ fn serialize_varint<T: Write>(value: u64, writer: &mut T) -> io::Result<()> {
     }
 
     writer.write_all(&[((x << size) | (1_u64 << size_minus_one)) as u8])?;
-    x >>= 8_u64.saturating_sub(size);
+    x >>= 8_usize.saturating_sub(size);
 
     for _ in 0..size_minus_one {
         writer.write_all(&[x as u8])?;
@@ -1691,29 +1689,29 @@ fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {
     Ok(x)
 }
 
-fn non_varint_field_header_size(index: u64, value_size: u64) -> u64 {
+fn non_varint_field_header_size(index: u64, value_size: usize) -> usize {
     match value_size {
         0 => varint_size_from_value((index << 2) | 0b00),
         8 => varint_size_from_value((index << 2) | 0b01),
-        size => varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size),
+        size => varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size as u64),
     }
 }
 
-fn varint_field_header_size(index: u64) -> u64 {
+fn varint_field_header_size(index: u64) -> usize {
     varint_size_from_value((index << 2) | 0b11)
 }
 
 fn serialize_non_varint_field_header<T: Write>(
     writer: &mut T,
     index: u64,
-    payload_size: u64,
+    payload_size: usize,
 ) -> io::Result<()> {
     match payload_size {
         0 => serialize_varint((index << 2) | 0b00, writer),
         8 => serialize_varint((index << 2) | 0b01, writer),
         size => {
             serialize_varint((index << 2) | 0b10, writer)?;
-            serialize_varint(size, writer)
+            serialize_varint(size as u64, writer)
         }
     }
 }
@@ -1722,7 +1720,7 @@ fn serialize_varint_field_header<T: Write>(writer: &mut T, index: u64) -> io::Re
     serialize_varint((index << 2) | 0b11, writer)
 }
 
-fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)> {
+fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, usize)> {
     let tag = deserialize_varint(&mut *reader)?;
 
     let index = tag >> 2;
@@ -1730,7 +1728,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
     let size = match tag & 0b11 {
         0b00 => 0,
         0b01 => 8,
-        0b10 => deserialize_varint(&mut *reader)?,
+        0b10 => deserialize_varint(&mut *reader)? as usize,
         0b11 => {
             let buffer = (&mut *reader).fill_buf()?;
 
@@ -1738,7 +1736,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, u64)
                 return Err(Error::new(ErrorKind::UnexpectedEof, \"Error decoding field.\"));
             }
 
-            u64::from(varint_size_from_first_byte(buffer[0]))
+            varint_size_from_first_byte(buffer[0]) as usize
         }
         _ => panic!(),
     };
@@ -1758,7 +1756,7 @@ fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
 }
 
 pub trait Serialize {
-    fn size(&self) -> u64;
+    fn size(&self) -> usize;
 
     fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
 }
@@ -1784,7 +1782,7 @@ pub mod circular_dependency {
             }
 
             impl super::super::super::Serialize for StructFromBelowOut {
-                fn size(&self) -> u64 {
+                fn size(&self) -> usize {
                     ({
                         let payload = &self.x;
                         let payload_size = payload.size();
@@ -1827,7 +1825,7 @@ pub mod circular_dependency {
                             }
                         };
 
-                        let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                        let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                         match index {
                             0 => {
@@ -1876,7 +1874,7 @@ pub mod circular_dependency {
         }
 
         impl super::super::Serialize for StructFromAboveOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 0
             }
 
@@ -1904,7 +1902,7 @@ pub mod circular_dependency {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         _ => {
@@ -2004,7 +2002,7 @@ pub mod comprehensive {
         }
 
         impl super::super::Serialize for BarOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 match *self {
                     BarOut::PRequired(ref payload) => {
                         let payload_size = super::super::varint_size_from_value(payload.len() as \
@@ -2013,39 +2011,40 @@ pub mod comprehensive {
                             payload_size
                     }
                     BarOut::QRequired(ref payload) => {
-                        let payload_size = 8_u64 * (payload.len() as u64);
+                        let payload_size = 8_usize * payload.len();
                         super::super::non_varint_field_header_size(1, payload_size) +
                             payload_size
                     }
                     BarOut::RRequired(ref payload) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload)));
                         super::super::non_varint_field_header_size(2, payload_size) +
                             payload_size
                     }
                     BarOut::SRequired(ref payload) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                            payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                            payload_size = payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.len(); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size });
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size });
                         super::super::non_varint_field_header_size(3, payload_size) +
                             payload_size
                     }
                     BarOut::TRequired(ref payload) => {
-                        let payload_size = 1_u64;
+                        let payload_size = 1_usize;
                         super::super::varint_field_header_size(4) +
                             payload_size
                     }
                     BarOut::URequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(5, payload_size) +
                             payload_size
                     }
                     BarOut::VRequired(ref payload) => {
-                        let payload_size = 8_u64;
+                        let payload_size = 8_usize;
                         super::super::non_varint_field_header_size(6, payload_size) +
                             payload_size
                     }
@@ -2057,7 +2056,7 @@ pub mod comprehensive {
                             payload_size
                     }
                     BarOut::XRequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(8, payload_size) +
                             payload_size
                     }
@@ -2067,7 +2066,7 @@ pub mod comprehensive {
                             payload_size
                     }
                     BarOut::ZRequired => {
-                        let payload_size = 0_u64;
+                        let payload_size = 0_usize;
                         super::super::non_varint_field_header_size(10, payload_size) +
                             payload_size
                     }
@@ -2079,13 +2078,13 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::QAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = 8_u64 * (payload.len() as u64);
+                        let payload_size = 8_usize * payload.len();
                         super::super::non_varint_field_header_size(12, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::RAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload)));
                         super::super::non_varint_field_header_size(13, payload_size) +
@@ -2093,30 +2092,31 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::SAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                            payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                            payload_size = payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.len(); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size });
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size });
                         super::super::non_varint_field_header_size(14, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::TAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = 1_u64;
+                        let payload_size = 1_usize;
                         super::super::varint_field_header_size(15) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::UAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(16, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::VAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = 8_u64;
+                        let payload_size = 8_usize;
                         super::super::non_varint_field_header_size(17, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2130,7 +2130,7 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::XAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(19, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2142,7 +2142,7 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::ZAsymmetric(ref fallback) => {
-                        let payload_size = 0_u64;
+                        let payload_size = 0_usize;
                         super::super::non_varint_field_header_size(21, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2155,13 +2155,13 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::QOptional(ref payload, ref fallback) => {
-                        let payload_size = 8_u64 * (payload.len() as u64);
+                        let payload_size = 8_usize * payload.len();
                         super::super::non_varint_field_header_size(23, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::ROptional(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload)));
                         super::super::non_varint_field_header_size(24, payload_size) +
@@ -2169,30 +2169,31 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::SOptional(ref payload, ref fallback) => {
-                        let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                            payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                            payload_size = payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.len(); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size });
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size });
                         super::super::non_varint_field_header_size(25, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::TOptional(ref payload, ref fallback) => {
-                        let payload_size = 1_u64;
+                        let payload_size = 1_usize;
                         super::super::varint_field_header_size(26) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::UOptional(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(27, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     BarOut::VOptional(ref payload, ref fallback) => {
-                        let payload_size = 8_u64;
+                        let payload_size = 8_usize;
                         super::super::non_varint_field_header_size(28, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2206,7 +2207,7 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::XOptional(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(30, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2218,7 +2219,7 @@ pub mod comprehensive {
                             fallback.size()
                     }
                     BarOut::ZOptional(ref fallback) => {
-                        let payload_size = 0_u64;
+                        let payload_size = 0_usize;
                         super::super::non_varint_field_header_size(32, payload_size) +
                             payload_size +
                             fallback.size()
@@ -2235,8 +2236,8 @@ pub mod comprehensive {
                         Ok(())
                     }
                     BarOut::QRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 1, 8_u64 * \
-                            (payload.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 1, 8_usize * \
+                            payload.len())?;
                         for payload in payload {
                             writer.write_all(&payload.to_le_bytes())?;
                         }
@@ -2244,7 +2245,7 @@ pub mod comprehensive {
                     }
                     BarOut::RRequired(ref payload) => {
                         super::super::serialize_non_varint_field_header(writer, 2, \
-                            payload.iter().fold(0_u64, |x, payload| x + \
+                            payload.iter().fold(0_usize, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload))))?;
                         for payload in payload {
@@ -2255,17 +2256,17 @@ pub mod comprehensive {
                     }
                     BarOut::SRequired(ref payload) => {
                         super::super::serialize_non_varint_field_header(writer, 3, \
-                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
-                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
-                            payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + \
-                            payload_size }); x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size }))?;
+                            payload.iter().fold(0_usize, |x, payload| { let payload_size = \
+                            payload.iter().fold(0_usize, |x, payload| { let payload_size = \
+                            payload.len(); x + super::super::varint_size_from_value(payload_size \
+                            as u64) + payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size }))?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, \
-                                payload| { let payload_size = payload.len() as u64; x + \
-                                super::super::varint_size_from_value(payload_size) + \
-                                payload_size }), writer)?;
+                            super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
+                                payload| { let payload_size = payload.len(); x + \
+                                super::super::varint_size_from_value(payload_size as u64) + \
+                                payload_size }) as u64, writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2279,13 +2280,12 @@ pub mod comprehensive {
                         Ok(())
                     }
                     BarOut::URequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 5, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 5, payload.len())?;
                         writer.write_all(payload)?;
                         Ok(())
                     }
                     BarOut::VRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 6, 8_u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 6, 8_usize)?;
                         writer.write_all(&payload.to_le_bytes())?;
                         Ok(())
                     }
@@ -2296,8 +2296,7 @@ pub mod comprehensive {
                         Ok(())
                     }
                     BarOut::XRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 8, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 8, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
@@ -2307,7 +2306,7 @@ pub mod comprehensive {
                         Ok(())
                     }
                     BarOut::ZRequired => {
-                        super::super::serialize_non_varint_field_header(writer, 10, 0_u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 10, 0_usize)?;
                         ();
                         Ok(())
                     }
@@ -2318,8 +2317,8 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::QAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 12, 8_u64 * \
-                            (payload.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 12, 8_usize * \
+                            payload.len())?;
                         for payload in payload {
                             writer.write_all(&payload.to_le_bytes())?;
                         }
@@ -2327,7 +2326,7 @@ pub mod comprehensive {
                     }
                     BarOut::RAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 13, \
-                            payload.iter().fold(0_u64, |x, payload| x + \
+                            payload.iter().fold(0_usize, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload))))?;
                         for payload in payload {
@@ -2338,17 +2337,17 @@ pub mod comprehensive {
                     }
                     BarOut::SAsymmetric(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 14, \
-                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
-                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
-                            payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + \
-                            payload_size }); x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size }))?;
+                            payload.iter().fold(0_usize, |x, payload| { let payload_size = \
+                            payload.iter().fold(0_usize, |x, payload| { let payload_size = \
+                            payload.len(); x + super::super::varint_size_from_value(payload_size \
+                            as u64) + payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size }))?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, \
-                                payload| { let payload_size = payload.len() as u64; x + \
-                                super::super::varint_size_from_value(payload_size) + \
-                                payload_size }), writer)?;
+                            super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
+                                payload| { let payload_size = payload.len(); x + \
+                                super::super::varint_size_from_value(payload_size as u64) + \
+                                payload_size }) as u64, writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2362,13 +2361,13 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::UAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 16, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 16, \
+                            payload.len())?;
                         writer.write_all(payload)?;
                         fallback.serialize(writer)
                     }
                     BarOut::VAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 17, 8_u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 17, 8_usize)?;
                         writer.write_all(&payload.to_le_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -2379,8 +2378,8 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::XAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 19, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 19, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -2390,7 +2389,7 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::ZAsymmetric(ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 21, 0_u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 21, 0_usize)?;
                         ();
                         fallback.serialize(writer)
                     }
@@ -2401,8 +2400,8 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::QOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 23, 8_u64 * \
-                            (payload.len() as u64))?;
+                        super::super::serialize_non_varint_field_header(writer, 23, 8_usize * \
+                            payload.len())?;
                         for payload in payload {
                             writer.write_all(&payload.to_le_bytes())?;
                         }
@@ -2410,7 +2409,7 @@ pub mod comprehensive {
                     }
                     BarOut::ROptional(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 24, \
-                            payload.iter().fold(0_u64, |x, payload| x + \
+                            payload.iter().fold(0_usize, |x, payload| x + \
                             super::super::varint_size_from_value(super::super::zigzag_encode(*\
                             payload))))?;
                         for payload in payload {
@@ -2421,17 +2420,17 @@ pub mod comprehensive {
                     }
                     BarOut::SOptional(ref payload, ref fallback) => {
                         super::super::serialize_non_varint_field_header(writer, 25, \
-                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
-                            payload.iter().fold(0_u64, |x, payload| { let payload_size = \
-                            payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + \
-                            payload_size }); x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size }))?;
+                            payload.iter().fold(0_usize, |x, payload| { let payload_size = \
+                            payload.iter().fold(0_usize, |x, payload| { let payload_size = \
+                            payload.len(); x + super::super::varint_size_from_value(payload_size \
+                            as u64) + payload_size }); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size }))?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_u64, |x, \
-                                payload| { let payload_size = payload.len() as u64; x + \
-                                super::super::varint_size_from_value(payload_size) + \
-                                payload_size }), writer)?;
+                            super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
+                                payload| { let payload_size = payload.len(); x + \
+                                super::super::varint_size_from_value(payload_size as u64) + \
+                                payload_size }) as u64, writer)?;
                             for payload in payload {
                                 super::super::serialize_varint(payload.len() as u64, writer)?;
                                 writer.write_all(payload.as_bytes())?;
@@ -2445,13 +2444,13 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::UOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 27, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 27, \
+                            payload.len())?;
                         writer.write_all(payload)?;
                         fallback.serialize(writer)
                     }
                     BarOut::VOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 28, 8_u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 28, 8_usize)?;
                         writer.write_all(&payload.to_le_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -2462,8 +2461,8 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::XOptional(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 30, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 30, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -2473,7 +2472,7 @@ pub mod comprehensive {
                         fallback.serialize(writer)
                     }
                     BarOut::ZOptional(ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 32, 0_u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 32, 0_usize)?;
                         ();
                         fallback.serialize(writer)
                     }
@@ -2490,7 +2489,7 @@ pub mod comprehensive {
                 loop {
                     let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -2567,7 +2566,7 @@ pub mod comprehensive {
                                 };
 
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
-                                    element_size);
+                                    element_size as u64);
                                 payload.push({
                                     let mut payload = Vec::new();
 
@@ -2586,7 +2585,7 @@ pub mod comprehensive {
                                         };
 
                                         let mut sub_reader = ::std::io::Read::take(&mut \
-                                            sub_reader, element_size);
+                                            sub_reader, element_size as u64);
                                         payload.push({
                                             let mut buffer = vec![];
                                             ::std::io::Read::read_to_end(&mut sub_reader, &mut \
@@ -2718,7 +2717,7 @@ pub mod comprehensive {
                                 };
 
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
-                                    element_size);
+                                    element_size as u64);
                                 payload.push({
                                     let mut payload = Vec::new();
 
@@ -2737,7 +2736,7 @@ pub mod comprehensive {
                                         };
 
                                         let mut sub_reader = ::std::io::Read::take(&mut \
-                                            sub_reader, element_size);
+                                            sub_reader, element_size as u64);
                                         payload.push({
                                             let mut buffer = vec![];
                                             ::std::io::Read::read_to_end(&mut sub_reader, &mut \
@@ -2875,7 +2874,7 @@ pub mod comprehensive {
                                 };
 
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
-                                    element_size);
+                                    element_size as u64);
                                 payload.push({
                                     let mut payload = Vec::new();
 
@@ -2894,7 +2893,7 @@ pub mod comprehensive {
                                         };
 
                                         let mut sub_reader = ::std::io::Read::take(&mut \
-                                            sub_reader, element_size);
+                                            sub_reader, element_size as u64);
                                         payload.push({
                                             let mut buffer = vec![];
                                             ::std::io::Read::read_to_end(&mut sub_reader, &mut \
@@ -3103,40 +3102,41 @@ pub mod comprehensive {
         }
 
         impl super::super::Serialize for FooOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 ({
                     let payload = &self.p_required;
                     let payload_size = super::super::varint_size_from_value(payload.len() as u64);
                     super::super::non_varint_field_header_size(0, payload_size) + payload_size
                 }) + ({
                     let payload = &self.q_required;
-                    let payload_size = 8_u64 * (payload.len() as u64);
+                    let payload_size = 8_usize * payload.len();
                     super::super::non_varint_field_header_size(1, payload_size) + payload_size
                 }) + ({
                     let payload = &self.r_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::non_varint_field_header_size(2, payload_size) + payload_size
                 }) + ({
                     let payload = &self.s_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.len() as u64; x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size });
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.len(); x + \
+                        super::super::varint_size_from_value(payload_size as u64) + \
+                        payload_size }); x + super::super::varint_size_from_value(payload_size as \
+                        u64) + payload_size });
                     super::super::non_varint_field_header_size(3, payload_size) + payload_size
                 }) + ({
                     let payload = &self.t_required;
-                    let payload_size = 1_u64;
+                    let payload_size = 1_usize;
                     super::super::varint_field_header_size(4) + payload_size
                 }) + ({
                     let payload = &self.u_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(5, payload_size) + payload_size
                 }) + ({
                     let payload = &self.v_required;
-                    let payload_size = 8_u64;
+                    let payload_size = 8_usize;
                     super::super::non_varint_field_header_size(6, payload_size) + payload_size
                 }) + ({
                     let payload = &self.w_required;
@@ -3146,7 +3146,7 @@ pub mod comprehensive {
                     super::super::varint_field_header_size(7) + payload_size
                 }) + ({
                     let payload = &self.x_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(8, payload_size) + payload_size
                 }) + ({
                     let payload = &self.y_required;
@@ -3154,7 +3154,7 @@ pub mod comprehensive {
                     super::super::varint_field_header_size(9) + payload_size
                 }) + ({
                     let payload = &self.z_required;
-                    let payload_size = 0_u64;
+                    let payload_size = 0_usize;
                     super::super::non_varint_field_header_size(10, payload_size) + payload_size
                 }) + ({
                     let payload = &self.p_asymmetric;
@@ -3162,33 +3162,34 @@ pub mod comprehensive {
                     super::super::non_varint_field_header_size(11, payload_size) + payload_size
                 }) + ({
                     let payload = &self.q_asymmetric;
-                    let payload_size = 8_u64 * (payload.len() as u64);
+                    let payload_size = 8_usize * payload.len();
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
                 }) + ({
                     let payload = &self.r_asymmetric;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + ({
                     let payload = &self.s_asymmetric;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.len() as u64; x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size });
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.len(); x + \
+                        super::super::varint_size_from_value(payload_size as u64) + \
+                        payload_size }); x + super::super::varint_size_from_value(payload_size as \
+                        u64) + payload_size });
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + ({
                     let payload = &self.t_asymmetric;
-                    let payload_size = 1_u64;
+                    let payload_size = 1_usize;
                     super::super::varint_field_header_size(15) + payload_size
                 }) + ({
                     let payload = &self.u_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(16, payload_size) + payload_size
                 }) + ({
                     let payload = &self.v_asymmetric;
-                    let payload_size = 8_u64;
+                    let payload_size = 8_usize;
                     super::super::non_varint_field_header_size(17, payload_size) + payload_size
                 }) + ({
                     let payload = &self.w_asymmetric;
@@ -3198,7 +3199,7 @@ pub mod comprehensive {
                     super::super::varint_field_header_size(18) + payload_size
                 }) + ({
                     let payload = &self.x_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(19, payload_size) + payload_size
                 }) + ({
                     let payload = &self.y_asymmetric;
@@ -3206,34 +3207,35 @@ pub mod comprehensive {
                     super::super::varint_field_header_size(20) + payload_size
                 }) + ({
                     let payload = &self.z_asymmetric;
-                    let payload_size = 0_u64;
+                    let payload_size = 0_usize;
                     super::super::non_varint_field_header_size(21, payload_size) + payload_size
                 }) + self.p_optional.as_ref().map_or(0, |payload| {
                     let payload_size = super::super::varint_size_from_value(payload.len() as u64);
                     super::super::non_varint_field_header_size(22, payload_size) + payload_size
                 }) + self.q_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = 8_u64 * (payload.len() as u64);
+                    let payload_size = 8_usize * payload.len();
                     super::super::non_varint_field_header_size(23, payload_size) + payload_size
                 }) + self.r_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::non_varint_field_header_size(24, payload_size) + payload_size
                 }) + self.s_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.len() as u64; x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size });
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.len(); x + \
+                        super::super::varint_size_from_value(payload_size as u64) + \
+                        payload_size }); x + super::super::varint_size_from_value(payload_size as \
+                        u64) + payload_size });
                     super::super::non_varint_field_header_size(25, payload_size) + payload_size
                 }) + self.t_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = 1_u64;
+                    let payload_size = 1_usize;
                     super::super::varint_field_header_size(26) + payload_size
                 }) + self.u_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(27, payload_size) + payload_size
                 }) + self.v_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = 8_u64;
+                    let payload_size = 8_usize;
                     super::super::non_varint_field_header_size(28, payload_size) + payload_size
                 }) + self.w_optional.as_ref().map_or(0, |payload| {
                     let payload_size = \
@@ -3241,13 +3243,13 @@ pub mod comprehensive {
                         ));
                     super::super::varint_field_header_size(29) + payload_size
                 }) + self.x_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(30, payload_size) + payload_size
                 }) + self.y_optional.as_ref().map_or(0, |payload| {
                     let payload_size = super::super::varint_size_from_value(*payload);
                     super::super::varint_field_header_size(31) + payload_size
                 }) + self.z_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = 0_u64;
+                    let payload_size = 0_usize;
                     super::super::non_varint_field_header_size(32, payload_size) + payload_size
                 })
             }
@@ -3262,7 +3264,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.q_required;
-                    let payload_size = 8_u64 * (payload.len() as u64);
+                    let payload_size = 8_usize * payload.len();
                     super::super::serialize_non_varint_field_header(writer, 1, payload_size)?;
                     for payload in payload {
                         writer.write_all(&payload.to_le_bytes())?;
@@ -3271,7 +3273,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.r_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::serialize_non_varint_field_header(writer, 2, payload_size)?;
@@ -3283,17 +3285,18 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.s_required;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.len() as u64; x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size });
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.len(); x + \
+                        super::super::varint_size_from_value(payload_size as u64) + \
+                        payload_size }); x + super::super::varint_size_from_value(payload_size as \
+                        u64) + payload_size });
                     super::super::serialize_non_varint_field_header(writer, 3, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { \
-                            let payload_size = payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size }), \
-                            writer)?;
+                        super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
+                            payload| { let payload_size = payload.len(); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size }) as u64, writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3303,21 +3306,21 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.t_required;
-                    let payload_size = 1_u64;
+                    let payload_size = 1_usize;
                     super::super::serialize_varint_field_header(writer, 4)?;
                     super::super::serialize_varint(*payload as u64, writer)?;
                 }
 
                 {
                     let payload = &self.u_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 5, payload_size)?;
                     writer.write_all(payload)?;
                 }
 
                 {
                     let payload = &self.v_required;
-                    let payload_size = 8_u64;
+                    let payload_size = 8_usize;
                     super::super::serialize_non_varint_field_header(writer, 6, payload_size)?;
                     writer.write_all(&payload.to_le_bytes())?;
                 }
@@ -3333,7 +3336,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.x_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 8, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
@@ -3347,7 +3350,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.z_required;
-                    let payload_size = 0_u64;
+                    let payload_size = 0_usize;
                     super::super::serialize_non_varint_field_header(writer, 10, payload_size)?;
                     ();
                 }
@@ -3361,7 +3364,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.q_asymmetric;
-                    let payload_size = 8_u64 * (payload.len() as u64);
+                    let payload_size = 8_usize * payload.len();
                     super::super::serialize_non_varint_field_header(writer, 12, payload_size)?;
                     for payload in payload {
                         writer.write_all(&payload.to_le_bytes())?;
@@ -3370,7 +3373,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.r_asymmetric;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::serialize_non_varint_field_header(writer, 13, payload_size)?;
@@ -3382,17 +3385,18 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.s_asymmetric;
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.len() as u64; x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size });
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.len(); x + \
+                        super::super::varint_size_from_value(payload_size as u64) + \
+                        payload_size }); x + super::super::varint_size_from_value(payload_size as \
+                        u64) + payload_size });
                     super::super::serialize_non_varint_field_header(writer, 14, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { \
-                            let payload_size = payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size }), \
-                            writer)?;
+                        super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
+                            payload| { let payload_size = payload.len(); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size }) as u64, writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3402,21 +3406,21 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.t_asymmetric;
-                    let payload_size = 1_u64;
+                    let payload_size = 1_usize;
                     super::super::serialize_varint_field_header(writer, 15)?;
                     super::super::serialize_varint(*payload as u64, writer)?;
                 }
 
                 {
                     let payload = &self.u_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 16, payload_size)?;
                     writer.write_all(payload)?;
                 }
 
                 {
                     let payload = &self.v_asymmetric;
-                    let payload_size = 8_u64;
+                    let payload_size = 8_usize;
                     super::super::serialize_non_varint_field_header(writer, 17, payload_size)?;
                     writer.write_all(&payload.to_le_bytes())?;
                 }
@@ -3432,7 +3436,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.x_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 19, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
@@ -3446,7 +3450,7 @@ pub mod comprehensive {
 
                 {
                     let payload = &self.z_asymmetric;
-                    let payload_size = 0_u64;
+                    let payload_size = 0_usize;
                     super::super::serialize_non_varint_field_header(writer, 21, payload_size)?;
                     ();
                 }
@@ -3458,7 +3462,7 @@ pub mod comprehensive {
                 }
 
                 if let Some(payload) = &self.q_optional {
-                    let payload_size = 8_u64 * (payload.len() as u64);
+                    let payload_size = 8_usize * payload.len();
                     super::super::serialize_non_varint_field_header(writer, 23, payload_size)?;
                     for payload in payload {
                         writer.write_all(&payload.to_le_bytes())?;
@@ -3466,7 +3470,7 @@ pub mod comprehensive {
                 }
 
                 if let Some(payload) = &self.r_optional {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| x + \
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| x + \
                         super::super::varint_size_from_value(super::super::zigzag_encode(*payload\
                         )));
                     super::super::serialize_non_varint_field_header(writer, 24, payload_size)?;
@@ -3477,17 +3481,18 @@ pub mod comprehensive {
                 }
 
                 if let Some(payload) = &self.s_optional {
-                    let payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.iter().fold(0_u64, |x, payload| { let \
-                        payload_size = payload.len() as u64; x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size }); x + \
-                        super::super::varint_size_from_value(payload_size) + payload_size });
+                    let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                        payload_size = payload.len(); x + \
+                        super::super::varint_size_from_value(payload_size as u64) + \
+                        payload_size }); x + super::super::varint_size_from_value(payload_size as \
+                        u64) + payload_size });
                     super::super::serialize_non_varint_field_header(writer, 25, payload_size)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_u64, |x, payload| { \
-                            let payload_size = payload.len() as u64; x + \
-                            super::super::varint_size_from_value(payload_size) + payload_size }), \
-                            writer)?;
+                        super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
+                            payload| { let payload_size = payload.len(); x + \
+                            super::super::varint_size_from_value(payload_size as u64) + \
+                            payload_size }) as u64, writer)?;
                         for payload in payload {
                             super::super::serialize_varint(payload.len() as u64, writer)?;
                             writer.write_all(payload.as_bytes())?;
@@ -3496,19 +3501,19 @@ pub mod comprehensive {
                 }
 
                 if let Some(payload) = &self.t_optional {
-                    let payload_size = 1_u64;
+                    let payload_size = 1_usize;
                     super::super::serialize_varint_field_header(writer, 26)?;
                     super::super::serialize_varint(*payload as u64, writer)?;
                 }
 
                 if let Some(payload) = &self.u_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 27, payload_size)?;
                     writer.write_all(payload)?;
                 }
 
                 if let Some(payload) = &self.v_optional {
-                    let payload_size = 8_u64;
+                    let payload_size = 8_usize;
                     super::super::serialize_non_varint_field_header(writer, 28, payload_size)?;
                     writer.write_all(&payload.to_le_bytes())?;
                 }
@@ -3522,7 +3527,7 @@ pub mod comprehensive {
                 }
 
                 if let Some(payload) = &self.x_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 30, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
@@ -3534,7 +3539,7 @@ pub mod comprehensive {
                 }
 
                 if let Some(payload) = &self.z_optional {
-                    let payload_size = 0_u64;
+                    let payload_size = 0_usize;
                     super::super::serialize_non_varint_field_header(writer, 32, payload_size)?;
                     ();
                 }
@@ -3596,7 +3601,7 @@ pub mod comprehensive {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -3676,7 +3681,7 @@ pub mod comprehensive {
                                 };
 
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
-                                    element_size);
+                                    element_size as u64);
                                 payload.push({
                                     let mut payload = Vec::new();
 
@@ -3695,7 +3700,7 @@ pub mod comprehensive {
                                         };
 
                                         let mut sub_reader = ::std::io::Read::take(&mut \
-                                            sub_reader, element_size);
+                                            sub_reader, element_size as u64);
                                         payload.push({
                                             let mut buffer = vec![];
                                             ::std::io::Read::read_to_end(&mut sub_reader, &mut \
@@ -3838,7 +3843,7 @@ pub mod comprehensive {
                                 };
 
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
-                                    element_size);
+                                    element_size as u64);
                                 payload.push({
                                     let mut payload = Vec::new();
 
@@ -3857,7 +3862,7 @@ pub mod comprehensive {
                                         };
 
                                         let mut sub_reader = ::std::io::Read::take(&mut \
-                                            sub_reader, element_size);
+                                            sub_reader, element_size as u64);
                                         payload.push({
                                             let mut buffer = vec![];
                                             ::std::io::Read::read_to_end(&mut sub_reader, &mut \
@@ -4000,7 +4005,7 @@ pub mod comprehensive {
                                 };
 
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, \
-                                    element_size);
+                                    element_size as u64);
                                 payload.push({
                                     let mut payload = Vec::new();
 
@@ -4019,7 +4024,7 @@ pub mod comprehensive {
                                         };
 
                                         let mut sub_reader = ::std::io::Read::take(&mut \
-                                            sub_reader, element_size);
+                                            sub_reader, element_size as u64);
                                         payload.push({
                                             let mut buffer = vec![];
                                             ::std::io::Read::read_to_end(&mut sub_reader, &mut \
@@ -4190,7 +4195,7 @@ pub mod comprehensive {
         }
 
         impl super::super::Serialize for EmptyChoiceOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 match *self {
                 }
             }
@@ -4210,7 +4215,7 @@ pub mod comprehensive {
                 loop {
                     let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         _ => {
@@ -4237,7 +4242,7 @@ pub mod comprehensive {
         }
 
         impl super::super::Serialize for EmptyStructOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 0
             }
 
@@ -4265,7 +4270,7 @@ pub mod comprehensive {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         _ => {
@@ -4299,7 +4304,7 @@ pub mod comprehensive {
         }
 
         impl super::super::Serialize for FooAndBarOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 ({
                     let payload = &self.x;
                     let payload_size = payload.size();
@@ -4352,7 +4357,7 @@ pub mod comprehensive {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -4409,7 +4414,7 @@ pub mod comprehensive {
         }
 
         impl super::super::Serialize for FooOrBarOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 match *self {
                     FooOrBarOut::X(ref payload) => {
                         let payload_size = payload.size();
@@ -4451,7 +4456,7 @@ pub mod comprehensive {
                 loop {
                     let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -4525,84 +4530,84 @@ pub mod schema_evolution {
         }
 
         impl super::super::Serialize for ExampleChoiceOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 match *self {
                     ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(0, payload_size) +
                             payload_size
                     }
                     ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(1, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(5, payload_size) +
                             payload_size
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(6, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(7, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(8, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(10, payload_size) +
                             payload_size
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(11, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(12, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(13, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::NonexistentToRequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(15, payload_size) +
                             payload_size
                     }
                     ExampleChoiceOut::NonexistentToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(16, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::NonexistentToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(17, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::NonexistentToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(18, payload_size) +
                             payload_size +
                             fallback.size()
@@ -4613,86 +4618,80 @@ pub mod schema_evolution {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 match *self {
                     ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 0, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 0, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 1, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 1, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 5, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 5, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 6, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 6, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 7, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 7, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 8, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 8, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 10, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 10, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 11, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 11, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 12, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 12, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 13, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 13, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::NonexistentToRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 15, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 15, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::NonexistentToAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 16, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 16, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::NonexistentToOptionalHandled(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 17, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 17, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::NonexistentToOptionalFallback(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 18, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 18, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -4709,7 +4708,7 @@ pub mod schema_evolution {
                 loop {
                     let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -4940,53 +4939,53 @@ pub mod schema_evolution {
         }
 
         impl super::super::Serialize for ExampleStructOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 ({
                     let payload = &self.required_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(0, payload_size) + payload_size
                 }) + ({
                     let payload = &self.required_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(1, payload_size) + payload_size
                 }) + self.required_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(2, payload_size) + payload_size
                 }) + ({
                     let payload = &self.asymmetric_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(4, payload_size) + payload_size
                 }) + ({
                     let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(5, payload_size) + payload_size
                 }) + self.asymmetric_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(6, payload_size) + payload_size
                 }) + ({
                     let payload = &self.optional_none_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(9, payload_size) + payload_size
                 }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(10, payload_size) + payload_size
                 }) + ({
                     let payload = &self.optional_some_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
                 }) + ({
                     let payload = &self.optional_some_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + ({
                     let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(17, payload_size) + payload_size
                 }) + self.nonexistent_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(18, payload_size) + payload_size
                 })
             }
@@ -4994,86 +4993,86 @@ pub mod schema_evolution {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 {
                     let payload = &self.required_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 0, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.required_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 1, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.required_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 2, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.asymmetric_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 4, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 5, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.asymmetric_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 6, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.optional_none_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 9, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_none_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 10, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.optional_some_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 12, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.optional_some_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 13, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_some_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 14, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 17, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.nonexistent_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 18, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
@@ -5115,7 +5114,7 @@ pub mod schema_evolution {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -5340,74 +5339,74 @@ pub mod schema_evolution {
         }
 
         impl super::super::Serialize for ExampleChoiceOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 match *self {
                     ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(0, payload_size) +
                             payload_size
                     }
                     ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(1, payload_size) +
                             payload_size
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(5, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(6, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(7, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(8, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(9, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(10, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(11, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(12, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(13, payload_size) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(14, payload_size) +
                             payload_size +
                             fallback.size()
@@ -5418,74 +5417,67 @@ pub mod schema_evolution {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 match *self {
                     ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 0, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 0, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 1, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 1, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 5, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 5, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 6, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 6, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 7, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 7, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 8, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 8, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 9, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 9, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 10, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 10, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 11, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 11, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 12, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 12, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 13, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 13, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
-                        super::super::serialize_non_varint_field_header(writer, 14, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 14, \
+                            payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -5502,7 +5494,7 @@ pub mod schema_evolution {
                 loop {
                     let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -5708,59 +5700,59 @@ pub mod schema_evolution {
         }
 
         impl super::super::Serialize for ExampleStructOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 ({
                     let payload = &self.required_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(0, payload_size) + payload_size
                 }) + ({
                     let payload = &self.required_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(1, payload_size) + payload_size
                 }) + ({
                     let payload = &self.required_to_optional;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(2, payload_size) + payload_size
                 }) + ({
                     let payload = &self.required_to_nonexistent;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(3, payload_size) + payload_size
                 }) + ({
                     let payload = &self.asymmetric_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(4, payload_size) + payload_size
                 }) + ({
                     let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(5, payload_size) + payload_size
                 }) + ({
                     let payload = &self.asymmetric_to_optional;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(6, payload_size) + payload_size
                 }) + ({
                     let payload = &self.asymmetric_to_nonexistent;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(7, payload_size) + payload_size
                 }) + self.optional_none_to_asymmetric.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(9, payload_size) + payload_size
                 }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(10, payload_size) + payload_size
                 }) + self.optional_none_to_nonexistent.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(11, payload_size) + payload_size
                 }) + self.optional_some_to_required.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(12, payload_size) + payload_size
                 }) + self.optional_some_to_asymmetric.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(13, payload_size) + payload_size
                 }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(14, payload_size) + payload_size
                 }) + self.optional_some_to_nonexistent.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(15, payload_size) + payload_size
                 })
             }
@@ -5768,98 +5760,98 @@ pub mod schema_evolution {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 {
                     let payload = &self.required_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 0, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.required_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 1, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.required_to_optional;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 2, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.required_to_nonexistent;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 3, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.asymmetric_to_required;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 4, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 5, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.asymmetric_to_optional;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 6, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
                     let payload = &self.asymmetric_to_nonexistent;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 7, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_none_to_asymmetric {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 9, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_none_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 10, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_none_to_nonexistent {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 11, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_some_to_required {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 12, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_some_to_asymmetric {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 13, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_some_to_optional {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 14, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 if let Some(payload) = &self.optional_some_to_nonexistent {
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 15, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
@@ -5903,7 +5895,7 @@ pub mod schema_evolution {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -6132,10 +6124,10 @@ pub mod schema_evolution {
         }
 
         impl super::super::Serialize for SingletonChoiceOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 match *self {
                     SingletonChoiceOut::X(ref payload) => {
-                        let payload_size = payload.len() as u64;
+                        let payload_size = payload.len();
                         super::super::non_varint_field_header_size(0, payload_size) +
                             payload_size
                     }
@@ -6145,8 +6137,7 @@ pub mod schema_evolution {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 match *self {
                     SingletonChoiceOut::X(ref payload) => {
-                        super::super::serialize_non_varint_field_header(writer, 0, payload.len() \
-                            as u64)?;
+                        super::super::serialize_non_varint_field_header(writer, 0, payload.len())?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
@@ -6163,7 +6154,7 @@ pub mod schema_evolution {
                 loop {
                     let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
@@ -6202,10 +6193,10 @@ pub mod schema_evolution {
         }
 
         impl super::super::Serialize for SingletonStructOut {
-            fn size(&self) -> u64 {
+            fn size(&self) -> usize {
                 ({
                     let payload = &self.x;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::non_varint_field_header_size(0, payload_size) + payload_size
                 })
             }
@@ -6213,7 +6204,7 @@ pub mod schema_evolution {
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 {
                     let payload = &self.x;
-                    let payload_size = payload.len() as u64;
+                    let payload_size = payload.len();
                     super::super::serialize_non_varint_field_header(writer, 0, payload_size)?;
                     writer.write_all(payload.as_bytes())?;
                 }
@@ -6243,7 +6234,7 @@ pub mod schema_evolution {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
 
                     match index {
                         0 => {
