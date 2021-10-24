@@ -94,15 +94,11 @@ use std::{{
 }};
 
 fn zigzag_encode(value: i64) -> u64 {{
-    unsafe {{
-        transmute::<i64, u64>(value >> 63) ^ transmute::<i64, u64>(value << 1)
-    }}
+    unsafe {{ transmute::<i64, u64>(value >> 63) ^ transmute::<i64, u64>(value << 1) }}
 }}
 
 fn zigzag_decode(value: u64) -> i64 {{
-    unsafe {{
-        transmute::<u64, i64>(value >> 1) ^ -transmute::<u64, i64>(value & 1)
-    }}
+    unsafe {{ transmute::<u64, i64>(value >> 1) ^ -transmute::<u64, i64>(value & 1) }}
 }}
 
 fn varint_size_from_value(value: u64) -> usize {{
@@ -125,15 +121,10 @@ fn varint_size_from_first_byte(first_byte: u8) -> u32 {{
 
 fn serialize_varint<T: Write>(mut value: u64, writer: &mut T) -> io::Result<()> {{
     match value {{
-        0..=127 => {{
-            writer.write_all(&[((value << 1) as u8) | 0b0000_0001])
-        }}
+        0..=127 => writer.write_all(&[((value << 1) as u8) | 0b0000_0001]),
         128..=16_511 => {{
             value -= 128;
-            writer.write_all(&[
-                ((value << 2) as u8) | 0b0000_0010,
-                (value >> 6) as u8,
-            ])
+            writer.write_all(&[((value << 2) as u8) | 0b0000_0010, (value >> 6) as u8])
         }}
         16_512..=2_113_663 => {{
             value -= 16_512;
@@ -280,7 +271,10 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, usiz
             let buffer = (&mut *reader).fill_buf()?;
 
             if buffer.is_empty() {{
-                return Err(Error::new(ErrorKind::UnexpectedEof, \"Error decoding field.\"));
+                return Err(Error::new(
+                    ErrorKind::UnexpectedEof,
+                    \"Error decoding field.\",
+                ));
             }}
 
             varint_size_from_first_byte(buffer[0]) as usize
@@ -1677,15 +1671,11 @@ use std::{
 };
 
 fn zigzag_encode(value: i64) -> u64 {
-    unsafe {
-        transmute::<i64, u64>(value >> 63) ^ transmute::<i64, u64>(value << 1)
-    }
+    unsafe { transmute::<i64, u64>(value >> 63) ^ transmute::<i64, u64>(value << 1) }
 }
 
 fn zigzag_decode(value: u64) -> i64 {
-    unsafe {
-        transmute::<u64, i64>(value >> 1) ^ -transmute::<u64, i64>(value & 1)
-    }
+    unsafe { transmute::<u64, i64>(value >> 1) ^ -transmute::<u64, i64>(value & 1) }
 }
 
 fn varint_size_from_value(value: u64) -> usize {
@@ -1708,15 +1698,10 @@ fn varint_size_from_first_byte(first_byte: u8) -> u32 {
 
 fn serialize_varint<T: Write>(mut value: u64, writer: &mut T) -> io::Result<()> {
     match value {
-        0..=127 => {
-            writer.write_all(&[((value << 1) as u8) | 0b0000_0001])
-        }
+        0..=127 => writer.write_all(&[((value << 1) as u8) | 0b0000_0001]),
         128..=16_511 => {
             value -= 128;
-            writer.write_all(&[
-                ((value << 2) as u8) | 0b0000_0010,
-                (value >> 6) as u8,
-            ])
+            writer.write_all(&[((value << 2) as u8) | 0b0000_0010, (value >> 6) as u8])
         }
         16_512..=2_113_663 => {
             value -= 16_512;
@@ -1863,7 +1848,10 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, usiz
             let buffer = (&mut *reader).fill_buf()?;
 
             if buffer.is_empty() {
-                return Err(Error::new(ErrorKind::UnexpectedEof, \"Error decoding field.\"));
+                return Err(Error::new(
+                    ErrorKind::UnexpectedEof,
+                    \"Error decoding field.\",
+                ));
             }
 
             varint_size_from_first_byte(buffer[0]) as usize
