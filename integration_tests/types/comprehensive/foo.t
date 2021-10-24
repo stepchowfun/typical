@@ -1,4 +1,6 @@
 struct Foo {
+    deleted 33 34 35
+
     p_required: [Unit] = 0
     q_required: [F64] = 1
     r_required: [S64] = 2

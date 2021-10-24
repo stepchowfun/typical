@@ -5,7 +5,11 @@ use {
         identifier::Identifier,
         schema, token,
     },
-    std::{char::REPLACEMENT_CHARACTER, collections::BTreeMap, path::Path},
+    std::{
+        char::REPLACEMENT_CHARACTER,
+        collections::{BTreeMap, BTreeSet},
+        path::Path,
+    },
 };
 
 // This function computes the source range for a token, or the empty range at the end of the source
@@ -268,81 +272,160 @@ fn parse_schema(
 
     // Parse the declarations.
     while *position < tokens.len() {
-        match tokens[*position].variant {
-            token::Variant::Struct => {
+        match &tokens[*position].variant {
+            // [tag:declaration_start_token_is_struct_or_choice]
+            declaration_start_token @ (token::Variant::Struct | token::Variant::Choice) => {
                 let declaration_start = *position;
                 *position += 1;
 
-                // Parse the name and fields. This is guaranteed to advance the token position due
-                // to [ref:parse_fields_some_advance].
-                if let Some((name, fields)) = parse_fields(
+                // Parse the name.
+                let name = consume_token_1!(
                     source_path,
                     source_contents,
                     tokens,
-                    position,
-                    "a name for the struct",
+                    &mut *position,
                     errors,
-                ) {
-                    let source_range = span_tokens(tokens, declaration_start, *position);
+                    Identifier,
+                    &format!(
+                        "a name for the {}",
+                        match declaration_start_token {
+                            token::Variant::Struct => "struct",
+                            token::Variant::Choice => "choice",
+                            _ => {
+                                // Impossible due to
+                                // [ref:declaration_start_token_is_struct_or_choice].
+                                panic!()
+                            }
+                        },
+                    ),
+                    schema::Schema {
+                        imports,
+                        declarations,
+                    },
+                );
 
-                    if declarations
-                        .insert(
-                            name.clone(),
-                            schema::Declaration {
-                                source_range,
-                                variant: schema::DeclarationVariant::Struct(fields),
-                            },
-                        )
-                        .is_some()
+                // Consume the `{`.
+                consume_token_0!(
+                    source_path,
+                    source_contents,
+                    tokens,
+                    &mut *position,
+                    errors,
+                    LeftCurly,
+                    schema::Schema {
+                        imports,
+                        declarations,
+                    },
+                );
+
+                // Parse the set of deleted fields.
+                let mut deleted = BTreeSet::new();
+                if *position != tokens.len()
+                    && matches!(tokens[*position].variant, token::Variant::Deleted)
+                {
+                    *position += 1;
+
+                    while *position != tokens.len() {
+                        if let index_token @ token::Variant::Integer(index) =
+                            &tokens[*position].variant
+                        {
+                            if !deleted.insert(*index) {
+                                errors.push(throw::<Error>(
+                                    &format!(
+                                        "Index {} is already marked as deleted.",
+                                        index_token.to_string().code_str(),
+                                    ),
+                                    Some(source_path),
+                                    Some(&listing(
+                                        source_contents,
+                                        token_source_range(tokens, *position),
+                                    )),
+                                    None,
+                                ));
+                            }
+
+                            *position += 1;
+                        } else {
+                            break;
+                        }
+                    }
+                };
+
+                // Parse the fields.
+                let mut fields = vec![];
+                while *position < tokens.len() {
+                    if let token::Variant::RightCurly = tokens[*position].variant {
+                        break;
+                    }
+
+                    if let Some(field) =
+                        parse_field(source_path, source_contents, tokens, position, errors)
                     {
-                        errors.push(throw::<Error>(
-                            &format!(
-                                "A declaration named {} already exists in this file.",
-                                name.code_str(),
-                            ),
-                            Some(source_path),
-                            Some(&listing(source_contents, source_range)),
-                            None,
-                        ));
+                        // In this case, [ref:parse_field_some_advance] guarantees that we will not
+                        // loop forever.
+                        fields.push(field.clone());
+                    } else {
+                        // Jump to the closing curly brace, if it exists. Otherwise, jump to the
+                        // end of the source.
+                        while *position < tokens.len() {
+                            if let token::Variant::RightCurly = tokens[*position].variant {
+                                break;
+                            }
+
+                            *position += 1;
+                        }
+
+                        break;
                     }
                 }
-            }
-            token::Variant::Choice => {
-                let declaration_start = *position;
-                *position += 1;
 
-                // Parse the name and fields. This is guaranteed to advance the token position due
-                // to [ref:parse_fields_some_advance].
-                if let Some((name, fields)) = parse_fields(
+                // Consume the `}`.
+                consume_token_0!(
                     source_path,
                     source_contents,
                     tokens,
-                    position,
-                    "a name for the choice",
+                    &mut *position,
                     errors,
-                ) {
-                    let source_range = span_tokens(tokens, declaration_start, *position);
+                    RightCurly,
+                    schema::Schema {
+                        imports,
+                        declarations,
+                    },
+                );
 
-                    if declarations
-                        .insert(
-                            name.clone(),
-                            schema::Declaration {
-                                source_range,
-                                variant: schema::DeclarationVariant::Choice(fields),
+                // Construct the declaration.
+                let source_range = span_tokens(tokens, declaration_start, *position);
+                if declarations
+                    .insert(
+                        name.clone(),
+                        schema::Declaration {
+                            source_range,
+                            variant: match declaration_start_token {
+                                token::Variant::Struct => {
+                                    schema::DeclarationVariant::Struct(fields, deleted)
+                                }
+                                token::Variant::Choice => {
+                                    schema::DeclarationVariant::Choice(fields, deleted)
+                                }
+                                _ => {
+                                    // Impossible due to
+                                    // [ref:declaration_start_token_is_struct_or_choice].
+                                    panic!()
+                                }
                             },
-                        )
-                        .is_some()
-                    {
-                        errors.push(throw::<Error>(
-                            &format!(
-                                "A declaration named {} already exists in this file.",
-                                name.code_str(),
-                            ),
-                            Some(source_path),
-                            Some(&listing(source_contents, source_range)),
-                            None,
-                        ));
-                    }
+                        },
+                    )
+                    .is_some()
+                {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "A declaration named {} already exists in this file.",
+                            name.code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, source_range)),
+                        None,
+                    ));
                 }
             }
             _ => {
@@ -453,81 +536,6 @@ fn parse_import(
     ))
 }
 
-// Parse a series of fields enclosed in curly braces and preceded by a name. If this function
-// returns `None` in the first component, then at least one error was added to `errors`. Otherwise,
-// the `position` is guaranteed to have advanced [tag:parse_fields_some_advance].
-fn parse_fields(
-    source_path: &Path,
-    source_contents: &str,
-    tokens: &[token::Token],
-    position: &mut usize,
-    name_expectation: &str,
-    errors: &mut Vec<Error>,
-) -> Option<(Identifier, Vec<schema::Field>)> {
-    // Parse the name.
-    let declaration_name = consume_token_1!(
-        source_path,
-        source_contents,
-        tokens,
-        &mut *position,
-        errors,
-        Identifier,
-        name_expectation,
-        None,
-    );
-
-    // Consume the `{`.
-    consume_token_0!(
-        source_path,
-        source_contents,
-        tokens,
-        &mut *position,
-        errors,
-        LeftCurly,
-        None,
-    );
-
-    // Parse the fields.
-    let mut fields = vec![];
-    while *position < tokens.len() {
-        if let token::Variant::RightCurly = tokens[*position].variant {
-            break;
-        }
-
-        if let Some(field) = parse_field(source_path, source_contents, tokens, position, errors) {
-            // In this case, [ref:parse_field_some_advance] guarantees that we will not loop
-            // forever.
-            fields.push(field.clone());
-        } else {
-            // Jump past the closing curly brace, if it exists. Otherwise, jump to the end of the
-            // source.
-            while *position < tokens.len() {
-                *position += 1;
-
-                if let token::Variant::RightCurly = tokens[*position - 1].variant {
-                    break;
-                }
-            }
-
-            return Some((declaration_name, fields));
-        }
-    }
-
-    // Consume the `}`.
-    consume_token_0!(
-        source_path,
-        source_contents,
-        tokens,
-        position,
-        errors,
-        RightCurly,
-        Some((declaration_name, fields)),
-    );
-
-    // Return the name and fields.
-    Some((declaration_name, fields))
-}
-
 // Parse a field. If this function returns `None`, then at least one error was added to `errors`.
 // Otherwise, the `position` is guaranteed to have advanced [tag:parse_field_some_advance].
 #[allow(clippy::too_many_lines)]
@@ -545,15 +553,15 @@ fn parse_field(
         schema::Rule::Required
     } else {
         match tokens[*position].variant {
-            token::Variant::Optional => {
-                *position += 1;
-
-                schema::Rule::Optional
-            }
             token::Variant::Asymmetric => {
                 *position += 1;
 
                 schema::Rule::Asymmetric
+            }
+            token::Variant::Optional => {
+                *position += 1;
+
+                schema::Rule::Optional
             }
             _ => schema::Rule::Required,
         }
@@ -817,7 +825,10 @@ mod tests {
             assert_fails, assert_same, error::SourceRange, parser::parse, schema,
             tokenizer::tokenize,
         },
-        std::{collections::BTreeMap, path::Path},
+        std::{
+            collections::{BTreeMap, BTreeSet},
+            path::Path,
+        },
     };
 
     #[test]
@@ -845,18 +856,18 @@ mod tests {
 
             # This is a struct.
             struct Foo {
-              w: baz.Baz = 0
-              optional x: U64 = 1
-              y: [Bool] = 2
-              z = 3
+                w: baz.Baz = 0
+                optional x: U64 = 1
+                y: [Bool] = 2
+                z = 3
             }
 
             # This is a choice.
             choice Bar {
-              w: corge.Qux = 0
-              asymmetric x: [Bytes] = 1
-              y: F64 = 2
-              z = 3
+                w: corge.Qux = 0
+                asymmetric x: [Bytes] = 1
+                y: F64 = 2
+                z = 3
             }
         ";
         let tokens = tokenize(source_path, source).unwrap();
@@ -884,15 +895,15 @@ mod tests {
         let foo_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 136,
-                    end: 150,
+                    start: 138,
+                    end: 152,
                 },
                 name: "w".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 139,
-                        end: 146,
+                        start: 141,
+                        end: 148,
                     },
                     variant: schema::TypeVariant::Custom(Some("baz".into()), "Baz".into()),
                 },
@@ -900,15 +911,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 165,
-                    end: 184,
+                    start: 169,
+                    end: 188,
                 },
                 name: "x".into(),
                 rule: schema::Rule::Optional,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 177,
-                        end: 180,
+                        start: 181,
+                        end: 184,
                     },
                     variant: schema::TypeVariant::U64,
                 },
@@ -916,20 +927,20 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 199,
-                    end: 212,
+                    start: 205,
+                    end: 218,
                 },
                 name: "y".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 202,
-                        end: 208,
+                        start: 208,
+                        end: 214,
                     },
                     variant: schema::TypeVariant::Array(Box::new(schema::Type {
                         source_range: SourceRange {
-                            start: 203,
-                            end: 207,
+                            start: 209,
+                            end: 213,
                         },
                         variant: schema::TypeVariant::Bool,
                     })),
@@ -938,15 +949,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 227,
-                    end: 232,
+                    start: 235,
+                    end: 240,
                 },
                 name: "z".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 229,
-                        end: 229,
+                        start: 237,
+                        end: 237,
                     },
                     variant: schema::TypeVariant::Unit,
                 },
@@ -957,15 +968,15 @@ mod tests {
         let bar_fields = vec![
             schema::Field {
                 source_range: SourceRange {
-                    start: 319,
-                    end: 335,
+                    start: 329,
+                    end: 345,
                 },
                 name: "w".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 322,
-                        end: 331,
+                        start: 332,
+                        end: 341,
                     },
                     variant: schema::TypeVariant::Custom(Some("corge".into()), "Qux".into()),
                 },
@@ -973,20 +984,20 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 350,
-                    end: 375,
+                    start: 362,
+                    end: 387,
                 },
                 name: "x".into(),
                 rule: schema::Rule::Asymmetric,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 364,
-                        end: 371,
+                        start: 376,
+                        end: 383,
                     },
                     variant: schema::TypeVariant::Array(Box::new(schema::Type {
                         source_range: SourceRange {
-                            start: 365,
-                            end: 370,
+                            start: 377,
+                            end: 382,
                         },
                         variant: schema::TypeVariant::Bytes,
                     })),
@@ -995,15 +1006,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 390,
-                    end: 400,
+                    start: 404,
+                    end: 414,
                 },
                 name: "y".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 393,
-                        end: 396,
+                        start: 407,
+                        end: 410,
                     },
                     variant: schema::TypeVariant::F64,
                 },
@@ -1011,15 +1022,15 @@ mod tests {
             },
             schema::Field {
                 source_range: SourceRange {
-                    start: 415,
-                    end: 420,
+                    start: 431,
+                    end: 436,
                 },
                 name: "z".into(),
                 rule: schema::Rule::Required,
                 r#type: schema::Type {
                     source_range: SourceRange {
-                        start: 417,
-                        end: 417,
+                        start: 433,
+                        end: 433,
                     },
                     variant: schema::TypeVariant::Unit,
                 },
@@ -1034,9 +1045,9 @@ mod tests {
             schema::Declaration {
                 source_range: SourceRange {
                     start: 109,
-                    end: 246,
+                    end: 254,
                 },
-                variant: schema::DeclarationVariant::Struct(foo_fields),
+                variant: schema::DeclarationVariant::Struct(foo_fields, BTreeSet::new()),
             },
         );
 
@@ -1044,10 +1055,10 @@ mod tests {
             "Bar".into(),
             schema::Declaration {
                 source_range: SourceRange {
-                    start: 292,
-                    end: 434,
+                    start: 300,
+                    end: 450,
                 },
-                variant: schema::DeclarationVariant::Choice(bar_fields),
+                variant: schema::DeclarationVariant::Choice(bar_fields, BTreeSet::new()),
             },
         );
 
@@ -1090,6 +1101,22 @@ mod tests {
         assert_fails!(
             parse(source_path, source, &tokens[..]),
             "A declaration named `Foo` already exists in this file.",
+        );
+    }
+
+    #[test]
+    fn parse_duplicate_deleted_index() {
+        let source_path = Path::new("foo.t");
+        let source = "
+            struct Foo {
+                deleted 1 2 2 3
+            }
+        ";
+        let tokens = tokenize(source_path, source).unwrap();
+
+        assert_fails!(
+            parse(source_path, source, &tokens[..]),
+            "Index `2` is already marked as deleted.",
         );
     }
 }

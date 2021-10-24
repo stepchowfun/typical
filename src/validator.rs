@@ -16,6 +16,7 @@ use {
 const MAX_FIELD_INDEX: usize = (1 << 62) - 1;
 
 // This function validates a schema and its transitive dependencies.
+#[allow(clippy::too_many_lines)]
 pub fn validate(
     schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
 ) -> Result<(), Vec<Error>> {
@@ -28,7 +29,8 @@ pub fn validate(
     for (namespace, (schema, _, _)) in schemas {
         for (name, declaration) in &schema.declarations {
             match &declaration.variant {
-                schema::DeclarationVariant::Struct(_) | schema::DeclarationVariant::Choice(_) => {
+                schema::DeclarationVariant::Struct(_, _)
+                | schema::DeclarationVariant::Choice(_, _) => {
                     all_types.insert((namespace.clone(), name.clone()), (schema, declaration));
                 }
             }
@@ -40,8 +42,8 @@ pub fn validate(
         // Validate the declarations in the file.
         for declaration in schema.declarations.values() {
             match &declaration.variant {
-                schema::DeclarationVariant::Struct(fields)
-                | schema::DeclarationVariant::Choice(fields) => {
+                schema::DeclarationVariant::Struct(fields, deleted)
+                | schema::DeclarationVariant::Choice(fields, deleted) => {
                     // Validate the fields in the declaration.
                     let mut field_names = HashSet::new();
                     let mut field_indices = HashSet::new();
@@ -65,6 +67,19 @@ pub fn validate(
                             errors.push(throw::<Error>(
                                 &format!(
                                     "A field with index {} already exists in this declaration.",
+                                    field.index.to_string().code_str(),
+                                ),
+                                Some(source_path),
+                                Some(&listing(source_contents, field.source_range)),
+                                None,
+                            ));
+                        }
+
+                        // Check that the index of the field isn't marked as deleted.
+                        if deleted.contains(&field.index) {
+                            errors.push(throw::<Error>(
+                                &format!(
+                                    "Field index {} is marked as deleted in this declaration.",
                                     field.index.to_string().code_str(),
                                 ),
                                 Some(source_path),
@@ -261,7 +276,8 @@ fn check_declaration_for_cycles(
     // [ref:schemas_valid_except_possible_cycles].
     let (schema, declaration) = all_types.get(&qualified_type).unwrap();
     match &declaration.variant {
-        schema::DeclarationVariant::Struct(fields) | schema::DeclarationVariant::Choice(fields) => {
+        schema::DeclarationVariant::Struct(fields, _)
+        | schema::DeclarationVariant::Choice(fields, _) => {
             for field in fields {
                 check_type_for_cycles(
                     all_types,
@@ -383,9 +399,9 @@ mod tests {
             import 'bar.t'
 
             struct Foo {
-              x: bar.Bar = 0
-              y: [bar.Bar] = 1
-              asymmetric z: String = 2
+                x: bar.Bar = 0
+                y: [bar.Bar] = 1
+                asymmetric z: String = 2
             }
         "
         .to_owned();
@@ -396,9 +412,9 @@ mod tests {
         let bar_path = Path::new("bar.t").to_owned();
         let bar_contents = "
             choice Bar {
-              x: Bool = 0
-              y: F64 = 1
-              optional z: U64 = 2
+                x: Bool = 0
+                y: F64 = 1
+                optional z: U64 = 2
             }
         "
         .to_owned();
@@ -425,8 +441,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Bar {
-              x: Bool = 0
-              x: F64 = 1
+                x: Bool = 0
+                x: F64 = 1
             }
         "
         .to_owned();
@@ -450,8 +466,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Bar {
-              x: Bool = 0
-              y: F64 = 0
+                x: Bool = 0
+                y: F64 = 0
             }
         "
         .to_owned();
@@ -468,6 +484,32 @@ mod tests {
     }
 
     #[test]
+    fn validate_deleted_struct_field_index() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct Bar {
+                deleted 0
+
+                x: Bool = 0
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "Field index `0` is marked as deleted in this declaration.",
+        );
+    }
+
+    #[test]
     fn validate_duplicate_choice_field_names() {
         let namespace = Namespace {
             components: vec!["foo".into()],
@@ -475,8 +517,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             choice Bar {
-              x: Bool = 0
-              x: F64 = 1
+                x: Bool = 0
+                x: F64 = 1
             }
         "
         .to_owned();
@@ -500,8 +542,8 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             choice Bar {
-              x: Bool = 0
-              y: F64 = 0
+                x: Bool = 0
+                y: F64 = 0
             }
         "
         .to_owned();
@@ -518,6 +560,32 @@ mod tests {
     }
 
     #[test]
+    fn validate_deleted_choice_field_index() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            choice Bar {
+                deleted 0
+
+                x: Bool = 0
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "Field index `0` is marked as deleted in this declaration.",
+        );
+    }
+
+    #[test]
     fn validate_non_existent_field_import() {
         let namespace = Namespace {
             components: vec!["foo".into()],
@@ -525,7 +593,7 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
-              x: bar.Bar = 0
+                x: bar.Bar = 0
             }
         "
         .to_owned();
@@ -549,7 +617,7 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
-              x: [bar.Bar] = 0
+                x: [bar.Bar] = 0
             }
         "
         .to_owned();
@@ -573,7 +641,7 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
-              x: Bar = 0
+                x: Bar = 0
             }
         "
         .to_owned();
@@ -597,7 +665,7 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = "
             struct Foo {
-              x: [Bar] = 0
+                x: [Bar] = 0
             }
         "
         .to_owned();
@@ -623,7 +691,7 @@ mod tests {
             import 'bar.t'
 
             struct Foo {
-              x: bar.Bar = 0
+                x: bar.Bar = 0
             }
         "
         .to_owned();
@@ -665,7 +733,7 @@ mod tests {
             import 'bar.t'
 
             struct Foo {
-              x: [bar.Bar] = 0
+                x: [bar.Bar] = 0
             }
         "
         .to_owned();
@@ -707,7 +775,7 @@ mod tests {
             import 'bar.t'
 
             struct Foo {
-              x: bar.Bar = 0
+                x: bar.Bar = 0
             }
         "
         .to_owned();
@@ -720,7 +788,7 @@ mod tests {
             import 'foo.t'
 
             choice Bar {
-              x: foo.Foo = 0
+                x: foo.Foo = 0
             }
         "
         .to_owned();
@@ -753,7 +821,7 @@ mod tests {
             import 'bar.t'
 
             struct Foo {
-              x: [bar.Bar] = 0
+                x: [bar.Bar] = 0
             }
         "
         .to_owned();
@@ -766,7 +834,7 @@ mod tests {
             import 'foo.t'
 
             choice Bar {
-              x: foo.Foo = 0
+                x: foo.Foo = 0
             }
         "
         .to_owned();

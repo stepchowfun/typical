@@ -2,10 +2,14 @@ use {
     crate::{
         error::SourceRange,
         identifier::Identifier,
-        token::{ASYMMETRIC_KEYWORD, OPTIONAL_KEYWORD},
+        token::{
+            ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+            STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
+        },
     },
     std::{
-        collections::BTreeMap,
+        collections::{BTreeMap, BTreeSet},
         fmt::{self, Display, Formatter, Write},
         path::PathBuf,
     },
@@ -32,8 +36,8 @@ pub struct Declaration {
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(Vec<Field>),
-    Choice(Vec<Field>),
+    Struct(Vec<Field>, BTreeSet<usize>), // (fields, deleted)
+    Choice(Vec<Field>, BTreeSet<usize>), // (fields, deleted)
 }
 
 #[derive(Clone, Debug)]
@@ -47,9 +51,9 @@ pub struct Field {
 
 #[derive(Clone, Debug)]
 pub enum Rule {
+    Asymmetric,
     Optional,
     Required,
-    Asymmetric,
 }
 
 #[derive(Clone, Debug)]
@@ -139,9 +143,16 @@ impl Import {
             .as_ref()
             == Some(name)
         {
-            writeln!(f, "import '{}'", self.path.display())
+            writeln!(f, "{} '{}'", IMPORT_KEYWORD, self.path.display())
         } else {
-            writeln!(f, "import '{}' as {}", self.path.display(), name.original())
+            writeln!(
+                f,
+                "{} '{}' {} {}",
+                IMPORT_KEYWORD,
+                self.path.display(),
+                AS_KEYWORD,
+                name.original(),
+            )
         }
     }
 }
@@ -155,8 +166,18 @@ impl Declaration {
 impl DeclarationVariant {
     fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
         match self {
-            Self::Struct(fields) => {
-                writeln!(f, "struct {} {{", name.original())?;
+            Self::Struct(fields, deleted) => {
+                writeln!(f, "{} {} {{", STRUCT_KEYWORD, name.original())?;
+
+                if !deleted.is_empty() {
+                    write!(f, "    {}", DELETED_KEYWORD)?;
+
+                    for deleted_index in deleted {
+                        write!(f, " {}", deleted_index)?;
+                    }
+
+                    writeln!(f, "\n")?;
+                }
 
                 for field in fields {
                     field.write(f)?;
@@ -164,8 +185,18 @@ impl DeclarationVariant {
 
                 writeln!(f, "}}")
             }
-            Self::Choice(fields) => {
-                writeln!(f, "choice {} {{", name.original())?;
+            Self::Choice(fields, deleted) => {
+                writeln!(f, "{} {} {{", CHOICE_KEYWORD, name.original())?;
+
+                if !deleted.is_empty() {
+                    write!(f, "    {}", DELETED_KEYWORD)?;
+
+                    for deleted_index in deleted {
+                        write!(f, " {}", deleted_index)?;
+                    }
+
+                    writeln!(f, "\n")?;
+                }
 
                 for field in fields {
                     field.write(f)?;
@@ -180,14 +211,14 @@ impl DeclarationVariant {
 impl Field {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self.rule {
+            Rule::Asymmetric => {
+                write!(f, "    {} ", ASYMMETRIC_KEYWORD)?;
+            }
             Rule::Optional => {
-                write!(f, "  {} ", OPTIONAL_KEYWORD)?;
+                write!(f, "    {} ", OPTIONAL_KEYWORD)?;
             }
             Rule::Required => {
-                write!(f, "  ")?;
-            }
-            Rule::Asymmetric => {
-                write!(f, "  {} ", ASYMMETRIC_KEYWORD)?;
+                write!(f, "    ")?;
             }
         }
 
@@ -212,10 +243,10 @@ impl TypeVariant {
                 write!(f, "[{}]", inner_type)?;
             }
             Self::Bool => {
-                write!(f, "Bool")?;
+                write!(f, "{}", BOOL_KEYWORD)?;
             }
             Self::Bytes => {
-                write!(f, "Bytes")?;
+                write!(f, "{}", BYTES_KEYWORD)?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -225,19 +256,19 @@ impl TypeVariant {
                 }
             }
             Self::F64 => {
-                write!(f, "F64")?;
+                write!(f, "{}", F64_KEYWORD)?;
             }
             Self::S64 => {
-                write!(f, "S64")?;
+                write!(f, "{}", S64_KEYWORD)?;
             }
             Self::String => {
-                write!(f, "String")?;
+                write!(f, "{}", STRING_KEYWORD)?;
             }
             Self::U64 => {
-                write!(f, "U64")?;
+                write!(f, "{}", U64_KEYWORD)?;
             }
             Self::Unit => {
-                write!(f, "Unit")?;
+                write!(f, "{}", UNIT_KEYWORD)?;
             }
         }
         Ok(())
@@ -288,7 +319,10 @@ mod tests {
                 Rule, Schema, Type, TypeVariant,
             },
         },
-        std::{collections::BTreeMap, path::Path},
+        std::{
+            collections::{BTreeMap, BTreeSet},
+            path::Path,
+        },
     };
 
     #[test]
@@ -524,7 +558,7 @@ mod tests {
             "Foo".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Struct(foo_fields),
+                variant: DeclarationVariant::Struct(foo_fields, BTreeSet::new()),
             },
         );
 
@@ -532,7 +566,7 @@ mod tests {
             "Bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Choice(bar_fields),
+                variant: DeclarationVariant::Choice(bar_fields, BTreeSet::new()),
             },
         );
 
@@ -543,13 +577,13 @@ mod tests {
 
         let expected = "\
             choice Bar {\n\
-            \x20 x: Bool = 0\n\
-            \x20 asymmetric y: F64 = 1\n\
+            \x20   x: Bool = 0\n\
+            \x20   asymmetric y: F64 = 1\n\
             }\n\
             \n\
             struct Foo {\n\
-            \x20 x: Bool = 0\n\
-            \x20 optional y: U64 = 1\n\
+            \x20   x: Bool = 0\n\
+            \x20   optional y: U64 = 1\n\
             }\n\
         ";
 
@@ -631,7 +665,7 @@ mod tests {
             "Foo".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Struct(foo_fields),
+                variant: DeclarationVariant::Struct(foo_fields, BTreeSet::from_iter(vec![2, 3, 4])),
             },
         );
 
@@ -639,7 +673,7 @@ mod tests {
             "Bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Choice(bar_fields),
+                variant: DeclarationVariant::Choice(bar_fields, BTreeSet::from_iter(vec![2, 3, 4])),
             },
         );
 
@@ -653,13 +687,17 @@ mod tests {
             import 'bar.t' as qux\n\
             \n\
             choice Bar {\n\
-            \x20 x: Bool = 0\n\
-            \x20 asymmetric y: F64 = 1\n\
+            \x20   deleted 2 3 4\n\
+            \n\
+            \x20   x: Bool = 0\n\
+            \x20   asymmetric y: F64 = 1\n\
             }\n\
             \n\
             struct Foo {\n\
-            \x20 x: Bool = 0\n\
-            \x20 optional y: U64 = 1\n\
+            \x20   deleted 2 3 4\n\
+            \n\
+            \x20   x: Bool = 0\n\
+            \x20   optional y: U64 = 1\n\
             }\n\
         ";
 

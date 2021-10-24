@@ -4,8 +4,8 @@ use {
         format::CodeStr,
         token::{
             Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
-            CHOICE_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-            STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
+            CHOICE_KEYWORD, DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD,
+            S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
         },
     },
     std::path::Path,
@@ -118,6 +118,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         source_range: SourceRange { start: i, end },
                         variant: Variant::As,
                     });
+                } else if &schema_contents[i..end] == ASYMMETRIC_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Asymmetric,
+                    });
                 } else if &schema_contents[i..end] == BOOL_KEYWORD {
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
@@ -132,6 +137,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Choice,
+                    });
+                } else if &schema_contents[i..end] == DELETED_KEYWORD {
+                    tokens.push(Token {
+                        source_range: SourceRange { start: i, end },
+                        variant: Variant::Deleted,
                     });
                 } else if &schema_contents[i..end] == F64_KEYWORD {
                     tokens.push(Token {
@@ -172,11 +182,6 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Unit,
-                    });
-                } else if &schema_contents[i..end] == ASYMMETRIC_KEYWORD {
-                    tokens.push(Token {
-                        source_range: SourceRange { start: i, end },
-                        variant: Variant::Asymmetric,
                     });
                 } else {
                     let start = if c == RAW_IDENTIFIER_SIGIL { i + 1 } else { i };
@@ -330,8 +335,8 @@ mod tests {
             error::SourceRange,
             token::{
                 Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
-                CHOICE_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-                STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
+                CHOICE_KEYWORD, DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD,
+                S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
             },
             tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
         },
@@ -434,6 +439,20 @@ mod tests {
     }
 
     #[test]
+    fn tokenize_asymmetric() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), ASYMMETRIC_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: ASYMMETRIC_KEYWORD.len(),
+                },
+                variant: Variant::Asymmetric,
+            }],
+        );
+    }
+
+    #[test]
     fn tokenize_bool() {
         assert_same!(
             tokenize(Path::new("foo.t"), BOOL_KEYWORD).unwrap(),
@@ -482,6 +501,20 @@ mod tests {
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Colon,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_deleted() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), DELETED_KEYWORD).unwrap(),
+            vec![Token {
+                source_range: SourceRange {
+                    start: 0,
+                    end: DELETED_KEYWORD.len(),
+                },
+                variant: Variant::Deleted,
             }],
         );
     }
@@ -735,20 +768,6 @@ mod tests {
                     end: UNIT_KEYWORD.len(),
                 },
                 variant: Variant::Unit,
-            }],
-        );
-    }
-
-    #[test]
-    fn tokenize_asymmetric() {
-        assert_same!(
-            tokenize(Path::new("foo.t"), ASYMMETRIC_KEYWORD).unwrap(),
-            vec![Token {
-                source_range: SourceRange {
-                    start: 0,
-                    end: ASYMMETRIC_KEYWORD.len(),
-                },
-                variant: Variant::Asymmetric,
             }],
         );
     }
