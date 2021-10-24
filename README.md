@@ -477,13 +477,13 @@ The conversion of signed integers to their ZigZag representations before their s
 A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the *value* is encoded according to its type and the *header* is encoded as two contiguous parts:
 
   - The first part of the *header* is a 64-bit *tag*, which is encoded in the same was as a `U64` (i.e., as a variable-width integer). The meaning of the *tag* is as follows:
-    - The two least significant bits of the *tag* (not its encoding) are called the *size indicator* and indicate how to compute the size of the *value*:
+    - The two least significant bits of the *tag* (not its encoding) are called the *size mode* and indicate how to compute the size of the *value*:
       - `00`: The size of the *value* is 0 bytes.
       - `01`: The size of the *value* is 8 bytes.
       - `10`: The size of the *value* is given by the second part of the *header* (below).
       - `11`: The *value* is encoded as a `U64` (i.e., it's a `U64`, `S64`, or `Bool`), and its size can be determined from its first byte.
     - The remaining 62 bits of the *tag* (not its encoding) represent the index of the field as an unsigned integer.
-  - The second part of the *header* is the size of the *value* encoded in the same was as a `U64`. It's only present if the *size indicator* is `10`.
+  - The second part of the *header* is the size of the *value* encoded in the same was as a `U64`. It's only present if the *size mode* is `10`.
 
 For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the *header* is encoded as a single byte.
 
