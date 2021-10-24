@@ -7,10 +7,12 @@ use {
 };
 
 // Keywords
+pub const ASYMMETRIC_KEYWORD: &str = "asymmetric";
 pub const AS_KEYWORD: &str = "as";
 pub const BOOL_KEYWORD: &str = "Bool";
 pub const BYTES_KEYWORD: &str = "Bytes";
 pub const CHOICE_KEYWORD: &str = "choice";
+pub const DELETED_KEYWORD: &str = "deleted";
 pub const F64_KEYWORD: &str = "F64";
 pub const IMPORT_KEYWORD: &str = "import";
 pub const OPTIONAL_KEYWORD: &str = "optional";
@@ -19,7 +21,6 @@ pub const STRING_KEYWORD: &str = "String";
 pub const STRUCT_KEYWORD: &str = "struct";
 pub const U64_KEYWORD: &str = "U64";
 pub const UNIT_KEYWORD: &str = "Unit";
-pub const ASYMMETRIC_KEYWORD: &str = "asymmetric";
 
 // The first step of compilation is to split the source into a stream of tokens. This struct
 // represents a single token.
@@ -33,10 +34,12 @@ pub struct Token {
 #[derive(Clone, Debug)]
 pub enum Variant {
     As,
+    Asymmetric,
     Bool,
     Bytes,
     Choice,
     Colon,
+    Deleted,
     Dot,
     Equals,
     F64,
@@ -54,7 +57,6 @@ pub enum Variant {
     Struct,
     U64,
     Unit,
-    Asymmetric,
 }
 
 impl Display for Token {
@@ -67,10 +69,12 @@ impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
             Self::As => write!(f, "{}", AS_KEYWORD),
+            Self::Asymmetric => write!(f, "{}", ASYMMETRIC_KEYWORD),
             Self::Bool => write!(f, "{}", BOOL_KEYWORD),
             Self::Bytes => write!(f, "{}", BYTES_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
+            Self::Deleted => write!(f, "{}", DELETED_KEYWORD),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
             Self::F64 => write!(f, "{}", F64_KEYWORD),
@@ -88,7 +92,6 @@ impl Display for Variant {
             Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
             Self::U64 => write!(f, "{}", U64_KEYWORD),
             Self::Unit => write!(f, "{}", UNIT_KEYWORD),
-            Self::Asymmetric => write!(f, "{}", ASYMMETRIC_KEYWORD),
         }
     }
 }
@@ -100,8 +103,8 @@ mod tests {
             error::SourceRange,
             token::{
                 Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
-                CHOICE_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-                STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
+                CHOICE_KEYWORD, DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD,
+                S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
             },
         },
         std::path::Path,
@@ -127,6 +130,11 @@ mod tests {
     }
 
     #[test]
+    fn variant_asymmetric_display() {
+        assert_eq!(format!("{}", Variant::Asymmetric), ASYMMETRIC_KEYWORD);
+    }
+
+    #[test]
     fn variant_bool_display() {
         assert_eq!(format!("{}", Variant::Bool), BOOL_KEYWORD);
     }
@@ -144,6 +152,11 @@ mod tests {
     #[test]
     fn variant_colon_display() {
         assert_eq!(format!("{}", Variant::Colon), ":");
+    }
+
+    #[test]
+    fn variant_deleted_display() {
+        assert_eq!(format!("{}", Variant::Deleted), DELETED_KEYWORD);
     }
 
     #[test]
@@ -232,10 +245,5 @@ mod tests {
     #[test]
     fn variant_unit_display() {
         assert_eq!(format!("{}", Variant::Unit), UNIT_KEYWORD);
-    }
-
-    #[test]
-    fn variant_asymmetric_display() {
-        assert_eq!(format!("{}", Variant::Asymmetric), ASYMMETRIC_KEYWORD);
     }
 }

@@ -379,7 +379,7 @@ fn write_schema<T: Write>(
     let mut iter = schema.declarations.iter().peekable();
     while let Some((name, declaration)) = iter.next() {
         match &declaration.variant {
-            schema::DeclarationVariant::Struct(fields) => {
+            schema::DeclarationVariant::Struct(fields, _) => {
                 write_struct(buffer, indentation, &imports, namespace, name, fields, Out)?;
 
                 writeln!(buffer)?;
@@ -407,17 +407,17 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 2)?;
                     }
                     match field.rule {
-                        schema::Rule::Optional => {
-                            write!(buffer, "self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ".as_ref().map_or(0, |payload| {{")?;
-                        }
-                        schema::Rule::Required | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
                             writeln!(buffer, "({{")?;
                             write_indentation(buffer, indentation + 3)?;
                             write!(buffer, "let payload = &self.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ";")?;
+                        }
+                        schema::Rule::Optional => {
+                            write!(buffer, "self.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ".as_ref().map_or(0, |payload| {{")?;
                         }
                     }
                     write_indentation(buffer, indentation + 3)?;
@@ -458,19 +458,19 @@ fn write_schema<T: Write>(
                 )?;
                 for field in fields {
                     match field.rule {
-                        schema::Rule::Optional => {
-                            write_indentation(buffer, indentation + 2)?;
-                            write!(buffer, "if let Some(payload) = &self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, " {{")?;
-                        }
-                        schema::Rule::Required | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
                             write_indentation(buffer, indentation + 2)?;
                             writeln!(buffer, "{{")?;
                             write_indentation(buffer, indentation + 3)?;
                             write!(buffer, "let payload = &self.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ";")?;
+                        }
+                        schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 2)?;
+                            write!(buffer, "if let Some(payload) = &self.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, " {{")?;
                         }
                     }
                     write_indentation(buffer, indentation + 3)?;
@@ -601,7 +601,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
                 if fields.iter().any(|field| match field.rule {
-                    schema::Rule::Optional | schema::Rule::Asymmetric => false,
+                    schema::Rule::Asymmetric | schema::Rule::Optional => false,
                     schema::Rule::Required => true,
                 }) {
                     write_indentation(buffer, indentation + 2)?;
@@ -609,7 +609,7 @@ fn write_schema<T: Write>(
                     let mut first = true;
                     for field in fields {
                         match field.rule {
-                            schema::Rule::Optional | schema::Rule::Asymmetric => {}
+                            schema::Rule::Asymmetric | schema::Rule::Optional => {}
                             schema::Rule::Required => {
                                 if first {
                                     first = false;
@@ -642,7 +642,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Asymmetric => {}
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {}
                         schema::Rule::Required => {
                             write!(buffer, ": ")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
@@ -675,6 +675,13 @@ fn write_schema<T: Write>(
                 writeln!(buffer, " {{")?;
                 for field in fields {
                     match field.rule {
+                        schema::Rule::Asymmetric => {
+                            write_indentation(buffer, indentation + 3)?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ": Some(message.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ".into()),")?;
+                        }
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
@@ -689,13 +696,6 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                             writeln!(buffer, ".into(),")?;
                         }
-                        schema::Rule::Asymmetric => {
-                            write_indentation(buffer, indentation + 3)?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            write!(buffer, ": Some(message.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ".into()),")?;
-                        }
                     }
                 }
                 write_indentation(buffer, indentation + 2)?;
@@ -705,7 +705,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
             }
-            schema::DeclarationVariant::Choice(fields) => {
+            schema::DeclarationVariant::Choice(fields, _) => {
                 write_choice(buffer, indentation, &imports, namespace, name, fields, Out)?;
 
                 writeln!(buffer)?;
@@ -732,7 +732,7 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(ref fallback) => {{")?;
                             } else {
@@ -765,7 +765,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 5)?;
                     write!(buffer, "payload_size")?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
                             writeln!(buffer, " +")?;
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, "fallback.size()")?;
@@ -796,7 +796,7 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(ref fallback) => {{")?;
                             } else {
@@ -835,7 +835,7 @@ fn write_schema<T: Write>(
                         &field.r#type,
                     )?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "fallback.serialize(writer)")?;
                         }
@@ -920,7 +920,7 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, "(payload, fallback));")?;
                             }
                         }
-                        schema::Rule::Required | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
                             write_identifier(buffer, name, Pascal, Some(In))?;
@@ -972,7 +972,7 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 write!(buffer, "(fallback) => ")?;
                             } else {
@@ -1001,7 +1001,7 @@ fn write_schema<T: Write>(
                                 )?;
                             }
                         }
-                        schema::Rule::Required | schema::Rule::Asymmetric => {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, ",")?;
                             } else {
@@ -1050,29 +1050,29 @@ fn write_struct<T: Write>(
         write_identifier(buffer, &field.name, Snake, None)?;
         write!(buffer, ": ")?;
         match field.rule {
-            schema::Rule::Optional => {
-                write!(buffer, "Option<")?;
-            }
-            schema::Rule::Required => {}
             schema::Rule::Asymmetric => match direction {
                 Direction::Out => {}
                 Direction::In => {
                     write!(buffer, "Option<")?;
                 }
             },
+            schema::Rule::Optional => {
+                write!(buffer, "Option<")?;
+            }
+            schema::Rule::Required => {}
         }
         write_type(buffer, imports, namespace, &field.r#type, direction)?;
         match field.rule {
-            schema::Rule::Optional => {
-                write!(buffer, ">")?;
-            }
-            schema::Rule::Required => {}
             schema::Rule::Asymmetric => match direction {
                 Direction::Out => {}
                 Direction::In => {
                     write!(buffer, ">")?;
                 }
             },
+            schema::Rule::Optional => {
+                write!(buffer, ">")?;
+            }
+            schema::Rule::Required => {}
         }
         writeln!(buffer, ",")?;
     }
@@ -1104,12 +1104,12 @@ fn write_choice<T: Write>(
         write_indentation(buffer, indentation + 1)?;
         write_identifier(buffer, &field.name, Pascal, None)?;
         let fallback = match field.rule {
-            schema::Rule::Optional => true,
-            schema::Rule::Required => false,
             schema::Rule::Asymmetric => match direction {
                 Direction::Out => true,
                 Direction::In => false,
             },
+            schema::Rule::Optional => true,
+            schema::Rule::Required => false,
         };
         if fallback {
             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {

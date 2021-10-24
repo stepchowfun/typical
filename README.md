@@ -322,7 +322,7 @@ struct Employee {
 
 ### User-defined types
 
-Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name and a list of fields. A field consists of an optional rule, a human-readable name, an optional type, and an index. Here's are some examples of user-defined types with various fields:
+Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name, an optional list of indices of deleted fields, and a list of fields. Here's are some examples of user-defined types:
 
 ```perl
 import 'apis/email.t'
@@ -341,6 +341,10 @@ struct Device {
 }
 ```
 
+#### Fields
+
+A field consists of an optional rule, a human-readable name, an optional type, and an index.
+
 The rule, if present, is either `optional` or `asymmetric`. The absence of a rule indicates that the field is required.
 
 The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
@@ -358,6 +362,20 @@ choice Weekday {
 ```
 
 The index is a non-negative integer which is required to be unique within the type. The indices aren't required to be consecutive or in any particular order, but starting with consecutive indices is a good convention.
+
+#### Deleted fields
+
+If you delete a field, you must be careful not to reuse that field's index for any new fields as long as there are messages still containing the deleted field. Otherwise, the old field would be decoded as the new field, which is likely to result in deserialization errors and is almost certainly not what you want. To prevent this, you can reserve the indices of deleted fields to prevent them from being reused. For example, if we delete the `ip_address` and `owner` fields from the `Device` `struct` above, we might wish to reserve their indices as follows:
+
+```perl
+struct Device {
+    deleted 1 2
+
+    hostname: String = 0
+}
+```
+
+Typical will then prevent you from introducing new fields with those indices.
 
 ### Built-in types
 
