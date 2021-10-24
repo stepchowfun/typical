@@ -99,7 +99,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
 }
 
-// Generate code for a schema and its transitive dependencies
+// Generate code for a schema and its transitive dependencies.
 fn generate_code(
     schema_path: &Path,
     rust_out: Option<&Path>,
