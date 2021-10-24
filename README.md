@@ -365,7 +365,7 @@ The index is a non-negative integer which is required to be unique within the ty
 
 #### Deleted fields
 
-If you delete a field, you must be careful not to reuse that field's index for any new fields as long as there are messages still containing the deleted field. Otherwise, the old field would be decoded as the new field, which is likely to result in deserialization errors and is almost certainly not what you want. To avoid this, you can reserve the indices of deleted fields to prevent them from being reused. For example, if we delete the `ip_address` and `owner` fields from the `Device` `struct` above, we might wish to reserve their indices as follows:
+If you delete a field, you must be careful not to reuse that field's index for any new fields as long as there are messages still containing the deleted field. Otherwise, the old field would be decoded as the new field, which is likely to result in deserialization errors and is almost certainly not what you want. To avoid this, you can reserve the indices of deleted fields to prevent them from being reused. For example, if we delete the `ip_address` and `owner` fields from the `Device` `struct` above, we can reserve their indices as follows:
 
 ```perl
 struct Device {
@@ -375,7 +375,7 @@ struct Device {
 }
 ```
 
-Typical will then prevent you from introducing new fields with those indices.
+Typical will then prevent us from introducing new fields with those indices.
 
 ### Built-in types
 
