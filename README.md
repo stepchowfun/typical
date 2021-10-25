@@ -38,7 +38,7 @@ A `struct`, such as our `SendEmailRequest` type, describes messages containing a
 
 Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-Each field also has a type, either explicitly or implicitly. If the type is missing, as it is for the `success` field above, then it implicitly defaults to a built-in type called `Unit`.
+Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`.
 
 ### Generate code for serialization and deserialization
 
@@ -423,7 +423,7 @@ The following sections describe how Typical serializes your data.
 
 ### Variable-width integers
 
-Many situations require Typical to serialize integer values, e.g., field indices, user-provided integers, etc. Typical uses a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
+Many situations require Typical to serialize integer values, e.g., for encoding field indices, user-provided integers, etc. Typical uses a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
 
 #### Unsigned variable-width integers
 
@@ -446,7 +446,7 @@ The number of trailing zeros in the first byte indicates how many subsequent byt
 The encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical's encoding differs in two ways:
 
 1. For time efficiency reasons, Typical moves all the continuation bits to the first byte. This allows the continuation bits to be counted with a single CPU instruction on most processors, as mentioned above.
-2. For space efficiency reasons, Typical uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses two bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*.
+2. For space efficiency reasons, Typical uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses 2 bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*.
 
 #### Unsigned variable-width integers
 
@@ -455,8 +455,6 @@ To represent signed integers, Typical converts them into an unsigned "ZigZag" re
 Specifically, the ZigZag representation of a [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement) 64-bit integer `n` is `(n >> 63) ^ (n << 1)`, where `>>` is an [arithmetic shift](https://en.wikipedia.org/wiki/Arithmetic_shift). The inverse operation is `(n >> 1) ^ -(n & 1)`, where `>>` is a [logical shift](https://en.wikipedia.org/wiki/Logical_shift).
 
 To give you a sense of how it works, the ZigZag representations of the numbers (`0`, `-1`, `1`, `-2`, `2`) are (`0`, `1`, `2`, `3`, `4`), respectively.
-
-The conversion of signed integers to their ZigZag representations before their subsequent encoding as variable-width integers is also used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#signed_integers) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md#integer-encoding).
 
 ### User-defined `struct`s
 
@@ -500,7 +498,7 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
 - `U64` is normally encoded as a variable-width integer. Thus, it normally takes 1-9 bytes to encode, depending on the value. However, for field values (rather than, say, elements of an array), `0` is encoded as 0 bytes, and values equal to or greater than `567,382,630,219,904` are encoded as fixed-width 8-byte little-endian integers.
 - `S64` is normally first converted into the unsigned ZigZag representation, which is then encoded as a variable-width integer. Thus, it normally takes 1-9 bytes to encode, depending on the magnitude of the value. However, for field values (rather than, say, elements of an array), `0` is encoded as 0 bytes, and values for which the ZigZag representation is equal to or greater than `567,382,630,219,904` are encoded as fixed-width 8-byte [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement) little-endian integers (verbatim, not with a ZigZag representation).
 - `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`, including the special behavior in the case of field values if applicable. `false` takes 0 bytes to encode, and `true` takes 1 byte.
-- `Bytes` is encoded verbatim, with zero additional space overhead.
+- `Bytes` is encoded verbatim.
 - `String` is encoded as UTF-8.
 - Arrays (e.g., `[U64]`) are encoded in one of three ways:
   - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`, including the special behavior in the case of field values if applicable. Since the elements (of type `Unit`) take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
