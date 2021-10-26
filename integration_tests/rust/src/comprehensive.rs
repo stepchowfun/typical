@@ -176,7 +176,13 @@ pub fn run() -> io::Result<()> {
     for i in i64::MIN..=i64::MIN + 1000 {
         check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
     }
+    for i in (i64::MIN >> 32) - 1000..=(i64::MIN >> 32) + 1000 {
+        check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
+    }
     for i in -1000_i64..=1000_i64 {
+        check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
+    }
+    for i in (i64::MAX >> 32) - 1000..=(i64::MAX >> 32) + 1000 {
         check_match::<BarOut, BarIn>(BarOut::WRequired(i))?;
     }
     for i in i64::MAX - 1000..=i64::MAX {
@@ -188,6 +194,9 @@ pub fn run() -> io::Result<()> {
     check_match::<BarOut, BarIn>(BarOut::XRequired("Hello, World!".to_owned()))?;
 
     for i in u64::MIN..=u64::MIN + 1000 {
+        check_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
+    }
+    for i in (u64::MAX >> 32) - 1000..=(u64::MAX >> 32) + 1000 {
         check_match::<BarOut, BarIn>(BarOut::YRequired(i))?;
     }
     for i in u64::MAX / 2 - 1000..=u64::MAX / 2 + 1000 {

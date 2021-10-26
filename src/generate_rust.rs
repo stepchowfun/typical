@@ -177,7 +177,7 @@ fn serialize_varint<T: Write>(mut value: u64, writer: &mut T) -> io::Result<()> 
             ])
         }}
         567_382_630_219_904_u64..=72_624_976_668_147_839_u64 => {{
-            value -= 72_624_976_668_147_839_u64;
+            value -= 567_382_630_219_904_u64;
             writer.write_all(&[
                 0b1000_0000,
                 value as u8,
@@ -2011,7 +2011,7 @@ fn serialize_varint<T: Write>(mut value: u64, writer: &mut T) -> io::Result<()> 
             ])
         }
         567_382_630_219_904_u64..=72_624_976_668_147_839_u64 => {
-            value -= 72_624_976_668_147_839_u64;
+            value -= 567_382_630_219_904_u64;
             writer.write_all(&[
                 0b1000_0000,
                 value as u8,
