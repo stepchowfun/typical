@@ -2,7 +2,7 @@
 /artifacts/
 /examples/rust/target/
 /integration_tests/rust/target/
-/integration_tests/typescript/dist
+/integration_tests/typescript/dist/
 /integration_tests/typescript/node_modules/
 /integration_tests/typescript/src/types.ts
 /target/

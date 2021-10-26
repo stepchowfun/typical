@@ -1,15 +1,15 @@
 module.exports = {
   root: true,
   env: {
-    es2020: true,
+    es2021: true,
   },
   extends: [
     'eslint:recommended',
+    'airbnb-base',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'airbnb-base',
+    'plugin:import/typescript',
     'prettier',
-    'prettier/@typescript-eslint',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
