@@ -165,12 +165,12 @@ tasks:
       - integration_tests/typescript
     excluded_input_paths:
       - integration_tests/typescript/dist
+      - integration_tests/typescript/generated
       - integration_tests/typescript/node_modules
       - integration_tests/typescript/src/types.ts
     command: |
-      # Run Typical on the integration test scenario.
-      cargo-offline run generate integration_tests/types/main.t \
-        --typescript integration_tests/typescript/src/types.ts
+      # Add Typical to `$PATH`.
+      export PATH="$PWD/target/debug:$PATH"
 
       # Validate the resulting TypeScript code.
       (cd integration_tests/typescript && npm run check)
@@ -189,6 +189,7 @@ tasks:
       - examples/rust/target
       - integration_tests/rust/target
       - integration_tests/typescript/dist
+      - integration_tests/typescript/generated
       - integration_tests/typescript/node_modules
       - integration_tests/typescript/src/types.ts
       - target/
