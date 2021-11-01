@@ -36,7 +36,7 @@ choice SendEmailResponse {
 
 A `struct`, such as our `SendEmailRequest` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `SendEmailResponse` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). `struct`s and `choice`s are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
-Each field in a `struct` or a `choice` has both a name (e.g., `subject`) and an integer index (e.g., `1`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+Each field in a `struct` or a `choice` has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
 Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`.
 
@@ -52,7 +52,7 @@ Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/
 
 The client and server can then use the generated code to serialize and deserialize messages for mutual communication. If the client and server are written in different languages, you can generate code for each language.
 
-Note that Typical only does serialization and deserialization. It has nothing to do with service meshes, encryption, authentication, or authorization, but it can be used together with those technologies.
+Note that Typical only does serialization and deserialization. It has nothing to do with networking, encryption, authentication, or authorization, but it can be used together with those technologies.
 
 ### Serialize and deserialize messages
 
@@ -198,6 +198,8 @@ That means it's unsafe, in general, to add or remove required fields to a `choic
 Not to worry—`choice`s can have `optional` and `asymmetric` fields, just like `struct`s!
 
 An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. So readers aren't required to handle `optional` fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
+
+*Note:* An `optional` field in a `choice` is not simply a field with a nullable type. The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing.
 
 An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the `asymmetric` field directly. Thus, `asymmetric` fields in `choice`s behave like `optional` fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
 
@@ -383,8 +385,8 @@ The following built-in types are supported:
 
 - `Unit` is a type which holds no information. It's mainly used for the fields of `choice`s which represent enumerated types.
 - `F64` is the type of double-precision floating-point numbers as defined by IEEE 754.
-- `U64` is the type of unsigned 64-bit integers.
-- `S64` is the type of signed 64-bit integers.
+- `U64` is the type of integers in the range [`0, 2^64`).
+- `S64` is the type of integers in the range [`-2^63, 2^63`).
 - `Bool` is the type of Booleans.
   - You could define your own Boolean type as a `choice` with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
 - `Bytes` is the type of binary blobs with no further structure.
@@ -423,7 +425,7 @@ The following sections describe how Typical serializes your data.
 
 ### Variable-width integers
 
-Many situations require Typical to serialize integer values, e.g., for encoding field indices, buffer sizes, user-provided integers, etc. Typical uses a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
+Many situations require Typical to serialize integer values, e.g., for encoding field indices, buffer sizes, and user-provided integer data. Where appropriate, Typical uses a variable-width encoding that allows smaller integers to use fewer bytes. With the distributions that occur in practice, most integers end up consuming only a single byte.
 
 #### Unsigned variable-width integers
 
@@ -459,7 +461,7 @@ This variable-width integer encoding is similar to the "base 128 varints" used b
 
 #### Unsigned variable-width integers
 
-For signed integers, the valid range is [`-2^63`, `2^63 - 1`).
+For signed integers, the valid range is [`-2^63`, `2^63`).
 
 Typical converts signed integers into an unsigned "ZigZag" representation, and then encodes the unsigned result as described above. The ZigZag representation converts signed integers with small magnitudes into unsigned integers with small magnitudes, and signed integers with large magnitudes into unsigned integers with large magnitudes. This allows signed integers with small magnitudes to be encoded using fewer bytes.
 
@@ -508,7 +510,7 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
 - `F64` is normally encoded in the little-endian double-precision floating-point format defined by IEEE 754. Thus, it normally takes 8 bytes to encode. However, for field values (rather than, say, elements of an array), [positive zero](https://en.wikipedia.org/wiki/Signed_zero) is encoded as 0 bytes.
 - `U64` is normally encoded as a variable-width integer. Thus, it normally takes 1-9 bytes to encode, depending on the value. However, for field values (rather than, say, elements of an array), `0` is encoded as 0 bytes, and values equal to or greater than `567,382,630,219,904` are encoded as fixed-width 8-byte little-endian integers.
 - `S64` is normally first converted into the unsigned ZigZag representation, which is then encoded as a variable-width integer. Thus, it normally takes 1-9 bytes to encode, depending on the magnitude of the value. However, for field values (rather than, say, elements of an array), `0` is encoded as 0 bytes, and values for which the ZigZag representation is equal to or greater than `567,382,630,219,904` are encoded as fixed-width 8-byte [two's complement](https://en.wikipedia.org/wiki/Two%27s_complement) little-endian integers (verbatim, not with a ZigZag representation).
-- `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`, including the special behavior in the case of field values if applicable. `false` takes 0 bytes to encode, and `true` takes 1 byte.
+- `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`, including the special behavior in the case of field values if applicable. Thus, `false` takes 0 bytes to encode, and `true` takes 1 byte.
 - `Bytes` is encoded verbatim.
 - `String` is encoded as UTF-8.
 - Arrays (e.g., `[U64]`) are encoded in one of three ways:
@@ -592,7 +594,7 @@ If you prefer not to use this installation method, you can download the binary f
 
 ### Installation on Windows (x86-64)
 
-If you're running Windows on an x86-64 CPU, download the latest binary from the [releases page](https://github.com/stepchowfun/typical/releases) and rename it to `typical` (or `typical.exe` if you have file extensions visible). Create a directory called `Typical` in your `%PROGRAMFILES%` directory (e.g., `C:\Program Files\Typical`), and place the renamed binary in there. Then, in the "Advanced" tab of the "System Properties" section of Control Panel, click on "Environment Variables..." and add the full path to the new `Typical` directory to the `PATH` variable under "System variables". Note that the `Program Files` directory might have a different name if Windows is configured for language other than English.
+If you're running Windows on an x86-64 CPU, download the latest binary from the [releases page](https://github.com/stepchowfun/typical/releases) and rename it to `typical` (or `typical.exe` if you have file extensions visible). Create a directory called `Typical` in your `%PROGRAMFILES%` directory (e.g., `C:\Program Files\Typical`), and place the renamed binary in there. Then, in the "Advanced" tab of the "System Properties" section of Control Panel, click on "Environment Variables..." and add the full path to the new `Typical` directory to the `PATH` variable under "System variables". Note that the `Program Files` directory might have a different name if Windows is configured for a language other than English.
 
 To update to an existing installation, simply replace the existing binary.
 
