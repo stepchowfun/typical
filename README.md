@@ -429,7 +429,7 @@ Many situations require Typical to serialize integer values, e.g., for encoding 
 
 #### Unsigned variable-width integers
 
-For unsigned integers, the valid range is [`0`, `2^64`).
+The valid range for unsigned variable-width integers is [`0`, `2^64`).
 
 Let `n` be the integer to be encoded. The encoding scheme described below is [little-endian](https://en.wikipedia.org/wiki/Endianness), so the last byte contains the most significant bits.
 
@@ -459,9 +459,9 @@ This variable-width integer encoding is similar to the "base 128 varints" used b
 1. For time efficiency reasons, Typical moves all the continuation bits to the first byte. This allows the continuation bits to be counted with a single CPU instruction on most processors, as mentioned above.
 2. For space efficiency reasons, Typical uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses 2 bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*.
 
-#### Unsigned variable-width integers
+#### Signed variable-width integers
 
-For signed integers, the valid range is [`-2^63`, `2^63`).
+The valid range for signed variable-width integers is [`-2^63`, `2^63`).
 
 Typical converts signed integers into an unsigned "ZigZag" representation, and then encodes the unsigned result as described above. The ZigZag representation converts signed integers with small magnitudes into unsigned integers with small magnitudes, and signed integers with large magnitudes into unsigned integers with large magnitudes. This allows signed integers with small magnitudes to be encoded using fewer bytes.
 
