@@ -34,9 +34,9 @@ choice SendEmailResponse {
 }
 ```
 
-A `struct`, such as our `SendEmailRequest` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A `choice`, such as our `SendEmailResponse` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). `struct`s and `choice`s are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
+A *struct*, such as our `SendEmailRequest` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A *choice*, such as our `SendEmailResponse` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
-Each field in a `struct` or a `choice` has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+Each field in a struct or a choice has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
 Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`.
 
@@ -84,7 +84,7 @@ The full code for this example can be found [here](https://github.com/stepchowfu
 
 We'll see in the next section why our `SendEmailRequest` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
 
-## Required, `optional`, and `asymmetric` fields
+## Required, optional, and asymmetric fields
 
 Fields are required by default. This is an unusual design decision, since required fields are often thought to cause trouble for backward and forward compatibility between schema versions. Let's explore this topic in detail and see how Typical deals with it.
 
@@ -107,9 +107,9 @@ That kind of attentive rollout may not be feasible. You may not be in control of
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
-### The trouble with promoting `optional` fields to required and vice versa
+### The trouble with promoting optional fields to required and vice versa
 
-A somewhat safer way to introduce a required field is to first introduce it as `optional`, and later promote it to required. For example, you can safely introduce this change:
+A somewhat safer way to introduce a required field is to first introduce it as optional, and later promote it to required. For example, you can safely introduce this change:
 
 ```perl
 struct SendEmailRequest {
@@ -122,13 +122,13 @@ struct SendEmailRequest {
 
 You would then update clients to set the new field. Once you're confident that the new field is always being set, you can promote it to required.
 
-The trouble is that, as long as the field is `optional`, you can't rely on the type system to ensure the new field is always being set. Even if you're confident you've updated the client code appropriately, a collaborator might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
+The trouble is that, as long as the field is optional, you can't rely on the type system to ensure the new field is always being set. Even if you're confident you've updated the client code appropriately, a collaborator might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
 
-You can run into analogous trouble when demoting a required field to `optional`. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated promptly enough.
+You can run into analogous trouble when demoting a required field to optional. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated promptly enough.
 
-### The trouble with making every field `optional`
+### The trouble with making every field optional
 
-Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared `optional`. For example:
+Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared optional. For example:
 
 ```perl
 struct SendEmailRequest {
@@ -138,13 +138,13 @@ struct SendEmailRequest {
 }
 ```
 
-However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared as `optional` places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the fields, and readers must address the case of the fields being missing to satisfy the type checker even though those fields are always supposed to be set.
+However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared optional places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the fields, and readers must address the case of the fields being missing to satisfy the type checker even though those fields are always supposed to be set.
 
-### Introducing: `asymmetric` fields
+### Introducing: asymmetric fields
 
-Typical offers an intermediate state between `optional` and required: `asymmetric`. An `asymmetric` field in a `struct` is considered required for the writer, but `optional` for the reader. Unlike `optional` fields, an `asymmetric` field can be safely promoted to required and vice versa.
+Typical offers an intermediate state between optional and required: asymmetric. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
 
-Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as `asymmetric`:
+Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as asymmetric:
 
 ```perl
 struct SendEmailRequest {
@@ -181,29 +181,29 @@ impl Deserialize for SendEmailRequestIn {
 }
 ```
 
-We can see the effect of `from` being an `asymmetric` field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) aren't yet allowed to rely on it. Once this change has been rolled out (at least to clients), we can safely promote the field to required in a subsequent change.
+We can see the effect of `from` being an asymmetric field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) aren't yet allowed to rely on it. Once this change has been rolled out (at least to clients), we can safely promote the field to required in a subsequent change.
 
-It works in reverse too. Suppose we now want to remove a required field. It may be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to `asymmetric`, which forces servers to consider it `optional` and handle its potential absence, even though clients are still required to set it. Once that change has been rolled out (at least to servers), we can confidently delete the field (or demote it to `optional`), as the servers no longer rely on it.
+It works in reverse too. Suppose we now want to remove a required field. It may be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to asymmetric, which forces servers to consider it optional and handle its potential absence, even though clients are still required to set it. Once that change has been rolled out (at least to servers), we can confidently delete the field (or demote it to optional), as the servers no longer rely on it.
 
-In some situations, a field might stay in the `asymmetric` state for months, say, if you're waiting for a sufficient fraction of your users to update your mobile app. Typical can help immensely in those situations by preventing new code which uses the field inappropriately from being introduced during that period.
+In some situations, a field might stay in the asymmetric state for months, say, if you're waiting for a sufficient fraction of your users to update your mobile app. Typical can help immensely in those situations by preventing new code which uses the field inappropriately from being introduced during that period.
 
-### What about `choice`s?
+### What about choices?
 
-Our discussion so far has been framed around `struct`s, since they are more familiar to most programmers. However, the same kind of consideration must be given to `choice`s.
+Our discussion so far has been framed around structs, since they are more familiar to most programmers. However, the same kind of consideration must be given to choices.
 
-The code generated for `choice`s supports case analysis, so clients can take different actions depending on which field was set. Happily, this is done in a way that ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a `choice` if they don't recognize the field that was set.
+The code generated for choices supports case analysis, so clients can take different actions depending on which field was set. Happily, this is done in a way that ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a choice if they don't recognize the field that was set.
 
-That means it's unsafe, in general, to add or remove required fields to a `choice`—just like with `struct`s. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
+That means it's unsafe, in general, to add or remove required fields to a choice—just like with structs. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
 
-Not to worry—`choice`s can have `optional` and `asymmetric` fields, just like `struct`s!
+Not to worry—choices can have optional and asymmetric fields, just like structs!
 
-An `optional` field of a `choice` must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. So readers aren't required to handle `optional` fields; hence, *optional*. Note that the fallback itself might be `optional`, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
+An optional field of a choice must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. So readers aren't required to handle optional fields; hence, *optional*. Note that the fallback itself might be optional, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
-**Note:** An `optional` field in a `choice` is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for `struct`s and `choice`s, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a `struct` relaxes the burden on writers (they don't have to set the field), whereas for a `choice` the burden is relaxed on readers (they don't have to handle the field). This important insight about duality comes from category theory.
+**Note:** An optional field in a choice is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field). This important insight about duality comes from category theory.
 
-An `asymmetric` field must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the `asymmetric` field directly. Thus, `asymmetric` fields in `choice`s behave like `optional` fields for writers and like required fields for readers—the opposite of their behavior in `struct`s.
+An asymmetric field must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs.
 
-As with `struct`s, an `asymmetric` field in a `choice` can be safely promoted to required and vice versa.
+As with structs, an asymmetric field in a choice can be safely promoted to required and vice versa.
 
 Consider a more elaborate version of our API response type:
 
@@ -216,7 +216,7 @@ choice SendEmailResponse {
 }
 ```
 
-Let's inspect the generated code. As with `struct`s, we end up with separate types for serialization and deserialization:
+Let's inspect the generated code. As with structs, we end up with separate types for serialization and deserialization:
 
 ```rust
 pub enum SendEmailResponseOut {
@@ -244,9 +244,9 @@ impl Deserialize for SendEmailResponseIn {
 
 The required cases (`Success` and `Error`) are as you would expect in both types.
 
-The `optional` case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback. A writer might set the less specific `Error` case as the fallback. Readers can use the fallback if they don't wish to handle the optional case, and readers which don't even know about the optional case will use the fallback automatically.
+The optional case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback. A writer might set the less specific `Error` case as the fallback. Readers can use the fallback if they don't wish to handle the optional case, and readers which don't even know about the optional case will use the fallback automatically.
 
-The `asymmetric` case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to `optional` or nonexistent (which will stop readers from having to handle it).
+The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to optional or nonexistent (which will stop readers from having to handle it).
 
 ### What about default values?
 
@@ -257,9 +257,9 @@ Typical has no notion of a "default" value for each type. This means, for exampl
 Any schema can be safely migrated to any other schema through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
-- You can safely add and remove `optional` and `asymmetric` fields.
-- You can safely convert any fields to `asymmetric` and vice versa.
-- You can safely convert a `struct` with exactly one field, which must be required, into a `choice` with just that field and vice versa.
+- You can safely add and remove optional and asymmetric fields.
+- You can safely convert any fields to asymmetric and vice versa.
+- You can safely convert a struct with exactly one field, which must be required, into a choice with just that field and vice versa.
 - No other changes are guaranteed to be safe.
 
 In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is reflexive (every schema is compatible with itself) and symmetric (forward compatibility and backward compatibility imply each other), but not transitive (two individually safe schema changes are not necessarily safe as a single change).
@@ -324,7 +324,7 @@ struct Employee {
 
 ### User-defined types
 
-Every user-defined type is either a `struct` or a `choice`, and they have the same abstract syntax: a name, an optional list of indices of deleted fields, and a list of fields. Here's are some examples of user-defined types:
+Every user-defined type is either a struct or a choice, and they have the same abstract syntax: a name, an optional list of indices of deleted fields, and a list of fields. Here's are some examples of user-defined types:
 
 ```perl
 import 'apis/email.t'
@@ -367,7 +367,7 @@ The index is a non-negative integer which is required to be unique within the ty
 
 #### Deleted fields
 
-If you delete a field, you must be careful not to reuse that field's index for any new fields as long as there are messages still containing the deleted field. Otherwise, the old field would be decoded as the new field, which is likely to result in deserialization errors and is almost certainly not what you want. To avoid this, you can reserve the indices of deleted fields to prevent them from being reused. For example, if we delete the `ip_address` and `owner` fields from the `Device` `struct` above, we can reserve their indices as follows:
+If you delete a field, you must be careful not to reuse that field's index for any new fields as long as there are messages still containing the deleted field. Otherwise, the old field would be decoded as the new field, which is likely to result in deserialization errors and is almost certainly not what you want. To avoid this, you can reserve the indices of deleted fields to prevent them from being reused. For example, if we delete the `ip_address` and `owner` fields from the `Device` struct above, we can reserve their indices as follows:
 
 ```perl
 struct Device {
@@ -383,12 +383,12 @@ Typical will then prevent us from introducing new fields with those indices.
 
 The following built-in types are supported:
 
-- `Unit` is a type which holds no information. It's mainly used for the fields of `choice`s which represent enumerated types.
+- `Unit` is a type which holds no information. It's mainly used for the fields of choices which represent enumerated types.
 - `F64` is the type of double-precision floating-point numbers as defined by IEEE 754.
 - `U64` is the type of integers in the range [`0, 2^64`).
 - `S64` is the type of integers in the range [`-2^63, 2^63`).
 - `Bool` is the type of Booleans.
-  - You could define your own Boolean type as a `choice` with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
+  - You could define your own Boolean type as a choice with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
 - `Bytes` is the type of binary blobs with no further structure.
 - `String` is the type of Unicode strings.
 - Arrays (e.g., `[U64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[String]]`).
@@ -409,7 +409,7 @@ Typical doesn't require any particular naming convention or formatting style. Ho
 - Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema files.
 - Indent fields with 4 spaces.
 
-Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a `struct` named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
+Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a struct named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
 
 ## Security
 
@@ -469,9 +469,9 @@ Specifically, the ZigZag representation of a [two's complement](https://en.wikip
 
 To give you a sense of how it works, the ZigZag representations of the numbers (`0`, `-1`, `1`, `-2`, `2`) are (`0`, `1`, `2`, `3`, `4`), respectively.
 
-### User-defined `struct`s
+### User-defined structs
 
-A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the value is encoded according to its type and the header is encoded as one or two contiguous parts:
+A struct is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the value is encoded according to its type and the header is encoded as one or two contiguous parts:
 
   - The first part of the header is an unsigned integer *tag*, which is encoded as a variable-width integer. The meaning of the tag is as follows:
     - The two least significant bits of the tag (not its variable-width encoding) are called the *size mode* and indicate how to compute the size of the value:
@@ -484,23 +484,23 @@ A `struct` is encoded as the contiguous arrangement of (*header*, *value*) pairs
 
 For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the header is encoded as a single byte.
 
-A `struct` must follow these rules:
+A struct must follow these rules:
 
 - Encoding rules:
-  - Optional fields may be missing, but required and `asymmetric` fields must be present.
+  - Optional fields may be missing, but required and asymmetric fields must be present.
 - Decoding rules:
   - Unrecognized fields are ignored.
-  - All required fields must be present, whereas `optional` and `asymmetric` fields may be missing.
+  - All required fields must be present, whereas optional and asymmetric fields may be missing.
 
-### User-defined `choice`s
+### User-defined choices
 
-A `choice` is encoded in the same way as a `struct`, but with different rules:
+A choice is encoded in the same way as a struct, but with different rules:
 
 - Encoding rules:
   - At least one required field must be present.
 - Decoding rules:
   - The first field recognized by the receiver is used.
-  - At least one required or `asymmetric` field must be present.
+  - At least one required or asymmetric field must be present.
 
 For a simple enumerated type (such as `Weekday` above), a field with an index less than 32 takes up a single byte.
 
