@@ -38,7 +38,7 @@ A *struct*, such as our `SendEmailRequest` type, describes messages containing a
 
 Each field in a struct or a choice has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
-Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`.
+Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`. The `Unit` type holds no information and takes zero bytes to encode.
 
 ### Generate code for serialization and deserialization
 
@@ -122,9 +122,9 @@ struct SendEmailRequest {
 
 You would then update clients to set the new field. Once you're confident that the new field is always being set, you can promote it to required.
 
-The trouble is that, as long as the field is optional, you can't rely on the type system to ensure the new field is always being set. Even if you're confident you've updated the client code appropriately, a collaborator might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
+The trouble is that, as long as the field is optional, you can't rely on the type system to ensure the new field is always being set. Even if you're confident you've updated the client code appropriately, a fellow teammate might not be aware of your efforts and might introduce a new violation of your policy before you have the chance to promote the field to required.
 
-You can run into analogous trouble when demoting a required field to optional. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated promptly enough.
+You can run into similar trouble when demoting a required field to optional. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated promptly enough.
 
 ### The trouble with making every field optional
 
@@ -417,7 +417,7 @@ The generated deserialization code is designed to be safe from malicious inputs 
 
 There is currently no way to configure resource limits, so it's good practice to reject implausibly large messages before attempting to deserialize them. It's also good practice to apply techniques like [rate limiting](https://en.wikipedia.org/wiki/Rate_limiting) to mitigate [denial-of-service attacks](https://en.wikipedia.org/wiki/Denial-of-service_attack).
 
-In general, you can expect the size of a deserialized message in memory to be within the same order of magnitude as the size of the corresponding serialized message on the wire. However, there is one exception: for values of type `[Unit]` (array of units), only the number of elements is encoded, since the `Unit` values themselves take up zero bytes on the wire. That means an attacker can force the deserialization logic to reconstruct arbitrarily large arrays of units given only the number of elements (cf. [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack)). For this reason, we strongly recommend avoiding the use of `[Unit]` in your schema if you intend to consume untrusted inputs. This isn't a major loss, however, since that type is generally useless anyway. It's only supported for the uniformity of the type system; the array [type constructor](https://en.wikipedia.org/wiki/Type_constructor) accepts any type for its argument, even if some combinations have no practical purpose.
+In general, you can expect the size of a deserialized message in memory to be within the same order of magnitude as the size of the corresponding serialized message on the wire. However, there is one exception: for values of type `[Unit]` (array of units), only the number of elements is encoded, since the `Unit` values themselves take up zero bytes on the wire. That means an attacker can force the deserialization logic to reconstruct arbitrarily large arrays of units given only the number of elements (see [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack)). For this reason, we strongly recommend avoiding the use of `[Unit]` in your schema if you intend to consume untrusted inputs. This isn't a major loss, however, since that type is generally useless anyway. It's only supported for the uniformity of the type system; the array [type constructor](https://en.wikipedia.org/wiki/Type_constructor) accepts any type for its argument, even if some combinations have no practical purpose.
 
 ## Binary encoding
 
@@ -489,8 +489,8 @@ A struct must follow these rules:
 - Encoding rules:
   - Optional fields may be missing, but required and asymmetric fields must be present.
 - Decoding rules:
-  - Unrecognized fields are ignored.
   - All required fields must be present, whereas optional and asymmetric fields may be missing.
+  - Unrecognized fields are ignored.
 
 ### User-defined choices
 
@@ -499,8 +499,8 @@ A choice is encoded in the same way as a struct, but with different rules:
 - Encoding rules:
   - At least one required field must be present.
 - Decoding rules:
-  - The first field recognized by the receiver is used.
   - At least one required or asymmetric field must be present.
+  - The first field recognized by the receiver is used.
 
 For a simple enumerated type (such as `Weekday` above), a field with an index less than 32 takes up a single byte.
 
