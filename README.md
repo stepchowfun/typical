@@ -45,7 +45,7 @@ Each field also has a type. If the type is missing, as it is for the `success` f
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
 ```sh
-typical generate email_api.t --rust-out email_api.rs
+typical generate email_api.t --rust email_api.rs
 ```
 
 Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/main/examples/rust) for how to automate this with a [Cargo build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
@@ -525,7 +525,7 @@ Notice that several types can take advantage of a more compact representation wh
 Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `main.t` with the following:
 
 ```sh
-typical generate main.t --rust-out types.rs --typescript-out types.ts
+typical generate main.t --rust types.rs --typescript types.ts
 ```
 
 Here are the supported command-line options:
@@ -560,8 +560,8 @@ FLAGS:
     -h, --help    Prints help information
 
 OPTIONS:
-        --rust-out <PATH>          Sets the path of the Rust file to emit
-        --typescript-out <PATH>    Sets the path of the TypeScript file to emit
+        --rust <PATH>          Sets the path of the Rust file to emit
+        --typescript <PATH>    Sets the path of the TypeScript file to emit
 
 ARGS:
     <SCHEMA_PATH>    Sets the path of the schema

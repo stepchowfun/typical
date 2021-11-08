@@ -42,8 +42,8 @@ const BIN_NAME: &str = "typical";
 // Command-line option and subcommand names
 const GENERATE_SUBCOMMAND: &str = "generate";
 const GENERATE_SUBCOMMAND_PATH_OPTION: &str = "generate-path";
-const GENERATE_SUBCOMMAND_RUST_OUT_FILE_OPTION: &str = "rust-out";
-const GENERATE_SUBCOMMAND_TYPESCRIPT_OUT_FILE_OPTION: &str = "typescript-out";
+const GENERATE_SUBCOMMAND_RUST_OPTION: &str = "rust";
+const GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION: &str = "typescript";
 const SHELL_COMPLETION_SUBCOMMAND: &str = "shell-completion";
 const SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION: &str = "shell-completion-shell";
 
@@ -69,15 +69,15 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
                         .required(true), // [tag:generate_subcommand_path_required]
                 )
                 .arg(
-                    Arg::with_name(GENERATE_SUBCOMMAND_RUST_OUT_FILE_OPTION)
+                    Arg::with_name(GENERATE_SUBCOMMAND_RUST_OPTION)
                         .value_name("PATH")
-                        .long(GENERATE_SUBCOMMAND_RUST_OUT_FILE_OPTION)
+                        .long(GENERATE_SUBCOMMAND_RUST_OPTION)
                         .help("Sets the path of the Rust file to emit"),
                 )
                 .arg(
-                    Arg::with_name(GENERATE_SUBCOMMAND_TYPESCRIPT_OUT_FILE_OPTION)
+                    Arg::with_name(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
                         .value_name("PATH")
-                        .long(GENERATE_SUBCOMMAND_TYPESCRIPT_OUT_FILE_OPTION)
+                        .long(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
                         .help("Sets the path of the TypeScript file to emit"),
                 ),
         )
@@ -234,14 +234,14 @@ fn entry() -> Result<(), Error> {
             let rust_out = matches
                 .subcommand_matches(GENERATE_SUBCOMMAND)
                 .unwrap() // [ref:generate_subcommand]
-                .value_of(GENERATE_SUBCOMMAND_RUST_OUT_FILE_OPTION)
+                .value_of(GENERATE_SUBCOMMAND_RUST_OPTION)
                 .map(Path::new);
 
             // Determine the path to the TypeScript output file, if provided.
             let typescript_out = matches
                 .subcommand_matches(GENERATE_SUBCOMMAND)
                 .unwrap() // [ref:generate_subcommand]
-                .value_of(GENERATE_SUBCOMMAND_TYPESCRIPT_OUT_FILE_OPTION)
+                .value_of(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
                 .map(Path::new);
 
             // Generate code for the schema.
