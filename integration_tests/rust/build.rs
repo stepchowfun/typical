@@ -15,7 +15,7 @@ fn main() {
     let output = Command::new("typical")
         .arg("generate")
         .arg(SCHEMA_PATH)
-        .arg("--rust-out")
+        .arg("--rust")
         .arg(Path::new(&out_dir).join("types.rs"))
         .output()
         .expect("Failed to run Typical. Is it installed?");
