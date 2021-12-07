@@ -557,10 +557,12 @@ In particular, the `generate` subcommand has the following options:
 
 ```
 USAGE:
-    typical generate [OPTIONS] <SCHEMA_PATH>
+    typical generate [FLAGS] [OPTIONS] <SCHEMA_PATH>
 
 FLAGS:
-    -h, --help    Prints help information
+    -h, --help            Prints help information
+        --list-schemas    Lists the schemas imported by the given schema (and the given
+                          schema itself)
 
 OPTIONS:
         --rust <PATH>          Sets the path of the Rust file to emit
