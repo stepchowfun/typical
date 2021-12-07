@@ -2,11 +2,14 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* helps you [serialize](https://en.wikipedia.org/wiki/Serialization) data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates the corresponding serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
+*Typical* helps you [serialize](https://en.wikipedia.org/wiki/Serialization) data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact binary encoding which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages which embrace that style, such as Rust, Swift, Kotlin, Haskell, etc. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in structs as well as the lesser-known dual problem of how to safely add and remove cases in sum types while supporting exhaustive pattern matching.
+The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you use languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)). Satisfyingly, the same solution also addresses the dual problem of how to safely add and remove cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
 
-In short, Typical offers two important features that are conventionally thought to be at odds: (1) uncompromising type safety and (2) binary compatibility between schema versions.
+In short, Typical offers two important features that are conventionally thought to be at odds:
+
+1. Uncompromising type safety
+2. Binary compatibility between schema versions
 
 **Supported languages:**
 
@@ -15,11 +18,11 @@ In short, Typical offers two important features that are conventionally thought 
 
 ## Introduction
 
-Suppose you want to build an API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. *Typical* has a great story to tell about those things.
+To understand what this is all about, let's start with an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
 
 ### Write a schema
 
-You can start by creating a schema file called `email_api.t` with the relevant types for your email API:
+You can start by creating a schema file called `email_api.t` (or any other name you prefer) with the relevant types for your email API:
 
 ```perl
 struct SendEmailRequest {
@@ -34,7 +37,7 @@ choice SendEmailResponse {
 }
 ```
 
-A *struct*, such as our `SendEmailRequest` type, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A *choice*, such as our `SendEmailResponse` type, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
+A *struct*, such as `SendEmailRequest`, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A *choice*, such as `SendEmailResponse`, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
 Each field in a struct or a choice has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
 
@@ -142,7 +145,7 @@ However, this advice ignores the reality that some things really are *semantical
 
 ### Introducing: asymmetric fields
 
-Typical offers an intermediate state between optional and required: asymmetric. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
+Typical offers an intermediate state between optional and required: *asymmetric*. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
 
 Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as asymmetric:
 
