@@ -18,7 +18,7 @@ In short, Typical offers two important features that are conventionally thought 
 
 ## Introduction
 
-To understand what this is all about, let's start with an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
+To understand what this is all about, let's walk through an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
 
 ### Write a schema
 
