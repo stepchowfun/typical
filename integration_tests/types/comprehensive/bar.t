@@ -1,39 +1,51 @@
 choice Bar {
-    deleted 33 34 35
+    deleted 15 31 47
 
-    p_required: [Unit] = 0
-    q_required: [F64] = 1
-    r_required: [S64] = 2
-    s_required: [[String]] = 3
-    t_required: Bool = 4
-    u_required: Bytes = 5
-    v_required: F64 = 6
-    w_required: S64 = 7
-    x_required: String = 8
-    y_required: U64 = 9
-    z_required = 10
+    a_required = 0
+    b_required: F64 = 1
+    c_required: U64 = 2
+    d_required: S64 = 3
+    e_required: Bool = 4
+    f_required: Bytes = 5
+    g_required: String = 6
+    h_required: [Unit] = 7
+    i_required: [F64] = 8
+    j_required: [U64] = 9
+    k_required: [S64] = 10
+    l_required: [Bool] = 11
+    m_required: [Bytes] = 12
+    n_required: [String] = 13
+    o_required: [[String]] = 14
 
-    asymmetric p_asymmetric: [Unit] = 11
-    asymmetric q_asymmetric: [F64] = 12
-    asymmetric r_asymmetric: [S64] = 13
-    asymmetric s_asymmetric: [[String]] = 14
-    asymmetric t_asymmetric: Bool = 15
-    asymmetric u_asymmetric: Bytes = 16
-    asymmetric v_asymmetric: F64 = 17
-    asymmetric w_asymmetric: S64 = 18
-    asymmetric x_asymmetric: String = 19
-    asymmetric y_asymmetric: U64 = 20
-    asymmetric z_asymmetric = 21
+    asymmetric a_asymmetric = 16
+    asymmetric b_asymmetric: F64 = 17
+    asymmetric c_asymmetric: U64 = 18
+    asymmetric d_asymmetric: S64 = 19
+    asymmetric e_asymmetric: Bool = 20
+    asymmetric f_asymmetric: Bytes = 21
+    asymmetric g_asymmetric: String = 22
+    asymmetric h_asymmetric: [Unit] = 23
+    asymmetric i_asymmetric: [F64] = 24
+    asymmetric j_asymmetric: [U64] = 25
+    asymmetric k_asymmetric: [S64] = 26
+    asymmetric l_asymmetric: [Bool] = 27
+    asymmetric m_asymmetric: [Bytes] = 28
+    asymmetric n_asymmetric: [String] = 29
+    asymmetric o_asymmetric: [[String]] = 30
 
-    optional p_optional: [Unit] = 22
-    optional q_optional: [F64] = 23
-    optional r_optional: [S64] = 24
-    optional s_optional: [[String]] = 25
-    optional t_optional: Bool = 26
-    optional u_optional: Bytes = 27
-    optional v_optional: F64 = 28
-    optional w_optional: S64 = 29
-    optional x_optional: String = 30
-    optional y_optional: U64 = 31
-    optional z_optional = 32
+    optional a_optional = 32
+    optional b_optional: F64 = 33
+    optional c_optional: U64 = 34
+    optional d_optional: S64 = 35
+    optional e_optional: Bool = 36
+    optional f_optional: Bytes = 37
+    optional g_optional: String = 38
+    optional h_optional: [Unit] = 39
+    optional i_optional: [F64] = 40
+    optional j_optional: [U64] = 41
+    optional k_optional: [S64] = 42
+    optional l_optional: [Bool] = 43
+    optional m_optional: [Bytes] = 44
+    optional n_optional: [String] = 45
+    optional o_optional: [[String]] = 46
 }
