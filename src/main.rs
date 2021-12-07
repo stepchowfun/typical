@@ -44,6 +44,7 @@ const GENERATE_SUBCOMMAND: &str = "generate";
 const GENERATE_SUBCOMMAND_PATH_OPTION: &str = "generate-path";
 const GENERATE_SUBCOMMAND_RUST_OPTION: &str = "rust";
 const GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION: &str = "typescript";
+const GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION: &str = "list-schemas";
 const SHELL_COMPLETION_SUBCOMMAND: &str = "shell-completion";
 const SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION: &str = "shell-completion-shell";
 
@@ -67,6 +68,14 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
                         .value_name("SCHEMA_PATH")
                         .help("Sets the path of the schema")
                         .required(true), // [tag:generate_subcommand_path_required]
+                )
+                .arg(
+                    Arg::with_name(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION)
+                        .long(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION)
+                        .help(
+                            "Lists the schemas imported by the given schema (and the given schema \
+                            itself)",
+                        ),
                 )
                 .arg(
                     Arg::with_name(GENERATE_SUBCOMMAND_RUST_OPTION)
@@ -102,6 +111,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 // Generate code for a schema and its transitive dependencies.
 fn generate_code(
     schema_path: &Path,
+    list_schemas: bool,
     rust_out: Option<&Path>,
     typescript_out: Option<&Path>,
 ) -> Result<(), Error> {
@@ -113,6 +123,18 @@ fn generate_code(
     // Validate the schemas.
     eprintln!("Validating schemas\u{2026}");
     validate(&schemas).map_err(|errors| merge_errors(&errors))?;
+
+    // Print the schema paths, if applicable.
+    if list_schemas {
+        eprintln!("Listing schemas\u{2026}");
+
+        // The `unwrap` is safe since otherwise the schema would've failed to load above.
+        let directory = schema_path.parent().unwrap();
+
+        for (_, source_path, _) in schemas.values() {
+            println!("{}", directory.join(source_path).to_string_lossy());
+        }
+    }
 
     // Generate Rust code, if applicable.
     if let Some(rust_out) = rust_out {
@@ -220,32 +242,33 @@ fn entry() -> Result<(), Error> {
     match matches.subcommand_name() {
         // [tag:generate_subcommand]
         Some(subcommand) if subcommand == GENERATE_SUBCOMMAND => {
+            // Get the subcommand matches. The `unwrap` is safe due to [ref:generate_subcommand].
+            let subcommand_matches = matches.subcommand_matches(GENERATE_SUBCOMMAND).unwrap();
+
             // Determine the path to the schema file.
             let schema_path = Path::new(
-                matches
-                    .subcommand_matches(GENERATE_SUBCOMMAND)
-                    .unwrap() // [ref:generate_subcommand]
+                subcommand_matches
                     .value_of(GENERATE_SUBCOMMAND_PATH_OPTION)
                     // [ref:generate_subcommand_path_required]
                     .unwrap(),
             );
 
+            // Determine if the user wants to list the schemas.
+            let list_schemas =
+                subcommand_matches.is_present(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION);
+
             // Determine the path to the Rust output file, if provided.
-            let rust_out = matches
-                .subcommand_matches(GENERATE_SUBCOMMAND)
-                .unwrap() // [ref:generate_subcommand]
+            let rust_out = subcommand_matches
                 .value_of(GENERATE_SUBCOMMAND_RUST_OPTION)
                 .map(Path::new);
 
             // Determine the path to the TypeScript output file, if provided.
-            let typescript_out = matches
-                .subcommand_matches(GENERATE_SUBCOMMAND)
-                .unwrap() // [ref:generate_subcommand]
+            let typescript_out = subcommand_matches
                 .value_of(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
                 .map(Path::new);
 
             // Generate code for the schema.
-            generate_code(schema_path, rust_out, typescript_out)?;
+            generate_code(schema_path, list_schemas, rust_out, typescript_out)?;
         }
 
         // [tag:shell_completion_subcommand]
