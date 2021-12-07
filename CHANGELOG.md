@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2021-12-06
+
+### Fixed
+- Fixed a bug that would prevent the generated Rust code from compiling for schemas that contain anything of type `[U64]`. The bug was discovered by a newly expanded integration test suite.
+
 ## [0.1.0] - 2021-11-08
 
 ### Changed
