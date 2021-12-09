@@ -458,7 +458,7 @@ The number of trailing zeros in the first byte indicates how many subsequent byt
 This variable-width integer encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical's encoding differs in two ways:
 
 1. For time efficiency reasons, Typical moves all the continuation bits to the first byte. This allows the continuation bits to be counted with a single CPU instruction on most processors, as mentioned above.
-2. For space efficiency reasons, Typical uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,511` uses 2 bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*.
+2. For space efficiency reasons, Typical uses a technique called [bijective numeration](https://en.wikipedia.org/wiki/Bijective_numeration), which uses fewer bytes in some cases and never uses more bytes than the aforementioned base 128 varint encoding. For example, the number `16,500` uses 2 bytes in Typical's encoding, but 3 bytes in the encoding used by Protocol Buffers and Thrift's *compact protocol*.
 
 #### Signed variable-width integers
 
