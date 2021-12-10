@@ -470,7 +470,9 @@ Specifically, the ZigZag representation of a [two's complement](https://en.wikip
 
 To give you a sense of how it works, the ZigZag representations of the numbers (`0`, `-1`, `1`, `-2`, `2`) are (`0`, `1`, `2`, `3`, `4`), respectively.
 
-### Structs
+### User-defined types
+
+#### Structs
 
 A struct is encoded as the contiguous arrangement of (*header*, *value*) pairs, one pair per field, where the value is encoded according to its type and the header is encoded as one or two parts:
 
@@ -493,7 +495,7 @@ A struct must follow these rules:
   - All required fields must be present, whereas optional and asymmetric fields may be missing.
   - Unrecognized fields are ignored.
 
-### Choices
+#### Choices
 
 A choice is encoded in the same way as a struct, but with different rules:
 
