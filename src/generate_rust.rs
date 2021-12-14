@@ -60,8 +60,9 @@ pub fn generate(
     let mut tree = Module {
         children: BTreeMap::new(),
         schema: schema::Schema {
+            comment: vec![],
             imports: BTreeMap::new(),
-            declarations: BTreeMap::new(),
+            declarations: vec![],
         },
     };
 
@@ -348,8 +349,9 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: &sc
             let mut child = Module {
                 children: BTreeMap::new(),
                 schema: schema::Schema {
+                    comment: vec![],
                     imports: BTreeMap::new(),
-                    declarations: BTreeMap::new(),
+                    declarations: vec![],
                 },
             };
 
@@ -438,14 +440,30 @@ fn write_schema<T: Write>(
 
     // Write the declarations.
     let mut iter = schema.declarations.iter().peekable();
-    while let Some((name, declaration)) = iter.next() {
+    while let Some(declaration) = iter.next() {
         match &declaration.variant {
-            schema::DeclarationVariant::Struct(fields, _) => {
-                write_struct(buffer, indentation, &imports, namespace, name, fields, Out)?;
+            schema::DeclarationVariant::Struct => {
+                write_struct(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &declaration.name,
+                    &declaration.fields,
+                    Out,
+                )?;
 
                 writeln!(buffer)?;
 
-                write_struct(buffer, indentation, &imports, namespace, name, fields, In)?;
+                write_struct(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &declaration.name,
+                    &declaration.fields,
+                    In,
+                )?;
 
                 writeln!(buffer)?;
 
@@ -453,17 +471,17 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(Out))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> usize {{")?;
-                if fields.is_empty() {
+                if declaration.fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "0")?;
                 }
-                for (i, field) in fields.iter().enumerate() {
+                for (i, field) in declaration.fields.iter().enumerate() {
                     let is_first = i == 0;
-                    let is_last = i == fields.len() - 1;
+                    let is_last = i == declaration.fields.len() - 1;
                     if is_first {
                         write_indentation(buffer, indentation + 2)?;
                     }
@@ -515,7 +533,7 @@ fn write_schema<T: Write>(
                     "fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> \
                         ::std::io::Result<()> {{",
                 )?;
-                for field in fields {
+                for field in &declaration.fields {
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {
                             write_indentation(buffer, indentation + 2)?;
@@ -573,7 +591,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Deserialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(In))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
@@ -588,8 +606,8 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "T: ::std::io::BufRead,")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
-                if !fields.is_empty() {
-                    for field in fields {
+                if !&declaration.fields.is_empty() {
+                    for field in &declaration.fields {
                         write_indentation(buffer, indentation + 2)?;
                         write!(buffer, "let mut ")?;
                         write_identifier(buffer, &field.name, Snake, None)?;
@@ -634,7 +652,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "match index {{")?;
-                for field in fields {
+                for field in &declaration.fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
                     write_deserialization_invocation(
@@ -665,14 +683,14 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
-                if fields.iter().any(|field| match field.rule {
+                if declaration.fields.iter().any(|field| match field.rule {
                     schema::Rule::Asymmetric | schema::Rule::Optional => false,
                     schema::Rule::Required => true,
                 }) {
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "if ")?;
                     let mut first = true;
-                    for field in fields {
+                    for field in &declaration.fields {
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {}
                             schema::Rule::Required => {
@@ -701,9 +719,9 @@ fn write_schema<T: Write>(
                 }
                 write_indentation(buffer, indentation + 2)?;
                 write!(buffer, "Ok(")?;
-                write_identifier(buffer, name, Pascal, Some(In))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
-                for field in fields {
+                for field in &declaration.fields {
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     match field.rule {
@@ -727,18 +745,18 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(buffer, name, Pascal, Some(Out))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "> for ")?;
-                write_identifier(buffer, name, Pascal, Some(In))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, name, Pascal, Some(Out))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                write_identifier(buffer, name, Pascal, Some(In))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
-                for field in fields {
+                for field in &declaration.fields {
                     match field.rule {
                         schema::Rule::Asymmetric => {
                             write_indentation(buffer, indentation + 3)?;
@@ -770,12 +788,28 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
             }
-            schema::DeclarationVariant::Choice(fields, _) => {
-                write_choice(buffer, indentation, &imports, namespace, name, fields, Out)?;
+            schema::DeclarationVariant::Choice => {
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &declaration.name,
+                    &declaration.fields,
+                    Out,
+                )?;
 
                 writeln!(buffer)?;
 
-                write_choice(buffer, indentation, &imports, namespace, name, fields, In)?;
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &declaration.name,
+                    &declaration.fields,
+                    In,
+                )?;
 
                 writeln!(buffer)?;
 
@@ -783,7 +817,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Serialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(Out))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "fn size(&self) -> usize {{")?;
@@ -791,9 +825,9 @@ fn write_schema<T: Write>(
                 // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
                 // https://github.com/rust-lang/rust/issues/78123.
                 writeln!(buffer, "match *self {{")?;
-                for field in fields {
+                for field in &declaration.fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, name, Pascal, Some(Out))?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
@@ -857,9 +891,9 @@ fn write_schema<T: Write>(
                 )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
-                for field in fields {
+                for field in &declaration.fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, name, Pascal, Some(Out))?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
@@ -928,7 +962,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "impl ")?;
                 write_supers(buffer, indentation)?;
                 write!(buffer, "Deserialize for ")?;
-                write_identifier(buffer, name, Pascal, Some(In))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
@@ -958,7 +992,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "match index {{")?;
-                for field in fields {
+                for field in &declaration.fields {
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "{} => {{", field.index)?;
                     write_deserialization_invocation(
@@ -974,13 +1008,13 @@ fn write_schema<T: Write>(
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "let fallback = Box::new(<")?;
-                            write_identifier(buffer, name, Pascal, Some(In))?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                             write!(buffer, " as ")?;
                             write_supers(buffer, indentation)?;
                             writeln!(buffer, "Deserialize>::deserialize(&mut *reader)?);")?;
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
-                            write_identifier(buffer, name, Pascal, Some(In))?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                             write!(buffer, "::")?;
                             write_identifier(buffer, &field.name, Pascal, None)?;
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
@@ -992,7 +1026,7 @@ fn write_schema<T: Write>(
                         schema::Rule::Asymmetric | schema::Rule::Required => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
-                            write_identifier(buffer, name, Pascal, Some(In))?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                             write!(buffer, "::")?;
                             write_identifier(buffer, &field.name, Pascal, None)?;
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
@@ -1025,19 +1059,19 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl From<")?;
-                write_identifier(buffer, name, Pascal, Some(Out))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "> for ")?;
-                write_identifier(buffer, name, Pascal, Some(In))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "fn from(message: ")?;
-                write_identifier(buffer, name, Pascal, Some(Out))?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, ") -> Self {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "match message {{")?;
-                for field in fields {
+                for field in &declaration.fields {
                     write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, name, Pascal, Some(Out))?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
@@ -1056,7 +1090,7 @@ fn write_schema<T: Write>(
                             }
                         }
                     }
-                    write_identifier(buffer, name, Pascal, Some(In))?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
@@ -6194,53 +6228,6 @@ pub mod comprehensive {
 
     pub mod main {
         #[derive(Clone, Debug)]
-        pub enum EmptyChoiceOut {
-        }
-
-        #[derive(Clone, Debug)]
-        pub enum EmptyChoiceIn {
-        }
-
-        impl super::super::Serialize for EmptyChoiceOut {
-            fn size(&self) -> usize {
-                match *self {
-                }
-            }
-
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                }
-            }
-        }
-
-        impl super::super::Deserialize for EmptyChoiceIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
-
-                    match index {
-                        _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
-                        }
-                    }
-                }
-            }
-        }
-
-        impl From<EmptyChoiceOut> for EmptyChoiceIn {
-            fn from(message: EmptyChoiceOut) -> Self {
-                match message {
-                }
-            }
-        }
-
-        #[derive(Clone, Debug)]
         pub struct EmptyStructOut {
         }
 
@@ -6294,6 +6281,53 @@ pub mod comprehensive {
         impl From<EmptyStructOut> for EmptyStructIn {
             fn from(message: EmptyStructOut) -> Self {
                 EmptyStructIn {
+                }
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum EmptyChoiceOut {
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum EmptyChoiceIn {
+        }
+
+        impl super::super::Serialize for EmptyChoiceOut {
+            fn size(&self) -> usize {
+                match *self {
+                }
+            }
+
+            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                match *self {
+                }
+            }
+        }
+
+        impl super::super::Deserialize for EmptyChoiceIn {
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+                T: ::std::io::BufRead,
+            {
+                loop {
+                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+
+                    match index {
+                        _ => {
+                            super::super::skip(&mut sub_reader, size as usize)?;
+                        }
+                    }
+                }
+            }
+        }
+
+        impl From<EmptyChoiceOut> for EmptyChoiceIn {
+            fn from(message: EmptyChoiceOut) -> Self {
+                match message {
                 }
             }
         }
@@ -6500,6 +6534,406 @@ pub mod main {
 
 pub mod schema_evolution {
     pub mod after {
+        #[derive(Clone, Debug)]
+        pub struct ExampleStructOut {
+            pub required_to_required: String,
+            pub required_to_asymmetric: String,
+            pub required_to_optional: Option<String>,
+            pub asymmetric_to_required: String,
+            pub asymmetric_to_asymmetric: String,
+            pub asymmetric_to_optional: Option<String>,
+            pub optional_none_to_asymmetric: String,
+            pub optional_none_to_optional: Option<String>,
+            pub optional_some_to_required: String,
+            pub optional_some_to_asymmetric: String,
+            pub optional_some_to_optional: Option<String>,
+            pub nonexistent_to_asymmetric: String,
+            pub nonexistent_to_optional: Option<String>,
+        }
+
+        #[derive(Clone, Debug)]
+        pub struct ExampleStructIn {
+            pub required_to_required: String,
+            pub required_to_asymmetric: Option<String>,
+            pub required_to_optional: Option<String>,
+            pub asymmetric_to_required: String,
+            pub asymmetric_to_asymmetric: Option<String>,
+            pub asymmetric_to_optional: Option<String>,
+            pub optional_none_to_asymmetric: Option<String>,
+            pub optional_none_to_optional: Option<String>,
+            pub optional_some_to_required: String,
+            pub optional_some_to_asymmetric: Option<String>,
+            pub optional_some_to_optional: Option<String>,
+            pub nonexistent_to_asymmetric: Option<String>,
+            pub nonexistent_to_optional: Option<String>,
+        }
+
+        impl super::super::Serialize for ExampleStructOut {
+            fn size(&self) -> usize {
+                ({
+                    let payload = &self.required_to_required;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(0, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.required_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(1, payload_size, false) + payload_size
+                }) + self.required_to_optional.as_ref().map_or(0, |payload| {
+                    let payload_size = payload.len();
+                    super::super::field_header_size(2, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.asymmetric_to_required;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(4, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.asymmetric_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(5, payload_size, false) + payload_size
+                }) + self.asymmetric_to_optional.as_ref().map_or(0, |payload| {
+                    let payload_size = payload.len();
+                    super::super::field_header_size(6, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.optional_none_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(9, payload_size, false) + payload_size
+                }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
+                    let payload_size = payload.len();
+                    super::super::field_header_size(10, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.optional_some_to_required;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(12, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.optional_some_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(13, payload_size, false) + payload_size
+                }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
+                    let payload_size = payload.len();
+                    super::super::field_header_size(14, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.nonexistent_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::field_header_size(17, payload_size, false) + payload_size
+                }) + self.nonexistent_to_optional.as_ref().map_or(0, |payload| {
+                    let payload_size = payload.len();
+                    super::super::field_header_size(18, payload_size, false) + payload_size
+                })
+            }
+
+            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.required_to_required;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 0, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.required_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 1, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let Some(payload) = &self.required_to_optional {
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 2, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_required;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 4, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 5, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let Some(payload) = &self.asymmetric_to_optional {
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 6, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.optional_none_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 9, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let Some(payload) = &self.optional_none_to_optional {
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 10, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.optional_some_to_required;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 12, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.optional_some_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 13, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let Some(payload) = &self.optional_some_to_optional {
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 14, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.nonexistent_to_asymmetric;
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 17, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let Some(payload) = &self.nonexistent_to_optional {
+                    let payload_size = payload.len();
+                    super::super::serialize_field_header(writer, 18, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                Ok(())
+            }
+        }
+
+        impl super::super::Deserialize for ExampleStructIn {
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+                T: ::std::io::BufRead,
+            {
+                let mut required_to_required: Option<String> = None;
+                let mut required_to_asymmetric: Option<String> = None;
+                let mut required_to_optional: Option<String> = None;
+                let mut asymmetric_to_required: Option<String> = None;
+                let mut asymmetric_to_asymmetric: Option<String> = None;
+                let mut asymmetric_to_optional: Option<String> = None;
+                let mut optional_none_to_asymmetric: Option<String> = None;
+                let mut optional_none_to_optional: Option<String> = None;
+                let mut optional_some_to_required: Option<String> = None;
+                let mut optional_some_to_asymmetric: Option<String> = None;
+                let mut optional_some_to_optional: Option<String> = None;
+                let mut nonexistent_to_asymmetric: Option<String> = None;
+                let mut nonexistent_to_optional: Option<String> = None;
+
+                loop {
+                    let (index, size) = match super::super::deserialize_field_header(&mut \
+                        *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+
+                    match index {
+                        0 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            required_to_required.get_or_insert(payload);
+                        }
+                        1 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            required_to_asymmetric.get_or_insert(payload);
+                        }
+                        2 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            required_to_optional.get_or_insert(payload);
+                        }
+                        4 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            asymmetric_to_required.get_or_insert(payload);
+                        }
+                        5 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            asymmetric_to_asymmetric.get_or_insert(payload);
+                        }
+                        6 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            asymmetric_to_optional.get_or_insert(payload);
+                        }
+                        9 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            optional_none_to_asymmetric.get_or_insert(payload);
+                        }
+                        10 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            optional_none_to_optional.get_or_insert(payload);
+                        }
+                        12 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            optional_some_to_required.get_or_insert(payload);
+                        }
+                        13 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            optional_some_to_asymmetric.get_or_insert(payload);
+                        }
+                        14 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            optional_some_to_optional.get_or_insert(payload);
+                        }
+                        17 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            nonexistent_to_asymmetric.get_or_insert(payload);
+                        }
+                        18 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+
+                            nonexistent_to_optional.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, size as usize)?;
+                        }
+                    }
+                }
+
+                if required_to_required.is_none() || asymmetric_to_required.is_none() || \
+                    optional_some_to_required.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        \"Struct missing one or more field(s).\",
+                    ));
+                }
+
+                Ok(ExampleStructIn {
+                    required_to_required: required_to_required.unwrap(),
+                    required_to_asymmetric,
+                    required_to_optional,
+                    asymmetric_to_required: asymmetric_to_required.unwrap(),
+                    asymmetric_to_asymmetric,
+                    asymmetric_to_optional,
+                    optional_none_to_asymmetric,
+                    optional_none_to_optional,
+                    optional_some_to_required: optional_some_to_required.unwrap(),
+                    optional_some_to_asymmetric,
+                    optional_some_to_optional,
+                    nonexistent_to_asymmetric,
+                    nonexistent_to_optional,
+                })
+            }
+        }
+
+        impl From<ExampleStructOut> for ExampleStructIn {
+            fn from(message: ExampleStructOut) -> Self {
+                ExampleStructIn {
+                    required_to_required: message.required_to_required.into(),
+                    required_to_asymmetric: Some(message.required_to_asymmetric.into()),
+                    required_to_optional: message.required_to_optional.map(|payload| \
+                        payload.into()),
+                    asymmetric_to_required: message.asymmetric_to_required.into(),
+                    asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
+                    asymmetric_to_optional: message.asymmetric_to_optional.map(|payload| \
+                        payload.into()),
+                    optional_none_to_asymmetric: Some(message.optional_none_to_asymmetric.into()),
+                    optional_none_to_optional: message.optional_none_to_optional.map(|payload| \
+                        payload.into()),
+                    optional_some_to_required: message.optional_some_to_required.into(),
+                    optional_some_to_asymmetric: Some(message.optional_some_to_asymmetric.into()),
+                    optional_some_to_optional: message.optional_some_to_optional.map(|payload| \
+                        payload.into()),
+                    nonexistent_to_asymmetric: Some(message.nonexistent_to_asymmetric.into()),
+                    nonexistent_to_optional: message.nonexistent_to_optional.map(|payload| \
+                        payload.into()),
+                }
+            }
+        }
+
         #[derive(Clone, Debug)]
         pub enum ExampleChoiceOut {
             RequiredToRequired(String),
@@ -6916,771 +7350,9 @@ pub mod schema_evolution {
                 }
             }
         }
-
-        #[derive(Clone, Debug)]
-        pub struct ExampleStructOut {
-            pub required_to_required: String,
-            pub required_to_asymmetric: String,
-            pub required_to_optional: Option<String>,
-            pub asymmetric_to_required: String,
-            pub asymmetric_to_asymmetric: String,
-            pub asymmetric_to_optional: Option<String>,
-            pub optional_none_to_asymmetric: String,
-            pub optional_none_to_optional: Option<String>,
-            pub optional_some_to_required: String,
-            pub optional_some_to_asymmetric: String,
-            pub optional_some_to_optional: Option<String>,
-            pub nonexistent_to_asymmetric: String,
-            pub nonexistent_to_optional: Option<String>,
-        }
-
-        #[derive(Clone, Debug)]
-        pub struct ExampleStructIn {
-            pub required_to_required: String,
-            pub required_to_asymmetric: Option<String>,
-            pub required_to_optional: Option<String>,
-            pub asymmetric_to_required: String,
-            pub asymmetric_to_asymmetric: Option<String>,
-            pub asymmetric_to_optional: Option<String>,
-            pub optional_none_to_asymmetric: Option<String>,
-            pub optional_none_to_optional: Option<String>,
-            pub optional_some_to_required: String,
-            pub optional_some_to_asymmetric: Option<String>,
-            pub optional_some_to_optional: Option<String>,
-            pub nonexistent_to_asymmetric: Option<String>,
-            pub nonexistent_to_optional: Option<String>,
-        }
-
-        impl super::super::Serialize for ExampleStructOut {
-            fn size(&self) -> usize {
-                ({
-                    let payload = &self.required_to_required;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(0, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.required_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(1, payload_size, false) + payload_size
-                }) + self.required_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len();
-                    super::super::field_header_size(2, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_required;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(4, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(5, payload_size, false) + payload_size
-                }) + self.asymmetric_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len();
-                    super::super::field_header_size(6, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.optional_none_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(9, payload_size, false) + payload_size
-                }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len();
-                    super::super::field_header_size(10, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.optional_some_to_required;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(12, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.optional_some_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(13, payload_size, false) + payload_size
-                }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len();
-                    super::super::field_header_size(14, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::field_header_size(17, payload_size, false) + payload_size
-                }) + self.nonexistent_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = payload.len();
-                    super::super::field_header_size(18, payload_size, false) + payload_size
-                })
-            }
-
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                {
-                    let payload = &self.required_to_required;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 0, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.required_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 1, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.required_to_optional {
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 2, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_required;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 4, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 5, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.asymmetric_to_optional {
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 6, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.optional_none_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 9, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_none_to_optional {
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 10, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.optional_some_to_required;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 12, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.optional_some_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 13, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_some_to_optional {
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 14, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 17, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.nonexistent_to_optional {
-                    let payload_size = payload.len();
-                    super::super::serialize_field_header(writer, 18, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                Ok(())
-            }
-        }
-
-        impl super::super::Deserialize for ExampleStructIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                let mut required_to_required: Option<String> = None;
-                let mut required_to_asymmetric: Option<String> = None;
-                let mut required_to_optional: Option<String> = None;
-                let mut asymmetric_to_required: Option<String> = None;
-                let mut asymmetric_to_asymmetric: Option<String> = None;
-                let mut asymmetric_to_optional: Option<String> = None;
-                let mut optional_none_to_asymmetric: Option<String> = None;
-                let mut optional_none_to_optional: Option<String> = None;
-                let mut optional_some_to_required: Option<String> = None;
-                let mut optional_some_to_asymmetric: Option<String> = None;
-                let mut optional_some_to_optional: Option<String> = None;
-                let mut nonexistent_to_asymmetric: Option<String> = None;
-                let mut nonexistent_to_optional: Option<String> = None;
-
-                loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            required_to_required.get_or_insert(payload);
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            required_to_asymmetric.get_or_insert(payload);
-                        }
-                        2 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            required_to_optional.get_or_insert(payload);
-                        }
-                        4 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            asymmetric_to_required.get_or_insert(payload);
-                        }
-                        5 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            asymmetric_to_asymmetric.get_or_insert(payload);
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            asymmetric_to_optional.get_or_insert(payload);
-                        }
-                        9 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            optional_none_to_asymmetric.get_or_insert(payload);
-                        }
-                        10 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            optional_none_to_optional.get_or_insert(payload);
-                        }
-                        12 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            optional_some_to_required.get_or_insert(payload);
-                        }
-                        13 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            optional_some_to_asymmetric.get_or_insert(payload);
-                        }
-                        14 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            optional_some_to_optional.get_or_insert(payload);
-                        }
-                        17 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            nonexistent_to_asymmetric.get_or_insert(payload);
-                        }
-                        18 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-
-                            nonexistent_to_optional.get_or_insert(payload);
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
-                        }
-                    }
-                }
-
-                if required_to_required.is_none() || asymmetric_to_required.is_none() || \
-                    optional_some_to_required.is_none() {
-                    return Err(::std::io::Error::new(
-                        ::std::io::ErrorKind::InvalidData,
-                        \"Struct missing one or more field(s).\",
-                    ));
-                }
-
-                Ok(ExampleStructIn {
-                    required_to_required: required_to_required.unwrap(),
-                    required_to_asymmetric,
-                    required_to_optional,
-                    asymmetric_to_required: asymmetric_to_required.unwrap(),
-                    asymmetric_to_asymmetric,
-                    asymmetric_to_optional,
-                    optional_none_to_asymmetric,
-                    optional_none_to_optional,
-                    optional_some_to_required: optional_some_to_required.unwrap(),
-                    optional_some_to_asymmetric,
-                    optional_some_to_optional,
-                    nonexistent_to_asymmetric,
-                    nonexistent_to_optional,
-                })
-            }
-        }
-
-        impl From<ExampleStructOut> for ExampleStructIn {
-            fn from(message: ExampleStructOut) -> Self {
-                ExampleStructIn {
-                    required_to_required: message.required_to_required.into(),
-                    required_to_asymmetric: Some(message.required_to_asymmetric.into()),
-                    required_to_optional: message.required_to_optional.map(|payload| \
-                        payload.into()),
-                    asymmetric_to_required: message.asymmetric_to_required.into(),
-                    asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
-                    asymmetric_to_optional: message.asymmetric_to_optional.map(|payload| \
-                        payload.into()),
-                    optional_none_to_asymmetric: Some(message.optional_none_to_asymmetric.into()),
-                    optional_none_to_optional: message.optional_none_to_optional.map(|payload| \
-                        payload.into()),
-                    optional_some_to_required: message.optional_some_to_required.into(),
-                    optional_some_to_asymmetric: Some(message.optional_some_to_asymmetric.into()),
-                    optional_some_to_optional: message.optional_some_to_optional.map(|payload| \
-                        payload.into()),
-                    nonexistent_to_asymmetric: Some(message.nonexistent_to_asymmetric.into()),
-                    nonexistent_to_optional: message.nonexistent_to_optional.map(|payload| \
-                        payload.into()),
-                }
-            }
-        }
     }
 
     pub mod before {
-        #[derive(Clone, Debug)]
-        pub enum ExampleChoiceOut {
-            RequiredToRequired(String),
-            RequiredToAsymmetric(String),
-            AsymmetricToRequired(String, Box<ExampleChoiceOut>),
-            AsymmetricToAsymmetric(String, Box<ExampleChoiceOut>),
-            AsymmetricToOptionalHandled(String, Box<ExampleChoiceOut>),
-            AsymmetricToOptionalFallback(String, Box<ExampleChoiceOut>),
-            AsymmetricToNonexistent(String, Box<ExampleChoiceOut>),
-            OptionalToRequired(String, Box<ExampleChoiceOut>),
-            OptionalToAsymmetric(String, Box<ExampleChoiceOut>),
-            OptionalToOptionalHandled(String, Box<ExampleChoiceOut>),
-            OptionalToOptionalFallback(String, Box<ExampleChoiceOut>),
-            OptionalToNonexistent(String, Box<ExampleChoiceOut>),
-        }
-
-        #[derive(Clone, Debug)]
-        pub enum ExampleChoiceIn {
-            RequiredToRequired(String),
-            RequiredToAsymmetric(String),
-            AsymmetricToRequired(String),
-            AsymmetricToAsymmetric(String),
-            AsymmetricToOptionalHandled(String),
-            AsymmetricToOptionalFallback(String),
-            AsymmetricToNonexistent(String),
-            OptionalToRequired(String, Box<ExampleChoiceIn>),
-            OptionalToAsymmetric(String, Box<ExampleChoiceIn>),
-            OptionalToOptionalHandled(String, Box<ExampleChoiceIn>),
-            OptionalToOptionalFallback(String, Box<ExampleChoiceIn>),
-            OptionalToNonexistent(String, Box<ExampleChoiceIn>),
-        }
-
-        impl super::super::Serialize for ExampleChoiceOut {
-            fn size(&self) -> usize {
-                match *self {
-                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(0, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(1, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(5, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(6, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(7, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(8, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(9, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(10, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(11, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(12, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(13, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::field_header_size(14, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                }
-            }
-
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 0, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 1, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 5, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 6, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 7, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 8, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 9, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 10, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 11, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 12, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 13, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = payload.len();
-                        super::super::serialize_field_header(writer, 14, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                }
-            }
-        }
-
-        impl super::super::Deserialize for ExampleChoiceIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::RequiredToRequired(payload));
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
-                        }
-                        5 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
-                        }
-                        7 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload));
-                        }
-                        8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload));
-                        }
-                        9 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
-                        }
-                        10 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as \
-                                super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
-                        }
-                        11 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as \
-                                super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
-                        }
-                        12 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as \
-                                super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToOptionalHandled(payload, \
-                                fallback));
-                        }
-                        13 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as \
-                                super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToOptionalFallback(payload, \
-                                fallback));
-                        }
-                        14 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as \
-                                super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
-                        }
-                    }
-                }
-            }
-        }
-
-        impl From<ExampleChoiceOut> for ExampleChoiceIn {
-            fn from(message: ExampleChoiceOut) -> Self {
-                match message {
-                    ExampleChoiceOut::RequiredToRequired(payload) => \
-                        ExampleChoiceIn::RequiredToRequired(payload.into()),
-                    ExampleChoiceOut::RequiredToAsymmetric(payload) => \
-                        ExampleChoiceIn::RequiredToAsymmetric(payload.into()),
-                    ExampleChoiceOut::AsymmetricToRequired(payload, fallback) => \
-                        ExampleChoiceIn::AsymmetricToRequired(payload.into()),
-                    ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback) => \
-                        ExampleChoiceIn::AsymmetricToAsymmetric(payload.into()),
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(payload, fallback) => \
-                        ExampleChoiceIn::AsymmetricToOptionalHandled(payload.into()),
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(payload, fallback) => \
-                        ExampleChoiceIn::AsymmetricToOptionalFallback(payload.into()),
-                    ExampleChoiceOut::AsymmetricToNonexistent(payload, fallback) => \
-                        ExampleChoiceIn::AsymmetricToNonexistent(payload.into()),
-                    ExampleChoiceOut::OptionalToRequired(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToRequired(payload.into(), \
-                        Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToAsymmetric(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToAsymmetric(payload.into(), \
-                        Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToOptionalHandled(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToOptionalHandled(payload.into(), \
-                        Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToOptionalFallback(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToOptionalFallback(payload.into(), \
-                        Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToNonexistent(payload, fallback) => \
-                        ExampleChoiceIn::OptionalToNonexistent(payload.into(), \
-                        Box::new((*fallback).into())),
-                }
-            }
-        }
-
         #[derive(Clone, Debug)]
         pub struct ExampleStructOut {
             pub required_to_required: String,
@@ -8130,43 +7802,194 @@ pub mod schema_evolution {
                 }
             }
         }
-    }
 
-    pub mod main {
         #[derive(Clone, Debug)]
-        pub enum SingletonChoiceOut {
-            X(String),
+        pub enum ExampleChoiceOut {
+            RequiredToRequired(String),
+            RequiredToAsymmetric(String),
+            AsymmetricToRequired(String, Box<ExampleChoiceOut>),
+            AsymmetricToAsymmetric(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptionalHandled(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptionalFallback(String, Box<ExampleChoiceOut>),
+            AsymmetricToNonexistent(String, Box<ExampleChoiceOut>),
+            OptionalToRequired(String, Box<ExampleChoiceOut>),
+            OptionalToAsymmetric(String, Box<ExampleChoiceOut>),
+            OptionalToOptionalHandled(String, Box<ExampleChoiceOut>),
+            OptionalToOptionalFallback(String, Box<ExampleChoiceOut>),
+            OptionalToNonexistent(String, Box<ExampleChoiceOut>),
         }
 
         #[derive(Clone, Debug)]
-        pub enum SingletonChoiceIn {
-            X(String),
+        pub enum ExampleChoiceIn {
+            RequiredToRequired(String),
+            RequiredToAsymmetric(String),
+            AsymmetricToRequired(String),
+            AsymmetricToAsymmetric(String),
+            AsymmetricToOptionalHandled(String),
+            AsymmetricToOptionalFallback(String),
+            AsymmetricToNonexistent(String),
+            OptionalToRequired(String, Box<ExampleChoiceIn>),
+            OptionalToAsymmetric(String, Box<ExampleChoiceIn>),
+            OptionalToOptionalHandled(String, Box<ExampleChoiceIn>),
+            OptionalToOptionalFallback(String, Box<ExampleChoiceIn>),
+            OptionalToNonexistent(String, Box<ExampleChoiceIn>),
         }
 
-        impl super::super::Serialize for SingletonChoiceOut {
+        impl super::super::Serialize for ExampleChoiceOut {
             fn size(&self) -> usize {
                 match *self {
-                    SingletonChoiceOut::X(ref payload) => {
+                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
                         let payload_size = payload.len();
                         super::super::field_header_size(0, payload_size, false) +
                             payload_size
+                    }
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(1, payload_size, false) +
+                            payload_size
+                    }
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(5, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(6, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(7, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(8, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(9, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(10, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(11, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(12, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(13, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(14, payload_size, false) +
+                            payload_size +
+                            fallback.size()
                     }
                 }
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
                 match *self {
-                    SingletonChoiceOut::X(ref payload) => {
+                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
                         let payload_size = payload.len();
                         super::super::serialize_field_header(writer, 0, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 1, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 5, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 6, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 7, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 8, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 9, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 10, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 11, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 12, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 13, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 14, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
                 }
             }
         }
 
-        impl super::super::Deserialize for SingletonChoiceIn {
+        impl super::super::Deserialize for ExampleChoiceIn {
             fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
             where
                 Self: Sized,
@@ -8185,7 +8008,118 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            return Ok(SingletonChoiceIn::X(payload));
+                            return Ok(ExampleChoiceIn::RequiredToRequired(payload));
+                        }
+                        1 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
+                        }
+                        5 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
+                        }
+                        6 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
+                        }
+                        7 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload));
+                        }
+                        8 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload));
+                        }
+                        9 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
+                        }
+                        10 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            let fallback = Box::new(<ExampleChoiceIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
+                        }
+                        11 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            let fallback = Box::new(<ExampleChoiceIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
+                        }
+                        12 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            let fallback = Box::new(<ExampleChoiceIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToOptionalHandled(payload, \
+                                fallback));
+                        }
+                        13 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            let fallback = Box::new(<ExampleChoiceIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToOptionalFallback(payload, \
+                                fallback));
+                        }
+                        14 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            let fallback = Box::new(<ExampleChoiceIn as \
+                                super::super::Deserialize>::deserialize(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -8195,14 +8129,44 @@ pub mod schema_evolution {
             }
         }
 
-        impl From<SingletonChoiceOut> for SingletonChoiceIn {
-            fn from(message: SingletonChoiceOut) -> Self {
+        impl From<ExampleChoiceOut> for ExampleChoiceIn {
+            fn from(message: ExampleChoiceOut) -> Self {
                 match message {
-                    SingletonChoiceOut::X(payload) => SingletonChoiceIn::X(payload.into()),
+                    ExampleChoiceOut::RequiredToRequired(payload) => \
+                        ExampleChoiceIn::RequiredToRequired(payload.into()),
+                    ExampleChoiceOut::RequiredToAsymmetric(payload) => \
+                        ExampleChoiceIn::RequiredToAsymmetric(payload.into()),
+                    ExampleChoiceOut::AsymmetricToRequired(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToRequired(payload.into()),
+                    ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToAsymmetric(payload.into()),
+                    ExampleChoiceOut::AsymmetricToOptionalHandled(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToOptionalHandled(payload.into()),
+                    ExampleChoiceOut::AsymmetricToOptionalFallback(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToOptionalFallback(payload.into()),
+                    ExampleChoiceOut::AsymmetricToNonexistent(payload, fallback) => \
+                        ExampleChoiceIn::AsymmetricToNonexistent(payload.into()),
+                    ExampleChoiceOut::OptionalToRequired(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToRequired(payload.into(), \
+                        Box::new((*fallback).into())),
+                    ExampleChoiceOut::OptionalToAsymmetric(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToAsymmetric(payload.into(), \
+                        Box::new((*fallback).into())),
+                    ExampleChoiceOut::OptionalToOptionalHandled(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToOptionalHandled(payload.into(), \
+                        Box::new((*fallback).into())),
+                    ExampleChoiceOut::OptionalToOptionalFallback(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToOptionalFallback(payload.into(), \
+                        Box::new((*fallback).into())),
+                    ExampleChoiceOut::OptionalToNonexistent(payload, fallback) => \
+                        ExampleChoiceIn::OptionalToNonexistent(payload.into(), \
+                        Box::new((*fallback).into())),
                 }
             }
         }
+    }
 
+    pub mod main {
         #[derive(Clone, Debug)]
         pub struct SingletonStructOut {
             pub x: String,
@@ -8291,6 +8255,76 @@ pub mod schema_evolution {
             fn from(message: SingletonStructOut) -> Self {
                 SingletonStructIn {
                     x: message.x.into(),
+                }
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum SingletonChoiceOut {
+            X(String),
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum SingletonChoiceIn {
+            X(String),
+        }
+
+        impl super::super::Serialize for SingletonChoiceOut {
+            fn size(&self) -> usize {
+                match *self {
+                    SingletonChoiceOut::X(ref payload) => {
+                        let payload_size = payload.len();
+                        super::super::field_header_size(0, payload_size, false) +
+                            payload_size
+                    }
+                }
+            }
+
+            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                match *self {
+                    SingletonChoiceOut::X(ref payload) => {
+                        let payload_size = payload.len();
+                        super::super::serialize_field_header(writer, 0, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                }
+            }
+        }
+
+        impl super::super::Deserialize for SingletonChoiceIn {
+            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
+            where
+                Self: Sized,
+                T: ::std::io::BufRead,
+            {
+                loop {
+                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+
+                    match index {
+                        0 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            return Ok(SingletonChoiceIn::X(payload));
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, size as usize)?;
+                        }
+                    }
+                }
+            }
+        }
+
+        impl From<SingletonChoiceOut> for SingletonChoiceIn {
+            fn from(message: SingletonChoiceOut) -> Self {
+                match message {
+                    SingletonChoiceOut::X(payload) => SingletonChoiceIn::X(payload.into()),
                 }
             }
         }

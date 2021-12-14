@@ -277,17 +277,69 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 }
             }
 
-            // Skip whitespace.
-            _ if c.is_whitespace() => continue,
-
-            // Skip comments.
+            // Read comments.
             '#' => {
-                for (_, d) in &mut iter {
-                    if d == '\n' {
+                let mut line_start = i + 1;
+                let mut line_end = schema_contents.len();
+                let mut lines = vec![];
+
+                loop {
+                    for (j, d) in &mut iter {
+                        if d == '\n' {
+                            line_end = j;
+                            break;
+                        }
+                    }
+
+                    lines.push(schema_contents[line_start..line_end].trim().to_owned());
+
+                    while let Some((_, d)) = iter.peek() {
+                        if d.is_whitespace() && *d != '\n' {
+                            iter.next();
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if let Some((j, '#')) = iter.peek() {
+                        line_start = j + 1;
+                        line_end = schema_contents.len();
+                    } else {
                         break;
                     }
                 }
+
+                let mut paragraphs = vec![];
+                let mut paragraph = "".to_owned();
+
+                for line in lines {
+                    if line.is_empty() && !paragraph.is_empty() {
+                        paragraphs.push(paragraph.clone());
+                        paragraph.clear();
+                    } else if !line.is_empty() {
+                        if !paragraph.is_empty() {
+                            paragraph.push(' ');
+                        }
+
+                        paragraph.push_str(&line);
+                    }
+                }
+
+                if !paragraph.is_empty() {
+                    paragraphs.push(paragraph.clone());
+                }
+
+                tokens.push(Token {
+                    source_range: SourceRange {
+                        start: i,
+                        end: line_end,
+                    },
+                    variant: Variant::Comment(paragraphs),
+                });
             }
+
+            // Skip whitespace.
+            _ if c.is_whitespace() => continue,
 
             // If we made it this far, the input contains something unexpected.
             _ => {
@@ -359,6 +411,10 @@ mod tests {
             tokenize(Path::new("foo.t"), source).unwrap(),
             vec![
                 Token {
+                    source_range: SourceRange { start: 13, end: 32 },
+                    variant: Variant::Comment(vec!["This is a struct.".to_owned()]),
+                },
+                Token {
                     source_range: SourceRange { start: 45, end: 51 },
                     variant: Variant::Struct,
                 },
@@ -373,6 +429,13 @@ mod tests {
                 Token {
                     source_range: SourceRange { start: 70, end: 71 },
                     variant: Variant::RightCurly,
+                },
+                Token {
+                    source_range: SourceRange {
+                        start: 85,
+                        end: 104,
+                    },
+                    variant: Variant::Comment(vec!["This is a choice.".to_owned()]),
                 },
                 Token {
                     source_range: SourceRange {
@@ -414,14 +477,6 @@ mod tests {
     #[test]
     fn tokenize_whitespace() {
         assert_same!(tokenize(Path::new("foo.t"), " \t\n").unwrap(), vec![]);
-    }
-
-    #[test]
-    fn tokenize_comment() {
-        assert_same!(
-            tokenize(Path::new("foo.t"), "# Hello, World!").unwrap(),
-            vec![],
-        );
     }
 
     #[test]
@@ -501,6 +556,35 @@ mod tests {
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Colon,
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_comment_simple() {
+        assert_same!(
+            tokenize(Path::new("foo.t"), "# Hello, World!").unwrap(),
+            vec![Token {
+                source_range: SourceRange { start: 0, end: 15 },
+                variant: Variant::Comment(vec!["Hello, World!".to_owned()]),
+            }],
+        );
+    }
+
+    #[test]
+    fn tokenize_comment_complex() {
+        assert_same!(
+            tokenize(
+                Path::new("foo.t"),
+                " # \n # Hello, \n # World! \n # \n # Hello, \n # Earth! \n # ",
+            )
+            .unwrap(),
+            vec![Token {
+                source_range: SourceRange { start: 1, end: 55 },
+                variant: Variant::Comment(vec![
+                    "Hello, World!".to_owned(),
+                    "Hello, Earth!".to_owned(),
+                ]),
             }],
         );
     }

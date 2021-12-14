@@ -105,8 +105,9 @@ pub fn generate(
     let mut tree = Module {
         children: BTreeMap::new(),
         schema: schema::Schema {
+            comment: vec![],
             imports: BTreeMap::new(),
-            declarations: BTreeMap::new(),
+            declarations: vec![],
         },
     };
 
@@ -156,8 +157,9 @@ fn insert_schema(module: &mut Module, namespace: &schema::Namespace, schema: &sc
             let mut child = Module {
                 children: BTreeMap::new(),
                 schema: schema::Schema {
+                    comment: vec![],
                     imports: BTreeMap::new(),
-                    declarations: BTreeMap::new(),
+                    declarations: vec![],
                 },
             };
 
