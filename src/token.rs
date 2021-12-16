@@ -39,6 +39,7 @@ pub enum Variant {
     Bytes,
     Choice,
     Colon,
+    Comment(Vec<String>),
     Deleted,
     Dot,
     Equals,
@@ -74,6 +75,17 @@ impl Display for Variant {
             Self::Bytes => write!(f, "{}", BYTES_KEYWORD),
             Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
             Self::Colon => write!(f, ":"),
+            Self::Comment(paragraphs) => {
+                for (i, paragraph) in paragraphs.iter().enumerate() {
+                    if i != 0 {
+                        writeln!(f, "#")?;
+                    }
+
+                    writeln!(f, "# {}", paragraph)?;
+                }
+
+                Ok(())
+            }
             Self::Deleted => write!(f, "{}", DELETED_KEYWORD),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
@@ -152,6 +164,17 @@ mod tests {
     #[test]
     fn variant_colon_display() {
         assert_eq!(format!("{}", Variant::Colon), ":");
+    }
+
+    #[test]
+    fn variant_comment_display() {
+        assert_eq!(
+            format!(
+                "{}",
+                Variant::Comment(vec!["Hello, World!".to_owned(), "Hello, Earth!".to_owned()]),
+            ),
+            "# Hello, World!\n#\n# Hello, Earth!\n",
+        );
     }
 
     #[test]

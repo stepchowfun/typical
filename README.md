@@ -39,9 +39,15 @@ choice SendEmailResponse {
 
 A *struct*, such as `SendEmailRequest`, describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). A *choice*, such as `SendEmailResponse`, describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
-Each field in a struct or a choice has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility.
+Each field in a struct or a choice has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility, as long as you don't change the indices.
 
 Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`. The `Unit` type holds no information and takes zero bytes to encode.
+
+Once you've written your schema, Typical can automatically format it to ensure consistent orthography such as indentation, letter case, etc. The following command will do it, though it won't have any effect on our example since it's already formatted properly:
+
+```sh
+typical format email_api.t
+```
 
 ### Generate code for serialization and deserialization
 
@@ -98,9 +104,11 @@ Experience has taught us that it can be difficult to introduce a required field 
 ```perl
 struct SendEmailRequest {
     to: String = 0
-    from: String = 3 # A new required field
     subject: String = 1
     body: String = 2
+
+    # A new required field
+    from: String = 3
 }
 ```
 
@@ -117,9 +125,11 @@ A somewhat safer way to introduce a required field is to first introduce it as o
 ```perl
 struct SendEmailRequest {
     to: String = 0
-    optional from: String = 3 # A new optional field
     subject: String = 1
     body: String = 2
+
+    # A new optional field
+    optional from: String = 3
 }
 ```
 
@@ -152,9 +162,11 @@ Let's make that more concrete with our email API example. Instead of directly in
 ```perl
 struct SendEmailRequest {
     to: String = 0
-    asymmetric from: String = 3 # A new asymmetric field
     subject: String = 1
     body: String = 2
+
+    # A new asymmetric field
+    asymmetric from: String = 3
 }
 ```
 
@@ -214,8 +226,12 @@ Consider a more elaborate version of our API response type:
 choice SendEmailResponse {
     success = 0
     error: String = 1
-    optional authentication_error: String = 2 # A more specific type of error for curious clients
-    asymmetric please_try_again = 3 # To be promoted to required in the future
+
+    # A more specific type of error for curious clients
+    optional authentication_error: String = 2
+
+    # To be promoted to required in the future
+    asymmetric please_try_again = 3
 }
 ```
 
@@ -308,7 +324,9 @@ import 'util/email.t'
 
 struct Employee {
     name: String = 0
-    email: email.Address = 1 # Uh oh! Which schema is this type from?
+
+    # Uh oh! Which schema is this type from?
+    email: email.Address = 1
 }
 ```
 
@@ -327,7 +345,7 @@ struct Employee {
 
 ### User-defined types
 
-Every user-defined type is either a struct or a choice, and they have the same abstract syntax: a name, an optional list of indices of deleted fields, and a list of fields. Here's are some examples of user-defined types:
+Every user-defined type is either a struct or a choice, and they have the same abstract syntax: a name, a list of fields, and an optional list of indices of deleted fields. Here's are some examples of user-defined types:
 
 ```perl
 import 'apis/email.t'
@@ -374,9 +392,9 @@ If you delete a field, you must be careful not to reuse that field's index for a
 
 ```perl
 struct Device {
-    deleted 1 2
-
     hostname: String = 0
+
+    deleted 1 2
 }
 ```
 
@@ -400,19 +418,39 @@ The following built-in types are supported:
 
 Comments can be used to add helpful context to your schemas. A comment begins with a `#` and continues to the end of the line, as with Python, Ruby, Perl, etc.
 
+Unlike with most programming languages, comments in Typical schemas are associated with specific constructs. Specifically, comments are attached to structs, choices, individual fields, or entire schema files. The following schema demonstrates all the contexts in which comments may be used:
+
+```perl
+# This file contains types relating to a hypothetical email sending API.
+# Comments may span multiple lines.
+#
+# Comments may even contain multiple paragraphs. This is the second paragraph.
+
+# A request to send an email
+struct SendEmailRequest {
+    # Whom the email is addressed to
+    to: String = 0
+
+    # Who is sending the email
+    subject: String = 1
+
+    # The contents of the email
+    body: String = 2
+}
+
+# The result of attempting to send an email
+choice SendEmailResponse {
+    # The email was delivered
+    success = 0
+
+    # There was a problem sending the email
+    error: String = 1
+}
+```
+
 ### Identifiers
 
 An identifier (the name of a type, field, or import) must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
-
-## Schema style guide
-
-Typical doesn't require any particular naming convention or formatting style. However, it's valuable to establish conventions for consistency. We recommend being consistent with the examples given in this guide. For example:
-
-- Use `UpperCamelCase` for the names of types.
-- Use `lower_snake_case` for the names of everything else: fields, import aliases, and schema files.
-- Indent fields with 4 spaces.
-
-Note that Typical generates code that uses the most popular naming convention for the target programming language, regardless of what convention is used for the type definitions. For example, a struct named `email_address` will be called `EmailAddressOut`/`EmailAddressIn` in the code generated for Rust, since idiomatic Rust uses `UpperCamelCase` for the names of user-defined types.
 
 ## Security
 
@@ -546,11 +584,17 @@ OPTIONS:
 
 
 SUBCOMMANDS:
+    format
+            Format a schema and its transitive dependencies
+
     generate
             Generate code for a schema and its transitive dependencies
 
     help
             Prints this message or the help of the given subcommand(s)
+
+    shell-completion
+            Prints a shell completion script. Supports Zsh, Fish, Zsh, PowerShell, and Elvish.
 ```
 
 In particular, the `generate` subcommand has the following options:
@@ -561,8 +605,8 @@ USAGE:
 
 FLAGS:
     -h, --help            Prints help information
-        --list-schemas    Lists the schemas imported by the given schema (and the given
-                          schema itself)
+        --list-schemas    Lists the schemas imported by the given schema (and the given schema
+                          itself)
 
 OPTIONS:
         --rust <PATH>          Sets the path of the Rust file to emit

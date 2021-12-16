@@ -1,6 +1,4 @@
 struct Foo {
-    deleted 15 31 47
-
     a_required = 0
     b_required: F64 = 1
     c_required: U64 = 2
@@ -16,7 +14,6 @@ struct Foo {
     m_required: [Bytes] = 12
     n_required: [String] = 13
     o_required: [[String]] = 14
-
     asymmetric a_asymmetric = 16
     asymmetric b_asymmetric: F64 = 17
     asymmetric c_asymmetric: U64 = 18
@@ -32,7 +29,6 @@ struct Foo {
     asymmetric m_asymmetric: [Bytes] = 28
     asymmetric n_asymmetric: [String] = 29
     asymmetric o_asymmetric: [[String]] = 30
-
     optional a_optional = 32
     optional b_optional: F64 = 33
     optional c_optional: U64 = 34
@@ -48,4 +44,6 @@ struct Foo {
     optional m_optional: [Bytes] = 44
     optional n_optional: [String] = 45
     optional o_optional: [[String]] = 46
+
+    deleted 15 31 47
 }

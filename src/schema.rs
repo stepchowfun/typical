@@ -15,10 +15,13 @@ use {
     },
 };
 
+const MAX_COLUMNS: usize = 79;
+
 #[derive(Clone, Debug)]
 pub struct Schema {
+    pub comment: Vec<String>,
     pub imports: BTreeMap<Identifier, Import>,
-    pub declarations: BTreeMap<Identifier, Declaration>,
+    pub declarations: Vec<Declaration>,
 }
 
 #[derive(Clone, Debug)]
@@ -31,18 +34,23 @@ pub struct Import {
 #[derive(Clone, Debug)]
 pub struct Declaration {
     pub source_range: SourceRange,
+    pub comment: Vec<String>,
     pub variant: DeclarationVariant,
+    pub name: Identifier,
+    pub fields: Vec<Field>,
+    pub deleted: BTreeSet<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub enum DeclarationVariant {
-    Struct(Vec<Field>, BTreeSet<usize>), // (fields, deleted)
-    Choice(Vec<Field>, BTreeSet<usize>), // (fields, deleted)
+    Struct,
+    Choice,
 }
 
 #[derive(Clone, Debug)]
 pub struct Field {
     pub source_range: SourceRange,
+    pub comment: Vec<String>,
     pub rule: Rule,
     pub name: Identifier,
     pub r#type: Type,
@@ -112,22 +120,43 @@ pub fn relativize_namespace(namespace1: &Namespace, namespace2: &Namespace) -> (
     )
 }
 
+// Write the paragraphs of a comment separated by line breaks.
+fn write_comment<W: Write>(indentation: &str, paragraphs: &[String], f: &mut W) -> fmt::Result {
+    for (i, paragraph) in paragraphs.iter().enumerate() {
+        if i != 0 {
+            writeln!(f, "{}#", indentation)?;
+        }
+
+        for line in textwrap::fill(paragraph, MAX_COLUMNS - indentation.len() - 2).lines() {
+            writeln!(f, "{}# {}", indentation, line)?;
+        }
+    }
+
+    Ok(())
+}
+
 impl Schema {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
+        write_comment("", &self.comment, f)?;
+
+        if !self.comment.is_empty() && (!self.imports.is_empty() || !self.declarations.is_empty()) {
+            writeln!(f)?;
+        }
+
         for (name, import) in &self.imports {
             import.write(f, name)?;
         }
 
         let mut skip_blank_line = self.imports.is_empty();
 
-        for (name, declaration) in &self.declarations {
+        for declaration in &self.declarations {
             if skip_blank_line {
                 skip_blank_line = false;
             } else {
                 writeln!(f)?;
             }
 
-            declaration.write(f, name)?;
+            declaration.write(f)?;
         }
 
         Ok(())
@@ -151,65 +180,63 @@ impl Import {
                 IMPORT_KEYWORD,
                 self.path.display(),
                 AS_KEYWORD,
-                name.original(),
+                name.snake_case(),
             )
         }
     }
 }
 
 impl Declaration {
-    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
-        self.variant.write(f, name)
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
+        write_comment("", &self.comment, f)?;
+
+        self.variant.write(f)?;
+
+        writeln!(f, " {} {{", self.name.pascal_case())?;
+
+        let mut previous_field_has_comment = false;
+
+        for (i, field) in self.fields.iter().enumerate() {
+            if (previous_field_has_comment || !field.comment.is_empty()) && i != 0 {
+                writeln!(f)?;
+            }
+
+            previous_field_has_comment = !field.comment.is_empty();
+
+            field.write(f)?;
+        }
+
+        if !self.fields.is_empty() && !self.deleted.is_empty() {
+            writeln!(f)?;
+        }
+
+        if !self.deleted.is_empty() {
+            write!(f, "    {}", DELETED_KEYWORD)?;
+
+            for deleted_index in &self.deleted {
+                write!(f, " {}", deleted_index)?;
+            }
+
+            writeln!(f)?;
+        }
+
+        writeln!(f, "}}")
     }
 }
 
 impl DeclarationVariant {
-    fn write<W: Write>(&self, f: &mut W, name: &Identifier) -> fmt::Result {
+    fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
-            Self::Struct(fields, deleted) => {
-                writeln!(f, "{} {} {{", STRUCT_KEYWORD, name.original())?;
-
-                if !deleted.is_empty() {
-                    write!(f, "    {}", DELETED_KEYWORD)?;
-
-                    for deleted_index in deleted {
-                        write!(f, " {}", deleted_index)?;
-                    }
-
-                    writeln!(f, "\n")?;
-                }
-
-                for field in fields {
-                    field.write(f)?;
-                }
-
-                writeln!(f, "}}")
-            }
-            Self::Choice(fields, deleted) => {
-                writeln!(f, "{} {} {{", CHOICE_KEYWORD, name.original())?;
-
-                if !deleted.is_empty() {
-                    write!(f, "    {}", DELETED_KEYWORD)?;
-
-                    for deleted_index in deleted {
-                        write!(f, " {}", deleted_index)?;
-                    }
-
-                    writeln!(f, "\n")?;
-                }
-
-                for field in fields {
-                    field.write(f)?;
-                }
-
-                writeln!(f, "}}")
-            }
+            Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
+            Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
         }
     }
 }
 
 impl Field {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
+        write_comment("    ", &self.comment, f)?;
+
         match self.rule {
             Rule::Asymmetric => {
                 write!(f, "    {} ", ASYMMETRIC_KEYWORD)?;
@@ -222,9 +249,13 @@ impl Field {
             }
         }
 
-        write!(f, "{}: ", self.name.original())?;
+        write!(f, "{}", self.name.snake_case())?;
 
-        self.r#type.write(f)?;
+        if let TypeVariant::Unit = self.r#type.variant {
+        } else {
+            write!(f, ": ")?;
+            self.r#type.write(f)?;
+        }
 
         writeln!(f, " = {}", self.index)
     }
@@ -250,9 +281,9 @@ impl TypeVariant {
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
-                    write!(f, "{}.{}", import.original(), name.original())?;
+                    write!(f, "{}.{}", import.snake_case(), name.pascal_case())?;
                 } else {
-                    write!(f, "{}", name.original())?;
+                    write!(f, "{}", name.pascal_case())?;
                 }
             }
             Self::F64 => {
@@ -282,7 +313,7 @@ impl Namespace {
             "{}",
             self.components
                 .iter()
-                .map(Identifier::original)
+                .map(Identifier::snake_case)
                 .collect::<Vec<_>>()
                 .join("."),
         )?;
@@ -460,8 +491,9 @@ mod tests {
     #[test]
     fn schema_empty_display() {
         let schema = Schema {
+            comment: vec![],
             imports: BTreeMap::new(),
-            declarations: BTreeMap::new(),
+            declarations: vec![],
         };
 
         let expected = "";
@@ -492,8 +524,9 @@ mod tests {
         );
 
         let schema = Schema {
+            comment: vec![],
             imports,
-            declarations: BTreeMap::new(),
+            declarations: vec![],
         };
 
         let expected = "\
@@ -506,84 +539,86 @@ mod tests {
 
     #[test]
     fn schema_declarations_only_display() {
-        let foo_fields = vec![
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Required,
-                name: "x".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
-                },
-                index: 0,
-            },
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Optional,
-                name: "y".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::U64,
-                },
-                index: 1,
-            },
-        ];
-
-        let bar_fields = vec![
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Required,
-                name: "x".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
-                },
-                index: 0,
-            },
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Asymmetric,
-                name: "y".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::F64,
-                },
-                index: 1,
-            },
-        ];
-
-        let mut declarations = BTreeMap::new();
-
-        declarations.insert(
-            "Foo".into(),
+        let declarations = vec![
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Struct(foo_fields, BTreeSet::new()),
+                comment: vec![],
+                variant: DeclarationVariant::Struct,
+                name: "foo".into(),
+                fields: vec![
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec![],
+                        rule: Rule::Required,
+                        name: "X".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::Bool,
+                        },
+                        index: 0,
+                    },
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec![],
+                        rule: Rule::Optional,
+                        name: "Y".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::U64,
+                        },
+                        index: 1,
+                    },
+                ],
+                deleted: BTreeSet::new(),
             },
-        );
-
-        declarations.insert(
-            "Bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Choice(bar_fields, BTreeSet::new()),
+                comment: vec![],
+                variant: DeclarationVariant::Choice,
+                name: "bar".into(),
+                fields: vec![
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec![],
+                        rule: Rule::Required,
+                        name: "X".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::Bool,
+                        },
+                        index: 0,
+                    },
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec![],
+                        rule: Rule::Asymmetric,
+                        name: "Y".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::F64,
+                        },
+                        index: 1,
+                    },
+                ],
+                deleted: BTreeSet::new(),
             },
-        );
+        ];
 
         let schema = Schema {
+            comment: vec![],
             imports: BTreeMap::new(),
             declarations,
         };
 
         let expected = "\
-            choice Bar {\n\
-            \x20   x: Bool = 0\n\
-            \x20   asymmetric y: F64 = 1\n\
-            }\n\
-            \n\
             struct Foo {\n\
             \x20   x: Bool = 0\n\
             \x20   optional y: U64 = 1\n\
+            }\n\
+            \n\
+            choice Bar {\n\
+            \x20   x: Bool = 0\n\
+            \x20   asymmetric y: F64 = 1\n\
             }\n\
         ";
 
@@ -596,7 +631,7 @@ mod tests {
         let mut imports = BTreeMap::new();
 
         imports.insert(
-            "foo".into(),
+            "Foo".into(),
             Import {
                 source_range: SourceRange { start: 0, end: 0 },
                 path: Path::new("foo.t").to_owned(),
@@ -605,7 +640,7 @@ mod tests {
         );
 
         imports.insert(
-            "qux".into(),
+            "Qux".into(),
             Import {
                 source_range: SourceRange { start: 0, end: 0 },
                 path: Path::new("bar.t").to_owned(),
@@ -613,91 +648,113 @@ mod tests {
             },
         );
 
-        let foo_fields = vec![
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Required,
-                name: "x".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
-                },
-                index: 0,
-            },
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Optional,
-                name: "y".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::U64,
-                },
-                index: 1,
-            },
-        ];
-
-        let bar_fields = vec![
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Required,
-                name: "x".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::Bool,
-                },
-                index: 0,
-            },
-            Field {
-                source_range: SourceRange { start: 0, end: 0 },
-                rule: Rule::Asymmetric,
-                name: "y".into(),
-                r#type: Type {
-                    source_range: SourceRange { start: 0, end: 0 },
-                    variant: TypeVariant::F64,
-                },
-                index: 1,
-            },
-        ];
-
-        let mut declarations = BTreeMap::new();
-
-        declarations.insert(
-            "Foo".into(),
+        let declarations = vec![
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Struct(foo_fields, BTreeSet::from_iter(vec![2, 3, 4])),
+                comment: vec!["This is a struct.".to_owned()],
+                variant: DeclarationVariant::Struct,
+                name: "foo".into(),
+                fields: vec![
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec!["This is a field.".to_owned()],
+                        rule: Rule::Required,
+                        name: "X".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::Bool,
+                        },
+                        index: 0,
+                    },
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec!["This is a field.".to_owned()],
+                        rule: Rule::Optional,
+                        name: "Y".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::U64,
+                        },
+                        index: 1,
+                    },
+                ],
+                deleted: BTreeSet::from_iter(vec![2, 3, 4]),
             },
-        );
-
-        declarations.insert(
-            "Bar".into(),
             Declaration {
                 source_range: SourceRange { start: 0, end: 0 },
-                variant: DeclarationVariant::Choice(bar_fields, BTreeSet::from_iter(vec![2, 3, 4])),
+                comment: vec!["This is a choice.".to_owned()],
+                variant: DeclarationVariant::Choice,
+                name: "bar".into(),
+                fields: vec![
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec!["This is a field.".to_owned()],
+                        rule: Rule::Required,
+                        name: "X".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::Bool,
+                        },
+                        index: 0,
+                    },
+                    Field {
+                        source_range: SourceRange { start: 0, end: 0 },
+                        comment: vec!["This is a field.".to_owned()],
+                        rule: Rule::Asymmetric,
+                        name: "Y".into(),
+                        r#type: Type {
+                            source_range: SourceRange { start: 0, end: 0 },
+                            variant: TypeVariant::F64,
+                        },
+                        index: 1,
+                    },
+                ],
+                deleted: BTreeSet::from_iter(vec![2, 3, 4]),
             },
-        );
+        ];
 
         let schema = Schema {
+            comment: vec![
+                "\
+                This is a long comment. I can't believe how long this comment is! \
+                Surely it will wrap, right?\
+            "
+                .to_owned(),
+                "This is a second paragraph in this comment.".to_owned(),
+            ],
             imports,
             declarations,
         };
 
         let expected = "\
+            # This is a long comment. I can't believe how long this comment is! Surely it\n\
+            # will wrap, right?\n\
+            #\n\
+            # This is a second paragraph in this comment.\n\
+            \n\
             import 'foo.t'\n\
             import 'bar.t' as qux\n\
             \n\
-            choice Bar {\n\
-            \x20   deleted 2 3 4\n\
-            \n\
+            # This is a struct.\n\
+            struct Foo {\n\
+            \x20   # This is a field.\n\
             \x20   x: Bool = 0\n\
-            \x20   asymmetric y: F64 = 1\n\
+            \n\
+            \x20   # This is a field.\n\
+            \x20   optional y: U64 = 1\n\
+            \n\
+            \x20   deleted 2 3 4\n\
             }\n\
             \n\
-            struct Foo {\n\
-            \x20   deleted 2 3 4\n\
-            \n\
+            # This is a choice.\n\
+            choice Bar {\n\
+            \x20   # This is a field.\n\
             \x20   x: Bool = 0\n\
-            \x20   optional y: U64 = 1\n\
+            \n\
+            \x20   # This is a field.\n\
+            \x20   asymmetric y: F64 = 1\n\
+            \n\
+            \x20   deleted 2 3 4\n\
             }\n\
         ";
 
@@ -839,7 +896,7 @@ mod tests {
     #[test]
     fn namespace_display_single() {
         let namespace = Namespace {
-            components: vec!["foo".into()],
+            components: vec!["Foo".into()],
         };
 
         let expected = "foo";
@@ -850,7 +907,7 @@ mod tests {
     #[test]
     fn namespace_display_multiple() {
         let namespace = Namespace {
-            components: vec!["foo".into(), "bar".into()],
+            components: vec!["Foo".into(), "Bar".into()],
         };
 
         let expected = "foo.bar";

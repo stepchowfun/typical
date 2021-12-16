@@ -27,93 +27,101 @@ pub fn validate(
     // (schema, declaration).
     let mut all_types = HashMap::new();
     for (namespace, (schema, _, _)) in schemas {
-        for (name, declaration) in &schema.declarations {
-            match &declaration.variant {
-                schema::DeclarationVariant::Struct(_, _)
-                | schema::DeclarationVariant::Choice(_, _) => {
-                    all_types.insert((namespace.clone(), name.clone()), (schema, declaration));
-                }
-            }
+        for declaration in &schema.declarations {
+            all_types.insert(
+                (namespace.clone(), declaration.name.clone()),
+                (schema, declaration),
+            );
         }
     }
 
     // Validate each file.
     for (namespace, (schema, source_path, source_contents)) in schemas {
         // Validate the declarations in the file.
-        for declaration in schema.declarations.values() {
-            match &declaration.variant {
-                schema::DeclarationVariant::Struct(fields, deleted)
-                | schema::DeclarationVariant::Choice(fields, deleted) => {
-                    // Validate the fields in the declaration.
-                    let mut field_names = HashSet::new();
-                    let mut field_indices = HashSet::new();
+        let mut declaration_names = HashSet::new();
 
-                    for field in fields {
-                        // Check that the name of the field is unique within the declaration.
-                        if !field_names.insert(field.name.clone()) {
-                            errors.push(throw::<Error>(
-                                &format!(
-                                    "A field named {} already exists in this declaration.",
-                                    field.name.code_str(),
-                                ),
-                                Some(source_path),
-                                Some(&listing(source_contents, field.source_range)),
-                                None,
-                            ));
-                        }
+        for declaration in &schema.declarations {
+            // Check that the name of the declaration is unique within the file.
+            if !declaration_names.insert(declaration.name.clone()) {
+                errors.push(throw::<Error>(
+                    &format!(
+                        "A declaration named {} already exists in this file.",
+                        declaration.name.code_str(),
+                    ),
+                    Some(source_path),
+                    Some(&listing(source_contents, declaration.source_range)),
+                    None,
+                ));
+            }
 
-                        // Check that the index of the field is unique within the declaration.
-                        if !field_indices.insert(field.index) {
-                            errors.push(throw::<Error>(
-                                &format!(
-                                    "A field with index {} already exists in this declaration.",
-                                    field.index.to_string().code_str(),
-                                ),
-                                Some(source_path),
-                                Some(&listing(source_contents, field.source_range)),
-                                None,
-                            ));
-                        }
+            // Validate the fields in the declaration.
+            let mut field_names = HashSet::new();
+            let mut field_indices = HashSet::new();
 
-                        // Check that the index of the field isn't marked as deleted.
-                        if deleted.contains(&field.index) {
-                            errors.push(throw::<Error>(
-                                &format!(
-                                    "Field index {} is marked as deleted in this declaration.",
-                                    field.index.to_string().code_str(),
-                                ),
-                                Some(source_path),
-                                Some(&listing(source_contents, field.source_range)),
-                                None,
-                            ));
-                        }
-
-                        // Check that the index isn't too big.
-                        if field.index > MAX_FIELD_INDEX {
-                            errors.push(throw::<Error>(
-                                &format!(
-                                    "Field index {} is too large. The maximum field index is {}.",
-                                    field.index.to_string().code_str(),
-                                    MAX_FIELD_INDEX.to_string().code_str(),
-                                ),
-                                Some(source_path),
-                                Some(&listing(source_contents, field.source_range)),
-                                None,
-                            ));
-                        }
-
-                        // Validate the type.
-                        validate_type(
-                            &all_types,
-                            &mut errors,
-                            namespace,
-                            schema,
-                            source_path,
-                            source_contents,
-                            &field.r#type,
-                        );
-                    }
+            for field in &declaration.fields {
+                // Check that the name of the field is unique within the declaration.
+                if !field_names.insert(field.name.clone()) {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "A field named {} already exists in this declaration.",
+                            field.name.code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, field.source_range)),
+                        None,
+                    ));
                 }
+
+                // Check that the index of the field is unique within the declaration.
+                if !field_indices.insert(field.index) {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "A field with index {} already exists in this declaration.",
+                            field.index.to_string().code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, field.source_range)),
+                        None,
+                    ));
+                }
+
+                // Check that the index of the field isn't marked as deleted.
+                if declaration.deleted.contains(&field.index) {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "Field index {} is marked as deleted in this declaration.",
+                            field.index.to_string().code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, field.source_range)),
+                        None,
+                    ));
+                }
+
+                // Check that the index isn't too big.
+                if field.index > MAX_FIELD_INDEX {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "Field index {} is too large. The maximum field index is {}.",
+                            field.index.to_string().code_str(),
+                            MAX_FIELD_INDEX.to_string().code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, field.source_range)),
+                        None,
+                    ));
+                }
+
+                // Validate the type.
+                validate_type(
+                    &all_types,
+                    &mut errors,
+                    namespace,
+                    schema,
+                    source_path,
+                    source_contents,
+                    &field.r#type,
+                );
             }
         }
     }
@@ -126,7 +134,7 @@ pub fn validate(
         let mut types_visited_vec = vec![];
 
         for (namespace, (schema, _, _)) in schemas {
-            for name in schema.declarations.keys() {
+            for declaration in &schema.declarations {
                 check_declaration_for_cycles(
                     &all_types,
                     &mut types_checked,
@@ -134,7 +142,7 @@ pub fn validate(
                     &mut types_visited_vec,
                     &mut errors,
                     namespace,
-                    name,
+                    &declaration.name,
                 );
             }
         }
@@ -248,9 +256,9 @@ fn check_declaration_for_cycles(
                 types_visited_vec
                     .iter()
                     .map(|(namespace, name)| {
-                        let mut namespace = namespace.clone();
-                        namespace.components.push(name.clone());
-                        namespace.to_string().code_str().to_string()
+                        format!("{}.{}", namespace, name.pascal_case())
+                            .code_str()
+                            .to_string()
                     })
                     .collect::<Vec<_>>()
                     .join(" \u{2192} "),
@@ -275,22 +283,17 @@ fn check_declaration_for_cycles(
     // Check the type of each field. The `unwrap` is safe due to
     // [ref:schemas_valid_except_possible_cycles].
     let (schema, declaration) = all_types.get(&qualified_type).unwrap();
-    match &declaration.variant {
-        schema::DeclarationVariant::Struct(fields, _)
-        | schema::DeclarationVariant::Choice(fields, _) => {
-            for field in fields {
-                check_type_for_cycles(
-                    all_types,
-                    types_checked,
-                    types_visited_set,
-                    types_visited_vec,
-                    errors,
-                    namespace,
-                    schema,
-                    &field.r#type,
-                );
-            }
-        }
+    for field in &declaration.fields {
+        check_type_for_cycles(
+            all_types,
+            types_checked,
+            types_visited_set,
+            types_visited_vec,
+            errors,
+            namespace,
+            schema,
+            &field.r#type,
+        );
     }
 
     // Un-visit this type.
@@ -434,14 +437,40 @@ mod tests {
     }
 
     #[test]
+    fn validate_duplicate_declaration_names() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct foo {
+            }
+
+            struct Foo {
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "A declaration named `Foo` already exists in this file.",
+        );
+    }
+
+    #[test]
     fn validate_duplicate_struct_field_names() {
         let namespace = Namespace {
             components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Bar {
-                x: Bool = 0
+            struct Foo {
+                X: Bool = 0
                 x: F64 = 1
             }
         "
@@ -465,7 +494,7 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Bar {
+            struct Foo {
                 x: Bool = 0
                 y: F64 = 0
             }
@@ -490,10 +519,10 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            struct Bar {
-                deleted 0
-
+            struct Foo {
                 x: Bool = 0
+
+                deleted 0
             }
         "
         .to_owned();
@@ -516,8 +545,8 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice Bar {
-                x: Bool = 0
+            choice Foo {
+                X: Bool = 0
                 x: F64 = 1
             }
         "
@@ -541,7 +570,7 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice Bar {
+            choice Foo {
                 x: Bool = 0
                 y: F64 = 0
             }
@@ -566,10 +595,10 @@ mod tests {
         };
         let path = Path::new("foo.t").to_owned();
         let contents = "
-            choice Bar {
-                deleted 0
-
+            choice Foo {
                 x: Bool = 0
+
+                deleted 0
             }
         "
         .to_owned();

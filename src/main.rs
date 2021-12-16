@@ -45,6 +45,9 @@ const GENERATE_SUBCOMMAND_PATH_OPTION: &str = "generate-path";
 const GENERATE_SUBCOMMAND_RUST_OPTION: &str = "rust";
 const GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION: &str = "typescript";
 const GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION: &str = "list-schemas";
+const FORMAT_SUBCOMMAND: &str = "format";
+const FORMAT_SUBCOMMAND_PATH_OPTION: &str = "format-path";
+const FORMAT_SUBCOMMAND_CHECK_OPTION: &str = "check";
 const SHELL_COMPLETION_SUBCOMMAND: &str = "shell-completion";
 const SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION: &str = "shell-completion-shell";
 
@@ -91,6 +94,21 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
                 ),
         )
         .subcommand(
+            SubCommand::with_name(FORMAT_SUBCOMMAND)
+                .about("Format a schema and its transitive dependencies")
+                .arg(
+                    Arg::with_name(FORMAT_SUBCOMMAND_PATH_OPTION)
+                        .value_name("SCHEMA_PATH")
+                        .help("Sets the path of the schema")
+                        .required(true), // [tag:format_subcommand_path_required]
+                )
+                .arg(
+                    Arg::with_name(FORMAT_SUBCOMMAND_CHECK_OPTION)
+                        .long(FORMAT_SUBCOMMAND_CHECK_OPTION)
+                        .help("Check the formatting rather than actually doing it"),
+                ),
+        )
+        .subcommand(
             SubCommand::with_name(SHELL_COMPLETION_SUBCOMMAND)
                 .about(
                     " \
@@ -110,14 +128,14 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
 
 // Generate code for a schema and its transitive dependencies.
 fn generate_code(
-    schema_path: &Path,
+    path: &Path,
     list_schemas: bool,
-    rust_out: Option<&Path>,
-    typescript_out: Option<&Path>,
+    rust: Option<&Path>,
+    typescript: Option<&Path>,
 ) -> Result<(), Error> {
     // Load the schema and its transitive dependencies.
     eprintln!("Loading schemas\u{2026}");
-    let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
+    let schemas = load_schemas(path).map_err(|errors| merge_errors(&errors))?;
     eprintln!("{} loaded.", count(schemas.len(), "schema"));
 
     // Validate the schemas.
@@ -129,7 +147,7 @@ fn generate_code(
         eprintln!("Listing schemas\u{2026}");
 
         // The `unwrap` is safe since otherwise the schema would've failed to load above.
-        let directory = schema_path.parent().unwrap();
+        let directory = path.parent().unwrap();
 
         for (_, source_path, _) in schemas.values() {
             println!("{}", directory.join(source_path).to_string_lossy());
@@ -137,11 +155,11 @@ fn generate_code(
     }
 
     // Generate Rust code, if applicable.
-    if let Some(rust_out) = rust_out {
+    if let Some(rust) = rust {
         eprintln!("Generating Rust\u{2026}");
 
         // Create any missing intermediate directories as needed.
-        if let Some(parent) = rust_out.parent() {
+        if let Some(parent) = rust.parent() {
             create_dir_all(parent).map_err(|error| {
                 throw(
                     &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
@@ -153,10 +171,10 @@ fn generate_code(
         }
 
         // Generate the code and write it to the file.
-        eprintln!("Writing {}\u{2026}", rust_out.to_string_lossy().code_str());
-        write(rust_out, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
+        eprintln!("Writing {}\u{2026}", rust.to_string_lossy().code_str());
+        write(rust, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
             throw(
-                &format!("Unable to write {}.", rust_out.to_string_lossy().code_str()),
+                &format!("Unable to write {}.", rust.to_string_lossy().code_str()),
                 None,
                 None,
                 Some(error),
@@ -165,11 +183,11 @@ fn generate_code(
     }
 
     // Generate TypeScript code, if applicable.
-    if let Some(typescript_out) = typescript_out {
+    if let Some(typescript) = typescript {
         eprintln!("Generating TypeScript\u{2026}");
 
         // Create any missing intermediate directories as needed.
-        if let Some(parent) = typescript_out.parent() {
+        if let Some(parent) = typescript.parent() {
             create_dir_all(parent).map_err(|error| {
                 throw(
                     &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
@@ -183,23 +201,78 @@ fn generate_code(
         // Generate the code and write it to the file.
         eprintln!(
             "Writing {}\u{2026}",
-            typescript_out.to_string_lossy().code_str(),
+            typescript.to_string_lossy().code_str(),
         );
-        write(
-            typescript_out,
-            generate_typescript::generate(VERSION, &schemas),
-        )
-        .map_err(|error| {
+        write(typescript, generate_typescript::generate(VERSION, &schemas)).map_err(|error| {
             throw(
                 &format!(
                     "Unable to write {}.",
-                    typescript_out.to_string_lossy().code_str(),
+                    typescript.to_string_lossy().code_str(),
                 ),
                 None,
                 None,
                 Some(error),
             )
         })?;
+    }
+
+    eprintln!("Done.");
+    Ok(())
+}
+
+// Format a schema and its transitive dependencies.
+fn format_schema(path: &Path, check: bool) -> Result<(), Error> {
+    // Load the schema and its transitive dependencies.
+    eprintln!("Loading schemas\u{2026}");
+    let schemas = load_schemas(path).map_err(|errors| merge_errors(&errors))?;
+    eprintln!("{} loaded.", count(schemas.len(), "schema"));
+
+    // This flag will be set if any changes were made to any of the schemas.
+    let mut any_schema_updated = false;
+
+    // Compute the base directory for the schemas. The `unwrap` is safe since otherwise the schema
+    // would've failed to load above.
+    let directory = path.parent().unwrap();
+
+    // Format the schemas.
+    eprintln!("Formatting schemas\u{2026}");
+    for (schema, source_path, source_contents) in schemas.values() {
+        // Compute the full path and new contents of the schema.
+        let full_source_path = directory.join(source_path);
+        let new_source_contents = schema.to_string();
+        eprintln!("  {}", full_source_path.to_string_lossy().code_str());
+
+        // Check if the contents changed.
+        let updated = *source_contents != new_source_contents;
+        if updated {
+            any_schema_updated = true;
+        }
+
+        // Write the updated schema contents, if applicable.
+        if updated && !check {
+            write(&full_source_path, new_source_contents).map_err(|error| {
+                throw(
+                    "Unable to write file.",
+                    Some(source_path),
+                    None,
+                    Some(error),
+                )
+            })?;
+        }
+    }
+
+    // If the user only wants to check the formatting, fail if any of the schemas need to be
+    // formatted.
+    if check && any_schema_updated {
+        return Err(throw::<Error>(
+            &format!(
+                "Formatting mismatch. Please run {}.",
+                format!("typical format {}", path.to_string_lossy()).code_str(),
+            ),
+            None,
+            None,
+            None,
+        ));
     }
 
     eprintln!("Done.");
@@ -246,7 +319,7 @@ fn entry() -> Result<(), Error> {
             let subcommand_matches = matches.subcommand_matches(GENERATE_SUBCOMMAND).unwrap();
 
             // Determine the path to the schema file.
-            let schema_path = Path::new(
+            let path = Path::new(
                 subcommand_matches
                     .value_of(GENERATE_SUBCOMMAND_PATH_OPTION)
                     // [ref:generate_subcommand_path_required]
@@ -258,17 +331,37 @@ fn entry() -> Result<(), Error> {
                 subcommand_matches.is_present(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION);
 
             // Determine the path to the Rust output file, if provided.
-            let rust_out = subcommand_matches
+            let rust = subcommand_matches
                 .value_of(GENERATE_SUBCOMMAND_RUST_OPTION)
                 .map(Path::new);
 
             // Determine the path to the TypeScript output file, if provided.
-            let typescript_out = subcommand_matches
+            let typescript = subcommand_matches
                 .value_of(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
                 .map(Path::new);
 
-            // Generate code for the schema.
-            generate_code(schema_path, list_schemas, rust_out, typescript_out)?;
+            // Generate code for the schema and its transitive dependencies.
+            generate_code(path, list_schemas, rust, typescript)?;
+        }
+
+        // [tag:format_subcommand]
+        Some(subcommand) if subcommand == FORMAT_SUBCOMMAND => {
+            // Get the subcommand matches. The `unwrap` is safe due to [ref:format_subcommand].
+            let subcommand_matches = matches.subcommand_matches(FORMAT_SUBCOMMAND).unwrap();
+
+            // Determine the path to the schema file.
+            let path = Path::new(
+                subcommand_matches
+                    .value_of(FORMAT_SUBCOMMAND_PATH_OPTION)
+                    // [ref:format_subcommand_path_required]
+                    .unwrap(),
+            );
+
+            // Determine if the user wants to check the formatting.
+            let check = subcommand_matches.is_present(FORMAT_SUBCOMMAND_CHECK_OPTION);
+
+            // Format the schema and its transitive dependencies.
+            format_schema(path, check)?;
         }
 
         // [tag:shell_completion_subcommand]
