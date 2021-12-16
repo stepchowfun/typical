@@ -248,7 +248,14 @@ fn parse_schema(
         if let token::Variant::Comment(paragraphs) = &tokens[*position].variant {
             if *position + 1 < tokens.len() {
                 match tokens[*position + 1].variant {
-                    token::Variant::Struct | token::Variant::Choice => {}
+                    token::Variant::Struct | token::Variant::Choice => {
+                        if tokens[*position].source_range.end + 1
+                            < tokens[*position + 1].source_range.start
+                        {
+                            comment = paragraphs.clone();
+                            *position += 1;
+                        }
+                    }
                     _ => {
                         comment = paragraphs.clone();
                         *position += 1;

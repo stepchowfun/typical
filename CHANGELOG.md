@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2021-12-14
+## [0.2.1] - 2021-12-16
+
+### Changed
+- Slightly improved the `format` subcommand behavior such that it is now always possible to have a top-level comment. Previously, in some situations, a comment intended to be a top-level comment would be interpreted as a comment on the first declaration.
+
+## [0.2.0] - 2021-12-16
 
 ### Added
 - Added the `format` subcommand.
