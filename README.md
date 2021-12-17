@@ -20,6 +20,8 @@ In short, Typical offers two important features that are conventionally thought 
 
 To understand what this is all about, let's walk through an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
 
+Our example scenario involves a client talking to a server, but Typical has no notion of clients or servers. It only deals with serialization and deserialization. Other concerns like networking, encryption, and authentication are out of scope.
+
 ### Write a schema
 
 You can start by creating a schema file called `email_api.t` (or any other name you prefer) with the relevant types for your email API:
@@ -59,9 +61,7 @@ typical generate email_api.t --rust email_api.rs
 
 Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/main/examples/rust) for how to automate this with a [Cargo build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
 
-The client and server can then use the generated code to serialize and deserialize messages for mutual communication. If the client and server are written in different languages, you can generate code for each language.
-
-Note that Typical only does serialization and deserialization. It has nothing to do with networking, encryption, authentication, or authorization, but it can be used together with those technologies.
+The client and server can then use the generated code to serialize and deserialize messages for mutual communication. The client and server can even be written in different languages, as long as Typical knows how to generate code for each language.
 
 ### Serialize and deserialize messages
 
@@ -99,16 +99,17 @@ Fields are required by default. This is an unusual design decision, since requir
 
 ### The trouble with adding and removing required fields directly
 
-Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. For example, suppose your new email API is up and running, and you want to add a new `from` field to the request type:
+Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. For example, suppose your email API is up and running, and you want to add a new `from` field to the request type:
 
 ```perl
 struct SendEmailRequest {
     to: String = 0
-    subject: String = 1
-    body: String = 2
 
     # A new required field
     from: String = 3
+
+    subject: String = 1
+    body: String = 2
 }
 ```
 
@@ -125,11 +126,12 @@ A somewhat safer way to introduce a required field is to first introduce it as o
 ```perl
 struct SendEmailRequest {
     to: String = 0
-    subject: String = 1
-    body: String = 2
 
     # A new optional field
     optional from: String = 3
+
+    subject: String = 1
+    body: String = 2
 }
 ```
 
@@ -155,18 +157,19 @@ However, this advice ignores the reality that some things really are *semantical
 
 ### Introducing: asymmetric fields
 
-Typical offers an intermediate state between optional and required: *asymmetric*. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
+To help you safely add and remove required fields, Typical offers an intermediate state between optional and required: *asymmetric*. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
 
 Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as asymmetric:
 
 ```perl
 struct SendEmailRequest {
     to: String = 0
-    subject: String = 1
-    body: String = 2
 
     # A new asymmetric field
     asymmetric from: String = 3
+
+    subject: String = 1
+    body: String = 2
 }
 ```
 
@@ -216,9 +219,9 @@ An optional field of a choice must be paired with a fallback field, which is use
 
 **Note:** An optional field in a choice is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field). This important insight about duality comes from category theory.
 
-An asymmetric field must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs.
+An asymmetric field of a choice must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again!
 
-As with structs, an asymmetric field in a choice can be safely promoted to required and vice versa.
+As with structs, asymmetric fields in choices can be safely promoted to required and vice versa. To be clear, that's the sole purpose of asymmetric fields.
 
 Consider a more elaborate version of our API response type:
 
@@ -269,23 +272,23 @@ The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallba
 
 ### What about default values?
 
-Typical has no notion of a "default" value for each type. This means, for example, if a reader sees the value `0` for a field, it can be confident that this value was explicitly set by a writer, and that the writer didn't just accidentally forget to set it. Zeroes, empty strings, empty arrays, and so on aren't special in any way.
+Typical has no notion of a "default" value for each type. This means, for example, if a reader sees the value `0` for a field, it can be confident that this value was explicitly set by a writer, and that the writer didn't just accidentally forget to set it. Zeroes, empty strings, empty arrays, and so on aren't semantically special in any way.
 
 ## Summary of what kinds of schema changes are safe
 
-Any schema can be safely migrated to any other schema through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
+Any user-defined type can be safely migrated to any other user-defined type through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove optional and asymmetric fields.
-- You can safely convert any fields to asymmetric and vice versa.
-- You can safely convert a struct with exactly one field, which must be required, into a choice with just that field and vice versa.
+- You can safely convert asymmetric fields to optional or required and vice versa.
+- You can safely convert a struct with exactly one field, which must be required, into a choice with just that field and vice versa. This type of change is rare, but is needed to guarantee that any user-defined type can be eventually migrated to any other user-defined type.
 - No other changes are guaranteed to be safe.
 
 In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is reflexive (every schema is compatible with itself) and symmetric (forward compatibility and backward compatibility imply each other), but not transitive (two individually safe schema changes are not necessarily safe as a single change).
 
 ## Schema reference
 
-A schema contains only two kinds of things: imports and user-defined types. The order of those things doesn't matter. Whitespace doesn't matter either.
+A schema contains only two kinds of things: imports and user-defined types. Any imports must come before user-defined types. Whitespace is ignored.
 
 ### Imports
 
@@ -310,11 +313,11 @@ struct SendEmailRequest {
 }
 ```
 
-The generated code for `email_api.t` will now include the types from both `email_api.t` and `email_util.t`, as the latter is imported by the former.
+You only need to run Typical on `email_api.t`. The generated code will include types from both `email_api.t` and `email_util.t`, since the former imports the latter.
 
 Import paths are considered relative to the directory containing the schema doing the importing. Typical has no notion of a "top-level" directory on which all paths are based.
 
-A useful convention is to create a `main.t` schema that simply imports all the other schemas, directly or indirectly. Then it's clear which schema to use for code generation. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. However, these are merely conventions, and Typical has no intrinsic notion of "project".
+A useful convention is to create a `main.t` schema that simply imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. However, these are merely conventions, and Typical has no intrinsic notion of "project".
 
 If you import two schemas with the same name from different directories, you'll need to disambiguate usages of those schemas. Suppose, for example, you attempted the following:
 
@@ -372,7 +375,7 @@ The rule, if present, is either `optional` or `asymmetric`. The absence of a rul
 
 The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
 
-The type, if present, is either a built-in type (e.g., `String`), the name of a user-defined type in the same schema (e.g., `Server`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.Address`). If the type is missing, it defaults to `Unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
+The type, if present, is either a built-in type (e.g., `String`), the name of a user-defined type in the same schema (e.g., `DeviceIpAddress`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.Address`). If the type is missing, it defaults to `Unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
 
 ```perl
 choice Weekday {
@@ -404,7 +407,7 @@ Typical will then prevent us from introducing new fields with those indices.
 
 The following built-in types are supported:
 
-- `Unit` is a type which holds no information. It's mainly used for the fields of choices which represent enumerated types.
+- `Unit` is a type which holds no information. It's mainly used for the fields of choices that represent enumerated types.
 - `F64` is the type of double-precision floating-point numbers as defined by IEEE 754.
 - `U64` is the type of integers in the range [`0, 2^64`).
 - `S64` is the type of integers in the range [`-2^63, 2^63`).
@@ -418,13 +421,11 @@ The following built-in types are supported:
 
 Comments can be used to add helpful context to your schemas. A comment begins with a `#` and continues to the end of the line, as with Python, Ruby, Perl, etc.
 
-Unlike with most programming languages, comments in Typical schemas are associated with specific constructs. Specifically, comments are attached to structs, choices, individual fields, or entire schema files. The following schema demonstrates all the contexts in which comments may be used:
+Unlike with most programming languages, comments in Typical schemas are associated with specific items. Specifically, comments are attached to structs, choices, individual fields, or entire schema files. The following schema demonstrates all the contexts in which comments may be used:
 
 ```perl
 # This file contains types relating to a hypothetical email sending API.
 # Comments may span multiple lines.
-#
-# Comments may even contain multiple paragraphs. This is the second paragraph.
 
 # A request to send an email
 struct SendEmailRequest {
@@ -460,7 +461,7 @@ To mitigate memory-based denial-of-service attacks, it's good practice to reject
 
 ## Binary encoding
 
-The following sections describe how Typical serializes your data.
+The following sections describe how Typical serializes your data. In most cases, Typical's encoding scheme is more compact than that of Protocol Buffers and Apache Thrift thanks to smaller field headers, a more efficient variable-width integer encoding, and a trick that allows some information to be inferred from the size of a field rather than being encoded explicitly.
 
 ### Variable-width integers
 
@@ -554,12 +555,12 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
 - `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`, including the special behavior in the case of field values if applicable. Thus, `false` takes 0-1 bytes to encode, and `true` always takes 1 byte.
 - `Bytes` is encoded verbatim.
 - `String` is encoded as UTF-8.
-- Arrays (e.g., `[U64]`) are encoded in one of three ways:
+- Arrays (e.g., `[U64]`) are encoded in one of three ways, depending on the element type:
   - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`, including the special behavior in the case of field values if applicable. Since the elements (of type `Unit`) take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
   - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
   - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded as a variable-width integer. The *element* is encoded according to its type. The number of elements is not explicitly encoded.
 
-Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer takes 1-9 bytes to encode, but an integer field takes 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode in the field header.
+Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer takes 1-9 bytes to encode, but a `U64` field only takes 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode in the field header.
 
 ## Usage
 
