@@ -4,25 +4,25 @@
 
 *Typical* helps you [serialize](https://en.wikipedia.org/wiki/Serialization) data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact [binary encoding](#binary-encoding) which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-The main difference between Typical and related toolchains like Protocol Buffers and Apache Thrift is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you use languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)). Satisfyingly, the same solution also addresses the dual problem of how to safely add and remove cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
+Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference between Typical and those other toolchains is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you use languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)). Satisfyingly, the same solution also addresses the dual problem of how to safely add and remove cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
 
 In short, Typical offers two important features that are conventionally thought to be at odds:
 
 1. Uncompromising type safety
 2. Binary compatibility between schema versions
 
-**Supported languages:**
+**Supported programming languages:**
 
 - Rust
 - *Coming soon:* TypeScript
 
-## Introduction
+## Tutorial
 
 To understand what this is all about, let's walk through an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
 
-Our example scenario involves a client talking to a server, but Typical has no notion of clients or servers. It only deals with serialization and deserialization. Other concerns like networking, encryption, and authentication are out of scope.
+Although our example scenario involves a client talking to a server, Typical has no notion of clients or servers. It only deals with serialization and deserialization. Other concerns like networking, encryption, and authentication are outside Typical's purview.
 
-### Write a schema
+### Step 1: Write a schema
 
 You can start by creating a schema file called `email_api.t` (or any other name you prefer) with the relevant types for your email API:
 
@@ -51,7 +51,7 @@ Once you've written your schema, Typical can automatically format it to ensure c
 typical format email_api.t
 ```
 
-### Generate code for serialization and deserialization
+### Step 2: Generate code for serialization and deserialization
 
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
 
@@ -63,7 +63,7 @@ Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/
 
 The client and server can then use the generated code to serialize and deserialize messages for mutual communication. The client and server can even be written in different languages, as long as Typical knows how to generate code for each language.
 
-### Serialize and deserialize messages
+### Step 3: Serialize and deserialize messages
 
 With the code generated in the previous section, a program could construct a message and serialize it to a file (for example) as follows:
 
@@ -78,7 +78,7 @@ let mut file = BufWriter::new(File::create("/tmp/request")?);
 request.serialize(&mut file)?;
 ```
 
-Another program, possibly written in a different language, could read the message from disk (for example) and deserialize it as follows:
+Another program, possibly written in a different language, could read the file (for example) and deserialize the message as follows:
 
 ```rust
 let mut file = BufReader::new(File::open("/tmp/request")?);
