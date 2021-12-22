@@ -235,7 +235,10 @@ fn format_schema(path: &Path, check: bool) -> Result<(), Error> {
     let directory = path.parent().unwrap();
 
     // Format the schemas.
-    eprintln!("Formatting schemas\u{2026}");
+    eprintln!(
+        "{} schemas\u{2026}",
+        if check { "Checking" } else { "Formatting" },
+    );
     for (schema, source_path, source_contents) in schemas.values() {
         // Compute the full path and new contents of the schema.
         let full_source_path = directory.join(source_path);
