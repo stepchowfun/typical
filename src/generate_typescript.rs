@@ -185,7 +185,6 @@ mod tests {
         std::path::Path,
     };
 
-    // This test doesn't work on Windows, for some reason.
     #[test]
     fn generate_example() {
         let schemas = load_schemas(Path::new("integration_tests/types/main.t")).unwrap();
