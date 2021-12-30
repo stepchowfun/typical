@@ -1943,7 +1943,6 @@ mod tests {
         std::path::Path,
     };
 
-    // This test doesn't work on Windows, for some reason.
     #[allow(clippy::too_many_lines)]
     #[test]
     fn generate_example() {
