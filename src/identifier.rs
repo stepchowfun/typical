@@ -78,6 +78,33 @@ impl Identifier {
         self.snake_case.clone()
     }
 
+    // This function returns a `camelCase` version of an identifier.
+    pub fn camel_case(&self) -> String {
+        let words = split_words(&self.original);
+        let mut words_iter = words.iter();
+
+        match words_iter.next() {
+            None => String::new(),
+            Some(first_word) => {
+                first_word.to_lowercase()
+                    + &words_iter
+                        .map(|word| {
+                            let mut chars = word.chars();
+
+                            match chars.next() {
+                                None => String::new(),
+                                Some(first_char) => {
+                                    first_char.to_uppercase().collect::<String>()
+                                        + &chars.as_str().to_lowercase()
+                                }
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                        .join("")
+            }
+        }
+    }
+
     // This function returns a `PascalCase` version of an identifier.
     pub fn pascal_case(&self) -> String {
         split_words(&self.original)
@@ -87,8 +114,9 @@ impl Identifier {
 
                 match chars.next() {
                     None => String::new(),
-                    Some(c) => {
-                        c.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase()
+                    Some(first_char) => {
+                        first_char.to_uppercase().collect::<String>()
+                            + &chars.as_str().to_lowercase()
                     }
                 }
             })
@@ -567,6 +595,59 @@ mod tests {
         assert_eq!(
             Identifier::from("HelloWorld").snake_case(),
             "hello_world".to_owned(),
+        );
+    }
+
+    #[test]
+    fn camel_case_empty() {
+        assert_eq!(Identifier::from("").camel_case(), "".to_owned());
+    }
+
+    #[test]
+    fn camel_case_snake_case() {
+        assert_eq!(
+            Identifier::from("hello_world").camel_case(),
+            "helloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn camel_case_snake_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("__hello_world__").camel_case(),
+            "helloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn camel_case_hyphen_case() {
+        assert_eq!(
+            Identifier::from("hello-world").camel_case(),
+            "helloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn camel_case_hyphen_case_extra_delimiters() {
+        assert_eq!(
+            Identifier::from("--hello-world--").camel_case(),
+            "helloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn camel_case_camel_case() {
+        assert_eq!(
+            Identifier::from("helloWorld").camel_case(),
+            "helloWorld".to_owned(),
+        );
+    }
+
+    #[test]
+    fn camel_case_pascal_case() {
+        assert_eq!(
+            Identifier::from("HelloWorld").camel_case(),
+            "helloWorld".to_owned(),
         );
     }
 
