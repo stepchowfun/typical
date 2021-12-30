@@ -409,8 +409,8 @@ The following built-in types are supported:
 
 - `Unit` is a type which holds no information. It's mainly used for the fields of choices that represent enumerated types.
 - `F64` is the type of double-precision floating-point numbers as defined by IEEE 754.
-- `U64` is the type of integers in the range [`0, 2^64`).
-- `S64` is the type of integers in the range [`-2^63, 2^63`).
+- `U64` is the type of integers in the range [`0`, `2^64`).
+- `S64` is the type of integers in the range [`-2^63`, `2^63`).
 - `Bool` is the type of Booleans.
   - You could define your own Boolean type as a choice with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
 - `Bytes` is the type of binary blobs with no further structure.
