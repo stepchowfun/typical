@@ -579,7 +579,7 @@ fn write_schema<T: Write>(
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {
                             write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "const payload{} = value.", indentation + 3)?;
+                            write!(buffer, "const payload = value.")?;
                             write_identifier(buffer, &field.name, Camel, None)?;
                             writeln!(buffer, ";")?;
                             write_size_calculation_invocation(
@@ -593,11 +593,11 @@ fn write_schema<T: Write>(
                         }
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "const payload{} = value.", indentation + 4)?;
+                            write!(buffer, "const payload = value.")?;
                             write_identifier(buffer, &field.name, Camel, None)?;
                             writeln!(buffer, ";")?;
                             write_indentation(buffer, indentation + 3)?;
-                            writeln!(buffer, "if (payload{} === undefined) {{", indentation + 4)?;
+                            writeln!(buffer, "if (payload === undefined) {{")?;
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "payloadSize = 0;")?;
                             write_indentation(buffer, indentation + 3)?;
@@ -713,7 +713,7 @@ fn write_schema<T: Write>(
                         if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                         } else {
                             write_indentation(buffer, indentation + 4)?;
-                            writeln!(buffer, "const payload{} = value.value;", indentation + 4)?;
+                            writeln!(buffer, "const payload = value.value;")?;
                             write_size_calculation_invocation(
                                 buffer,
                                 indentation + 4,
@@ -999,95 +999,90 @@ fn write_size_calculation_invocation<T: Write>(
             | schema::TypeVariant::Custom(_, _)
             | schema::TypeVariant::String => {
                 write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "let arraySize = 0;")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(
-                    buffer,
-                    "for (let i = 0; i < payload{}.length; ++i) {{",
-                    indentation,
-                )?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "const payload{} = payload{}[i];",
-                    indentation + 1,
-                    indentation,
-                )?;
+                writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "for (let i = 0; i < oldPayload.length; ++i) {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "const payload = oldPayload[i];")?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "let payloadSize = 0;")?;
                 write_size_calculation_invocation(
                     buffer,
-                    indentation + 1,
+                    indentation + 2,
                     imports,
                     namespace,
                     &inner_type.variant,
                     false,
                 )?;
-                write_indentation(buffer, indentation + 1)?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(
                     buffer,
                     "arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;",
                 )?;
-                write_indentation(buffer, indentation)?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "payloadSize = arraySize;")?;
                 write_indentation(buffer, indentation)?;
-                writeln!(buffer, "payloadSize = arraySize;")
+                writeln!(buffer, "}}")
             }
             schema::TypeVariant::Bool | schema::TypeVariant::S64 | schema::TypeVariant::U64 => {
                 write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "let arraySize = 0;")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(
-                    buffer,
-                    "for (let i = 0; i < payload{}.length; ++i) {{",
-                    indentation,
-                )?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "const payload{} = payload{}[i];",
-                    indentation + 1,
-                    indentation,
-                )?;
+                writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "for (let i = 0; i < oldPayload.length; ++i) {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "const payload = oldPayload[i];")?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "let payloadSize = 0;")?;
                 write_size_calculation_invocation(
                     buffer,
-                    indentation + 1,
+                    indentation + 2,
                     imports,
                     namespace,
                     &inner_type.variant,
                     false,
                 )?;
-                write_indentation(buffer, indentation + 1)?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "arraySize += payloadSize;")?;
-                write_indentation(buffer, indentation)?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "payloadSize = arraySize;")?;
                 write_indentation(buffer, indentation)?;
-                writeln!(buffer, "payloadSize = arraySize;")
+                writeln!(buffer, "}}")
             }
             schema::TypeVariant::F64 => {
                 write_indentation(buffer, indentation)?;
-                writeln!(buffer, "payloadSize = 8 * payload{}.length;", indentation)
+                writeln!(buffer, "payloadSize = 8 * payload.length;")
             }
             schema::TypeVariant::Unit => {
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "const payload{} = BigInt(payload{}.length);",
-                    indentation + 1,
-                    indentation,
-                )?;
+                writeln!(buffer, "const oldPayload = payload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "const payload = BigInt(oldPayload.length);")?;
                 write_size_calculation_invocation(
                     buffer,
-                    indentation + 1,
+                    indentation + 2,
                     imports,
                     namespace,
                     &schema::TypeVariant::U64,
                     is_field,
                 )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             }
@@ -1095,7 +1090,7 @@ fn write_size_calculation_invocation<T: Write>(
         schema::TypeVariant::Bool => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "if (payload{}) {{", indentation)?;
+                writeln!(buffer, "if (payload) {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "payloadSize = 1;")?;
                 write_indentation(buffer, indentation)?;
@@ -1110,14 +1105,13 @@ fn write_size_calculation_invocation<T: Write>(
         }
         schema::TypeVariant::Bytes => {
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "payloadSize = payload{}.byteLength;", indentation)
+            writeln!(buffer, "payloadSize = payload.byteLength;")
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
             writeln!(
                 buffer,
-                "payloadSize = textEncoder.encode(payload{}).byteLength;",
-                indentation,
+                "payloadSize = textEncoder.encode(payload).byteLength;",
             )
         }
         schema::TypeVariant::Custom(import, name) => {
@@ -1137,16 +1131,12 @@ fn write_size_calculation_invocation<T: Write>(
             }
 
             write_identifier(buffer, name, Pascal, None)?;
-            writeln!(buffer, ".size(payload{});", indentation)
+            writeln!(buffer, ".size(payload);")
         }
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(
-                    buffer,
-                    "dataView64.setFloat64(0, payload{}, true);",
-                    indentation,
-                )?;
+                writeln!(buffer, "dataView64.setFloat64(0, payload, true);")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "if (dataView64.getBigUint64(0, true) === 0n) {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1164,47 +1154,42 @@ fn write_size_calculation_invocation<T: Write>(
         schema::TypeVariant::S64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "let zigzag = zigzagEncode(payload{});", indentation)?;
+                writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation)?;
+                writeln!(buffer, "let zigzag = zigzagEncode(payload);")?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "if (zigzag === 0n) {{")?;
-                write_indentation(buffer, indentation + 1)?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "payloadSize = 0;")?;
-                write_indentation(buffer, indentation)?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}} else if (zigzag < 567_382_630_219_904n) {{")?;
-                write_indentation(buffer, indentation + 1)?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "payloadSize = varintSizeFromValue(zigzag);")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}} else {{")?;
                 write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}} else {{")?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "payloadSize = 8;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             } else {
                 writeln!(
                     buffer,
-                    "payloadSize = varintSizeFromValue(zigzagEncode(payload{}));",
-                    indentation,
+                    "payloadSize = varintSizeFromValue(zigzagEncode(payload));",
                 )
             }
         }
         schema::TypeVariant::U64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "if (payload{} === 0n) {{", indentation)?;
+                writeln!(buffer, "if (payload === 0n) {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "payloadSize = 0;")?;
                 write_indentation(buffer, indentation)?;
-                writeln!(
-                    buffer,
-                    "}} else if (payload{} < 567_382_630_219_904n) {{",
-                    indentation,
-                )?;
+                writeln!(buffer, "}} else if (payload < 567_382_630_219_904n) {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "payloadSize = varintSizeFromValue(payload{});",
-                    indentation,
-                )?;
+                writeln!(buffer, "payloadSize = varintSizeFromValue(payload);")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}} else {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1212,11 +1197,7 @@ fn write_size_calculation_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             } else {
-                writeln!(
-                    buffer,
-                    "payloadSize = varintSizeFromValue(payload{});",
-                    indentation,
-                )
+                writeln!(buffer, "payloadSize = varintSizeFromValue(payload);")
             }
         }
         schema::TypeVariant::Unit => {
@@ -1528,8 +1509,8 @@ export namespace CircularDependency {
           let payloadSize = 0;
 
           {
-            const payload6 = value.x;
-            payloadSize = CircularDependency.Main.StructFromAbove.size(payload6);
+            const payload = value.x;
+            payloadSize = CircularDependency.Main.StructFromAbove.size(payload);
           }
 
           valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
@@ -1693,8 +1674,8 @@ export namespace Comprehensive {
           }
           case 'bRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            dataView64.setFloat64(0, payload6, true);
+            const payload = value.value;
+            dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
             } else {
@@ -1704,11 +1685,11 @@ export namespace Comprehensive {
           }
           case 'cRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            if (payload6 === 0n) {
+            const payload = value.value;
+            if (payload === 0n) {
               payloadSize = 0;
-            } else if (payload6 < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload6);
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
             } else {
               payloadSize = 8;
             }
@@ -1716,21 +1697,23 @@ export namespace Comprehensive {
           }
           case 'dRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let zigzag = zigzagEncode(payload6);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
+            const payload = value.value;
+            {
+            let zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
             }
             return fieldHeaderSize(3n, payloadSize, true) + payloadSize;
           }
           case 'eRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            if (payload6) {
+            const payload = value.value;
+            if (payload) {
               payloadSize = 1;
             } else {
               payloadSize = 0;
@@ -1739,120 +1722,144 @@ export namespace Comprehensive {
           }
           case 'fRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = payload6.byteLength;
+            const payload = value.value;
+            payloadSize = payload.byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
           }
           case 'gRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize;
           }
           case 'hRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
+            const payload = value.value;
             {
-              const payload7 = BigInt(payload6.length);
-              if (payload7 === 0n) {
-                payloadSize = 0;
-              } else if (payload7 < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload7);
-              } else {
-                payloadSize = 8;
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
               }
             }
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize;
           }
           case 'iRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = 8 * payload6.length;
+            const payload = value.value;
+            payloadSize = 8 * payload.length;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
           case 'jRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload7);
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(9n, payloadSize, false) + payloadSize;
           }
           case 'kRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload7));
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
           case 'lRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize;
           }
           case 'mRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = payload7.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize;
           }
           case 'nRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload7).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize;
           }
           case 'oRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
+            const payload = value.value;
+            {
               let arraySize = 0;
-              for (let i = 0; i < payload7.length; ++i) {
-                const payload8 = payload7[i];
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload8).byteLength;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(14n, payloadSize, false) + payloadSize;
           }
           case 'aAsymmetric': {
@@ -1861,8 +1868,8 @@ export namespace Comprehensive {
           }
           case 'bAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            dataView64.setFloat64(0, payload6, true);
+            const payload = value.value;
+            dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
             } else {
@@ -1872,11 +1879,11 @@ export namespace Comprehensive {
           }
           case 'cAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            if (payload6 === 0n) {
+            const payload = value.value;
+            if (payload === 0n) {
               payloadSize = 0;
-            } else if (payload6 < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload6);
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
             } else {
               payloadSize = 8;
             }
@@ -1884,21 +1891,23 @@ export namespace Comprehensive {
           }
           case 'dAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let zigzag = zigzagEncode(payload6);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
+            const payload = value.value;
+            {
+            let zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
             }
             return fieldHeaderSize(19n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'eAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            if (payload6) {
+            const payload = value.value;
+            if (payload) {
               payloadSize = 1;
             } else {
               payloadSize = 0;
@@ -1907,120 +1916,144 @@ export namespace Comprehensive {
           }
           case 'fAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = payload6.byteLength;
+            const payload = value.value;
+            payloadSize = payload.byteLength;
             return fieldHeaderSize(21n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'gAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(22n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'hAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
+            const payload = value.value;
             {
-              const payload7 = BigInt(payload6.length);
-              if (payload7 === 0n) {
-                payloadSize = 0;
-              } else if (payload7 < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload7);
-              } else {
-                payloadSize = 8;
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
               }
             }
             return fieldHeaderSize(23n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'iAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = 8 * payload6.length;
+            const payload = value.value;
+            payloadSize = 8 * payload.length;
             return fieldHeaderSize(24n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'jAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload7);
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(25n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'kAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload7));
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(26n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'lAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(27n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'mAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = payload7.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload7).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'oAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
+            const payload = value.value;
+            {
               let arraySize = 0;
-              for (let i = 0; i < payload7.length; ++i) {
-                const payload8 = payload7[i];
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload8).byteLength;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(30n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'aOptional': {
@@ -2029,8 +2062,8 @@ export namespace Comprehensive {
           }
           case 'bOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            dataView64.setFloat64(0, payload6, true);
+            const payload = value.value;
+            dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
             } else {
@@ -2040,11 +2073,11 @@ export namespace Comprehensive {
           }
           case 'cOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            if (payload6 === 0n) {
+            const payload = value.value;
+            if (payload === 0n) {
               payloadSize = 0;
-            } else if (payload6 < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload6);
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
             } else {
               payloadSize = 8;
             }
@@ -2052,21 +2085,23 @@ export namespace Comprehensive {
           }
           case 'dOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let zigzag = zigzagEncode(payload6);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
+            const payload = value.value;
+            {
+            let zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
             }
             return fieldHeaderSize(35n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'eOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            if (payload6) {
+            const payload = value.value;
+            if (payload) {
               payloadSize = 1;
             } else {
               payloadSize = 0;
@@ -2075,120 +2110,144 @@ export namespace Comprehensive {
           }
           case 'fOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = payload6.byteLength;
+            const payload = value.value;
+            payloadSize = payload.byteLength;
             return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'gOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'hOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
+            const payload = value.value;
             {
-              const payload7 = BigInt(payload6.length);
-              if (payload7 === 0n) {
-                payloadSize = 0;
-              } else if (payload7 < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload7);
-              } else {
-                payloadSize = 8;
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
               }
             }
             return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'iOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = 8 * payload6.length;
+            const payload = value.value;
+            payloadSize = 8 * payload.length;
             return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'jOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload7);
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'kOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload7));
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'lOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'mOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = payload7.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload7).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'oOptional': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
+            const payload = value.value;
+            {
               let arraySize = 0;
-              for (let i = 0; i < payload7.length; ++i) {
-                const payload8 = payload7[i];
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload8).byteLength;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadSize = arraySize;
             return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.fallback);
           }
         }
@@ -2314,15 +2373,15 @@ export namespace Comprehensive {
         let payloadSize = 0;
 
         {
-          const payload5 = value.aRequired;
+          const payload = value.aRequired;
           payloadSize = 0;
         }
 
         valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.bRequired;
-          dataView64.setFloat64(0, payload5, true);
+          const payload = value.bRequired;
+          dataView64.setFloat64(0, payload, true);
           if (dataView64.getBigUint64(0, true) === 0n) {
             payloadSize = 0;
           } else {
@@ -2333,11 +2392,11 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.cRequired;
-          if (payload5 === 0n) {
+          const payload = value.cRequired;
+          if (payload === 0n) {
             payloadSize = 0;
-          } else if (payload5 < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload5);
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
           } else {
             payloadSize = 8;
           }
@@ -2346,22 +2405,24 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
 
         {
-          const payload5 = value.dRequired;
-          let zigzag = zigzagEncode(payload5);
-          if (zigzag === 0n) {
-            payloadSize = 0;
-          } else if (zigzag < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(zigzag);
-          } else {
-            payloadSize = 8;
+          const payload = value.dRequired;
+          {
+          let zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
           }
         }
 
         valueSize += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
 
         {
-          const payload5 = value.eRequired;
-          if (payload5) {
+          const payload = value.eRequired;
+          if (payload) {
             payloadSize = 1;
           } else {
             payloadSize = 0;
@@ -2371,29 +2432,32 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
 
         {
-          const payload5 = value.fRequired;
-          payloadSize = payload5.byteLength;
+          const payload = value.fRequired;
+          payloadSize = payload.byteLength;
         }
 
         valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.gRequired;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.gRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.hRequired;
+          const payload = value.hRequired;
           {
-            const payload6 = BigInt(payload5.length);
-            if (payload6 === 0n) {
-              payloadSize = 0;
-            } else if (payload6 < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload6);
-            } else {
-              payloadSize = 8;
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
             }
           }
         }
@@ -2401,113 +2465,134 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.iRequired;
-          payloadSize = 8 * payload5.length;
+          const payload = value.iRequired;
+          payloadSize = 8 * payload.length;
         }
 
         valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.jRequired;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = varintSizeFromValue(payload6);
-            arraySize += payloadSize;
+          const payload = value.jRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.kRequired;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = varintSizeFromValue(zigzagEncode(payload6));
-            arraySize += payloadSize;
+          const payload = value.kRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.lRequired;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = 1;
-            arraySize += payloadSize;
+          const payload = value.lRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.mRequired;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = payload6.byteLength;
-            arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+          const payload = value.mRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.nRequired;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = textEncoder.encode(payload6).byteLength;
-            arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+          const payload = value.nRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.oRequired;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
+          const payload = value.oRequired;
+          {
             let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
               let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload7).byteLength;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
               arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
             payloadSize = arraySize;
-            arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.aAsymmetric;
+          const payload = value.aAsymmetric;
           payloadSize = 0;
         }
 
         valueSize += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.bAsymmetric;
-          dataView64.setFloat64(0, payload5, true);
+          const payload = value.bAsymmetric;
+          dataView64.setFloat64(0, payload, true);
           if (dataView64.getBigUint64(0, true) === 0n) {
             payloadSize = 0;
           } else {
@@ -2518,11 +2603,11 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.cAsymmetric;
-          if (payload5 === 0n) {
+          const payload = value.cAsymmetric;
+          if (payload === 0n) {
             payloadSize = 0;
-          } else if (payload5 < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload5);
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
           } else {
             payloadSize = 8;
           }
@@ -2531,22 +2616,24 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(18n, payloadSize, true) + payloadSize;
 
         {
-          const payload5 = value.dAsymmetric;
-          let zigzag = zigzagEncode(payload5);
-          if (zigzag === 0n) {
-            payloadSize = 0;
-          } else if (zigzag < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(zigzag);
-          } else {
-            payloadSize = 8;
+          const payload = value.dAsymmetric;
+          {
+          let zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
           }
         }
 
         valueSize += fieldHeaderSize(19n, payloadSize, true) + payloadSize;
 
         {
-          const payload5 = value.eAsymmetric;
-          if (payload5) {
+          const payload = value.eAsymmetric;
+          if (payload) {
             payloadSize = 1;
           } else {
             payloadSize = 0;
@@ -2556,29 +2643,32 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(20n, payloadSize, true) + payloadSize;
 
         {
-          const payload5 = value.fAsymmetric;
-          payloadSize = payload5.byteLength;
+          const payload = value.fAsymmetric;
+          payloadSize = payload.byteLength;
         }
 
         valueSize += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.gAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.gAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.hAsymmetric;
+          const payload = value.hAsymmetric;
           {
-            const payload6 = BigInt(payload5.length);
-            if (payload6 === 0n) {
-              payloadSize = 0;
-            } else if (payload6 < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload6);
-            } else {
-              payloadSize = 8;
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
             }
           }
         }
@@ -2586,106 +2676,127 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.iAsymmetric;
-          payloadSize = 8 * payload5.length;
+          const payload = value.iAsymmetric;
+          payloadSize = 8 * payload.length;
         }
 
         valueSize += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.jAsymmetric;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = varintSizeFromValue(payload6);
-            arraySize += payloadSize;
+          const payload = value.jAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.kAsymmetric;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = varintSizeFromValue(zigzagEncode(payload6));
-            arraySize += payloadSize;
+          const payload = value.kAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.lAsymmetric;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = 1;
-            arraySize += payloadSize;
+          const payload = value.lAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(27n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.mAsymmetric;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = payload6.byteLength;
-            arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+          const payload = value.mAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.nAsymmetric;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
-            payloadSize = textEncoder.encode(payload6).byteLength;
-            arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+          const payload = value.nAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.oAsymmetric;
-          let arraySize = 0;
-          for (let i = 0; i < payload5.length; ++i) {
-            const payload6 = payload5[i];
-            let payloadSize = 0;
+          const payload = value.oAsymmetric;
+          {
             let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
               let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload7).byteLength;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
               arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
             payloadSize = arraySize;
-            arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
           }
-          payloadSize = arraySize;
         }
 
         valueSize += fieldHeaderSize(30n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.aOptional;
-          if (payload6 === undefined) {
+          const payload = value.aOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
             payloadSize = 0;
@@ -2695,11 +2806,11 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(32n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.bOptional;
-          if (payload6 === undefined) {
+          const payload = value.bOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            dataView64.setFloat64(0, payload6, true);
+            dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
             } else {
@@ -2711,14 +2822,14 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.cOptional;
-          if (payload6 === undefined) {
+          const payload = value.cOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            if (payload6 === 0n) {
+            if (payload === 0n) {
               payloadSize = 0;
-            } else if (payload6 < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload6);
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
             } else {
               payloadSize = 8;
             }
@@ -2728,17 +2839,19 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(34n, payloadSize, true) + payloadSize;
 
         {
-          const payload6 = value.dOptional;
-          if (payload6 === undefined) {
+          const payload = value.dOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let zigzag = zigzagEncode(payload6);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
+            {
+            let zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
             }
           }
         }
@@ -2746,11 +2859,11 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(35n, payloadSize, true) + payloadSize;
 
         {
-          const payload6 = value.eOptional;
-          if (payload6 === undefined) {
+          const payload = value.eOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            if (payload6) {
+            if (payload) {
               payloadSize = 1;
             } else {
               payloadSize = 0;
@@ -2761,40 +2874,43 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(36n, payloadSize, true) + payloadSize;
 
         {
-          const payload6 = value.fOptional;
-          if (payload6 === undefined) {
+          const payload = value.fOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = payload6.byteLength;
+            payloadSize = payload.byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.gOptional;
-          if (payload6 === undefined) {
+          const payload = value.gOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.hOptional;
-          if (payload6 === undefined) {
+          const payload = value.hOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
             {
-              const payload7 = BigInt(payload6.length);
-              if (payload7 === 0n) {
-                payloadSize = 0;
-              } else if (payload7 < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload7);
-              } else {
-                payloadSize = 8;
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
               }
             }
           }
@@ -2803,126 +2919,147 @@ export namespace Comprehensive {
         valueSize += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.iOptional;
-          if (payload6 === undefined) {
+          const payload = value.iOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = 8 * payload6.length;
+            payloadSize = 8 * payload.length;
           }
         }
 
         valueSize += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.jOptional;
-          if (payload6 === undefined) {
+          const payload = value.jOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload7);
-              arraySize += payloadSize;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
           }
         }
 
         valueSize += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.kOptional;
-          if (payload6 === undefined) {
+          const payload = value.kOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload7));
-              arraySize += payloadSize;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
           }
         }
 
         valueSize += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.lOptional;
-          if (payload6 === undefined) {
+          const payload = value.lOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
           }
         }
 
         valueSize += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.mOptional;
-          if (payload6 === undefined) {
+          const payload = value.mOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = payload7.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
           }
         }
 
         valueSize += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.nOptional;
-          if (payload6 === undefined) {
+          const payload = value.nOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload7).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
             }
-            payloadSize = arraySize;
           }
         }
 
         valueSize += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.oOptional;
-          if (payload6 === undefined) {
+          const payload = value.oOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            let arraySize = 0;
-            for (let i = 0; i < payload6.length; ++i) {
-              const payload7 = payload6[i];
-              let payloadSize = 0;
+            {
               let arraySize = 0;
-              for (let i = 0; i < payload7.length; ++i) {
-                const payload8 = payload7[i];
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload8).byteLength;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadSize = arraySize;
           }
         }
 
@@ -3020,15 +3157,15 @@ export namespace Comprehensive {
         let payloadSize = 0;
 
         {
-          const payload5 = value.x;
-          payloadSize = Comprehensive.Foo.Foo.size(payload5);
+          const payload = value.x;
+          payloadSize = Comprehensive.Foo.Foo.size(payload);
         }
 
         valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.y;
-          payloadSize = Comprehensive.Bar.Bar.size(payload5);
+          const payload = value.y;
+          payloadSize = Comprehensive.Bar.Bar.size(payload);
         }
 
         valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
@@ -3065,14 +3202,14 @@ export namespace Comprehensive {
         switch (value.field) {
           case 'x': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = Comprehensive.Foo.Foo.size(payload6);
+            const payload = value.value;
+            payloadSize = Comprehensive.Foo.Foo.size(payload);
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'y': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = Comprehensive.Bar.Bar.size(payload6);
+            const payload = value.value;
+            payloadSize = Comprehensive.Bar.Bar.size(payload);
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
         }
@@ -3139,111 +3276,111 @@ export namespace SchemaEvolution {
         let payloadSize = 0;
 
         {
-          const payload5 = value.requiredToRequired;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.requiredToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.requiredToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.requiredToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.requiredToOptional;
-          if (payload6 === undefined) {
+          const payload = value.requiredToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.asymmetricToRequired;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.asymmetricToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.asymmetricToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.asymmetricToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.asymmetricToOptional;
-          if (payload6 === undefined) {
+          const payload = value.asymmetricToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.optionalNoneToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.optionalNoneToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalNoneToOptional;
-          if (payload6 === undefined) {
+          const payload = value.optionalNoneToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.optionalSomeToRequired;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.optionalSomeToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.optionalSomeToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.optionalSomeToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalSomeToOptional;
-          if (payload6 === undefined) {
+          const payload = value.optionalSomeToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.nonexistentToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.nonexistentToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.nonexistentToOptional;
-          if (payload6 === undefined) {
+          const payload = value.nonexistentToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
@@ -3305,86 +3442,86 @@ export namespace SchemaEvolution {
         switch (value.field) {
           case 'requiredToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'requiredToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalHandled': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalFallback': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
           case 'optionalToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalHandled': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalFallback': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(15n, payloadSize, false) + payloadSize;
           }
           case 'nonexistentToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(16n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToOptionalHandled': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(17n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToOptionalFallback': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(18n, payloadSize, false) + payloadSize + size(value.fallback);
           }
         }
@@ -3450,133 +3587,133 @@ export namespace SchemaEvolution {
         let payloadSize = 0;
 
         {
-          const payload5 = value.requiredToRequired;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.requiredToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.requiredToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.requiredToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.requiredToOptional;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.requiredToOptional;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.requiredToNonexistent;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.requiredToNonexistent;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.asymmetricToRequired;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.asymmetricToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.asymmetricToAsymmetric;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.asymmetricToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.asymmetricToOptional;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.asymmetricToOptional;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
 
         {
-          const payload5 = value.asymmetricToNonexistent;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.asymmetricToNonexistent;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalNoneToAsymmetric;
-          if (payload6 === undefined) {
+          const payload = value.optionalNoneToAsymmetric;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalNoneToOptional;
-          if (payload6 === undefined) {
+          const payload = value.optionalNoneToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalNoneToNonexistent;
-          if (payload6 === undefined) {
+          const payload = value.optionalNoneToNonexistent;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalSomeToRequired;
-          if (payload6 === undefined) {
+          const payload = value.optionalSomeToRequired;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalSomeToAsymmetric;
-          if (payload6 === undefined) {
+          const payload = value.optionalSomeToAsymmetric;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalSomeToOptional;
-          if (payload6 === undefined) {
+          const payload = value.optionalSomeToOptional;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
         valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
 
         {
-          const payload6 = value.optionalSomeToNonexistent;
-          if (payload6 === undefined) {
+          const payload = value.optionalSomeToNonexistent;
+          if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            payloadSize = textEncoder.encode(payload).byteLength;
           }
         }
 
@@ -3634,74 +3771,74 @@ export namespace SchemaEvolution {
         switch (value.field) {
           case 'requiredToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'requiredToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalHandled': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalFallback': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToNonexistent': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToRequired': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToAsymmetric': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalHandled': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalFallback': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToNonexistent': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.fallback);
           }
         }
@@ -3739,8 +3876,8 @@ export namespace SchemaEvolution {
         let payloadSize = 0;
 
         {
-          const payload5 = value.x;
-          payloadSize = textEncoder.encode(payload5).byteLength;
+          const payload = value.x;
+          payloadSize = textEncoder.encode(payload).byteLength;
         }
 
         valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
@@ -3775,8 +3912,8 @@ export namespace SchemaEvolution {
         switch (value.field) {
           case 'x': {
             let payloadSize = 0;
-            const payload6 = value.value;
-            payloadSize = textEncoder.encode(payload6).byteLength;
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
         }
