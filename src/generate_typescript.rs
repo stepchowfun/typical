@@ -1090,6 +1090,7 @@ fn write_type<T: Write>(
 
     Ok(())
 }
+
 // Write an identifier with an optional direction suffix in a way that Rust will be happy with.
 fn write_identifier<T: Write>(
     buffer: &mut T,
