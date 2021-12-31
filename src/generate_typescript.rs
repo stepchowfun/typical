@@ -576,12 +576,12 @@ fn write_schema<T: Write>(
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "{{")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    write!(buffer, "const payload = value.")?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    writeln!(buffer, ";")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {
-                            write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "const payload = value.")?;
-                            write_identifier(buffer, &field.name, Camel, None)?;
-                            writeln!(buffer, ";")?;
                             write_size_calculation_invocation(
                                 buffer,
                                 indentation + 3,
@@ -592,10 +592,6 @@ fn write_schema<T: Write>(
                             )?;
                         }
                         schema::Rule::Optional => {
-                            write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "const payload = value.")?;
-                            write_identifier(buffer, &field.name, Camel, None)?;
-                            writeln!(buffer, ";")?;
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(buffer, "if (payload === undefined) {{")?;
                             write_indentation(buffer, indentation + 4)?;
@@ -614,16 +610,15 @@ fn write_schema<T: Write>(
                             writeln!(buffer, "}}")?;
                         }
                     }
-                    write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "}}")?;
-                    writeln!(buffer)?;
-                    write_indentation(buffer, indentation + 2)?;
+                    write_indentation(buffer, indentation + 3)?;
                     writeln!(
                         buffer,
                         "valueSize += fieldHeaderSize({}n, payloadSize, {}) + payloadSize;",
                         field.index,
                         integer_encoded(&field.r#type),
                     )?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
                 }
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
@@ -644,7 +639,79 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "): number {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return 0;")?;
+                writeln!(buffer, "let payloadSize = 0;")?;
+                for field in &declaration.fields {
+                    writeln!(buffer)?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "{{")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    write!(buffer, "const payload = value.")?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    writeln!(buffer, ";")?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
+                            write_size_calculation_invocation(
+                                buffer,
+                                indentation + 3,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(
+                                buffer,
+                                "offset = serializeFieldHeader(dataView, offset, {}n, \
+                                    payloadSize, {});",
+                                field.index,
+                                integer_encoded(&field.r#type),
+                            )?;
+                            write_serialization_invocation(
+                                buffer,
+                                indentation + 3,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                        }
+                        schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(buffer, "if (payload !== undefined) {{")?;
+                            write_size_calculation_invocation(
+                                buffer,
+                                indentation + 4,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                            write_indentation(buffer, indentation + 4)?;
+                            writeln!(
+                                buffer,
+                                "offset = serializeFieldHeader(dataView, offset, {}n, \
+                                    payloadSize, {});",
+                                field.index,
+                                integer_encoded(&field.r#type),
+                            )?;
+                            write_serialization_invocation(
+                                buffer,
+                                indentation + 4,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                            write_indentation(buffer, indentation + 3)?;
+                            writeln!(buffer, "}}")?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                }
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "return offset;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
@@ -660,6 +727,17 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "] {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "return [0, undefined!];")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "export function outToIn(value: ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                write!(buffer, "): ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "return undefined!;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -703,6 +781,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "return 0;")?;
                 } else {
                     writeln!(buffer, "let payloadSize = 0;")?;
+                    writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "switch (value.field) {{")?;
                     for field in &declaration.fields {
@@ -760,7 +839,71 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "): number {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return 0;")?;
+                if declaration.fields.is_empty() {
+                    writeln!(buffer, "return offset;")?;
+                } else {
+                    writeln!(buffer, "let payloadSize = 0;")?;
+                    writeln!(buffer)?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "switch (value.field) {{")?;
+                    for field in &declaration.fields {
+                        write_indentation(buffer, indentation + 3)?;
+                        write!(buffer, "case '")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, "': {{")?;
+                        write_indentation(buffer, indentation + 4)?;
+                        if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                            writeln!(
+                                buffer,
+                                "offset = serializeFieldHeader(dataView, offset, {}n, 0, {});",
+                                field.index,
+                                integer_encoded(&field.r#type),
+                            )?;
+                        } else {
+                            writeln!(buffer, "const payload = value.value;")?;
+                            write_size_calculation_invocation(
+                                buffer,
+                                indentation + 4,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                            write_indentation(buffer, indentation + 4)?;
+                            writeln!(
+                                buffer,
+                                "offset = serializeFieldHeader(dataView, offset, {}n, \
+                                    payloadSize, {});",
+                                field.index,
+                                integer_encoded(&field.r#type),
+                            )?;
+                            write_serialization_invocation(
+                                buffer,
+                                indentation + 4,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                        }
+                        match field.rule {
+                            schema::Rule::Asymmetric | schema::Rule::Optional => {
+                                write_indentation(buffer, indentation + 4)?;
+                                writeln!(
+                                    buffer,
+                                    "offset = serialize(dataView, offset, value.fallback);",
+                                )?;
+                            }
+                            schema::Rule::Required => {}
+                        }
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "return offset;")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "}}")?;
+                    }
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
@@ -776,6 +919,17 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "] {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "return [0, undefined!];")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "export function outToIn(value: ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                write!(buffer, "): ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "return undefined!;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -983,6 +1137,10 @@ fn write_indentation<T: Write>(buffer: &mut T, indentation: usize) -> Result<(),
 }
 
 // Write the logic to invoke the size calculation logic for a value.
+//
+// Context variables:
+// - `payloadSize`
+// - `payload`
 #[allow(clippy::too_many_lines)]
 fn write_size_calculation_invocation<T: Write>(
     buffer: &mut T,
@@ -1156,7 +1314,7 @@ fn write_size_calculation_invocation<T: Write>(
             if is_field {
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "let zigzag = zigzagEncode(payload);")?;
+                writeln!(buffer, "const zigzag = zigzagEncode(payload);")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "if (zigzag === 0n) {{")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1205,6 +1363,292 @@ fn write_size_calculation_invocation<T: Write>(
             writeln!(buffer, "payloadSize = 0;")
         }
     }
+}
+
+// Write the logic to invoke the serialization logic for a value, including a trailing line break.
+//
+// Context variables:
+// - `dataView`
+// - `offset`
+// - `payloadSize`
+// - `payload`
+#[allow(clippy::too_many_lines)]
+fn write_serialization_invocation<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
+    namespace: &schema::Namespace,
+    type_variant: &schema::TypeVariant,
+    is_field: bool,
+) -> Result<(), fmt::Error> {
+    match type_variant {
+        schema::TypeVariant::Array(inner_type) => match &inner_type.variant {
+            schema::TypeVariant::Array(_)
+            | schema::TypeVariant::Bytes
+            | schema::TypeVariant::Custom(_, _)
+            | schema::TypeVariant::String => {
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const oldPayload = payload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "for (const payload of oldPayload) {{")?;
+                write_size_calculation_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &inner_type.variant,
+                    false,
+                )?;
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, BigInt(payloadSize));",
+                )?;
+                write_serialization_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &inner_type.variant,
+                    false,
+                )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            }
+            schema::TypeVariant::Bool
+            | schema::TypeVariant::S64
+            | schema::TypeVariant::U64
+            | schema::TypeVariant::F64 => {
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const oldPayload = payload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "for (const payload of oldPayload) {{")?;
+                write_size_calculation_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &inner_type.variant,
+                    false,
+                )?;
+                write_serialization_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &inner_type.variant,
+                    false,
+                )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            }
+            schema::TypeVariant::Unit => {
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const oldPayload = payload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "const payload = BigInt(oldPayload.length);")?;
+                write_size_calculation_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &schema::TypeVariant::U64,
+                    is_field,
+                )?;
+                write_serialization_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &schema::TypeVariant::U64,
+                    is_field,
+                )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            }
+        },
+        schema::TypeVariant::Bool => {
+            write_indentation(buffer, indentation)?;
+            if is_field {
+                writeln!(buffer, "if (payloadSize !== 0) {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, payload ? 1n : 0n);",
+                )?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            } else {
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, payload ? 1n : 0n);",
+                )
+            }
+        }
+        schema::TypeVariant::Bytes => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "{{")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "const buffer = new Uint8Array(payload);")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; ++i) {{")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.setUint8(offset + i, buffer[i]);")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "}}")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "offset += buffer.byteLength;")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "}}")
+        }
+        schema::TypeVariant::Custom(import, name) => {
+            let type_namespace = schema::Namespace {
+                components: import.as_ref().map_or_else(
+                    || namespace.components.clone(),
+                    |import| imports[import].components.clone(),
+                ),
+            };
+
+            write_indentation(buffer, indentation)?;
+            write!(buffer, "offset = ")?;
+
+            for component in type_namespace.components {
+                write_identifier(buffer, &component, Pascal, None)?;
+                write!(buffer, ".")?;
+            }
+
+            write_identifier(buffer, name, Pascal, None)?;
+            writeln!(buffer, ".serialize(dataView, offset, payload);")
+        }
+        schema::TypeVariant::F64 => {
+            write_indentation(buffer, indentation)?;
+            if is_field {
+                writeln!(buffer, "if (payloadSize !== 0) {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "dataView.setFloat64(offset, payload, true);")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            } else {
+                writeln!(buffer, "dataView.setFloat64(offset, payload, true);")
+            }
+        }
+        schema::TypeVariant::S64 => {
+            write_indentation(buffer, indentation)?;
+            if is_field {
+                writeln!(buffer, "switch (payloadSize) {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "case 0:")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "case 8:")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "dataView.setBigInt64(offset, payload, true);")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "offset += 8;")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "default:")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, zigzagEncode(payload));",
+                )?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            } else {
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, zigzagEncode(payload));",
+                )
+            }
+        }
+        schema::TypeVariant::String => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "{{")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "const buffer = textEncoder.encode(payload);")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; ++i) {{")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.setUint8(offset + i, buffer[i]);")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "}}")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "offset += buffer.byteLength;")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "}}")
+        }
+        schema::TypeVariant::U64 => {
+            write_indentation(buffer, indentation)?;
+            if is_field {
+                writeln!(buffer, "switch (payloadSize) {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "case 0:")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "case 8:")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "dataView.setBigUint64(offset, payload, true);")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "offset += 8;")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "default:")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, payload);",
+                )?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            } else {
+                writeln!(
+                    buffer,
+                    "offset = serializeVarint(dataView, offset, payload);",
+                )
+            }
+        }
+        schema::TypeVariant::Unit => Ok(()),
+    }
+}
+
+// Write the logic to invoke the deserialization logic for a value, including a trailing line break.
+//
+// Context variables:
+// - `dataView`
+// - `offset`
+// - `payload`
+#[allow(clippy::unnecessary_wraps)] // DO NOT COMMIT
+fn _write_deserialization_invocation<T: Write>(
+    _buffer: &mut T,
+    _indentation: usize,
+    _imports: &BTreeMap<Identifier, schema::Namespace>,
+    _namespace: &schema::Namespace,
+    _type_variant: &schema::TypeVariant,
+    _is_field: bool,
+) -> Result<(), fmt::Error> {
+    Ok(())
 }
 
 // Determine whether a type is encoded as a varint.
@@ -1511,9 +1955,8 @@ export namespace CircularDependency {
           {
             const payload = value.x;
             payloadSize = CircularDependency.Main.StructFromAbove.size(payload);
+            valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
-
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
           return valueSize;
         }
@@ -1523,7 +1966,16 @@ export namespace CircularDependency {
           offset: number,
           value: StructFromBelowOut,
         ): number {
-          return 0;
+          let payloadSize = 0;
+
+          {
+            const payload = value.x;
+            payloadSize = CircularDependency.Main.StructFromAbove.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            offset = CircularDependency.Main.StructFromAbove.serialize(dataView, offset, payload);
+          }
+
+          return offset;
         }
 
         export function deserialize(
@@ -1531,6 +1983,10 @@ export namespace CircularDependency {
           offset: number,
         ): [number, StructFromBelowIn] {
           return [0, undefined!];
+        }
+
+        export function outToIn(value: StructFromBelowOut): StructFromBelowIn {
+          return undefined!;
         }
       }
     }
@@ -1556,7 +2012,9 @@ export namespace CircularDependency {
         offset: number,
         value: StructFromAboveOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        return offset;
       }
 
       export function deserialize(
@@ -1564,6 +2022,10 @@ export namespace CircularDependency {
         offset: number,
       ): [number, StructFromAboveIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: StructFromAboveOut): StructFromAboveIn {
+        return undefined!;
       }
     }
   }
@@ -1668,6 +2130,7 @@ export namespace Comprehensive {
     export namespace Bar {
       export function size(value: BarOut): number {
         let payloadSize = 0;
+
         switch (value.field) {
           case 'aRequired': {
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
@@ -1696,7 +2159,7 @@ export namespace Comprehensive {
           case 'dRequired': {
             const payload = value.value;
             {
-              let zigzag = zigzagEncode(payload);
+              const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -1875,7 +2338,7 @@ export namespace Comprehensive {
           case 'dAsymmetric': {
             const payload = value.value;
             {
-              let zigzag = zigzagEncode(payload);
+              const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -2054,7 +2517,7 @@ export namespace Comprehensive {
           case 'dOptional': {
             const payload = value.value;
             {
-              let zigzag = zigzagEncode(payload);
+              const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -2214,7 +2677,1081 @@ export namespace Comprehensive {
         offset: number,
         value: BarOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        switch (value.field) {
+          case 'aRequired': {
+            offset = serializeFieldHeader(dataView, offset, 0n, 0, false);
+            return offset;
+          }
+          case 'bRequired': {
+            const payload = value.value;
+            dataView64.setFloat64(0, payload, true);
+            if (dataView64.getBigUint64(0, true) === 0n) {
+              payloadSize = 0;
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+            if (payloadSize !== 0) {
+              dataView.setFloat64(offset, payload, true);
+            }
+            return offset;
+          }
+          case 'cRequired': {
+            const payload = value.value;
+            if (payload === 0n) {
+              payloadSize = 0;
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigUint64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, payload);
+                break;
+            }
+            return offset;
+          }
+          case 'dRequired': {
+            const payload = value.value;
+            {
+              const zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigInt64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                break;
+            }
+            return offset;
+          }
+          case 'eRequired': {
+            const payload = value.value;
+            if (payload) {
+              payloadSize = 1;
+            } else {
+              payloadSize = 0;
+            }
+            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
+            if (payloadSize !== 0) {
+              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            }
+            return offset;
+          }
+          case 'fRequired': {
+            const payload = value.value;
+            payloadSize = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            {
+              const buffer = new Uint8Array(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'gRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'hRequired': {
+            const payload = value.value;
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+                switch (payloadSize) {
+                  case 0:
+                    break;
+                  case 8:
+                    dataView.setBigUint64(offset, payload, true);
+                    offset += 8;
+                    break;
+                  default:
+                    offset = serializeVarint(dataView, offset, payload);
+                    break;
+                }
+              }
+            }
+            return offset;
+          }
+          case 'iRequired': {
+            const payload = value.value;
+            payloadSize = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8;
+                dataView.setFloat64(offset, payload, true);
+              }
+            }
+            return offset;
+          }
+          case 'jRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(payload);
+                offset = serializeVarint(dataView, offset, payload);
+              }
+            }
+            return offset;
+          }
+          case 'kRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              }
+            }
+            return offset;
+          }
+          case 'lRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+              }
+            }
+            return offset;
+          }
+          case 'mRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = payload.byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = new Uint8Array(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+            return offset;
+          }
+          case 'nRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = textEncoder.encode(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+            return offset;
+          }
+          case 'oRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'aAsymmetric': {
+            offset = serializeFieldHeader(dataView, offset, 16n, 0, false);
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'bAsymmetric': {
+            const payload = value.value;
+            dataView64.setFloat64(0, payload, true);
+            if (dataView64.getBigUint64(0, true) === 0n) {
+              payloadSize = 0;
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+            if (payloadSize !== 0) {
+              dataView.setFloat64(offset, payload, true);
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'cAsymmetric': {
+            const payload = value.value;
+            if (payload === 0n) {
+              payloadSize = 0;
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigUint64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, payload);
+                break;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'dAsymmetric': {
+            const payload = value.value;
+            {
+              const zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigInt64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                break;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'eAsymmetric': {
+            const payload = value.value;
+            if (payload) {
+              payloadSize = 1;
+            } else {
+              payloadSize = 0;
+            }
+            offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, true);
+            if (payloadSize !== 0) {
+              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'fAsymmetric': {
+            const payload = value.value;
+            payloadSize = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+            {
+              const buffer = new Uint8Array(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'gAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'hAsymmetric': {
+            const payload = value.value;
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+                switch (payloadSize) {
+                  case 0:
+                    break;
+                  case 8:
+                    dataView.setBigUint64(offset, payload, true);
+                    offset += 8;
+                    break;
+                  default:
+                    offset = serializeVarint(dataView, offset, payload);
+                    break;
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'iAsymmetric': {
+            const payload = value.value;
+            payloadSize = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8;
+                dataView.setFloat64(offset, payload, true);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'jAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(payload);
+                offset = serializeVarint(dataView, offset, payload);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'kAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'lAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 27n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'mAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = payload.byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = new Uint8Array(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = textEncoder.encode(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'oAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'aOptional': {
+            offset = serializeFieldHeader(dataView, offset, 32n, 0, false);
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'bOptional': {
+            const payload = value.value;
+            dataView64.setFloat64(0, payload, true);
+            if (dataView64.getBigUint64(0, true) === 0n) {
+              payloadSize = 0;
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+            if (payloadSize !== 0) {
+              dataView.setFloat64(offset, payload, true);
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'cOptional': {
+            const payload = value.value;
+            if (payload === 0n) {
+              payloadSize = 0;
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigUint64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, payload);
+                break;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'dOptional': {
+            const payload = value.value;
+            {
+              const zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigInt64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                break;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'eOptional': {
+            const payload = value.value;
+            if (payload) {
+              payloadSize = 1;
+            } else {
+              payloadSize = 0;
+            }
+            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, true);
+            if (payloadSize !== 0) {
+              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'fOptional': {
+            const payload = value.value;
+            payloadSize = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+            {
+              const buffer = new Uint8Array(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'gOptional': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'hOptional': {
+            const payload = value.value;
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+                switch (payloadSize) {
+                  case 0:
+                    break;
+                  case 8:
+                    dataView.setBigUint64(offset, payload, true);
+                    offset += 8;
+                    break;
+                  default:
+                    offset = serializeVarint(dataView, offset, payload);
+                    break;
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'iOptional': {
+            const payload = value.value;
+            payloadSize = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8;
+                dataView.setFloat64(offset, payload, true);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'jOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(payload);
+                offset = serializeVarint(dataView, offset, payload);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'kOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'lOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'mOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = payload.byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = new Uint8Array(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = textEncoder.encode(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'oOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+        }
       }
 
       export function deserialize(
@@ -2222,6 +3759,10 @@ export namespace Comprehensive {
         offset: number,
       ): [number, BarIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: BarOut): BarIn {
+        return undefined!;
       }
     }
   }
@@ -2331,9 +3872,8 @@ export namespace Comprehensive {
         {
           const payload = value.aRequired;
           payloadSize = 0;
+          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.bRequired;
@@ -2343,9 +3883,8 @@ export namespace Comprehensive {
           } else {
             payloadSize = 8;
           }
+          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.cRequired;
@@ -2356,14 +3895,13 @@ export namespace Comprehensive {
           } else {
             payloadSize = 8;
           }
+          valueSize += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.dRequired;
           {
-            let zigzag = zigzagEncode(payload);
+            const zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
               payloadSize = 0;
             } else if (zigzag < 567_382_630_219_904n) {
@@ -2372,9 +3910,8 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
           }
+          valueSize += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.eRequired;
@@ -2383,23 +3920,20 @@ export namespace Comprehensive {
           } else {
             payloadSize = 0;
           }
+          valueSize += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.fRequired;
           payloadSize = payload.byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.gRequired;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.hRequired;
@@ -2416,16 +3950,14 @@ export namespace Comprehensive {
               }
             }
           }
+          valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.iRequired;
           payloadSize = 8 * payload.length;
+          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.jRequired;
@@ -2440,9 +3972,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.kRequired;
@@ -2457,9 +3988,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.lRequired;
@@ -2474,9 +4004,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.mRequired;
@@ -2491,9 +4020,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.nRequired;
@@ -2508,9 +4036,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.oRequired;
@@ -2535,16 +4062,14 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.aAsymmetric;
           payloadSize = 0;
+          valueSize += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.bAsymmetric;
@@ -2554,9 +4079,8 @@ export namespace Comprehensive {
           } else {
             payloadSize = 8;
           }
+          valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.cAsymmetric;
@@ -2567,14 +4091,13 @@ export namespace Comprehensive {
           } else {
             payloadSize = 8;
           }
+          valueSize += fieldHeaderSize(18n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(18n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.dAsymmetric;
           {
-            let zigzag = zigzagEncode(payload);
+            const zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
               payloadSize = 0;
             } else if (zigzag < 567_382_630_219_904n) {
@@ -2583,9 +4106,8 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
           }
+          valueSize += fieldHeaderSize(19n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(19n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.eAsymmetric;
@@ -2594,23 +4116,20 @@ export namespace Comprehensive {
           } else {
             payloadSize = 0;
           }
+          valueSize += fieldHeaderSize(20n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(20n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.fAsymmetric;
           payloadSize = payload.byteLength;
+          valueSize += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.gAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.hAsymmetric;
@@ -2627,16 +4146,14 @@ export namespace Comprehensive {
               }
             }
           }
+          valueSize += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.iAsymmetric;
           payloadSize = 8 * payload.length;
+          valueSize += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.jAsymmetric;
@@ -2651,9 +4168,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.kAsymmetric;
@@ -2668,9 +4184,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.lAsymmetric;
@@ -2685,9 +4200,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(27n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(27n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.mAsymmetric;
@@ -2702,9 +4216,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.nAsymmetric;
@@ -2719,9 +4232,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.oAsymmetric;
@@ -2746,9 +4258,8 @@ export namespace Comprehensive {
             }
             payloadSize = arraySize;
           }
+          valueSize += fieldHeaderSize(30n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(30n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.aOptional;
@@ -2757,9 +4268,8 @@ export namespace Comprehensive {
           } else {
             payloadSize = 0;
           }
+          valueSize += fieldHeaderSize(32n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(32n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.bOptional;
@@ -2773,9 +4283,8 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
           }
+          valueSize += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.cOptional;
@@ -2790,9 +4299,8 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
           }
+          valueSize += fieldHeaderSize(34n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(34n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.dOptional;
@@ -2800,7 +4308,7 @@ export namespace Comprehensive {
             payloadSize = 0;
           } else {
             {
-              let zigzag = zigzagEncode(payload);
+              const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -2810,9 +4318,8 @@ export namespace Comprehensive {
               }
             }
           }
+          valueSize += fieldHeaderSize(35n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(35n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.eOptional;
@@ -2825,9 +4332,8 @@ export namespace Comprehensive {
               payloadSize = 0;
             }
           }
+          valueSize += fieldHeaderSize(36n, payloadSize, true) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(36n, payloadSize, true) + payloadSize;
 
         {
           const payload = value.fOptional;
@@ -2836,9 +4342,8 @@ export namespace Comprehensive {
           } else {
             payloadSize = payload.byteLength;
           }
+          valueSize += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.gOptional;
@@ -2847,9 +4352,8 @@ export namespace Comprehensive {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.hOptional;
@@ -2870,9 +4374,8 @@ export namespace Comprehensive {
               }
             }
           }
+          valueSize += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.iOptional;
@@ -2881,9 +4384,8 @@ export namespace Comprehensive {
           } else {
             payloadSize = 8 * payload.length;
           }
+          valueSize += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.jOptional;
@@ -2902,9 +4404,8 @@ export namespace Comprehensive {
               payloadSize = arraySize;
             }
           }
+          valueSize += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.kOptional;
@@ -2923,9 +4424,8 @@ export namespace Comprehensive {
               payloadSize = arraySize;
             }
           }
+          valueSize += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.lOptional;
@@ -2944,9 +4444,8 @@ export namespace Comprehensive {
               payloadSize = arraySize;
             }
           }
+          valueSize += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.mOptional;
@@ -2965,9 +4464,8 @@ export namespace Comprehensive {
               payloadSize = arraySize;
             }
           }
+          valueSize += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.nOptional;
@@ -2986,9 +4484,8 @@ export namespace Comprehensive {
               payloadSize = arraySize;
             }
           }
+          valueSize += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.oOptional;
@@ -3017,9 +4514,8 @@ export namespace Comprehensive {
               payloadSize = arraySize;
             }
           }
+          valueSize += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
 
         return valueSize;
       }
@@ -3029,7 +4525,1086 @@ export namespace Comprehensive {
         offset: number,
         value: FooOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        {
+          const payload = value.aRequired;
+          payloadSize = 0;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+        }
+
+        {
+          const payload = value.bRequired;
+          dataView64.setFloat64(0, payload, true);
+          if (dataView64.getBigUint64(0, true) === 0n) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          if (payloadSize !== 0) {
+            dataView.setFloat64(offset, payload, true);
+          }
+        }
+
+        {
+          const payload = value.cRequired;
+          if (payload === 0n) {
+            payloadSize = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
+          switch (payloadSize) {
+            case 0:
+              break;
+            case 8:
+              dataView.setBigUint64(offset, payload, true);
+              offset += 8;
+              break;
+            default:
+              offset = serializeVarint(dataView, offset, payload);
+              break;
+          }
+        }
+
+        {
+          const payload = value.dRequired;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
+          switch (payloadSize) {
+            case 0:
+              break;
+            case 8:
+              dataView.setBigInt64(offset, payload, true);
+              offset += 8;
+              break;
+            default:
+              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              break;
+          }
+        }
+
+        {
+          const payload = value.eRequired;
+          if (payload) {
+            payloadSize = 1;
+          } else {
+            payloadSize = 0;
+          }
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
+          if (payloadSize !== 0) {
+            offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+          }
+        }
+
+        {
+          const payload = value.fRequired;
+          payloadSize = payload.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const buffer = new Uint8Array(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.gRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.hRequired;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+              switch (payloadSize) {
+                case 0:
+                  break;
+                case 8:
+                  dataView.setBigUint64(offset, payload, true);
+                  offset += 8;
+                  break;
+                default:
+                  offset = serializeVarint(dataView, offset, payload);
+                  break;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.iRequired;
+          payloadSize = 8 * payload.length;
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 8;
+              dataView.setFloat64(offset, payload, true);
+            }
+          }
+        }
+
+        {
+          const payload = value.jRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(payload);
+              offset = serializeVarint(dataView, offset, payload);
+            }
+          }
+        }
+
+        {
+          const payload = value.kRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+            }
+          }
+        }
+
+        {
+          const payload = value.lRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 1;
+              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            }
+          }
+        }
+
+        {
+          const payload = value.mRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = payload.byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = new Uint8Array(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.nRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = textEncoder.encode(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.oRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  {
+                    const buffer = textEncoder.encode(payload);
+                    for (let i = 0; i < buffer.byteLength; ++i) {
+                      dataView.setUint8(offset + i, buffer[i]);
+                    }
+                    offset += buffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aAsymmetric;
+          payloadSize = 0;
+          offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+        }
+
+        {
+          const payload = value.bAsymmetric;
+          dataView64.setFloat64(0, payload, true);
+          if (dataView64.getBigUint64(0, true) === 0n) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+          if (payloadSize !== 0) {
+            dataView.setFloat64(offset, payload, true);
+          }
+        }
+
+        {
+          const payload = value.cAsymmetric;
+          if (payload === 0n) {
+            payloadSize = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, true);
+          switch (payloadSize) {
+            case 0:
+              break;
+            case 8:
+              dataView.setBigUint64(offset, payload, true);
+              offset += 8;
+              break;
+            default:
+              offset = serializeVarint(dataView, offset, payload);
+              break;
+          }
+        }
+
+        {
+          const payload = value.dAsymmetric;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, true);
+          switch (payloadSize) {
+            case 0:
+              break;
+            case 8:
+              dataView.setBigInt64(offset, payload, true);
+              offset += 8;
+              break;
+            default:
+              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              break;
+          }
+        }
+
+        {
+          const payload = value.eAsymmetric;
+          if (payload) {
+            payloadSize = 1;
+          } else {
+            payloadSize = 0;
+          }
+          offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, true);
+          if (payloadSize !== 0) {
+            offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+          }
+        }
+
+        {
+          const payload = value.fAsymmetric;
+          payloadSize = payload.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+          {
+            const buffer = new Uint8Array(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.gAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.hAsymmetric;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+              switch (payloadSize) {
+                case 0:
+                  break;
+                case 8:
+                  dataView.setBigUint64(offset, payload, true);
+                  offset += 8;
+                  break;
+                default:
+                  offset = serializeVarint(dataView, offset, payload);
+                  break;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.iAsymmetric;
+          payloadSize = 8 * payload.length;
+          offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 8;
+              dataView.setFloat64(offset, payload, true);
+            }
+          }
+        }
+
+        {
+          const payload = value.jAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(payload);
+              offset = serializeVarint(dataView, offset, payload);
+            }
+          }
+        }
+
+        {
+          const payload = value.kAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+            }
+          }
+        }
+
+        {
+          const payload = value.lAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 27n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 1;
+              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            }
+          }
+        }
+
+        {
+          const payload = value.mAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = payload.byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = new Uint8Array(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.nAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = textEncoder.encode(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.oAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  {
+                    const buffer = textEncoder.encode(payload);
+                    for (let i = 0; i < buffer.byteLength; ++i) {
+                      dataView.setUint8(offset + i, buffer[i]);
+                    }
+                    offset += buffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aOptional;
+          if (payload !== undefined) {
+            payloadSize = 0;
+            offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, false);
+          }
+        }
+
+        {
+          const payload = value.bOptional;
+          if (payload !== undefined) {
+            dataView64.setFloat64(0, payload, true);
+            if (dataView64.getBigUint64(0, true) === 0n) {
+              payloadSize = 0;
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+            if (payloadSize !== 0) {
+              dataView.setFloat64(offset, payload, true);
+            }
+          }
+        }
+
+        {
+          const payload = value.cOptional;
+          if (payload !== undefined) {
+            if (payload === 0n) {
+              payloadSize = 0;
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigUint64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, payload);
+                break;
+            }
+          }
+        }
+
+        {
+          const payload = value.dOptional;
+          if (payload !== undefined) {
+            {
+              const zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, true);
+            switch (payloadSize) {
+              case 0:
+                break;
+              case 8:
+                dataView.setBigInt64(offset, payload, true);
+                offset += 8;
+                break;
+              default:
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                break;
+            }
+          }
+        }
+
+        {
+          const payload = value.eOptional;
+          if (payload !== undefined) {
+            if (payload) {
+              payloadSize = 1;
+            } else {
+              payloadSize = 0;
+            }
+            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, true);
+            if (payloadSize !== 0) {
+              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            }
+          }
+        }
+
+        {
+          const payload = value.fOptional;
+          if (payload !== undefined) {
+            payloadSize = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+            {
+              const buffer = new Uint8Array(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.gOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.hOptional;
+          if (payload !== undefined) {
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+                switch (payloadSize) {
+                  case 0:
+                    break;
+                  case 8:
+                    dataView.setBigUint64(offset, payload, true);
+                    offset += 8;
+                    break;
+                  default:
+                    offset = serializeVarint(dataView, offset, payload);
+                    break;
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.iOptional;
+          if (payload !== undefined) {
+            payloadSize = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8;
+                dataView.setFloat64(offset, payload, true);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.jOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(payload);
+                offset = serializeVarint(dataView, offset, payload);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.kOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.lOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.mOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = payload.byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = new Uint8Array(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.nOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = textEncoder.encode(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.oOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        return offset;
       }
 
       export function deserialize(
@@ -3037,6 +5612,10 @@ export namespace Comprehensive {
         offset: number,
       ): [number, FooIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: FooOut): FooIn {
+        return undefined!;
       }
     }
   }
@@ -3061,7 +5640,9 @@ export namespace Comprehensive {
         offset: number,
         value: EmptyStructOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        return offset;
       }
 
       export function deserialize(
@@ -3069,6 +5650,10 @@ export namespace Comprehensive {
         offset: number,
       ): [number, EmptyStructIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: EmptyStructOut): EmptyStructIn {
+        return undefined!;
       }
     }
 
@@ -3086,7 +5671,7 @@ export namespace Comprehensive {
         offset: number,
         value: EmptyChoiceOut,
       ): number {
-        return 0;
+        return offset;
       }
 
       export function deserialize(
@@ -3094,6 +5679,10 @@ export namespace Comprehensive {
         offset: number,
       ): [number, EmptyChoiceIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: EmptyChoiceOut): EmptyChoiceIn {
+        return undefined!;
       }
     }
 
@@ -3115,16 +5704,14 @@ export namespace Comprehensive {
         {
           const payload = value.x;
           payloadSize = Comprehensive.Foo.Foo.size(payload);
+          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.y;
           payloadSize = Comprehensive.Bar.Bar.size(payload);
+          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         return valueSize;
       }
@@ -3134,7 +5721,23 @@ export namespace Comprehensive {
         offset: number,
         value: FooAndBarOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        {
+          const payload = value.x;
+          payloadSize = Comprehensive.Foo.Foo.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          offset = Comprehensive.Foo.Foo.serialize(dataView, offset, payload);
+        }
+
+        {
+          const payload = value.y;
+          payloadSize = Comprehensive.Bar.Bar.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          offset = Comprehensive.Bar.Bar.serialize(dataView, offset, payload);
+        }
+
+        return offset;
       }
 
       export function deserialize(
@@ -3142,6 +5745,10 @@ export namespace Comprehensive {
         offset: number,
       ): [number, FooAndBarIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: FooAndBarOut): FooAndBarIn {
+        return undefined!;
       }
     }
 
@@ -3156,6 +5763,7 @@ export namespace Comprehensive {
     export namespace FooOrBar {
       export function size(value: FooOrBarOut): number {
         let payloadSize = 0;
+
         switch (value.field) {
           case 'x': {
             const payload = value.value;
@@ -3175,7 +5783,24 @@ export namespace Comprehensive {
         offset: number,
         value: FooOrBarOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        switch (value.field) {
+          case 'x': {
+            const payload = value.value;
+            payloadSize = Comprehensive.Foo.Foo.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            offset = Comprehensive.Foo.Foo.serialize(dataView, offset, payload);
+            return offset;
+          }
+          case 'y': {
+            const payload = value.value;
+            payloadSize = Comprehensive.Bar.Bar.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+            offset = Comprehensive.Bar.Bar.serialize(dataView, offset, payload);
+            return offset;
+          }
+        }
       }
 
       export function deserialize(
@@ -3183,6 +5808,10 @@ export namespace Comprehensive {
         offset: number,
       ): [number, FooOrBarIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: FooOrBarOut): FooOrBarIn {
+        return undefined!;
       }
     }
   }
@@ -3233,16 +5862,14 @@ export namespace SchemaEvolution {
         {
           const payload = value.requiredToRequired;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.requiredToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.requiredToOptional;
@@ -3251,23 +5878,20 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToRequired;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToOptional;
@@ -3276,16 +5900,14 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalNoneToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalNoneToOptional;
@@ -3294,23 +5916,20 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToRequired;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToOptional;
@@ -3319,16 +5938,14 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.nonexistentToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.nonexistentToOptional;
@@ -3337,9 +5954,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
 
         return valueSize;
       }
@@ -3349,7 +5965,188 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleStructOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        {
+          const payload = value.requiredToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.requiredToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.requiredToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.asymmetricToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.asymmetricToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.asymmetricToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalNoneToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.optionalNoneToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.nonexistentToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.nonexistentToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        return offset;
       }
 
       export function deserialize(
@@ -3357,6 +6154,10 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, ExampleStructIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: ExampleStructOut): ExampleStructIn {
+        return undefined!;
       }
     }
 
@@ -3395,6 +6196,7 @@ export namespace SchemaEvolution {
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
         let payloadSize = 0;
+
         switch (value.field) {
           case 'requiredToRequired': {
             const payload = value.value;
@@ -3474,7 +6276,202 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleChoiceOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        switch (value.field) {
+          case 'requiredToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'requiredToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'asymmetricToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToOptionalHandled': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToOptionalFallback': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'optionalToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToOptionalHandled': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToOptionalFallback': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nonexistentToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'nonexistentToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nonexistentToOptionalHandled': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nonexistentToOptionalFallback': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+        }
       }
 
       export function deserialize(
@@ -3482,6 +6479,10 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, ExampleChoiceIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: ExampleChoiceOut): ExampleChoiceIn {
+        return undefined!;
       }
     }
   }
@@ -3531,58 +6532,50 @@ export namespace SchemaEvolution {
         {
           const payload = value.requiredToRequired;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.requiredToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.requiredToOptional;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.requiredToNonexistent;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToRequired;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToOptional;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.asymmetricToNonexistent;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalNoneToAsymmetric;
@@ -3591,9 +6584,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalNoneToOptional;
@@ -3602,9 +6594,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalNoneToNonexistent;
@@ -3613,9 +6604,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToRequired;
@@ -3624,9 +6614,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToAsymmetric;
@@ -3635,9 +6624,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToOptional;
@@ -3646,9 +6634,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
 
         {
           const payload = value.optionalSomeToNonexistent;
@@ -3657,9 +6644,8 @@ export namespace SchemaEvolution {
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
+          valueSize += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
 
         return valueSize;
       }
@@ -3669,7 +6655,218 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleStructOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        {
+          const payload = value.requiredToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.requiredToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.requiredToOptional;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.requiredToNonexistent;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.asymmetricToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.asymmetricToAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.asymmetricToOptional;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.asymmetricToNonexistent;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.optionalNoneToAsymmetric;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalNoneToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalNoneToNonexistent;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToRequired;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToAsymmetric;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalSomeToNonexistent;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        return offset;
       }
 
       export function deserialize(
@@ -3677,6 +6874,10 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, ExampleStructIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: ExampleStructOut): ExampleStructIn {
+        return undefined!;
       }
     }
 
@@ -3711,6 +6912,7 @@ export namespace SchemaEvolution {
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
         let payloadSize = 0;
+
         switch (value.field) {
           case 'requiredToRequired': {
             const payload = value.value;
@@ -3780,7 +6982,176 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleChoiceOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        switch (value.field) {
+          case 'requiredToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'requiredToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+          case 'asymmetricToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToOptionalHandled': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToOptionalFallback': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToNonexistent': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToRequired': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToOptionalHandled': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToOptionalFallback': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'optionalToNonexistent': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+        }
       }
 
       export function deserialize(
@@ -3788,6 +7159,10 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, ExampleChoiceIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: ExampleChoiceOut): ExampleChoiceIn {
+        return undefined!;
       }
     }
   }
@@ -3809,9 +7184,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.x;
           payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
-
-        valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
 
         return valueSize;
       }
@@ -3821,7 +7195,22 @@ export namespace SchemaEvolution {
         offset: number,
         value: SingletonStructOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        {
+          const payload = value.x;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        return offset;
       }
 
       export function deserialize(
@@ -3829,6 +7218,10 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, SingletonStructIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: SingletonStructOut): SingletonStructIn {
+        return undefined!;
       }
     }
 
@@ -3841,6 +7234,7 @@ export namespace SchemaEvolution {
     export namespace SingletonChoice {
       export function size(value: SingletonChoiceOut): number {
         let payloadSize = 0;
+
         switch (value.field) {
           case 'x': {
             const payload = value.value;
@@ -3855,7 +7249,23 @@ export namespace SchemaEvolution {
         offset: number,
         value: SingletonChoiceOut,
       ): number {
-        return 0;
+        let payloadSize = 0;
+
+        switch (value.field) {
+          case 'x': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            return offset;
+          }
+        }
       }
 
       export function deserialize(
@@ -3863,6 +7273,10 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, SingletonChoiceIn] {
         return [0, undefined!];
+      }
+
+      export function outToIn(value: SingletonChoiceOut): SingletonChoiceIn {
+        return undefined!;
       }
     }
   }

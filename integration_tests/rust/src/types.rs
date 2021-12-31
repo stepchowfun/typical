@@ -5,6 +5,7 @@
     clippy::match_single_binding,
     clippy::module_name_repetitions,
     clippy::no_effect,
+    clippy::shadow_unrelated,
     clippy::similar_names,
     clippy::too_many_lines,
     clippy::unit_arg,

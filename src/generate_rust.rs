@@ -1355,6 +1355,9 @@ fn write_supers<T: Write>(buffer: &mut T, count: usize) -> Result<(), fmt::Error
 }
 
 // Write the logic to invoke the size calculation logic for a value.
+//
+// Context variables:
+// - `payload`
 fn write_size_calculation_invocation<T: Write>(
     buffer: &mut T,
     supers: usize,
@@ -1460,6 +1463,11 @@ fn write_size_calculation_invocation<T: Write>(
 }
 
 // Write the logic to invoke the serialization logic for a value, including a trailing line break.
+//
+// Context variables:
+// - `payload_size`
+// - `payload`
+// - `writer`
 #[allow(clippy::too_many_lines)]
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
@@ -1468,20 +1476,21 @@ fn write_serialization_invocation<T: Write>(
     type_variant: &schema::TypeVariant,
     is_field: bool,
 ) -> Result<(), fmt::Error> {
-    write_indentation(buffer, indentation)?;
-
     match type_variant {
         schema::TypeVariant::Array(inner_type) => match &inner_type.variant {
             schema::TypeVariant::Array(_)
             | schema::TypeVariant::Bytes
             | schema::TypeVariant::Custom(_, _)
             | schema::TypeVariant::String => {
+                write_indentation(buffer, indentation)?;
                 writeln!(buffer, "for payload in payload {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                write_supers(buffer, supers)?;
-                write!(buffer, "serialize_varint(")?;
+                write!(buffer, "let payload_size = ")?;
                 write_size_calculation_invocation(buffer, supers, &inner_type.variant, false)?;
-                writeln!(buffer, " as u64, writer)?;")?;
+                writeln!(buffer, ";")?;
+                write_indentation(buffer, indentation + 1)?;
+                write_supers(buffer, supers)?;
+                write!(buffer, "serialize_varint(payload_size as u64, writer)?;")?;
                 write_serialization_invocation(
                     buffer,
                     indentation + 1,
@@ -1496,7 +1505,12 @@ fn write_serialization_invocation<T: Write>(
             | schema::TypeVariant::S64
             | schema::TypeVariant::U64
             | schema::TypeVariant::F64 => {
+                write_indentation(buffer, indentation)?;
                 writeln!(buffer, "for payload in payload {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "let payload_size = ")?;
+                write_size_calculation_invocation(buffer, supers, &inner_type.variant, false)?;
+                writeln!(buffer, ";")?;
                 write_serialization_invocation(
                     buffer,
                     indentation + 1,
@@ -1508,9 +1522,19 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "}}")
             }
             schema::TypeVariant::Unit => {
+                write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "let payload = &(payload.len() as u64);")?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "let payload_size = ")?;
+                write_size_calculation_invocation(
+                    buffer,
+                    supers,
+                    &schema::TypeVariant::U64,
+                    is_field,
+                )?;
+                writeln!(buffer, ";")?;
                 write_serialization_invocation(
                     buffer,
                     indentation + 1,
@@ -1523,6 +1547,7 @@ fn write_serialization_invocation<T: Write>(
             }
         },
         schema::TypeVariant::Bool => {
+            write_indentation(buffer, indentation)?;
             if is_field {
                 writeln!(buffer, "if payload_size != 0_usize {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1535,9 +1560,16 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "serialize_varint(*payload as u64, writer)?;")
             }
         }
-        schema::TypeVariant::Bytes => writeln!(buffer, "writer.write_all(payload)?;"),
-        schema::TypeVariant::Custom(_, _) => writeln!(buffer, "payload.serialize(writer)?;"),
+        schema::TypeVariant::Bytes => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "writer.write_all(payload)?;")
+        }
+        schema::TypeVariant::Custom(_, _) => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "payload.serialize(writer)?;")
+        }
         schema::TypeVariant::F64 => {
+            write_indentation(buffer, indentation)?;
             if is_field {
                 writeln!(buffer, "if payload_size != 0_usize {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1549,6 +1581,7 @@ fn write_serialization_invocation<T: Write>(
             }
         }
         schema::TypeVariant::S64 => {
+            write_indentation(buffer, indentation)?;
             if is_field {
                 writeln!(buffer, "match payload_size {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1578,8 +1611,12 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "zigzag_encode(*payload), writer)?;")
             }
         }
-        schema::TypeVariant::String => writeln!(buffer, "writer.write_all(payload.as_bytes())?;"),
+        schema::TypeVariant::String => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "writer.write_all(payload.as_bytes())?;")
+        }
         schema::TypeVariant::U64 => {
+            write_indentation(buffer, indentation)?;
             if is_field {
                 writeln!(buffer, "match payload_size {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1600,11 +1637,15 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "serialize_varint(*payload, writer)?;")
             }
         }
-        schema::TypeVariant::Unit => writeln!(buffer, "();"),
+        schema::TypeVariant::Unit => Ok(()),
     }
 }
 
 // Write the logic to invoke the deserialization logic for a value, including a trailing line break.
+//
+// Context variables:
+// - `payload` (introduced)
+// - `reader`
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
@@ -2789,7 +2830,6 @@ pub mod comprehensive {
                     BarOut::ARequired => {
                         let payload_size = 0_usize;
                         super::super::serialize_field_header(writer, 0, payload_size, false)?;
-                        ();
                         Ok(())
                     }
                     BarOut::BRequired(ref payload) => {
@@ -2862,6 +2902,11 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 7, payload_size, false)?;
                         {
                             let payload = &(payload.len() as u64);
+                            let payload_size = match *payload { 0_u64 => { 0_usize }, \
+                                1_u64..=567_382_630_219_903_u64 => { \
+                                super::super::varint_size_from_value(*payload) }, \
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { \
+                                8_usize } };
                             match payload_size {
                                 0_usize => {}
                                 8_usize => writer.write_all(&payload.to_le_bytes())?,
@@ -2874,6 +2919,7 @@ pub mod comprehensive {
                         let payload_size = 8_usize * payload.len();
                         super::super::serialize_field_header(writer, 8, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = 8_usize;
                             writer.write_all(&payload.to_le_bytes())?;
                         }
                         Ok(())
@@ -2883,6 +2929,7 @@ pub mod comprehensive {
                             super::super::varint_size_from_value(*payload));
                         super::super::serialize_field_header(writer, 9, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = super::super::varint_size_from_value(*payload);
                             super::super::serialize_varint(*payload, writer)?;
                         }
                         Ok(())
@@ -2893,6 +2940,9 @@ pub mod comprehensive {
                             payload)));
                         super::super::serialize_field_header(writer, 10, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = \
+                                super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                                payload));
                             super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                                 writer)?;
                         }
@@ -2902,6 +2952,7 @@ pub mod comprehensive {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| x + 1_usize);
                         super::super::serialize_field_header(writer, 11, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = 1_usize;
                             super::super::serialize_varint(*payload as u64, writer)?;
                         }
                         Ok(())
@@ -2913,8 +2964,9 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 12, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload)?;
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            writer.write_all(payload)?;
                         }
                         Ok(())
                     }
@@ -2925,8 +2977,10 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 13, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            \
+                                writer.write_all(payload.as_bytes())?;
                         }
                         Ok(())
                     }
@@ -2940,13 +2994,16 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 14, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
-                                payload| { let payload_size = payload.len(); x + \
+                            let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                                payload_size = payload.len(); x + \
                                 super::super::varint_size_from_value(payload_size as u64) + \
-                                payload_size }) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint(payload.len() as u64, writer)?;
-                                writer.write_all(payload.as_bytes())?;
+                                payload_size });
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            for payload in payload {
+                                let payload_size = payload.len();
+                                super::super::serialize_varint(payload_size as u64, \
+                                    writer)?;                                \
+                                    writer.write_all(payload.as_bytes())?;
                             }
                         }
                         Ok(())
@@ -2954,7 +3011,6 @@ pub mod comprehensive {
                     BarOut::AAsymmetric(ref fallback) => {
                         let payload_size = 0_usize;
                         super::super::serialize_field_header(writer, 16, payload_size, false)?;
-                        ();
                         fallback.serialize(writer)
                     }
                     BarOut::BAsymmetric(ref payload, ref fallback) => {
@@ -3027,6 +3083,11 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 23, payload_size, false)?;
                         {
                             let payload = &(payload.len() as u64);
+                            let payload_size = match *payload { 0_u64 => { 0_usize }, \
+                                1_u64..=567_382_630_219_903_u64 => { \
+                                super::super::varint_size_from_value(*payload) }, \
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { \
+                                8_usize } };
                             match payload_size {
                                 0_usize => {}
                                 8_usize => writer.write_all(&payload.to_le_bytes())?,
@@ -3039,6 +3100,7 @@ pub mod comprehensive {
                         let payload_size = 8_usize * payload.len();
                         super::super::serialize_field_header(writer, 24, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = 8_usize;
                             writer.write_all(&payload.to_le_bytes())?;
                         }
                         fallback.serialize(writer)
@@ -3048,6 +3110,7 @@ pub mod comprehensive {
                             super::super::varint_size_from_value(*payload));
                         super::super::serialize_field_header(writer, 25, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = super::super::varint_size_from_value(*payload);
                             super::super::serialize_varint(*payload, writer)?;
                         }
                         fallback.serialize(writer)
@@ -3058,6 +3121,9 @@ pub mod comprehensive {
                             payload)));
                         super::super::serialize_field_header(writer, 26, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = \
+                                super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                                payload));
                             super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                                 writer)?;
                         }
@@ -3067,6 +3133,7 @@ pub mod comprehensive {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| x + 1_usize);
                         super::super::serialize_field_header(writer, 27, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = 1_usize;
                             super::super::serialize_varint(*payload as u64, writer)?;
                         }
                         fallback.serialize(writer)
@@ -3078,8 +3145,9 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 28, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload)?;
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            writer.write_all(payload)?;
                         }
                         fallback.serialize(writer)
                     }
@@ -3090,8 +3158,10 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 29, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            \
+                                writer.write_all(payload.as_bytes())?;
                         }
                         fallback.serialize(writer)
                     }
@@ -3105,13 +3175,16 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 30, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
-                                payload| { let payload_size = payload.len(); x + \
+                            let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                                payload_size = payload.len(); x + \
                                 super::super::varint_size_from_value(payload_size as u64) + \
-                                payload_size }) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint(payload.len() as u64, writer)?;
-                                writer.write_all(payload.as_bytes())?;
+                                payload_size });
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            for payload in payload {
+                                let payload_size = payload.len();
+                                super::super::serialize_varint(payload_size as u64, \
+                                    writer)?;                                \
+                                    writer.write_all(payload.as_bytes())?;
                             }
                         }
                         fallback.serialize(writer)
@@ -3119,7 +3192,6 @@ pub mod comprehensive {
                     BarOut::AOptional(ref fallback) => {
                         let payload_size = 0_usize;
                         super::super::serialize_field_header(writer, 32, payload_size, false)?;
-                        ();
                         fallback.serialize(writer)
                     }
                     BarOut::BOptional(ref payload, ref fallback) => {
@@ -3192,6 +3264,11 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 39, payload_size, false)?;
                         {
                             let payload = &(payload.len() as u64);
+                            let payload_size = match *payload { 0_u64 => { 0_usize }, \
+                                1_u64..=567_382_630_219_903_u64 => { \
+                                super::super::varint_size_from_value(*payload) }, \
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { \
+                                8_usize } };
                             match payload_size {
                                 0_usize => {}
                                 8_usize => writer.write_all(&payload.to_le_bytes())?,
@@ -3204,6 +3281,7 @@ pub mod comprehensive {
                         let payload_size = 8_usize * payload.len();
                         super::super::serialize_field_header(writer, 40, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = 8_usize;
                             writer.write_all(&payload.to_le_bytes())?;
                         }
                         fallback.serialize(writer)
@@ -3213,6 +3291,7 @@ pub mod comprehensive {
                             super::super::varint_size_from_value(*payload));
                         super::super::serialize_field_header(writer, 41, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = super::super::varint_size_from_value(*payload);
                             super::super::serialize_varint(*payload, writer)?;
                         }
                         fallback.serialize(writer)
@@ -3223,6 +3302,9 @@ pub mod comprehensive {
                             payload)));
                         super::super::serialize_field_header(writer, 42, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = \
+                                super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                                payload));
                             super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                                 writer)?;
                         }
@@ -3232,6 +3314,7 @@ pub mod comprehensive {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| x + 1_usize);
                         super::super::serialize_field_header(writer, 43, payload_size, false)?;
                         for payload in payload {
+                            let payload_size = 1_usize;
                             super::super::serialize_varint(*payload as u64, writer)?;
                         }
                         fallback.serialize(writer)
@@ -3243,8 +3326,9 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 44, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload)?;
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            writer.write_all(payload)?;
                         }
                         fallback.serialize(writer)
                     }
@@ -3255,8 +3339,10 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 45, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            \
+                                writer.write_all(payload.as_bytes())?;
                         }
                         fallback.serialize(writer)
                     }
@@ -3270,13 +3356,16 @@ pub mod comprehensive {
                             payload_size });
                         super::super::serialize_field_header(writer, 46, payload_size, false)?;
                         for payload in payload {
-                            super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
-                                payload| { let payload_size = payload.len(); x + \
+                            let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                                payload_size = payload.len(); x + \
                                 super::super::varint_size_from_value(payload_size as u64) + \
-                                payload_size }) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint(payload.len() as u64, writer)?;
-                                writer.write_all(payload.as_bytes())?;
+                                payload_size });
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            for payload in payload {
+                                let payload_size = payload.len();
+                                super::super::serialize_varint(payload_size as u64, \
+                                    writer)?;                                \
+                                    writer.write_all(payload.as_bytes())?;
                             }
                         }
                         fallback.serialize(writer)
@@ -4615,7 +4704,6 @@ pub mod comprehensive {
                     let payload = &self.a_required;
                     let payload_size = 0_usize;
                     super::super::serialize_field_header(writer, 0, payload_size, false)?;
-                    ();
                 }
 
                 {
@@ -4692,6 +4780,11 @@ pub mod comprehensive {
                     super::super::serialize_field_header(writer, 7, payload_size, false)?;
                     {
                         let payload = &(payload.len() as u64);
+                        let payload_size = match *payload { 0_u64 => { 0_usize }, \
+                            1_u64..=567_382_630_219_903_u64 => { \
+                            super::super::varint_size_from_value(*payload) }, \
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { \
+                            8_usize } };
                         match payload_size {
                             0_usize => {}
                             8_usize => writer.write_all(&payload.to_le_bytes())?,
@@ -4705,6 +4798,7 @@ pub mod comprehensive {
                     let payload_size = 8_usize * payload.len();
                     super::super::serialize_field_header(writer, 8, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = 8_usize;
                         writer.write_all(&payload.to_le_bytes())?;
                     }
                 }
@@ -4715,6 +4809,7 @@ pub mod comprehensive {
                         super::super::varint_size_from_value(*payload));
                     super::super::serialize_field_header(writer, 9, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = super::super::varint_size_from_value(*payload);
                         super::super::serialize_varint(*payload, writer)?;
                     }
                 }
@@ -4726,6 +4821,9 @@ pub mod comprehensive {
                         )));
                     super::super::serialize_field_header(writer, 10, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload));
                         super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                             writer)?;
                     }
@@ -4736,6 +4834,7 @@ pub mod comprehensive {
                     let payload_size = payload.iter().fold(0_usize, |x, payload| x + 1_usize);
                     super::super::serialize_field_header(writer, 11, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = 1_usize;
                         super::super::serialize_varint(*payload as u64, writer)?;
                     }
                 }
@@ -4748,8 +4847,9 @@ pub mod comprehensive {
                         payload_size });
                     super::super::serialize_field_header(writer, 12, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.len() as u64, writer)?;
-                        writer.write_all(payload)?;
+                        let payload_size = payload.len();
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        writer.write_all(payload)?;
                     }
                 }
 
@@ -4761,8 +4861,9 @@ pub mod comprehensive {
                         payload_size });
                     super::super::serialize_field_header(writer, 13, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.len() as u64, writer)?;
-                        writer.write_all(payload.as_bytes())?;
+                        let payload_size = payload.len();
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        writer.write_all(payload.as_bytes())?;
                     }
                 }
 
@@ -4776,13 +4877,16 @@ pub mod comprehensive {
                         u64) + payload_size });
                     super::super::serialize_field_header(writer, 14, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
-                            payload| { let payload_size = payload.len(); x + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.len(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
-                            payload_size }) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
+                            payload_size });
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        for payload in payload {
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            \
+                                writer.write_all(payload.as_bytes())?;
                         }
                     }
                 }
@@ -4791,7 +4895,6 @@ pub mod comprehensive {
                     let payload = &self.a_asymmetric;
                     let payload_size = 0_usize;
                     super::super::serialize_field_header(writer, 16, payload_size, false)?;
-                    ();
                 }
 
                 {
@@ -4868,6 +4971,11 @@ pub mod comprehensive {
                     super::super::serialize_field_header(writer, 23, payload_size, false)?;
                     {
                         let payload = &(payload.len() as u64);
+                        let payload_size = match *payload { 0_u64 => { 0_usize }, \
+                            1_u64..=567_382_630_219_903_u64 => { \
+                            super::super::varint_size_from_value(*payload) }, \
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { \
+                            8_usize } };
                         match payload_size {
                             0_usize => {}
                             8_usize => writer.write_all(&payload.to_le_bytes())?,
@@ -4881,6 +4989,7 @@ pub mod comprehensive {
                     let payload_size = 8_usize * payload.len();
                     super::super::serialize_field_header(writer, 24, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = 8_usize;
                         writer.write_all(&payload.to_le_bytes())?;
                     }
                 }
@@ -4891,6 +5000,7 @@ pub mod comprehensive {
                         super::super::varint_size_from_value(*payload));
                     super::super::serialize_field_header(writer, 25, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = super::super::varint_size_from_value(*payload);
                         super::super::serialize_varint(*payload, writer)?;
                     }
                 }
@@ -4902,6 +5012,9 @@ pub mod comprehensive {
                         )));
                     super::super::serialize_field_header(writer, 26, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload));
                         super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                             writer)?;
                     }
@@ -4912,6 +5025,7 @@ pub mod comprehensive {
                     let payload_size = payload.iter().fold(0_usize, |x, payload| x + 1_usize);
                     super::super::serialize_field_header(writer, 27, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = 1_usize;
                         super::super::serialize_varint(*payload as u64, writer)?;
                     }
                 }
@@ -4924,8 +5038,9 @@ pub mod comprehensive {
                         payload_size });
                     super::super::serialize_field_header(writer, 28, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.len() as u64, writer)?;
-                        writer.write_all(payload)?;
+                        let payload_size = payload.len();
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        writer.write_all(payload)?;
                     }
                 }
 
@@ -4937,8 +5052,9 @@ pub mod comprehensive {
                         payload_size });
                     super::super::serialize_field_header(writer, 29, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.len() as u64, writer)?;
-                        writer.write_all(payload.as_bytes())?;
+                        let payload_size = payload.len();
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        writer.write_all(payload.as_bytes())?;
                     }
                 }
 
@@ -4952,13 +5068,16 @@ pub mod comprehensive {
                         u64) + payload_size });
                     super::super::serialize_field_header(writer, 30, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
-                            payload| { let payload_size = payload.len(); x + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.len(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
-                            payload_size }) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
+                            payload_size });
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        for payload in payload {
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            \
+                                writer.write_all(payload.as_bytes())?;
                         }
                     }
                 }
@@ -4966,7 +5085,6 @@ pub mod comprehensive {
                 if let Some(payload) = &self.a_optional {
                     let payload_size = 0_usize;
                     super::super::serialize_field_header(writer, 32, payload_size, false)?;
-                    ();
                 }
 
                 if let Some(payload) = &self.b_optional {
@@ -5036,6 +5154,11 @@ pub mod comprehensive {
                     super::super::serialize_field_header(writer, 39, payload_size, false)?;
                     {
                         let payload = &(payload.len() as u64);
+                        let payload_size = match *payload { 0_u64 => { 0_usize }, \
+                            1_u64..=567_382_630_219_903_u64 => { \
+                            super::super::varint_size_from_value(*payload) }, \
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { \
+                            8_usize } };
                         match payload_size {
                             0_usize => {}
                             8_usize => writer.write_all(&payload.to_le_bytes())?,
@@ -5048,6 +5171,7 @@ pub mod comprehensive {
                     let payload_size = 8_usize * payload.len();
                     super::super::serialize_field_header(writer, 40, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = 8_usize;
                         writer.write_all(&payload.to_le_bytes())?;
                     }
                 }
@@ -5057,6 +5181,7 @@ pub mod comprehensive {
                         super::super::varint_size_from_value(*payload));
                     super::super::serialize_field_header(writer, 41, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = super::super::varint_size_from_value(*payload);
                         super::super::serialize_varint(*payload, writer)?;
                     }
                 }
@@ -5067,6 +5192,9 @@ pub mod comprehensive {
                         )));
                     super::super::serialize_field_header(writer, 42, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = \
+                            super::super::varint_size_from_value(super::super::zigzag_encode(*\
+                            payload));
                         super::super::serialize_varint(super::super::zigzag_encode(*payload), \
                             writer)?;
                     }
@@ -5076,6 +5204,7 @@ pub mod comprehensive {
                     let payload_size = payload.iter().fold(0_usize, |x, payload| x + 1_usize);
                     super::super::serialize_field_header(writer, 43, payload_size, false)?;
                     for payload in payload {
+                        let payload_size = 1_usize;
                         super::super::serialize_varint(*payload as u64, writer)?;
                     }
                 }
@@ -5087,8 +5216,9 @@ pub mod comprehensive {
                         payload_size });
                     super::super::serialize_field_header(writer, 44, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.len() as u64, writer)?;
-                        writer.write_all(payload)?;
+                        let payload_size = payload.len();
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        writer.write_all(payload)?;
                     }
                 }
 
@@ -5099,8 +5229,9 @@ pub mod comprehensive {
                         payload_size });
                     super::super::serialize_field_header(writer, 45, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.len() as u64, writer)?;
-                        writer.write_all(payload.as_bytes())?;
+                        let payload_size = payload.len();
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        writer.write_all(payload.as_bytes())?;
                     }
                 }
 
@@ -5113,13 +5244,16 @@ pub mod comprehensive {
                         u64) + payload_size });
                     super::super::serialize_field_header(writer, 46, payload_size, false)?;
                     for payload in payload {
-                        super::super::serialize_varint(payload.iter().fold(0_usize, |x, \
-                            payload| { let payload_size = payload.len(); x + \
+                        let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
+                            payload_size = payload.len(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
-                            payload_size }) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint(payload.len() as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
+                            payload_size });
+                        super::super::serialize_varint(payload_size as u64, \
+                            writer)?;                        for payload in payload {
+                            let payload_size = payload.len();
+                            super::super::serialize_varint(payload_size as u64, \
+                                writer)?;                            \
+                                writer.write_all(payload.as_bytes())?;
                         }
                     }
                 }
