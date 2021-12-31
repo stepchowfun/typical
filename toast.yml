@@ -167,7 +167,6 @@ tasks:
       - integration_tests/typescript/dist
       - integration_tests/typescript/generated
       - integration_tests/typescript/node_modules
-      - integration_tests/typescript/src/types.ts
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
@@ -191,7 +190,6 @@ tasks:
       - integration_tests/typescript/dist
       - integration_tests/typescript/generated
       - integration_tests/typescript/node_modules
-      - integration_tests/typescript/src/types.ts
       - target/
     command: |
       # Add Typical to `$PATH`.
