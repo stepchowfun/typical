@@ -1401,6 +1401,7 @@ fn write_serialization_invocation<T: Write>(
                     &inner_type.variant,
                     false,
                 )?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(
                     buffer,
                     "offset = serializeVarint(dataView, offset, BigInt(payloadSize));",
@@ -2928,7 +2929,7 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = payload.byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -2958,7 +2959,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3008,12 +3009,12 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   }
                   payloadSize = arraySize;
                 }
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
                     payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
                       for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3287,7 +3288,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = payload.byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3318,7 +3319,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3369,12 +3370,12 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   }
                   payloadSize = arraySize;
                 }
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
                     payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
                       for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3649,7 +3650,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = payload.byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3680,7 +3681,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -3731,12 +3732,12 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   }
                   payloadSize = arraySize;
                 }
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
                     payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
                       for (let i = 0; i < buffer.byteLength; ++i) {
@@ -4777,7 +4778,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = payload.byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = new Uint8Array(payload);
                 for (let i = 0; i < buffer.byteLength; ++i) {
@@ -4807,7 +4808,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = textEncoder.encode(payload);
                 for (let i = 0; i < buffer.byteLength; ++i) {
@@ -4857,12 +4858,12 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 }
                 payloadSize = arraySize;
               }
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
                 for (const payload of oldPayload) {
                   payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
                     const buffer = textEncoder.encode(payload);
                     for (let i = 0; i < buffer.byteLength; ++i) {
@@ -5126,7 +5127,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = payload.byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = new Uint8Array(payload);
                 for (let i = 0; i < buffer.byteLength; ++i) {
@@ -5156,7 +5157,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = textEncoder.encode(payload);
                 for (let i = 0; i < buffer.byteLength; ++i) {
@@ -5206,12 +5207,12 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 }
                 payloadSize = arraySize;
               }
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
                 for (const payload of oldPayload) {
                   payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
                     const buffer = textEncoder.encode(payload);
                     for (let i = 0; i < buffer.byteLength; ++i) {
@@ -5500,7 +5501,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = payload.byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -5532,7 +5533,7 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
                   for (let i = 0; i < buffer.byteLength; ++i) {
@@ -5584,12 +5585,12 @@ offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   }
                   payloadSize = arraySize;
                 }
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
                     payloadSize = textEncoder.encode(payload).byteLength;
-offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
                       for (let i = 0; i < buffer.byteLength; ++i) {
