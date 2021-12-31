@@ -1454,50 +1454,20 @@ fn write_serialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "const oldPayload = payload;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "{{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "const payload = BigInt(oldPayload.length);")?;
-                write_size_calculation_invocation(
-                    buffer,
-                    indentation + 2,
-                    imports,
-                    namespace,
-                    &schema::TypeVariant::U64,
-                    is_field,
-                )?;
-                write_serialization_invocation(
-                    buffer,
-                    indentation + 2,
-                    imports,
-                    namespace,
-                    &schema::TypeVariant::U64,
-                    is_field,
-                )?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                writeln!(buffer, "const varint = BigInt(payload.length);")?;
+                write_u64_serialization_invocation(buffer, indentation + 1, is_field)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             }
         },
         schema::TypeVariant::Bool => {
             write_indentation(buffer, indentation)?;
-            if is_field {
-                writeln!(buffer, "if (payloadSize !== 0) {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "offset = serializeVarint(dataView, offset, payload ? 1n : 0n);",
-                )?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}}")
-            } else {
-                writeln!(
-                    buffer,
-                    "offset = serializeVarint(dataView, offset, payload ? 1n : 0n);",
-                )
-            }
+            writeln!(buffer, "{{")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "const varint = payload ? 1n : 0n;")?;
+            write_u64_serialization_invocation(buffer, indentation + 1, is_field)?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "}}")
         }
         schema::TypeVariant::Bytes => {
             write_indentation(buffer, indentation)?;
@@ -1548,37 +1518,12 @@ fn write_serialization_invocation<T: Write>(
         }
         schema::TypeVariant::S64 => {
             write_indentation(buffer, indentation)?;
-            if is_field {
-                writeln!(buffer, "switch (payloadSize) {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "case 0:")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "case 8:")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "dataView.setBigInt64(offset, payload, true);")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "offset += 8;")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "default:")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(
-                    buffer,
-                    "offset = serializeVarint(dataView, offset, zigzagEncode(payload));",
-                )?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}}")
-            } else {
-                writeln!(
-                    buffer,
-                    "offset = serializeVarint(dataView, offset, zigzagEncode(payload));",
-                )
-            }
+            writeln!(buffer, "{{")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "const varint = zigzagEncode(payload);")?;
+            write_u64_serialization_invocation(buffer, indentation + 1, is_field)?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "}}")
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
@@ -1598,39 +1543,49 @@ fn write_serialization_invocation<T: Write>(
         }
         schema::TypeVariant::U64 => {
             write_indentation(buffer, indentation)?;
-            if is_field {
-                writeln!(buffer, "switch (payloadSize) {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "case 0:")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "case 8:")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "dataView.setBigUint64(offset, payload, true);")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "offset += 8;")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "default:")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(
-                    buffer,
-                    "offset = serializeVarint(dataView, offset, payload);",
-                )?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "}}")
-            } else {
-                writeln!(
-                    buffer,
-                    "offset = serializeVarint(dataView, offset, payload);",
-                )
-            }
+            writeln!(buffer, "{{")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "const varint = payload;")?;
+            write_u64_serialization_invocation(buffer, indentation + 1, is_field)?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "}}")
         }
         schema::TypeVariant::Unit => Ok(()),
+    }
+}
+
+// Write the logic to invoke the serialization logic for a varint, including a trailing line break.
+//
+// Context variables:
+// - `dataView`
+// - `offset`
+// - `varint`
+fn write_u64_serialization_invocation<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+    is_field: bool,
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    if is_field {
+        writeln!(buffer, "if (varint > 567_382_630_219_903n) {{")?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(buffer, "dataView.setBigUint64(offset, varint, true);")?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(buffer, "offset += 8;")?;
+        write_indentation(buffer, indentation)?;
+        writeln!(buffer, "}} else if (varint !== 0n) {{")?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(
+            buffer,
+            "offset = serializeVarint(dataView, offset, varint);",
+        )?;
+        write_indentation(buffer, indentation)?;
+        writeln!(buffer, "}}")
+    } else {
+        writeln!(
+            buffer,
+            "offset = serializeVarint(dataView, offset, varint);",
+        )
     }
 }
 
@@ -2709,16 +2664,14 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
             offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigUint64(offset, payload, true);
+            {
+              const varint = payload;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, payload);
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             return offset;
           }
@@ -2735,16 +2688,14 @@ export namespace Comprehensive {
               }
             }
             offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigInt64(offset, payload, true);
+            {
+              const varint = zigzagEncode(payload);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             return offset;
           }
@@ -2756,8 +2707,14 @@ export namespace Comprehensive {
               payloadSize = 0;
             }
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
-            if (payloadSize !== 0) {
-              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            {
+              const varint = payload ? 1n : 0n;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             return offset;
           }
@@ -2804,27 +2761,12 @@ export namespace Comprehensive {
             }
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadSize = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
-                } else {
-                  payloadSize = 8;
-                }
-                switch (payloadSize) {
-                  case 0:
-                    break;
-                  case 8:
-                    dataView.setBigUint64(offset, payload, true);
-                    offset += 8;
-                    break;
-                  default:
-                    offset = serializeVarint(dataView, offset, payload);
-                    break;
-                }
+              const varint = BigInt(payload.length);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
               }
             }
             return offset;
@@ -2860,7 +2802,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(payload);
-                offset = serializeVarint(dataView, offset, payload);
+                {
+                  const varint = payload;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             return offset;
@@ -2883,7 +2828,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             return offset;
@@ -2906,7 +2854,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 1;
-                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             return offset;
@@ -3058,16 +3009,14 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
             offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigUint64(offset, payload, true);
+            {
+              const varint = payload;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, payload);
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -3085,16 +3034,14 @@ export namespace Comprehensive {
               }
             }
             offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigInt64(offset, payload, true);
+            {
+              const varint = zigzagEncode(payload);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -3107,8 +3054,14 @@ export namespace Comprehensive {
               payloadSize = 0;
             }
             offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, true);
-            if (payloadSize !== 0) {
-              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            {
+              const varint = payload ? 1n : 0n;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -3158,27 +3111,12 @@ export namespace Comprehensive {
             }
             offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
             {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadSize = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
-                } else {
-                  payloadSize = 8;
-                }
-                switch (payloadSize) {
-                  case 0:
-                    break;
-                  case 8:
-                    dataView.setBigUint64(offset, payload, true);
-                    offset += 8;
-                    break;
-                  default:
-                    offset = serializeVarint(dataView, offset, payload);
-                    break;
-                }
+              const varint = BigInt(payload.length);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3216,7 +3154,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(payload);
-                offset = serializeVarint(dataView, offset, payload);
+                {
+                  const varint = payload;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3240,7 +3181,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3264,7 +3208,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 1;
-                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3420,16 +3367,14 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigUint64(offset, payload, true);
+            {
+              const varint = payload;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, payload);
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -3447,16 +3392,14 @@ export namespace Comprehensive {
               }
             }
             offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigInt64(offset, payload, true);
+            {
+              const varint = zigzagEncode(payload);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -3469,8 +3412,14 @@ export namespace Comprehensive {
               payloadSize = 0;
             }
             offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, true);
-            if (payloadSize !== 0) {
-              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            {
+              const varint = payload ? 1n : 0n;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -3520,27 +3469,12 @@ export namespace Comprehensive {
             }
             offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
             {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadSize = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
-                } else {
-                  payloadSize = 8;
-                }
-                switch (payloadSize) {
-                  case 0:
-                    break;
-                  case 8:
-                    dataView.setBigUint64(offset, payload, true);
-                    offset += 8;
-                    break;
-                  default:
-                    offset = serializeVarint(dataView, offset, payload);
-                    break;
-                }
+              const varint = BigInt(payload.length);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3578,7 +3512,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(payload);
-                offset = serializeVarint(dataView, offset, payload);
+                {
+                  const varint = payload;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3602,7 +3539,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -3626,7 +3566,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 1;
-                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -4558,16 +4501,14 @@ export namespace Comprehensive {
             payloadSize = 8;
           }
           offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
-          switch (payloadSize) {
-            case 0:
-              break;
-            case 8:
-              dataView.setBigUint64(offset, payload, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
               offset += 8;
-              break;
-            default:
-              offset = serializeVarint(dataView, offset, payload);
-              break;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
           }
         }
 
@@ -4584,16 +4525,14 @@ export namespace Comprehensive {
             }
           }
           offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
-          switch (payloadSize) {
-            case 0:
-              break;
-            case 8:
-              dataView.setBigInt64(offset, payload, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
               offset += 8;
-              break;
-            default:
-              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
-              break;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
           }
         }
 
@@ -4605,8 +4544,14 @@ export namespace Comprehensive {
             payloadSize = 0;
           }
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
-          if (payloadSize !== 0) {
-            offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
           }
         }
 
@@ -4653,27 +4598,12 @@ export namespace Comprehensive {
           }
           offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
           {
-            const oldPayload = payload;
-            {
-              const payload = BigInt(oldPayload.length);
-              if (payload === 0n) {
-                payloadSize = 0;
-              } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
-              } else {
-                payloadSize = 8;
-              }
-              switch (payloadSize) {
-                case 0:
-                  break;
-                case 8:
-                  dataView.setBigUint64(offset, payload, true);
-                  offset += 8;
-                  break;
-                default:
-                  offset = serializeVarint(dataView, offset, payload);
-                  break;
-              }
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
             }
           }
         }
@@ -4709,7 +4639,10 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = varintSizeFromValue(payload);
-              offset = serializeVarint(dataView, offset, payload);
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -4732,7 +4665,10 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -4755,7 +4691,10 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = 1;
-              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -4907,16 +4846,14 @@ export namespace Comprehensive {
             payloadSize = 8;
           }
           offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, true);
-          switch (payloadSize) {
-            case 0:
-              break;
-            case 8:
-              dataView.setBigUint64(offset, payload, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
               offset += 8;
-              break;
-            default:
-              offset = serializeVarint(dataView, offset, payload);
-              break;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
           }
         }
 
@@ -4933,16 +4870,14 @@ export namespace Comprehensive {
             }
           }
           offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, true);
-          switch (payloadSize) {
-            case 0:
-              break;
-            case 8:
-              dataView.setBigInt64(offset, payload, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
               offset += 8;
-              break;
-            default:
-              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
-              break;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
           }
         }
 
@@ -4954,8 +4889,14 @@ export namespace Comprehensive {
             payloadSize = 0;
           }
           offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, true);
-          if (payloadSize !== 0) {
-            offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
           }
         }
 
@@ -5002,27 +4943,12 @@ export namespace Comprehensive {
           }
           offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
           {
-            const oldPayload = payload;
-            {
-              const payload = BigInt(oldPayload.length);
-              if (payload === 0n) {
-                payloadSize = 0;
-              } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
-              } else {
-                payloadSize = 8;
-              }
-              switch (payloadSize) {
-                case 0:
-                  break;
-                case 8:
-                  dataView.setBigUint64(offset, payload, true);
-                  offset += 8;
-                  break;
-                default:
-                  offset = serializeVarint(dataView, offset, payload);
-                  break;
-              }
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
             }
           }
         }
@@ -5058,7 +4984,10 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = varintSizeFromValue(payload);
-              offset = serializeVarint(dataView, offset, payload);
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -5081,7 +5010,10 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -5104,7 +5036,10 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (const payload of oldPayload) {
               payloadSize = 1;
-              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -5261,16 +5196,14 @@ export namespace Comprehensive {
               payloadSize = 8;
             }
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigUint64(offset, payload, true);
+            {
+              const varint = payload;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, payload);
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -5289,16 +5222,14 @@ export namespace Comprehensive {
               }
             }
             offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, true);
-            switch (payloadSize) {
-              case 0:
-                break;
-              case 8:
-                dataView.setBigInt64(offset, payload, true);
+            {
+              const varint = zigzagEncode(payload);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
                 offset += 8;
-                break;
-              default:
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
-                break;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -5312,8 +5243,14 @@ export namespace Comprehensive {
               payloadSize = 0;
             }
             offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, true);
-            if (payloadSize !== 0) {
-              offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+            {
+              const varint = payload ? 1n : 0n;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
             }
           }
         }
@@ -5366,27 +5303,12 @@ export namespace Comprehensive {
             }
             offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
             {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadSize = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
-                } else {
-                  payloadSize = 8;
-                }
-                switch (payloadSize) {
-                  case 0:
-                    break;
-                  case 8:
-                    dataView.setBigUint64(offset, payload, true);
-                    offset += 8;
-                    break;
-                  default:
-                    offset = serializeVarint(dataView, offset, payload);
-                    break;
-                }
+              const varint = BigInt(payload.length);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
               }
             }
           }
@@ -5426,7 +5348,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(payload);
-                offset = serializeVarint(dataView, offset, payload);
+                {
+                  const varint = payload;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
           }
@@ -5451,7 +5376,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                offset = serializeVarint(dataView, offset, zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
           }
@@ -5476,7 +5404,10 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 1;
-                offset = serializeVarint(dataView, offset, payload ? 1n : 0n);
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
               }
             }
           }
