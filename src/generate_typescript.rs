@@ -702,14 +702,14 @@ fn write_schema<T: Write>(
                 if declaration.fields.is_empty() {
                     writeln!(buffer, "return 0;")?;
                 } else {
+                    writeln!(buffer, "let payloadSize = 0;")?;
+                    write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "switch (value.field) {{")?;
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "case '")?;
                         write_identifier(buffer, &field.name, Camel, None)?;
                         writeln!(buffer, "': {{")?;
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "let payloadSize = 0;")?;
                         if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                         } else {
                             write_indentation(buffer, indentation + 4)?;
@@ -1155,7 +1155,7 @@ fn write_size_calculation_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             if is_field {
                 writeln!(buffer, "{{")?;
-                write_indentation(buffer, indentation)?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "let zigzag = zigzagEncode(payload);")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "if (zigzag === 0n) {{")?;
@@ -1667,13 +1667,12 @@ export namespace Comprehensive {
 
     export namespace Bar {
       export function size(value: BarOut): number {
+        let payloadSize = 0;
         switch (value.field) {
           case 'aRequired': {
-            let payloadSize = 0;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'bRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
@@ -1684,7 +1683,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
           case 'cRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             if (payload === 0n) {
               payloadSize = 0;
@@ -1696,10 +1694,9 @@ export namespace Comprehensive {
             return fieldHeaderSize(2n, payloadSize, true) + payloadSize;
           }
           case 'dRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
-            let zigzag = zigzagEncode(payload);
+              let zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -1711,7 +1708,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(3n, payloadSize, true) + payloadSize;
           }
           case 'eRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             if (payload) {
               payloadSize = 1;
@@ -1721,19 +1717,16 @@ export namespace Comprehensive {
             return fieldHeaderSize(4n, payloadSize, true) + payloadSize;
           }
           case 'fRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = payload.byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
           }
           case 'gRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize;
           }
           case 'hRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -1751,13 +1744,11 @@ export namespace Comprehensive {
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize;
           }
           case 'iRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = 8 * payload.length;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
           case 'jRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1773,7 +1764,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(9n, payloadSize, false) + payloadSize;
           }
           case 'kRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1789,7 +1779,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
           case 'lRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1805,7 +1794,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize;
           }
           case 'mRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1821,7 +1809,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize;
           }
           case 'nRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1837,7 +1824,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize;
           }
           case 'oRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1863,11 +1849,9 @@ export namespace Comprehensive {
             return fieldHeaderSize(14n, payloadSize, false) + payloadSize;
           }
           case 'aAsymmetric': {
-            let payloadSize = 0;
             return fieldHeaderSize(16n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'bAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
@@ -1878,7 +1862,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(17n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'cAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             if (payload === 0n) {
               payloadSize = 0;
@@ -1890,10 +1873,9 @@ export namespace Comprehensive {
             return fieldHeaderSize(18n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'dAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
-            let zigzag = zigzagEncode(payload);
+              let zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -1905,7 +1887,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(19n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'eAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             if (payload) {
               payloadSize = 1;
@@ -1915,19 +1896,16 @@ export namespace Comprehensive {
             return fieldHeaderSize(20n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'fAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = payload.byteLength;
             return fieldHeaderSize(21n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'gAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(22n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'hAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -1945,13 +1923,11 @@ export namespace Comprehensive {
             return fieldHeaderSize(23n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'iAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = 8 * payload.length;
             return fieldHeaderSize(24n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'jAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1967,7 +1943,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(25n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'kAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1983,7 +1958,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(26n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'lAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1999,7 +1973,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(27n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'mAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2015,7 +1988,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2031,7 +2003,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'oAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2057,11 +2028,9 @@ export namespace Comprehensive {
             return fieldHeaderSize(30n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'aOptional': {
-            let payloadSize = 0;
             return fieldHeaderSize(32n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'bOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
@@ -2072,7 +2041,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(33n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'cOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             if (payload === 0n) {
               payloadSize = 0;
@@ -2084,10 +2052,9 @@ export namespace Comprehensive {
             return fieldHeaderSize(34n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'dOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
-            let zigzag = zigzagEncode(payload);
+              let zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -2099,7 +2066,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(35n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'eOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             if (payload) {
               payloadSize = 1;
@@ -2109,19 +2075,16 @@ export namespace Comprehensive {
             return fieldHeaderSize(36n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'fOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = payload.byteLength;
             return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'gOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'hOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -2139,13 +2102,11 @@ export namespace Comprehensive {
             return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'iOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = 8 * payload.length;
             return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'jOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2161,7 +2122,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'kOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2177,7 +2137,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'lOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2193,7 +2152,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'mOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2209,7 +2167,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2225,7 +2182,6 @@ export namespace Comprehensive {
             return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'oOptional': {
-            let payloadSize = 0;
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2407,7 +2363,7 @@ export namespace Comprehensive {
         {
           const payload = value.dRequired;
           {
-          let zigzag = zigzagEncode(payload);
+            let zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
               payloadSize = 0;
             } else if (zigzag < 567_382_630_219_904n) {
@@ -2618,7 +2574,7 @@ export namespace Comprehensive {
         {
           const payload = value.dAsymmetric;
           {
-          let zigzag = zigzagEncode(payload);
+            let zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
               payloadSize = 0;
             } else if (zigzag < 567_382_630_219_904n) {
@@ -2844,7 +2800,7 @@ export namespace Comprehensive {
             payloadSize = 0;
           } else {
             {
-            let zigzag = zigzagEncode(payload);
+              let zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
                 payloadSize = 0;
               } else if (zigzag < 567_382_630_219_904n) {
@@ -3199,15 +3155,14 @@ export namespace Comprehensive {
 
     export namespace FooOrBar {
       export function size(value: FooOrBarOut): number {
+        let payloadSize = 0;
         switch (value.field) {
           case 'x': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = Comprehensive.Foo.Foo.size(payload);
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'y': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = Comprehensive.Bar.Bar.size(payload);
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
@@ -3439,87 +3394,74 @@ export namespace SchemaEvolution {
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
+        let payloadSize = 0;
         switch (value.field) {
           case 'requiredToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'requiredToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalHandled': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalFallback': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
           case 'optionalToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalHandled': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalFallback': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(15n, payloadSize, false) + payloadSize;
           }
           case 'nonexistentToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(16n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToOptionalHandled': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(17n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToOptionalFallback': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(18n, payloadSize, false) + payloadSize + size(value.fallback);
@@ -3768,75 +3710,64 @@ export namespace SchemaEvolution {
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
+        let payloadSize = 0;
         switch (value.field) {
           case 'requiredToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'requiredToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalHandled': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToOptionalFallback': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToNonexistent': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToRequired': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToAsymmetric': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalHandled': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToOptionalFallback': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToNonexistent': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.fallback);
@@ -3909,9 +3840,9 @@ export namespace SchemaEvolution {
 
     export namespace SingletonChoice {
       export function size(value: SingletonChoiceOut): number {
+        let payloadSize = 0;
         switch (value.field) {
           case 'x': {
-            let payloadSize = 0;
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
