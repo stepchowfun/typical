@@ -564,6 +564,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "export namespace ")?;
                 write_identifier(buffer, &declaration.name, Pascal, None)?;
                 writeln!(buffer, " {{")?;
+
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function size(value: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
@@ -625,7 +626,9 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "return valueSize;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "export function serialize(")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -714,7 +717,9 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "return offset;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "export function deserialize(")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -729,7 +734,9 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "return [0, undefined!];")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function outToIn(value: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
@@ -740,6 +747,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "return value;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
             }
@@ -772,6 +780,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "export namespace ")?;
                 write_identifier(buffer, &declaration.name, Pascal, None)?;
                 writeln!(buffer, " {{")?;
+
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function size(value: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
@@ -825,7 +834,9 @@ fn write_schema<T: Write>(
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "export function serialize(")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -906,7 +917,9 @@ fn write_schema<T: Write>(
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "export function deserialize(")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -921,7 +934,9 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "return [0, undefined!];")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
                 writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function outToIn(value: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
@@ -1991,7 +2006,7 @@ export namespace Comprehensive {
       | { field: 'lRequired'; value: boolean[] }
       | { field: 'mRequired'; value: ArrayBuffer[] }
       | { field: 'nRequired'; value: string[] }
-      | { field: 'oRequired'; value: string[][] }
+      | { field: 'oRequired'; value: Comprehensive.Main.EmptyStructOut[][] }
       | { field: 'aAsymmetric'; fallback: BarOut }
       | { field: 'bAsymmetric'; value: number; fallback: BarOut }
       | { field: 'cAsymmetric'; value: bigint; fallback: BarOut }
@@ -2006,7 +2021,7 @@ export namespace Comprehensive {
       | { field: 'lAsymmetric'; value: boolean[]; fallback: BarOut }
       | { field: 'mAsymmetric'; value: ArrayBuffer[]; fallback: BarOut }
       | { field: 'nAsymmetric'; value: string[]; fallback: BarOut }
-      | { field: 'oAsymmetric'; value: string[][]; fallback: BarOut }
+      | { field: 'oAsymmetric'; value: Comprehensive.Main.EmptyStructOut[][]; fallback: BarOut }
       | { field: 'aOptional'; fallback: BarOut }
       | { field: 'bOptional'; value: number; fallback: BarOut }
       | { field: 'cOptional'; value: bigint; fallback: BarOut }
@@ -2021,7 +2036,7 @@ export namespace Comprehensive {
       | { field: 'lOptional'; value: boolean[]; fallback: BarOut }
       | { field: 'mOptional'; value: ArrayBuffer[]; fallback: BarOut }
       | { field: 'nOptional'; value: string[]; fallback: BarOut }
-      | { field: 'oOptional'; value: string[][]; fallback: BarOut };
+      | { field: 'oOptional'; value: Comprehensive.Main.EmptyStructOut[][]; fallback: BarOut };
 
     export type BarIn =
       | { field: 'aRequired' }
@@ -2038,7 +2053,7 @@ export namespace Comprehensive {
       | { field: 'lRequired'; value: boolean[] }
       | { field: 'mRequired'; value: ArrayBuffer[] }
       | { field: 'nRequired'; value: string[] }
-      | { field: 'oRequired'; value: string[][] }
+      | { field: 'oRequired'; value: Comprehensive.Main.EmptyStructIn[][] }
       | { field: 'aAsymmetric' }
       | { field: 'bAsymmetric'; value: number }
       | { field: 'cAsymmetric'; value: bigint }
@@ -2053,7 +2068,7 @@ export namespace Comprehensive {
       | { field: 'lAsymmetric'; value: boolean[] }
       | { field: 'mAsymmetric'; value: ArrayBuffer[] }
       | { field: 'nAsymmetric'; value: string[] }
-      | { field: 'oAsymmetric'; value: string[][] }
+      | { field: 'oAsymmetric'; value: Comprehensive.Main.EmptyStructIn[][] }
       | { field: 'aOptional'; fallback: BarIn }
       | { field: 'bOptional'; value: number; fallback: BarIn }
       | { field: 'cOptional'; value: bigint; fallback: BarIn }
@@ -2068,7 +2083,7 @@ export namespace Comprehensive {
       | { field: 'lOptional'; value: boolean[]; fallback: BarIn }
       | { field: 'mOptional'; value: ArrayBuffer[]; fallback: BarIn }
       | { field: 'nOptional'; value: string[]; fallback: BarIn }
-      | { field: 'oOptional'; value: string[][]; fallback: BarIn };
+      | { field: 'oOptional'; value: Comprehensive.Main.EmptyStructIn[][]; fallback: BarIn };
 
     export namespace Bar {
       export function size(value: BarOut): number {
@@ -2243,7 +2258,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -2422,7 +2437,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -2601,7 +2616,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -2923,7 +2938,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -2942,7 +2957,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -2951,15 +2966,9 @@ export namespace Comprehensive {
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                    {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
-                    }
+                    offset = Comprehensive.Main.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
               }
@@ -3280,7 +3289,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -3299,7 +3308,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -3308,15 +3317,9 @@ export namespace Comprehensive {
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                    {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
-                    }
+                    offset = Comprehensive.Main.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
               }
@@ -3638,7 +3641,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -3657,7 +3660,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -3666,15 +3669,9 @@ export namespace Comprehensive {
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                    {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
-                    }
+                    offset = Comprehensive.Main.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
               }
@@ -3714,7 +3711,7 @@ export namespace Comprehensive {
       lRequired: boolean[];
       mRequired: ArrayBuffer[];
       nRequired: string[];
-      oRequired: string[][];
+      oRequired: Comprehensive.Main.EmptyStructOut[][];
       aAsymmetric: undefined;
       bAsymmetric: number;
       cAsymmetric: bigint;
@@ -3729,7 +3726,7 @@ export namespace Comprehensive {
       lAsymmetric: boolean[];
       mAsymmetric: ArrayBuffer[];
       nAsymmetric: string[];
-      oAsymmetric: string[][];
+      oAsymmetric: Comprehensive.Main.EmptyStructOut[][];
       aOptional?: undefined;
       bOptional?: number;
       cOptional?: bigint;
@@ -3744,7 +3741,7 @@ export namespace Comprehensive {
       lOptional?: boolean[];
       mOptional?: ArrayBuffer[];
       nOptional?: string[];
-      oOptional?: string[][];
+      oOptional?: Comprehensive.Main.EmptyStructOut[][];
     };
 
     export type FooIn = {
@@ -3762,7 +3759,7 @@ export namespace Comprehensive {
       lRequired: boolean[];
       mRequired: ArrayBuffer[];
       nRequired: string[];
-      oRequired: string[][];
+      oRequired: Comprehensive.Main.EmptyStructIn[][];
       aAsymmetric?: undefined;
       bAsymmetric?: number;
       cAsymmetric?: bigint;
@@ -3777,7 +3774,7 @@ export namespace Comprehensive {
       lAsymmetric?: boolean[];
       mAsymmetric?: ArrayBuffer[];
       nAsymmetric?: string[];
-      oAsymmetric?: string[][];
+      oAsymmetric?: Comprehensive.Main.EmptyStructIn[][];
       aOptional?: undefined;
       bOptional?: number;
       cOptional?: bigint;
@@ -3792,7 +3789,7 @@ export namespace Comprehensive {
       lOptional?: boolean[];
       mOptional?: ArrayBuffer[];
       nOptional?: string[];
-      oOptional?: string[][];
+      oOptional?: Comprehensive.Main.EmptyStructIn[][];
     };
 
     export namespace Foo {
@@ -3984,7 +3981,7 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; ++i) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadSize = arraySize;
@@ -4180,7 +4177,7 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; ++i) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadSize = arraySize;
@@ -4435,7 +4432,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -4760,7 +4757,7 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; ++i) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadSize = arraySize;
@@ -4779,7 +4776,7 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; ++i) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadSize = arraySize;
@@ -4788,15 +4785,9 @@ export namespace Comprehensive {
               {
                 const oldPayload = payload;
                 for (const payload of oldPayload) {
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                  {
-                    const buffer = textEncoder.encode(payload);
-                    for (let i = 0; i < buffer.byteLength; ++i) {
-                      dataView.setUint8(offset + i, buffer[i]);
-                    }
-                    offset += buffer.byteLength;
-                  }
+                  offset = Comprehensive.Main.EmptyStruct.serialize(dataView, offset, payload);
                 }
               }
             }
@@ -5105,7 +5096,7 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; ++i) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadSize = arraySize;
@@ -5124,7 +5115,7 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; ++i) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadSize = arraySize;
@@ -5133,15 +5124,9 @@ export namespace Comprehensive {
               {
                 const oldPayload = payload;
                 for (const payload of oldPayload) {
-                  payloadSize = textEncoder.encode(payload).byteLength;
+                  payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                  {
-                    const buffer = textEncoder.encode(payload);
-                    for (let i = 0; i < buffer.byteLength; ++i) {
-                      dataView.setUint8(offset + i, buffer[i]);
-                    }
-                    offset += buffer.byteLength;
-                  }
+                  offset = Comprehensive.Main.EmptyStruct.serialize(dataView, offset, payload);
                 }
               }
             }
@@ -5479,7 +5464,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -5498,7 +5483,7 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; ++i) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadSize = arraySize;
@@ -5507,15 +5492,9 @@ export namespace Comprehensive {
                 {
                   const oldPayload = payload;
                   for (const payload of oldPayload) {
-                    payloadSize = textEncoder.encode(payload).byteLength;
+                    payloadSize = Comprehensive.Main.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                    {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
-                    }
+                    offset = Comprehensive.Main.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
               }

@@ -1,6 +1,7 @@
 #![allow(
     clippy::cast_possible_truncation,
     clippy::identity_op,
+    clippy::let_and_return,
     clippy::let_unit_value,
     clippy::match_single_binding,
     clippy::module_name_repetitions,
