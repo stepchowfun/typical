@@ -390,14 +390,18 @@ function deserializeFieldHeader(
   switch (tag & 3n) {{
     case 0n:
       size = 0;
+      break;
     case 1n:
       size = 8;
+      break;
     case 2n:
       const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
       offset = newNewOffset;
       size = Number(sizeValue);
+      break;
     default:
       size = varintSizeFromFirstByte(dataView.getUint8(offset));
+      break;
   }}
 
   return [offset, index, size];
@@ -1879,14 +1883,18 @@ function deserializeFieldHeader(
   switch (tag & 3n) {
     case 0n:
       size = 0;
+      break;
     case 1n:
       size = 8;
+      break;
     case 2n:
       const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
       offset = newNewOffset;
       size = Number(sizeValue);
+      break;
     default:
       size = varintSizeFromFirstByte(dataView.getUint8(offset));
+      break;
   }
 
   return [offset, index, size];
