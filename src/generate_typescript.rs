@@ -583,7 +583,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, ";")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {
-                            write_size_calculation_invocation(
+                            write_size_calculation(
                                 buffer,
                                 indentation + 3,
                                 &imports,
@@ -599,7 +599,7 @@ fn write_schema<T: Write>(
                             writeln!(buffer, "payloadSize = 0;")?;
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(buffer, "}} else {{")?;
-                            write_size_calculation_invocation(
+                            write_size_calculation(
                                 buffer,
                                 indentation + 4,
                                 &imports,
@@ -653,7 +653,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, ";")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {
-                            write_size_calculation_invocation(
+                            write_size_calculation(
                                 buffer,
                                 indentation + 3,
                                 &imports,
@@ -681,7 +681,7 @@ fn write_schema<T: Write>(
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(buffer, "if (payload !== undefined) {{")?;
-                            write_size_calculation_invocation(
+                            write_size_calculation(
                                 buffer,
                                 indentation + 4,
                                 &imports,
@@ -802,7 +802,7 @@ fn write_schema<T: Write>(
                         } else {
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "const payload = value.value;")?;
-                            write_size_calculation_invocation(
+                            write_size_calculation(
                                 buffer,
                                 indentation + 4,
                                 &imports,
@@ -872,7 +872,7 @@ fn write_schema<T: Write>(
                             )?;
                         } else {
                             writeln!(buffer, "const payload = value.value;")?;
-                            write_size_calculation_invocation(
+                            write_size_calculation(
                                 buffer,
                                 indentation + 4,
                                 &imports,
@@ -1170,7 +1170,7 @@ fn write_indentation<T: Write>(buffer: &mut T, indentation: usize) -> Result<(),
 // - `payloadSize`
 // - `payload`
 #[allow(clippy::too_many_lines)]
-fn write_size_calculation_invocation<T: Write>(
+fn write_size_calculation<T: Write>(
     buffer: &mut T,
     indentation: usize,
     imports: &BTreeMap<Identifier, schema::Namespace>,
@@ -1196,7 +1196,7 @@ fn write_size_calculation_invocation<T: Write>(
                 writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "let payloadSize = 0;")?;
-                write_size_calculation_invocation(
+                write_size_calculation(
                     buffer,
                     indentation + 2,
                     imports,
@@ -1229,7 +1229,7 @@ fn write_size_calculation_invocation<T: Write>(
                 writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "let payloadSize = 0;")?;
-                write_size_calculation_invocation(
+                write_size_calculation(
                     buffer,
                     indentation + 2,
                     imports,
@@ -1259,7 +1259,7 @@ fn write_size_calculation_invocation<T: Write>(
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "const payload = BigInt(oldPayload.length);")?;
-                write_size_calculation_invocation(
+                write_size_calculation(
                     buffer,
                     indentation + 2,
                     imports,
@@ -1408,7 +1408,7 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "for (const payload of oldPayload) {{")?;
-                write_size_calculation_invocation(
+                write_size_calculation(
                     buffer,
                     indentation + 2,
                     imports,
@@ -1444,7 +1444,7 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "for (const payload of oldPayload) {{")?;
-                write_size_calculation_invocation(
+                write_size_calculation(
                     buffer,
                     indentation + 2,
                     imports,

@@ -501,12 +501,7 @@ fn write_schema<T: Write>(
                     }
                     write_indentation(buffer, indentation + 3)?;
                     write!(buffer, "let payload_size = ")?;
-                    write_size_calculation_invocation(
-                        buffer,
-                        indentation,
-                        &field.r#type.variant,
-                        true,
-                    )?;
+                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
                     writeln!(buffer, ";")?;
                     write_indentation(buffer, indentation + 3)?;
                     write_supers(buffer, indentation)?;
@@ -552,12 +547,7 @@ fn write_schema<T: Write>(
                     }
                     write_indentation(buffer, indentation + 3)?;
                     write!(buffer, "let payload_size = ")?;
-                    write_size_calculation_invocation(
-                        buffer,
-                        indentation,
-                        &field.r#type.variant,
-                        true,
-                    )?;
+                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
                     writeln!(buffer, ";")?;
                     write_indentation(buffer, indentation + 3)?;
                     write_supers(buffer, indentation)?;
@@ -778,31 +768,7 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                         }
                     }
-                    if let schema::TypeVariant::Array(inner_type) = &field.r#type.variant {
-                        let mut layer = inner_type;
-                        while let schema::TypeVariant::Array(inner_type) = &layer.variant {
-                            layer = inner_type;
-                        }
-                        if let schema::TypeVariant::Custom(_, _) = &layer.variant {
-                            write!(buffer, ".into_iter().map(|x| ")?;
-                            layer = inner_type;
-                            while let schema::TypeVariant::Array(inner_type) = &layer.variant {
-                                layer = inner_type;
-                                write!(buffer, "x.into_iter().map(|x| ")?;
-                            }
-                            write!(buffer, "x.into()")?;
-                            layer = inner_type;
-                            while let schema::TypeVariant::Array(inner_type) = &layer.variant {
-                                layer = inner_type;
-                                write!(buffer, ").collect::<Vec<_>>()")?;
-                            }
-                            write!(buffer, ").collect::<Vec<_>>()")?;
-                        } else {
-                            write!(buffer, ".into()")?;
-                        }
-                    } else {
-                        write!(buffer, ".into()")?;
-                    }
+                    write_into_invocation(buffer, &field.r#type.variant)?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Optional => {
                             writeln!(buffer, "),")?;
@@ -879,12 +845,7 @@ fn write_schema<T: Write>(
                     }
                     write_indentation(buffer, indentation + 4)?;
                     write!(buffer, "let payload_size = ")?;
-                    write_size_calculation_invocation(
-                        buffer,
-                        indentation,
-                        &field.r#type.variant,
-                        true,
-                    )?;
+                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
                     writeln!(buffer, ";")?;
                     write_indentation(buffer, indentation + 4)?;
                     write_supers(buffer, indentation)?;
@@ -945,12 +906,7 @@ fn write_schema<T: Write>(
                     }
                     write_indentation(buffer, indentation + 4)?;
                     write!(buffer, "let payload_size = ")?;
-                    write_size_calculation_invocation(
-                        buffer,
-                        indentation,
-                        &field.r#type.variant,
-                        true,
-                    )?;
+                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
                     writeln!(buffer, ";")?;
                     write_indentation(buffer, indentation + 4)?;
                     write_supers(buffer, indentation)?;
@@ -1130,39 +1086,7 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, "(Box::new((*fallback).into())),")?;
                             } else {
                                 write!(buffer, "(payload")?;
-                                if let schema::TypeVariant::Array(inner_type) =
-                                    &field.r#type.variant
-                                {
-                                    let mut layer = inner_type;
-                                    while let schema::TypeVariant::Array(inner_type) =
-                                        &layer.variant
-                                    {
-                                        layer = inner_type;
-                                    }
-                                    if let schema::TypeVariant::Custom(_, _) = &layer.variant {
-                                        write!(buffer, ".into_iter().map(|x| ")?;
-                                        layer = inner_type;
-                                        while let schema::TypeVariant::Array(inner_type) =
-                                            &layer.variant
-                                        {
-                                            layer = inner_type;
-                                            write!(buffer, "x.into_iter().map(|x| ")?;
-                                        }
-                                        write!(buffer, "x.into()")?;
-                                        layer = inner_type;
-                                        while let schema::TypeVariant::Array(inner_type) =
-                                            &layer.variant
-                                        {
-                                            layer = inner_type;
-                                            write!(buffer, ").collect::<Vec<_>>()")?;
-                                        }
-                                        write!(buffer, ").collect::<Vec<_>>()")?;
-                                    } else {
-                                        write!(buffer, ".into()")?;
-                                    }
-                                } else {
-                                    write!(buffer, ".into()")?;
-                                }
+                                write_into_invocation(buffer, &field.r#type.variant)?;
                                 writeln!(buffer, ", Box::new((*fallback).into())),")?;
                             }
                         }
@@ -1171,39 +1095,7 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, ",")?;
                             } else {
                                 write!(buffer, "(payload")?;
-                                if let schema::TypeVariant::Array(inner_type) =
-                                    &field.r#type.variant
-                                {
-                                    let mut layer = inner_type;
-                                    while let schema::TypeVariant::Array(inner_type) =
-                                        &layer.variant
-                                    {
-                                        layer = inner_type;
-                                    }
-                                    if let schema::TypeVariant::Custom(_, _) = &layer.variant {
-                                        write!(buffer, ".into_iter().map(|x| ")?;
-                                        layer = inner_type;
-                                        while let schema::TypeVariant::Array(inner_type) =
-                                            &layer.variant
-                                        {
-                                            layer = inner_type;
-                                            write!(buffer, "x.into_iter().map(|x| ")?;
-                                        }
-                                        write!(buffer, "x.into()")?;
-                                        layer = inner_type;
-                                        while let schema::TypeVariant::Array(inner_type) =
-                                            &layer.variant
-                                        {
-                                            layer = inner_type;
-                                            write!(buffer, ").collect::<Vec<_>>()")?;
-                                        }
-                                        write!(buffer, ").collect::<Vec<_>>()")?;
-                                    } else {
-                                        write!(buffer, ".into()")?;
-                                    }
-                                } else {
-                                    write!(buffer, ".into()")?;
-                                }
+                                write_into_invocation(buffer, &field.r#type.variant)?;
                                 writeln!(buffer, "),")?;
                             }
                         }
@@ -1450,11 +1342,46 @@ fn write_supers<T: Write>(buffer: &mut T, count: usize) -> Result<(), fmt::Error
     Ok(())
 }
 
+// Write the logic to convert a message from one type to another.
+//
+// Context variables:
+// - `writer`
+fn write_into_invocation<T: Write>(
+    buffer: &mut T,
+    type_variant: &schema::TypeVariant,
+) -> Result<(), fmt::Error> {
+    if let schema::TypeVariant::Array(inner_type) = type_variant {
+        let mut layer = inner_type;
+        while let schema::TypeVariant::Array(inner_type) = &layer.variant {
+            layer = inner_type;
+        }
+        if let schema::TypeVariant::Custom(_, _) = &layer.variant {
+            write!(buffer, ".into_iter().map(|x| ")?;
+            layer = inner_type;
+            while let schema::TypeVariant::Array(inner_type) = &layer.variant {
+                layer = inner_type;
+                write!(buffer, "x.into_iter().map(|x| ")?;
+            }
+            write!(buffer, "x.into()")?;
+            layer = inner_type;
+            while let schema::TypeVariant::Array(inner_type) = &layer.variant {
+                layer = inner_type;
+                write!(buffer, ").collect::<Vec<_>>()")?;
+            }
+            write!(buffer, ").collect::<Vec<_>>()")
+        } else {
+            write!(buffer, ".into()")
+        }
+    } else {
+        write!(buffer, ".into()")
+    }
+}
+
 // Write the logic to invoke the size calculation logic for a value.
 //
 // Context variables:
 // - `payload`
-fn write_size_calculation_invocation<T: Write>(
+fn write_size_calculation<T: Write>(
     buffer: &mut T,
     supers: usize,
     type_variant: &schema::TypeVariant,
@@ -1470,7 +1397,7 @@ fn write_size_calculation_invocation<T: Write>(
                     buffer,
                     "payload.iter().fold(0_usize, |x, payload| {{ let payload_size = ",
                 )?;
-                write_size_calculation_invocation(buffer, supers, &inner_type.variant, false)?;
+                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
                 write!(buffer, "; x + ")?;
                 write_supers(buffer, supers)?;
                 write!(
@@ -1480,18 +1407,13 @@ fn write_size_calculation_invocation<T: Write>(
             }
             schema::TypeVariant::Bool | schema::TypeVariant::S64 | schema::TypeVariant::U64 => {
                 write!(buffer, "payload.iter().fold(0_usize, |x, payload| x + ")?;
-                write_size_calculation_invocation(buffer, supers, &inner_type.variant, false)?;
+                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
                 write!(buffer, ")")
             }
             schema::TypeVariant::F64 => write!(buffer, "8_usize * payload.len()"),
             schema::TypeVariant::Unit => {
                 write!(buffer, "{{ let payload = &(payload.len() as u64); ")?;
-                write_size_calculation_invocation(
-                    buffer,
-                    supers,
-                    &schema::TypeVariant::U64,
-                    is_field,
-                )?;
+                write_size_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
                 write!(buffer, " }}")
             }
         },
@@ -1518,7 +1440,7 @@ fn write_size_calculation_invocation<T: Write>(
             write!(buffer, "{{ let zigzag = ")?;
             write_supers(buffer, supers)?;
             write!(buffer, "zigzag_encode(*payload); let payload = &zigzag; ")?;
-            write_size_calculation_invocation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
+            write_size_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
             write!(buffer, " }}")
         }
         schema::TypeVariant::U64 => {
@@ -1567,7 +1489,7 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "for payload in payload {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "let payload_size = ")?;
-                write_size_calculation_invocation(buffer, supers, &inner_type.variant, false)?;
+                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
                 writeln!(buffer, ";")?;
                 write_indentation(buffer, indentation + 1)?;
                 write_supers(buffer, supers)?;
@@ -1590,7 +1512,7 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "for payload in payload {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "let payload_size = ")?;
-                write_size_calculation_invocation(buffer, supers, &inner_type.variant, false)?;
+                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
                 writeln!(buffer, ";")?;
                 write_serialization_invocation(
                     buffer,
