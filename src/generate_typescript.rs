@@ -742,18 +742,8 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     if let schema::TypeVariant::Custom(import, name) = &field.r#type.variant {
-                        let type_namespace = schema::Namespace {
-                            components: import.as_ref().map_or_else(
-                                || namespace.components.clone(),
-                                |import| imports[import].components.clone(),
-                            ),
-                        };
                         write!(buffer, ": ")?;
-                        for component in type_namespace.components {
-                            write_identifier(buffer, &component, Pascal, None)?;
-                            write!(buffer, ".")?;
-                        }
-                        write_identifier(buffer, name, Pascal, None)?;
+                        write_custom_type(buffer, &imports, namespace, import, name, None)?;
                         write!(buffer, ".outToIn(value.")?;
                         write_identifier(buffer, &field.name, Camel, None)?;
                         writeln!(buffer, "),")?;
@@ -976,18 +966,8 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 5)?;
                             if let schema::TypeVariant::Custom(import, name) = &field.r#type.variant
                             {
-                                let type_namespace = schema::Namespace {
-                                    components: import.as_ref().map_or_else(
-                                        || namespace.components.clone(),
-                                        |import| imports[import].components.clone(),
-                                    ),
-                                };
                                 write!(buffer, "value: ")?;
-                                for component in type_namespace.components {
-                                    write_identifier(buffer, &component, Pascal, None)?;
-                                    write!(buffer, ".")?;
-                                }
-                                write_identifier(buffer, name, Pascal, None)?;
+                                write_custom_type(buffer, &imports, namespace, import, name, None)?;
                                 writeln!(buffer, ".outToIn(value.value),")?;
                             } else {
                                 writeln!(buffer, "value: value.value,")?;
@@ -1138,19 +1118,7 @@ fn write_type<T: Write>(
             write!(buffer, "ArrayBuffer")?;
         }
         schema::TypeVariant::Custom(import, name) => {
-            let type_namespace = schema::Namespace {
-                components: import.as_ref().map_or_else(
-                    || namespace.components.clone(),
-                    |import| imports[import].components.clone(),
-                ),
-            };
-
-            for component in type_namespace.components {
-                write_identifier(buffer, &component, Pascal, None)?;
-                write!(buffer, ".")?;
-            }
-
-            write_identifier(buffer, name, Pascal, Some(direction))?;
+            write_custom_type(buffer, imports, namespace, import, name, Some(direction))?;
         }
         schema::TypeVariant::F64 => {
             write!(buffer, "number")?;
@@ -1167,6 +1135,30 @@ fn write_type<T: Write>(
     }
 
     Ok(())
+}
+
+// Write the fully qualified name of a type.
+fn write_custom_type<T: Write>(
+    buffer: &mut T,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
+    namespace: &schema::Namespace,
+    import: &Option<Identifier>,
+    name: &Identifier,
+    direction: Option<Direction>,
+) -> Result<(), fmt::Error> {
+    let type_namespace = schema::Namespace {
+        components: import.as_ref().map_or_else(
+            || namespace.components.clone(),
+            |import| imports[import].components.clone(),
+        ),
+    };
+
+    for component in type_namespace.components {
+        write_identifier(buffer, &component, Pascal, None)?;
+        write!(buffer, ".")?;
+    }
+
+    write_identifier(buffer, name, Pascal, direction)
 }
 
 // Write an identifier with an optional direction suffix in a way that Rust will be happy with.
@@ -1352,22 +1344,9 @@ fn write_size_calculation_invocation<T: Write>(
             )
         }
         schema::TypeVariant::Custom(import, name) => {
-            let type_namespace = schema::Namespace {
-                components: import.as_ref().map_or_else(
-                    || namespace.components.clone(),
-                    |import| imports[import].components.clone(),
-                ),
-            };
-
             write_indentation(buffer, indentation)?;
             write!(buffer, "payloadSize = ")?;
-
-            for component in type_namespace.components {
-                write_identifier(buffer, &component, Pascal, None)?;
-                write!(buffer, ".")?;
-            }
-
-            write_identifier(buffer, name, Pascal, None)?;
+            write_custom_type(buffer, imports, namespace, import, name, None)?;
             writeln!(buffer, ".size(payload);")
         }
         schema::TypeVariant::F64 => {
@@ -1565,22 +1544,9 @@ fn write_serialization_invocation<T: Write>(
             writeln!(buffer, "}}")
         }
         schema::TypeVariant::Custom(import, name) => {
-            let type_namespace = schema::Namespace {
-                components: import.as_ref().map_or_else(
-                    || namespace.components.clone(),
-                    |import| imports[import].components.clone(),
-                ),
-            };
-
             write_indentation(buffer, indentation)?;
             write!(buffer, "offset = ")?;
-
-            for component in type_namespace.components {
-                write_identifier(buffer, &component, Pascal, None)?;
-                write!(buffer, ".")?;
-            }
-
-            write_identifier(buffer, name, Pascal, None)?;
+            write_custom_type(buffer, imports, namespace, import, name, None)?;
             writeln!(buffer, ".serialize(dataView, offset, payload);")
         }
         schema::TypeVariant::F64 => {
