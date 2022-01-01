@@ -90,13 +90,9 @@ pub fn run() -> io::Result<()> {
         ],
         o_required: vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ],
 
         a_asymmetric: (),
@@ -119,13 +115,9 @@ pub fn run() -> io::Result<()> {
         ],
         o_asymmetric: vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ],
 
         a_optional: None,
@@ -168,13 +160,9 @@ pub fn run() -> io::Result<()> {
         ],
         o_required: vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ],
 
         a_asymmetric: (),
@@ -197,13 +185,9 @@ pub fn run() -> io::Result<()> {
         ],
         o_asymmetric: vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ],
 
         a_optional: Some(()),
@@ -226,13 +210,9 @@ pub fn run() -> io::Result<()> {
         ]),
         o_optional: Some(vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ]),
     })?;
 
@@ -305,19 +285,15 @@ pub fn run() -> io::Result<()> {
     check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec![]]))?;
     check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec![], vec![]]))?;
     check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec!["".to_owned()]]))?;
+    check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec![EmptyStructOut {}]]))?;
     check_match::<BarOut, BarIn>(BarOut::ORequired(vec![
-        vec!["".to_owned()],
-        vec!["".to_owned(), "=8 bytes".to_owned()],
+        vec![EmptyStructOut {}],
+        vec![EmptyStructOut {}, EmptyStructOut {}],
     ]))?;
     check_match::<BarOut, BarIn>(BarOut::ORequired(vec![
-        vec!["".to_owned()],
-        vec!["".to_owned(), "=8 bytes".to_owned()],
-        vec![
-            "".to_owned(),
-            "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
-        ],
+        vec![EmptyStructOut {}],
+        vec![EmptyStructOut {}, EmptyStructOut {}],
+        vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
     ]))?;
 
     let fallback = BarOut::ARequired;
@@ -443,25 +419,21 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     check_match::<BarOut, BarIn>(BarOut::OAsymmetric(
-        vec![vec!["".to_owned()]],
+        vec![vec![EmptyStructOut {}]],
         Box::new(fallback.clone()),
     ))?;
     check_match::<BarOut, BarIn>(BarOut::OAsymmetric(
         vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
         ],
         Box::new(fallback.clone()),
     ))?;
     check_match::<BarOut, BarIn>(BarOut::OAsymmetric(
         vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ],
         Box::new(fallback.clone()),
     ))?;
@@ -578,25 +550,22 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     check_match::<BarOut, BarIn>(BarOut::OOptional(
-        vec![vec!["".to_owned()]],
+        vec![vec![EmptyStructOut {}]],
         Box::new(fallback.clone()),
     ))?;
     check_match::<BarOut, BarIn>(BarOut::OOptional(
         vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
         ],
         Box::new(fallback.clone()),
     ))?;
     check_match::<BarOut, BarIn>(BarOut::OOptional(
         vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
+            vec![],
+            vec![EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}],
+            vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         ],
         Box::new(fallback),
     ))?;
@@ -625,13 +594,9 @@ pub fn run() -> io::Result<()> {
             ],
             o_required: vec![
                 vec![],
-                vec!["".to_owned()],
-                vec!["".to_owned(), "=8 bytes".to_owned()],
-                vec![
-                    "".to_owned(),
-                    "=8 bytes".to_owned(),
-                    "Hello, World!".to_owned(),
-                ],
+                vec![EmptyStructOut {}],
+                vec![EmptyStructOut {}, EmptyStructOut {}],
+                vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
             ],
 
             a_asymmetric: (),
@@ -654,13 +619,9 @@ pub fn run() -> io::Result<()> {
             ],
             o_asymmetric: vec![
                 vec![],
-                vec!["".to_owned()],
-                vec!["".to_owned(), "=8 bytes".to_owned()],
-                vec![
-                    "".to_owned(),
-                    "=8 bytes".to_owned(),
-                    "Hello, World!".to_owned(),
-                ],
+                vec![EmptyStructOut {}],
+                vec![EmptyStructOut {}, EmptyStructOut {}],
+                vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
             ],
 
             a_optional: None,

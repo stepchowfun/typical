@@ -763,21 +763,52 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": Some(message.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ".into()),")?;
                         }
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": message.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ".map(|payload| payload.into()),")?;
+                            write!(buffer, ".map(|payload| payload")?;
                         }
                         schema::Rule::Required => {
                             write_indentation(buffer, indentation + 3)?;
                             write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ": message.")?;
                             write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ".into(),")?;
+                        }
+                    }
+                    if let schema::TypeVariant::Array(inner_type) = &field.r#type.variant {
+                        let mut layer = inner_type;
+                        while let schema::TypeVariant::Array(inner_type) = &layer.variant {
+                            layer = inner_type;
+                        }
+                        if let schema::TypeVariant::Custom(_, _) = &layer.variant {
+                            write!(buffer, ".into_iter().map(|x| ")?;
+                            layer = inner_type;
+                            while let schema::TypeVariant::Array(inner_type) = &layer.variant {
+                                layer = inner_type;
+                                write!(buffer, "x.into_iter().map(|x| ")?;
+                            }
+                            write!(buffer, "x.into()")?;
+                            layer = inner_type;
+                            while let schema::TypeVariant::Array(inner_type) = &layer.variant {
+                                layer = inner_type;
+                                write!(buffer, ").collect::<Vec<_>>()")?;
+                            }
+                            write!(buffer, ").collect::<Vec<_>>()")?;
+                        } else {
+                            write!(buffer, ".into()")?;
+                        }
+                    } else {
+                        write!(buffer, ".into()")?;
+                    }
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            writeln!(buffer, "),")?;
+                        }
+                        schema::Rule::Required => {
+                            writeln!(buffer, ",")?;
                         }
                     }
                 }
@@ -1098,17 +1129,82 @@ fn write_schema<T: Write>(
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, "(Box::new((*fallback).into())),")?;
                             } else {
-                                writeln!(
-                                    buffer,
-                                    "(payload.into(), Box::new((*fallback).into())),",
-                                )?;
+                                write!(buffer, "(payload")?;
+                                if let schema::TypeVariant::Array(inner_type) =
+                                    &field.r#type.variant
+                                {
+                                    let mut layer = inner_type;
+                                    while let schema::TypeVariant::Array(inner_type) =
+                                        &layer.variant
+                                    {
+                                        layer = inner_type;
+                                    }
+                                    if let schema::TypeVariant::Custom(_, _) = &layer.variant {
+                                        write!(buffer, ".into_iter().map(|x| ")?;
+                                        layer = inner_type;
+                                        while let schema::TypeVariant::Array(inner_type) =
+                                            &layer.variant
+                                        {
+                                            layer = inner_type;
+                                            write!(buffer, "x.into_iter().map(|x| ")?;
+                                        }
+                                        write!(buffer, "x.into()")?;
+                                        layer = inner_type;
+                                        while let schema::TypeVariant::Array(inner_type) =
+                                            &layer.variant
+                                        {
+                                            layer = inner_type;
+                                            write!(buffer, ").collect::<Vec<_>>()")?;
+                                        }
+                                        write!(buffer, ").collect::<Vec<_>>()")?;
+                                    } else {
+                                        write!(buffer, ".into()")?;
+                                    }
+                                } else {
+                                    write!(buffer, ".into()")?;
+                                }
+                                writeln!(buffer, ", Box::new((*fallback).into())),")?;
                             }
                         }
                         schema::Rule::Asymmetric | schema::Rule::Required => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, ",")?;
                             } else {
-                                writeln!(buffer, "(payload.into()),")?;
+                                write!(buffer, "(payload")?;
+                                if let schema::TypeVariant::Array(inner_type) =
+                                    &field.r#type.variant
+                                {
+                                    let mut layer = inner_type;
+                                    while let schema::TypeVariant::Array(inner_type) =
+                                        &layer.variant
+                                    {
+                                        layer = inner_type;
+                                    }
+                                    if let schema::TypeVariant::Custom(_, _) = &layer.variant {
+                                        write!(buffer, ".into_iter().map(|x| ")?;
+                                        layer = inner_type;
+                                        while let schema::TypeVariant::Array(inner_type) =
+                                            &layer.variant
+                                        {
+                                            layer = inner_type;
+                                            write!(buffer, "x.into_iter().map(|x| ")?;
+                                        }
+                                        write!(buffer, "x.into()")?;
+                                        layer = inner_type;
+                                        while let schema::TypeVariant::Array(inner_type) =
+                                            &layer.variant
+                                        {
+                                            layer = inner_type;
+                                            write!(buffer, ").collect::<Vec<_>>()")?;
+                                        }
+                                        write!(buffer, ").collect::<Vec<_>>()")?;
+                                    } else {
+                                        write!(buffer, ".into()")?;
+                                    }
+                                } else {
+                                    write!(buffer, ".into()")?;
+                                }
+                                writeln!(buffer, "),")?;
                             }
                         }
                     }
@@ -2324,7 +2420,7 @@ pub mod comprehensive {
             LRequired(Vec<bool>),
             MRequired(Vec<Vec<u8>>),
             NRequired(Vec<String>),
-            ORequired(Vec<Vec<String>>),
+            ORequired(Vec<Vec<super::main::EmptyStructOut>>),
             AAsymmetric(Box<BarOut>),
             BAsymmetric(f64, Box<BarOut>),
             CAsymmetric(u64, Box<BarOut>),
@@ -2339,7 +2435,7 @@ pub mod comprehensive {
             LAsymmetric(Vec<bool>, Box<BarOut>),
             MAsymmetric(Vec<Vec<u8>>, Box<BarOut>),
             NAsymmetric(Vec<String>, Box<BarOut>),
-            OAsymmetric(Vec<Vec<String>>, Box<BarOut>),
+            OAsymmetric(Vec<Vec<super::main::EmptyStructOut>>, Box<BarOut>),
             AOptional(Box<BarOut>),
             BOptional(f64, Box<BarOut>),
             COptional(u64, Box<BarOut>),
@@ -2354,7 +2450,7 @@ pub mod comprehensive {
             LOptional(Vec<bool>, Box<BarOut>),
             MOptional(Vec<Vec<u8>>, Box<BarOut>),
             NOptional(Vec<String>, Box<BarOut>),
-            OOptional(Vec<Vec<String>>, Box<BarOut>),
+            OOptional(Vec<Vec<super::main::EmptyStructOut>>, Box<BarOut>),
         }
 
         #[derive(Clone, Debug)]
@@ -2373,7 +2469,7 @@ pub mod comprehensive {
             LRequired(Vec<bool>),
             MRequired(Vec<Vec<u8>>),
             NRequired(Vec<String>),
-            ORequired(Vec<Vec<String>>),
+            ORequired(Vec<Vec<super::main::EmptyStructIn>>),
             AAsymmetric,
             BAsymmetric(f64),
             CAsymmetric(u64),
@@ -2388,7 +2484,7 @@ pub mod comprehensive {
             LAsymmetric(Vec<bool>),
             MAsymmetric(Vec<Vec<u8>>),
             NAsymmetric(Vec<String>),
-            OAsymmetric(Vec<Vec<String>>),
+            OAsymmetric(Vec<Vec<super::main::EmptyStructIn>>),
             AOptional(Box<BarIn>),
             BOptional(f64, Box<BarIn>),
             COptional(u64, Box<BarIn>),
@@ -2403,7 +2499,7 @@ pub mod comprehensive {
             LOptional(Vec<bool>, Box<BarIn>),
             MOptional(Vec<Vec<u8>>, Box<BarIn>),
             NOptional(Vec<String>, Box<BarIn>),
-            OOptional(Vec<Vec<String>>, Box<BarIn>),
+            OOptional(Vec<Vec<super::main::EmptyStructIn>>, Box<BarIn>),
         }
 
         impl super::super::Serialize for BarOut {
@@ -2505,7 +2601,7 @@ pub mod comprehensive {
                     BarOut::ORequired(ref payload) => {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                             payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
@@ -2623,7 +2719,7 @@ pub mod comprehensive {
                     BarOut::OAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                             payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
@@ -2742,7 +2838,7 @@ pub mod comprehensive {
                     BarOut::OOptional(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                             payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
@@ -2935,7 +3031,7 @@ pub mod comprehensive {
                     BarOut::ORequired(ref payload) => {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                             payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
@@ -2943,15 +3039,15 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 14, payload_size, false)?;
                         for payload in payload {
                             let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                                payload_size = payload.len(); x + \
+                                payload_size = payload.size(); x + \
                                 super::super::varint_size_from_value(payload_size as u64) + \
                                 payload_size });
                             super::super::serialize_varint(payload_size as u64, \
                                 writer)?;                            for payload in payload {
-                                let payload_size = payload.len();
+                                let payload_size = payload.size();
                                 super::super::serialize_varint(payload_size as u64, \
                                     writer)?;                                \
-                                    writer.write_all(payload.as_bytes())?;
+                                    payload.serialize(writer)?;
                             }
                         }
                         Ok(())
@@ -3135,7 +3231,7 @@ pub mod comprehensive {
                     BarOut::OAsymmetric(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                             payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
@@ -3143,15 +3239,15 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 30, payload_size, false)?;
                         for payload in payload {
                             let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                                payload_size = payload.len(); x + \
+                                payload_size = payload.size(); x + \
                                 super::super::varint_size_from_value(payload_size as u64) + \
                                 payload_size });
                             super::super::serialize_varint(payload_size as u64, \
                                 writer)?;                            for payload in payload {
-                                let payload_size = payload.len();
+                                let payload_size = payload.size();
                                 super::super::serialize_varint(payload_size as u64, \
                                     writer)?;                                \
-                                    writer.write_all(payload.as_bytes())?;
+                                    payload.serialize(writer)?;
                             }
                         }
                         fallback.serialize(writer)
@@ -3335,7 +3431,7 @@ pub mod comprehensive {
                     BarOut::OOptional(ref payload, ref fallback) => {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                             payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size }); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
@@ -3343,15 +3439,15 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 46, payload_size, false)?;
                         for payload in payload {
                             let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                                payload_size = payload.len(); x + \
+                                payload_size = payload.size(); x + \
                                 super::super::varint_size_from_value(payload_size as u64) + \
                                 payload_size });
                             super::super::serialize_varint(payload_size as u64, \
                                 writer)?;                            for payload in payload {
-                                let payload_size = payload.len();
+                                let payload_size = payload.size();
                                 super::super::serialize_varint(payload_size as u64, \
                                     writer)?;                                \
-                                    writer.write_all(payload.as_bytes())?;
+                                    payload.serialize(writer)?;
                             }
                         }
                         fallback.serialize(writer)
@@ -3646,14 +3742,9 @@ pub mod comprehensive {
                                         let mut sub_reader = ::std::io::Read::take(&mut \
                                             sub_reader, element_size as u64);
                                         payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
-                                                buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::\
-                                                    ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
+                                            let payload = <super::main::EmptyStructIn as \
+                                                super::super::Deserialize>::deserialize(&mut \
+                                                sub_reader)?;
                                             payload
                                         });
                                     }
@@ -3936,14 +4027,9 @@ pub mod comprehensive {
                                         let mut sub_reader = ::std::io::Read::take(&mut \
                                             sub_reader, element_size as u64);
                                         payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
-                                                buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::\
-                                                    ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
+                                            let payload = <super::main::EmptyStructIn as \
+                                                super::super::Deserialize>::deserialize(&mut \
+                                                sub_reader)?;
                                             payload
                                         });
                                     }
@@ -4254,14 +4340,9 @@ pub mod comprehensive {
                                         let mut sub_reader = ::std::io::Read::take(&mut \
                                             sub_reader, element_size as u64);
                                         payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
-                                                buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::\
-                                                    ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
+                                            let payload = <super::main::EmptyStructIn as \
+                                                super::super::Deserialize>::deserialize(&mut \
+                                                sub_reader)?;
                                             payload
                                         });
                                     }
@@ -4297,7 +4378,8 @@ pub mod comprehensive {
                     BarOut::LRequired(payload) => BarIn::LRequired(payload.into()),
                     BarOut::MRequired(payload) => BarIn::MRequired(payload.into()),
                     BarOut::NRequired(payload) => BarIn::NRequired(payload.into()),
-                    BarOut::ORequired(payload) => BarIn::ORequired(payload.into()),
+                    BarOut::ORequired(payload) => BarIn::ORequired(payload.into_iter().map(|x| \
+                        x.into_iter().map(|x| x.into()).collect::<Vec<_>>()).collect::<Vec<_>>()),
                     BarOut::AAsymmetric(fallback) => BarIn::AAsymmetric,
                     BarOut::BAsymmetric(payload, fallback) => BarIn::BAsymmetric(payload.into()),
                     BarOut::CAsymmetric(payload, fallback) => BarIn::CAsymmetric(payload.into()),
@@ -4312,7 +4394,9 @@ pub mod comprehensive {
                     BarOut::LAsymmetric(payload, fallback) => BarIn::LAsymmetric(payload.into()),
                     BarOut::MAsymmetric(payload, fallback) => BarIn::MAsymmetric(payload.into()),
                     BarOut::NAsymmetric(payload, fallback) => BarIn::NAsymmetric(payload.into()),
-                    BarOut::OAsymmetric(payload, fallback) => BarIn::OAsymmetric(payload.into()),
+                    BarOut::OAsymmetric(payload, fallback) => \
+                        BarIn::OAsymmetric(payload.into_iter().map(|x| x.into_iter().map(|x| \
+                        x.into()).collect::<Vec<_>>()).collect::<Vec<_>>()),
                     BarOut::AOptional(fallback) => BarIn::AOptional(Box::new((*fallback).into())),
                     BarOut::BOptional(payload, fallback) => BarIn::BOptional(payload.into(), \
                         Box::new((*fallback).into())),
@@ -4340,7 +4424,9 @@ pub mod comprehensive {
                         Box::new((*fallback).into())),
                     BarOut::NOptional(payload, fallback) => BarIn::NOptional(payload.into(), \
                         Box::new((*fallback).into())),
-                    BarOut::OOptional(payload, fallback) => BarIn::OOptional(payload.into(), \
+                    BarOut::OOptional(payload, fallback) => \
+                        BarIn::OOptional(payload.into_iter().map(|x| x.into_iter().map(|x| \
+                        x.into()).collect::<Vec<_>>()).collect::<Vec<_>>(), \
                         Box::new((*fallback).into())),
                 }
             }
@@ -4364,7 +4450,7 @@ pub mod comprehensive {
             pub l_required: Vec<bool>,
             pub m_required: Vec<Vec<u8>>,
             pub n_required: Vec<String>,
-            pub o_required: Vec<Vec<String>>,
+            pub o_required: Vec<Vec<super::main::EmptyStructOut>>,
             pub a_asymmetric: (),
             pub b_asymmetric: f64,
             pub c_asymmetric: u64,
@@ -4379,7 +4465,7 @@ pub mod comprehensive {
             pub l_asymmetric: Vec<bool>,
             pub m_asymmetric: Vec<Vec<u8>>,
             pub n_asymmetric: Vec<String>,
-            pub o_asymmetric: Vec<Vec<String>>,
+            pub o_asymmetric: Vec<Vec<super::main::EmptyStructOut>>,
             pub a_optional: Option<()>,
             pub b_optional: Option<f64>,
             pub c_optional: Option<u64>,
@@ -4394,7 +4480,7 @@ pub mod comprehensive {
             pub l_optional: Option<Vec<bool>>,
             pub m_optional: Option<Vec<Vec<u8>>>,
             pub n_optional: Option<Vec<String>>,
-            pub o_optional: Option<Vec<Vec<String>>>,
+            pub o_optional: Option<Vec<Vec<super::main::EmptyStructOut>>>,
         }
 
         #[derive(Clone, Debug)]
@@ -4413,7 +4499,7 @@ pub mod comprehensive {
             pub l_required: Vec<bool>,
             pub m_required: Vec<Vec<u8>>,
             pub n_required: Vec<String>,
-            pub o_required: Vec<Vec<String>>,
+            pub o_required: Vec<Vec<super::main::EmptyStructIn>>,
             pub a_asymmetric: Option<()>,
             pub b_asymmetric: Option<f64>,
             pub c_asymmetric: Option<u64>,
@@ -4428,7 +4514,7 @@ pub mod comprehensive {
             pub l_asymmetric: Option<Vec<bool>>,
             pub m_asymmetric: Option<Vec<Vec<u8>>>,
             pub n_asymmetric: Option<Vec<String>>,
-            pub o_asymmetric: Option<Vec<Vec<String>>>,
+            pub o_asymmetric: Option<Vec<Vec<super::main::EmptyStructIn>>>,
             pub a_optional: Option<()>,
             pub b_optional: Option<f64>,
             pub c_optional: Option<u64>,
@@ -4443,7 +4529,7 @@ pub mod comprehensive {
             pub l_optional: Option<Vec<bool>>,
             pub m_optional: Option<Vec<Vec<u8>>>,
             pub n_optional: Option<Vec<String>>,
-            pub o_optional: Option<Vec<Vec<String>>>,
+            pub o_optional: Option<Vec<Vec<super::main::EmptyStructIn>>>,
         }
 
         impl super::super::Serialize for FooOut {
@@ -4529,7 +4615,7 @@ pub mod comprehensive {
                     let payload = &self.o_required;
                     let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                         payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                        payload_size = payload.len(); x + \
+                        payload_size = payload.size(); x + \
                         super::super::varint_size_from_value(payload_size as u64) + \
                         payload_size }); x + super::super::varint_size_from_value(payload_size as \
                         u64) + payload_size });
@@ -4615,7 +4701,7 @@ pub mod comprehensive {
                     let payload = &self.o_asymmetric;
                     let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                         payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                        payload_size = payload.len(); x + \
+                        payload_size = payload.size(); x + \
                         super::super::varint_size_from_value(payload_size as u64) + \
                         payload_size }); x + super::super::varint_size_from_value(payload_size as \
                         u64) + payload_size });
@@ -4686,7 +4772,7 @@ pub mod comprehensive {
                 }) + self.o_optional.as_ref().map_or(0, |payload| {
                     let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                         payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                        payload_size = payload.len(); x + \
+                        payload_size = payload.size(); x + \
                         super::super::varint_size_from_value(payload_size as u64) + \
                         payload_size }); x + super::super::varint_size_from_value(payload_size as \
                         u64) + payload_size });
@@ -4886,22 +4972,21 @@ pub mod comprehensive {
                     let payload = &self.o_required;
                     let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                         payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                        payload_size = payload.len(); x + \
+                        payload_size = payload.size(); x + \
                         super::super::varint_size_from_value(payload_size as u64) + \
                         payload_size }); x + super::super::varint_size_from_value(payload_size as \
                         u64) + payload_size });
                     super::super::serialize_field_header(writer, 14, payload_size, false)?;
                     for payload in payload {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size });
                         super::super::serialize_varint(payload_size as u64, \
                             writer)?;                        for payload in payload {
-                            let payload_size = payload.len();
+                            let payload_size = payload.size();
                             super::super::serialize_varint(payload_size as u64, \
-                                writer)?;                            \
-                                writer.write_all(payload.as_bytes())?;
+                                writer)?;                            payload.serialize(writer)?;
                         }
                     }
                 }
@@ -5097,22 +5182,21 @@ pub mod comprehensive {
                     let payload = &self.o_asymmetric;
                     let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                         payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                        payload_size = payload.len(); x + \
+                        payload_size = payload.size(); x + \
                         super::super::varint_size_from_value(payload_size as u64) + \
                         payload_size }); x + super::super::varint_size_from_value(payload_size as \
                         u64) + payload_size });
                     super::super::serialize_field_header(writer, 30, payload_size, false)?;
                     for payload in payload {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size });
                         super::super::serialize_varint(payload_size as u64, \
                             writer)?;                        for payload in payload {
-                            let payload_size = payload.len();
+                            let payload_size = payload.size();
                             super::super::serialize_varint(payload_size as u64, \
-                                writer)?;                            \
-                                writer.write_all(payload.as_bytes())?;
+                                writer)?;                            payload.serialize(writer)?;
                         }
                     }
                 }
@@ -5293,22 +5377,21 @@ pub mod comprehensive {
                 if let Some(payload) = &self.o_optional {
                     let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
                         payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                        payload_size = payload.len(); x + \
+                        payload_size = payload.size(); x + \
                         super::super::varint_size_from_value(payload_size as u64) + \
                         payload_size }); x + super::super::varint_size_from_value(payload_size as \
                         u64) + payload_size });
                     super::super::serialize_field_header(writer, 46, payload_size, false)?;
                     for payload in payload {
                         let payload_size = payload.iter().fold(0_usize, |x, payload| { let \
-                            payload_size = payload.len(); x + \
+                            payload_size = payload.size(); x + \
                             super::super::varint_size_from_value(payload_size as u64) + \
                             payload_size });
                         super::super::serialize_varint(payload_size as u64, \
                             writer)?;                        for payload in payload {
-                            let payload_size = payload.len();
+                            let payload_size = payload.size();
                             super::super::serialize_varint(payload_size as u64, \
-                                writer)?;                            \
-                                writer.write_all(payload.as_bytes())?;
+                                writer)?;                            payload.serialize(writer)?;
                         }
                     }
                 }
@@ -5337,7 +5420,7 @@ pub mod comprehensive {
                 let mut l_required: Option<Vec<bool>> = None;
                 let mut m_required: Option<Vec<Vec<u8>>> = None;
                 let mut n_required: Option<Vec<String>> = None;
-                let mut o_required: Option<Vec<Vec<String>>> = None;
+                let mut o_required: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
                 let mut a_asymmetric: Option<()> = None;
                 let mut b_asymmetric: Option<f64> = None;
                 let mut c_asymmetric: Option<u64> = None;
@@ -5352,7 +5435,7 @@ pub mod comprehensive {
                 let mut l_asymmetric: Option<Vec<bool>> = None;
                 let mut m_asymmetric: Option<Vec<Vec<u8>>> = None;
                 let mut n_asymmetric: Option<Vec<String>> = None;
-                let mut o_asymmetric: Option<Vec<Vec<String>>> = None;
+                let mut o_asymmetric: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
                 let mut a_optional: Option<()> = None;
                 let mut b_optional: Option<f64> = None;
                 let mut c_optional: Option<u64> = None;
@@ -5367,7 +5450,7 @@ pub mod comprehensive {
                 let mut l_optional: Option<Vec<bool>> = None;
                 let mut m_optional: Option<Vec<Vec<u8>>> = None;
                 let mut n_optional: Option<Vec<String>> = None;
-                let mut o_optional: Option<Vec<Vec<String>>> = None;
+                let mut o_optional: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
 
                 loop {
                     let (index, size) = match super::super::deserialize_field_header(&mut \
@@ -5671,14 +5754,9 @@ pub mod comprehensive {
                                         let mut sub_reader = ::std::io::Read::take(&mut \
                                             sub_reader, element_size as u64);
                                         payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
-                                                buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::\
-                                                    ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
+                                            let payload = <super::main::EmptyStructIn as \
+                                                super::super::Deserialize>::deserialize(&mut \
+                                                sub_reader)?;
                                             payload
                                         });
                                     }
@@ -5974,14 +6052,9 @@ pub mod comprehensive {
                                         let mut sub_reader = ::std::io::Read::take(&mut \
                                             sub_reader, element_size as u64);
                                         payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
-                                                buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::\
-                                                    ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
+                                            let payload = <super::main::EmptyStructIn as \
+                                                super::super::Deserialize>::deserialize(&mut \
+                                                sub_reader)?;
                                             payload
                                         });
                                     }
@@ -6277,14 +6350,9 @@ pub mod comprehensive {
                                         let mut sub_reader = ::std::io::Read::take(&mut \
                                             sub_reader, element_size as u64);
                                         payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut \
-                                                buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::\
-                                                    ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
+                                            let payload = <super::main::EmptyStructIn as \
+                                                super::super::Deserialize>::deserialize(&mut \
+                                                sub_reader)?;
                                             payload
                                         });
                                     }
@@ -6378,7 +6446,8 @@ pub mod comprehensive {
                     l_required: message.l_required.into(),
                     m_required: message.m_required.into(),
                     n_required: message.n_required.into(),
-                    o_required: message.o_required.into(),
+                    o_required: message.o_required.into_iter().map(|x| x.into_iter().map(|x| \
+                        x.into()).collect::<Vec<_>>()).collect::<Vec<_>>(),
                     a_asymmetric: Some(message.a_asymmetric.into()),
                     b_asymmetric: Some(message.b_asymmetric.into()),
                     c_asymmetric: Some(message.c_asymmetric.into()),
@@ -6393,7 +6462,8 @@ pub mod comprehensive {
                     l_asymmetric: Some(message.l_asymmetric.into()),
                     m_asymmetric: Some(message.m_asymmetric.into()),
                     n_asymmetric: Some(message.n_asymmetric.into()),
-                    o_asymmetric: Some(message.o_asymmetric.into()),
+                    o_asymmetric: Some(message.o_asymmetric.into_iter().map(|x| \
+                        x.into_iter().map(|x| x.into()).collect::<Vec<_>>()).collect::<Vec<_>>()),
                     a_optional: message.a_optional.map(|payload| payload.into()),
                     b_optional: message.b_optional.map(|payload| payload.into()),
                     c_optional: message.c_optional.map(|payload| payload.into()),
@@ -6408,7 +6478,8 @@ pub mod comprehensive {
                     l_optional: message.l_optional.map(|payload| payload.into()),
                     m_optional: message.m_optional.map(|payload| payload.into()),
                     n_optional: message.n_optional.map(|payload| payload.into()),
-                    o_optional: message.o_optional.map(|payload| payload.into()),
+                    o_optional: message.o_optional.map(|payload| payload.into_iter().map(|x| \
+                        x.into_iter().map(|x| x.into()).collect::<Vec<_>>()).collect::<Vec<_>>()),
                 }
             }
         }

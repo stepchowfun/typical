@@ -1,3 +1,5 @@
+import 'main.t'
+
 choice Bar {
     a_required = 0
     b_required: F64 = 1
@@ -13,7 +15,7 @@ choice Bar {
     l_required: [Bool] = 11
     m_required: [Bytes] = 12
     n_required: [String] = 13
-    o_required: [[String]] = 14
+    o_required: [[main.EmptyStruct]] = 14
     asymmetric a_asymmetric = 16
     asymmetric b_asymmetric: F64 = 17
     asymmetric c_asymmetric: U64 = 18
@@ -28,7 +30,7 @@ choice Bar {
     asymmetric l_asymmetric: [Bool] = 27
     asymmetric m_asymmetric: [Bytes] = 28
     asymmetric n_asymmetric: [String] = 29
-    asymmetric o_asymmetric: [[String]] = 30
+    asymmetric o_asymmetric: [[main.EmptyStruct]] = 30
     optional a_optional = 32
     optional b_optional: F64 = 33
     optional c_optional: U64 = 34
@@ -43,7 +45,7 @@ choice Bar {
     optional l_optional: [Bool] = 43
     optional m_optional: [Bytes] = 44
     optional n_optional: [String] = 45
-    optional o_optional: [[String]] = 46
+    optional o_optional: [[main.EmptyStruct]] = 46
 
     deleted 15 31 47
 }
