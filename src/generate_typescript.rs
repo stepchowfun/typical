@@ -737,7 +737,34 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return undefined!;")?;
+                writeln!(buffer, "return {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    if let schema::TypeVariant::Custom(import, name) = &field.r#type.variant {
+                        let type_namespace = schema::Namespace {
+                            components: import.as_ref().map_or_else(
+                                || namespace.components.clone(),
+                                |import| imports[import].components.clone(),
+                            ),
+                        };
+                        write!(buffer, ": ")?;
+                        for component in type_namespace.components {
+                            write_identifier(buffer, &component, Pascal, None)?;
+                            write!(buffer, ".")?;
+                        }
+                        write_identifier(buffer, name, Pascal, None)?;
+                        write!(buffer, ".outToIn(value.")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, "),")?;
+                    } else {
+                        write!(buffer, ": value.")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, ",")?;
+                    }
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}};")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -929,7 +956,58 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return undefined!;")?;
+                if declaration.fields.is_empty() {
+                    writeln!(buffer, "throw new Error();")?;
+                } else {
+                    writeln!(buffer, "switch (value.field) {{")?;
+                    for field in &declaration.fields {
+                        write_indentation(buffer, indentation + 3)?;
+                        write!(buffer, "case '")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, "': {{")?;
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "return {{")?;
+                        write_indentation(buffer, indentation + 5)?;
+                        write!(buffer, "field: '")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, "',")?;
+                        if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                        } else {
+                            write_indentation(buffer, indentation + 5)?;
+                            if let schema::TypeVariant::Custom(import, name) = &field.r#type.variant
+                            {
+                                let type_namespace = schema::Namespace {
+                                    components: import.as_ref().map_or_else(
+                                        || namespace.components.clone(),
+                                        |import| imports[import].components.clone(),
+                                    ),
+                                };
+                                write!(buffer, "value: ")?;
+                                for component in type_namespace.components {
+                                    write_identifier(buffer, &component, Pascal, None)?;
+                                    write!(buffer, ".")?;
+                                }
+                                write_identifier(buffer, name, Pascal, None)?;
+                                writeln!(buffer, ".outToIn(value.value),")?;
+                            } else {
+                                writeln!(buffer, "value: value.value,")?;
+                            }
+                        }
+                        match field.rule {
+                            schema::Rule::Asymmetric | schema::Rule::Required => {}
+                            schema::Rule::Optional => {
+                                write_indentation(buffer, indentation + 5)?;
+                                writeln!(buffer, "fallback: outToIn(value.fallback),")?;
+                            }
+                        }
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "}};")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "}}")?;
+                    }
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -1943,7 +2021,9 @@ export namespace CircularDependency {
         }
 
         export function outToIn(value: StructFromBelowOut): StructFromBelowIn {
-          return undefined!;
+          return {
+            x: CircularDependency.Main.StructFromAbove.outToIn(value.x),
+          };
         }
       }
     }
@@ -1982,7 +2062,8 @@ export namespace CircularDependency {
       }
 
       export function outToIn(value: StructFromAboveOut): StructFromAboveIn {
-        return undefined!;
+        return {
+        };
       }
     }
   }
@@ -3707,7 +3788,290 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: BarOut): BarIn {
-        return undefined!;
+        switch (value.field) {
+          case 'aRequired': {
+            return {
+              field: 'aRequired',
+            };
+          }
+          case 'bRequired': {
+            return {
+              field: 'bRequired',
+              value: value.value,
+            };
+          }
+          case 'cRequired': {
+            return {
+              field: 'cRequired',
+              value: value.value,
+            };
+          }
+          case 'dRequired': {
+            return {
+              field: 'dRequired',
+              value: value.value,
+            };
+          }
+          case 'eRequired': {
+            return {
+              field: 'eRequired',
+              value: value.value,
+            };
+          }
+          case 'fRequired': {
+            return {
+              field: 'fRequired',
+              value: value.value,
+            };
+          }
+          case 'gRequired': {
+            return {
+              field: 'gRequired',
+              value: value.value,
+            };
+          }
+          case 'hRequired': {
+            return {
+              field: 'hRequired',
+              value: value.value,
+            };
+          }
+          case 'iRequired': {
+            return {
+              field: 'iRequired',
+              value: value.value,
+            };
+          }
+          case 'jRequired': {
+            return {
+              field: 'jRequired',
+              value: value.value,
+            };
+          }
+          case 'kRequired': {
+            return {
+              field: 'kRequired',
+              value: value.value,
+            };
+          }
+          case 'lRequired': {
+            return {
+              field: 'lRequired',
+              value: value.value,
+            };
+          }
+          case 'mRequired': {
+            return {
+              field: 'mRequired',
+              value: value.value,
+            };
+          }
+          case 'nRequired': {
+            return {
+              field: 'nRequired',
+              value: value.value,
+            };
+          }
+          case 'oRequired': {
+            return {
+              field: 'oRequired',
+              value: value.value,
+            };
+          }
+          case 'aAsymmetric': {
+            return {
+              field: 'aAsymmetric',
+            };
+          }
+          case 'bAsymmetric': {
+            return {
+              field: 'bAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'cAsymmetric': {
+            return {
+              field: 'cAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'dAsymmetric': {
+            return {
+              field: 'dAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'eAsymmetric': {
+            return {
+              field: 'eAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'fAsymmetric': {
+            return {
+              field: 'fAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'gAsymmetric': {
+            return {
+              field: 'gAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'hAsymmetric': {
+            return {
+              field: 'hAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'iAsymmetric': {
+            return {
+              field: 'iAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'jAsymmetric': {
+            return {
+              field: 'jAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'kAsymmetric': {
+            return {
+              field: 'kAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'lAsymmetric': {
+            return {
+              field: 'lAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'mAsymmetric': {
+            return {
+              field: 'mAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'nAsymmetric': {
+            return {
+              field: 'nAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'oAsymmetric': {
+            return {
+              field: 'oAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'aOptional': {
+            return {
+              field: 'aOptional',
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'bOptional': {
+            return {
+              field: 'bOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'cOptional': {
+            return {
+              field: 'cOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'dOptional': {
+            return {
+              field: 'dOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'eOptional': {
+            return {
+              field: 'eOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'fOptional': {
+            return {
+              field: 'fOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'gOptional': {
+            return {
+              field: 'gOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'hOptional': {
+            return {
+              field: 'hOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'iOptional': {
+            return {
+              field: 'iOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'jOptional': {
+            return {
+              field: 'jOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'kOptional': {
+            return {
+              field: 'kOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'lOptional': {
+            return {
+              field: 'lOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'mOptional': {
+            return {
+              field: 'mOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'nOptional': {
+            return {
+              field: 'nOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'oOptional': {
+            return {
+              field: 'oOptional',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+        }
       }
     }
   }
@@ -5548,7 +5912,53 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: FooOut): FooIn {
-        return undefined!;
+        return {
+          aRequired: value.aRequired,
+          bRequired: value.bRequired,
+          cRequired: value.cRequired,
+          dRequired: value.dRequired,
+          eRequired: value.eRequired,
+          fRequired: value.fRequired,
+          gRequired: value.gRequired,
+          hRequired: value.hRequired,
+          iRequired: value.iRequired,
+          jRequired: value.jRequired,
+          kRequired: value.kRequired,
+          lRequired: value.lRequired,
+          mRequired: value.mRequired,
+          nRequired: value.nRequired,
+          oRequired: value.oRequired,
+          aAsymmetric: value.aAsymmetric,
+          bAsymmetric: value.bAsymmetric,
+          cAsymmetric: value.cAsymmetric,
+          dAsymmetric: value.dAsymmetric,
+          eAsymmetric: value.eAsymmetric,
+          fAsymmetric: value.fAsymmetric,
+          gAsymmetric: value.gAsymmetric,
+          hAsymmetric: value.hAsymmetric,
+          iAsymmetric: value.iAsymmetric,
+          jAsymmetric: value.jAsymmetric,
+          kAsymmetric: value.kAsymmetric,
+          lAsymmetric: value.lAsymmetric,
+          mAsymmetric: value.mAsymmetric,
+          nAsymmetric: value.nAsymmetric,
+          oAsymmetric: value.oAsymmetric,
+          aOptional: value.aOptional,
+          bOptional: value.bOptional,
+          cOptional: value.cOptional,
+          dOptional: value.dOptional,
+          eOptional: value.eOptional,
+          fOptional: value.fOptional,
+          gOptional: value.gOptional,
+          hOptional: value.hOptional,
+          iOptional: value.iOptional,
+          jOptional: value.jOptional,
+          kOptional: value.kOptional,
+          lOptional: value.lOptional,
+          mOptional: value.mOptional,
+          nOptional: value.nOptional,
+          oOptional: value.oOptional,
+        };
       }
     }
   }
@@ -5586,7 +5996,8 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: EmptyStructOut): EmptyStructIn {
-        return undefined!;
+        return {
+        };
       }
     }
 
@@ -5615,7 +6026,7 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: EmptyChoiceOut): EmptyChoiceIn {
-        return undefined!;
+        throw new Error();
       }
     }
 
@@ -5681,7 +6092,10 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: FooAndBarOut): FooAndBarIn {
-        return undefined!;
+        return {
+          x: Comprehensive.Foo.Foo.outToIn(value.x),
+          y: Comprehensive.Bar.Bar.outToIn(value.y),
+        };
       }
     }
 
@@ -5744,7 +6158,20 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: FooOrBarOut): FooOrBarIn {
-        return undefined!;
+        switch (value.field) {
+          case 'x': {
+            return {
+              field: 'x',
+              value: Comprehensive.Foo.Foo.outToIn(value.value),
+            };
+          }
+          case 'y': {
+            return {
+              field: 'y',
+              value: Comprehensive.Bar.Bar.outToIn(value.value),
+            };
+          }
+        }
       }
     }
   }
@@ -6090,7 +6517,21 @@ export namespace SchemaEvolution {
       }
 
       export function outToIn(value: ExampleStructOut): ExampleStructIn {
-        return undefined!;
+        return {
+          requiredToRequired: value.requiredToRequired,
+          requiredToAsymmetric: value.requiredToAsymmetric,
+          requiredToOptional: value.requiredToOptional,
+          asymmetricToRequired: value.asymmetricToRequired,
+          asymmetricToAsymmetric: value.asymmetricToAsymmetric,
+          asymmetricToOptional: value.asymmetricToOptional,
+          optionalNoneToAsymmetric: value.optionalNoneToAsymmetric,
+          optionalNoneToOptional: value.optionalNoneToOptional,
+          optionalSomeToRequired: value.optionalSomeToRequired,
+          optionalSomeToAsymmetric: value.optionalSomeToAsymmetric,
+          optionalSomeToOptional: value.optionalSomeToOptional,
+          nonexistentToAsymmetric: value.nonexistentToAsymmetric,
+          nonexistentToOptional: value.nonexistentToOptional,
+        };
       }
     }
 
@@ -6415,7 +6856,98 @@ export namespace SchemaEvolution {
       }
 
       export function outToIn(value: ExampleChoiceOut): ExampleChoiceIn {
-        return undefined!;
+        switch (value.field) {
+          case 'requiredToRequired': {
+            return {
+              field: 'requiredToRequired',
+              value: value.value,
+            };
+          }
+          case 'requiredToAsymmetric': {
+            return {
+              field: 'requiredToAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToRequired': {
+            return {
+              field: 'asymmetricToRequired',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToAsymmetric': {
+            return {
+              field: 'asymmetricToAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToOptionalHandled': {
+            return {
+              field: 'asymmetricToOptionalHandled',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'asymmetricToOptionalFallback': {
+            return {
+              field: 'asymmetricToOptionalFallback',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'optionalToRequired': {
+            return {
+              field: 'optionalToRequired',
+              value: value.value,
+            };
+          }
+          case 'optionalToAsymmetric': {
+            return {
+              field: 'optionalToAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'optionalToOptionalHandled': {
+            return {
+              field: 'optionalToOptionalHandled',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'optionalToOptionalFallback': {
+            return {
+              field: 'optionalToOptionalFallback',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'nonexistentToRequired': {
+            return {
+              field: 'nonexistentToRequired',
+              value: value.value,
+            };
+          }
+          case 'nonexistentToAsymmetric': {
+            return {
+              field: 'nonexistentToAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'nonexistentToOptionalHandled': {
+            return {
+              field: 'nonexistentToOptionalHandled',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'nonexistentToOptionalFallback': {
+            return {
+              field: 'nonexistentToOptionalFallback',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+        }
       }
     }
   }
@@ -6810,7 +7342,23 @@ export namespace SchemaEvolution {
       }
 
       export function outToIn(value: ExampleStructOut): ExampleStructIn {
-        return undefined!;
+        return {
+          requiredToRequired: value.requiredToRequired,
+          requiredToAsymmetric: value.requiredToAsymmetric,
+          requiredToOptional: value.requiredToOptional,
+          requiredToNonexistent: value.requiredToNonexistent,
+          asymmetricToRequired: value.asymmetricToRequired,
+          asymmetricToAsymmetric: value.asymmetricToAsymmetric,
+          asymmetricToOptional: value.asymmetricToOptional,
+          asymmetricToNonexistent: value.asymmetricToNonexistent,
+          optionalNoneToAsymmetric: value.optionalNoneToAsymmetric,
+          optionalNoneToOptional: value.optionalNoneToOptional,
+          optionalNoneToNonexistent: value.optionalNoneToNonexistent,
+          optionalSomeToRequired: value.optionalSomeToRequired,
+          optionalSomeToAsymmetric: value.optionalSomeToAsymmetric,
+          optionalSomeToOptional: value.optionalSomeToOptional,
+          optionalSomeToNonexistent: value.optionalSomeToNonexistent,
+        };
       }
     }
 
@@ -7095,7 +7643,85 @@ export namespace SchemaEvolution {
       }
 
       export function outToIn(value: ExampleChoiceOut): ExampleChoiceIn {
-        return undefined!;
+        switch (value.field) {
+          case 'requiredToRequired': {
+            return {
+              field: 'requiredToRequired',
+              value: value.value,
+            };
+          }
+          case 'requiredToAsymmetric': {
+            return {
+              field: 'requiredToAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToRequired': {
+            return {
+              field: 'asymmetricToRequired',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToAsymmetric': {
+            return {
+              field: 'asymmetricToAsymmetric',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToOptionalHandled': {
+            return {
+              field: 'asymmetricToOptionalHandled',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToOptionalFallback': {
+            return {
+              field: 'asymmetricToOptionalFallback',
+              value: value.value,
+            };
+          }
+          case 'asymmetricToNonexistent': {
+            return {
+              field: 'asymmetricToNonexistent',
+              value: value.value,
+            };
+          }
+          case 'optionalToRequired': {
+            return {
+              field: 'optionalToRequired',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'optionalToAsymmetric': {
+            return {
+              field: 'optionalToAsymmetric',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'optionalToOptionalHandled': {
+            return {
+              field: 'optionalToOptionalHandled',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'optionalToOptionalFallback': {
+            return {
+              field: 'optionalToOptionalFallback',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+          case 'optionalToNonexistent': {
+            return {
+              field: 'optionalToNonexistent',
+              value: value.value,
+              fallback: outToIn(value.fallback),
+            };
+          }
+        }
       }
     }
   }
@@ -7154,7 +7780,9 @@ export namespace SchemaEvolution {
       }
 
       export function outToIn(value: SingletonStructOut): SingletonStructIn {
-        return undefined!;
+        return {
+          x: value.x,
+        };
       }
     }
 
@@ -7209,7 +7837,14 @@ export namespace SchemaEvolution {
       }
 
       export function outToIn(value: SingletonChoiceOut): SingletonChoiceIn {
-        return undefined!;
+        switch (value.field) {
+          case 'x': {
+            return {
+              field: 'x',
+              value: value.value,
+            };
+          }
+        }
       }
     }
   }
