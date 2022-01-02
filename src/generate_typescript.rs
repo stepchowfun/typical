@@ -797,6 +797,8 @@ fn write_schema<T: Write>(
                             write_identifier(buffer, &field.name, Camel, None)?;
                             writeln!(buffer, "Field = payload;")?;
                         }
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "break;")?;
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "}}")?;
                     }
@@ -1968,10 +1970,13 @@ fn write_deserialization_invocation<T: Write>(
         }
         schema::TypeVariant::Bytes => {
             write_indentation(buffer, indentation)?;
-            writeln!(
-                buffer,
-                "let payload = dataView.buffer.slice(offset, offset + payloadSize);",
-            )?;
+            writeln!(buffer, "let payload = dataView.buffer.slice(")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "dataView.byteOffset + offset,")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "dataView.byteOffset + offset + payloadSize,")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, ");")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "offset += payloadSize;")
         }
@@ -2029,11 +2034,17 @@ fn write_deserialization_invocation<T: Write>(
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
-            writeln!(
-                buffer,
-                "let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                    payloadSize));",
-            )?;
+            writeln!(buffer, "let payload = textDecoder.decode(")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "dataView.buffer.slice(")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.byteOffset + offset,")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.byteOffset + offset + payloadSize,")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "),")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, ");")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "offset += payloadSize;")
         }
@@ -2445,6 +2456,7 @@ export namespace CircularDependency {
                 [offset, payload] = CircularDependency.Main.StructFromAbove.deserialize(dataView, \
                     offset);
                 xField = payload;
+                break;
               }
               default:
                 offset += payloadSize;
@@ -4330,7 +4342,10 @@ export namespace Comprehensive {
               ];
             }
             case 5n: {
-              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -4341,8 +4356,12 @@ export namespace Comprehensive {
               ];
             }
             case 6n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -4483,7 +4502,10 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
@@ -4506,8 +4528,12 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                        payloadSize));
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
@@ -4668,7 +4694,10 @@ export namespace Comprehensive {
               ];
             }
             case 21n: {
-              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -4679,8 +4708,12 @@ export namespace Comprehensive {
               ];
             }
             case 22n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -4821,7 +4854,10 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
@@ -4844,8 +4880,12 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                        payloadSize));
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
@@ -5021,7 +5061,10 @@ export namespace Comprehensive {
               ];
             }
             case 37n: {
-              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -5035,8 +5078,12 @@ export namespace Comprehensive {
               ];
             }
             case 38n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -5195,7 +5242,10 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
@@ -5221,8 +5271,12 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                        payloadSize));
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
@@ -7129,6 +7183,7 @@ export namespace Comprehensive {
           }
           switch (index) {
             case 0n: {
+              break;
             }
             case 1n: {
               let payload;
@@ -7144,6 +7199,7 @@ export namespace Comprehensive {
                 }
               }
               bRequiredField = payload;
+              break;
             }
             case 2n: {
               let payload;
@@ -7162,6 +7218,7 @@ export namespace Comprehensive {
                 }
               }
               cRequiredField = payload;
+              break;
             }
             case 3n: {
               let payload;
@@ -7181,6 +7238,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               dRequiredField = payload;
+              break;
             }
             case 4n: {
               let payload;
@@ -7207,17 +7265,27 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               eRequiredField = payload;
+              break;
             }
             case 5n: {
-              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
               offset += payloadSize;
               fRequiredField = payload;
+              break;
             }
             case 6n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               gRequiredField = payload;
+              break;
             }
             case 7n: {
               let payload;
@@ -7245,6 +7313,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               hRequiredField = payload;
+              break;
             }
             case 8n: {
               let payload: number[] = [];
@@ -7259,6 +7328,7 @@ export namespace Comprehensive {
                 }
               }
               iRequiredField = payload;
+              break;
             }
             case 9n: {
               let payload: bigint[] = [];
@@ -7273,6 +7343,7 @@ export namespace Comprehensive {
                 }
               }
               jRequiredField = payload;
+              break;
             }
             case 10n: {
               let payload: bigint[] = [];
@@ -7288,6 +7359,7 @@ export namespace Comprehensive {
                 }
               }
               kRequiredField = payload;
+              break;
             }
             case 11n: {
               let payload: boolean[] = [];
@@ -7310,6 +7382,7 @@ export namespace Comprehensive {
                 }
               }
               lRequiredField = payload;
+              break;
             }
             case 12n: {
               let payload: ArrayBuffer[] = [];
@@ -7320,13 +7393,17 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
                 }
               }
               mRequiredField = payload;
+              break;
             }
             case 13n: {
               let payload: string[] = [];
@@ -7337,14 +7414,19 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                        payloadSize));
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
                 }
               }
               nRequiredField = payload;
+              break;
             }
             case 14n: {
               let payload: Comprehensive.Main.EmptyStructIn[][] = [];
@@ -7375,8 +7457,10 @@ export namespace Comprehensive {
                 }
               }
               oRequiredField = payload;
+              break;
             }
             case 16n: {
+              break;
             }
             case 17n: {
               let payload;
@@ -7392,6 +7476,7 @@ export namespace Comprehensive {
                 }
               }
               bAsymmetricField = payload;
+              break;
             }
             case 18n: {
               let payload;
@@ -7410,6 +7495,7 @@ export namespace Comprehensive {
                 }
               }
               cAsymmetricField = payload;
+              break;
             }
             case 19n: {
               let payload;
@@ -7429,6 +7515,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               dAsymmetricField = payload;
+              break;
             }
             case 20n: {
               let payload;
@@ -7455,17 +7542,27 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               eAsymmetricField = payload;
+              break;
             }
             case 21n: {
-              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
               offset += payloadSize;
               fAsymmetricField = payload;
+              break;
             }
             case 22n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               gAsymmetricField = payload;
+              break;
             }
             case 23n: {
               let payload;
@@ -7493,6 +7590,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               hAsymmetricField = payload;
+              break;
             }
             case 24n: {
               let payload: number[] = [];
@@ -7507,6 +7605,7 @@ export namespace Comprehensive {
                 }
               }
               iAsymmetricField = payload;
+              break;
             }
             case 25n: {
               let payload: bigint[] = [];
@@ -7521,6 +7620,7 @@ export namespace Comprehensive {
                 }
               }
               jAsymmetricField = payload;
+              break;
             }
             case 26n: {
               let payload: bigint[] = [];
@@ -7536,6 +7636,7 @@ export namespace Comprehensive {
                 }
               }
               kAsymmetricField = payload;
+              break;
             }
             case 27n: {
               let payload: boolean[] = [];
@@ -7558,6 +7659,7 @@ export namespace Comprehensive {
                 }
               }
               lAsymmetricField = payload;
+              break;
             }
             case 28n: {
               let payload: ArrayBuffer[] = [];
@@ -7568,13 +7670,17 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
                 }
               }
               mAsymmetricField = payload;
+              break;
             }
             case 29n: {
               let payload: string[] = [];
@@ -7585,14 +7691,19 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                        payloadSize));
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
                 }
               }
               nAsymmetricField = payload;
+              break;
             }
             case 30n: {
               let payload: Comprehensive.Main.EmptyStructIn[][] = [];
@@ -7623,8 +7734,10 @@ export namespace Comprehensive {
                 }
               }
               oAsymmetricField = payload;
+              break;
             }
             case 32n: {
+              break;
             }
             case 33n: {
               let payload;
@@ -7640,6 +7753,7 @@ export namespace Comprehensive {
                 }
               }
               bOptionalField = payload;
+              break;
             }
             case 34n: {
               let payload;
@@ -7658,6 +7772,7 @@ export namespace Comprehensive {
                 }
               }
               cOptionalField = payload;
+              break;
             }
             case 35n: {
               let payload;
@@ -7677,6 +7792,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               dOptionalField = payload;
+              break;
             }
             case 36n: {
               let payload;
@@ -7703,17 +7819,27 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               eOptionalField = payload;
+              break;
             }
             case 37n: {
-              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
               offset += payloadSize;
               fOptionalField = payload;
+              break;
             }
             case 38n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               gOptionalField = payload;
+              break;
             }
             case 39n: {
               let payload;
@@ -7741,6 +7867,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               hOptionalField = payload;
+              break;
             }
             case 40n: {
               let payload: number[] = [];
@@ -7755,6 +7882,7 @@ export namespace Comprehensive {
                 }
               }
               iOptionalField = payload;
+              break;
             }
             case 41n: {
               let payload: bigint[] = [];
@@ -7769,6 +7897,7 @@ export namespace Comprehensive {
                 }
               }
               jOptionalField = payload;
+              break;
             }
             case 42n: {
               let payload: bigint[] = [];
@@ -7784,6 +7913,7 @@ export namespace Comprehensive {
                 }
               }
               kOptionalField = payload;
+              break;
             }
             case 43n: {
               let payload: boolean[] = [];
@@ -7806,6 +7936,7 @@ export namespace Comprehensive {
                 }
               }
               lOptionalField = payload;
+              break;
             }
             case 44n: {
               let payload: ArrayBuffer[] = [];
@@ -7816,13 +7947,17 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
                 }
               }
               mOptionalField = payload;
+              break;
             }
             case 45n: {
               let payload: string[] = [];
@@ -7833,14 +7968,19 @@ export namespace Comprehensive {
                     let payloadSizeBig;
                     [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
                     const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                        payloadSize));
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
                     offset += payloadSize;
                     payloadAlias.push(payload);
                   }
                 }
               }
               nOptionalField = payload;
+              break;
             }
             case 46n: {
               let payload: Comprehensive.Main.EmptyStructIn[][] = [];
@@ -7871,6 +8011,7 @@ export namespace Comprehensive {
                 }
               }
               oOptionalField = payload;
+              break;
             }
             default:
               offset += payloadSize;
@@ -8099,11 +8240,13 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Comprehensive.Foo.Foo.deserialize(dataView, offset);
               xField = payload;
+              break;
             }
             case 1n: {
               let payload;
               [offset, payload] = Comprehensive.Bar.Bar.deserialize(dataView, offset);
               yField = payload;
+              break;
             }
             default:
               offset += payloadSize;
@@ -8583,82 +8726,147 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToRequiredField = payload;
+              break;
             }
             case 1n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToAsymmetricField = payload;
+              break;
             }
             case 2n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToOptionalField = payload;
+              break;
             }
             case 4n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToRequiredField = payload;
+              break;
             }
             case 5n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToAsymmetricField = payload;
+              break;
             }
             case 6n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToOptionalField = payload;
+              break;
             }
             case 9n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalNoneToAsymmetricField = payload;
+              break;
             }
             case 10n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalNoneToOptionalField = payload;
+              break;
             }
             case 12n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToRequiredField = payload;
+              break;
             }
             case 13n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToAsymmetricField = payload;
+              break;
             }
             case 14n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToOptionalField = payload;
+              break;
             }
             case 17n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               nonexistentToAsymmetricField = payload;
+              break;
             }
             case 18n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               nonexistentToOptionalField = payload;
+              break;
             }
             default:
               offset += payloadSize;
@@ -9022,8 +9230,12 @@ export namespace SchemaEvolution {
           offset = newOffset;
           switch (index) {
             case 0n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9034,8 +9246,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 1n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9046,8 +9262,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 5n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9058,8 +9278,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 6n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9070,8 +9294,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 7n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -9085,8 +9313,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 8n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -9100,8 +9332,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 10n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9112,8 +9348,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 11n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9124,8 +9364,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 12n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -9139,8 +9383,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 13n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -9154,8 +9402,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 15n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9166,8 +9418,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 16n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -9178,8 +9434,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 17n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -9193,8 +9453,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 18n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -9627,94 +9891,169 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToRequiredField = payload;
+              break;
             }
             case 1n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToAsymmetricField = payload;
+              break;
             }
             case 2n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToOptionalField = payload;
+              break;
             }
             case 3n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               requiredToNonexistentField = payload;
+              break;
             }
             case 4n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToRequiredField = payload;
+              break;
             }
             case 5n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToAsymmetricField = payload;
+              break;
             }
             case 6n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToOptionalField = payload;
+              break;
             }
             case 7n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               asymmetricToNonexistentField = payload;
+              break;
             }
             case 9n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalNoneToAsymmetricField = payload;
+              break;
             }
             case 10n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalNoneToOptionalField = payload;
+              break;
             }
             case 11n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalNoneToNonexistentField = payload;
+              break;
             }
             case 12n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToRequiredField = payload;
+              break;
             }
             case 13n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToAsymmetricField = payload;
+              break;
             }
             case 14n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToOptionalField = payload;
+              break;
             }
             case 15n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               optionalSomeToNonexistentField = payload;
+              break;
             }
             default:
               offset += payloadSize;
@@ -10040,8 +10379,12 @@ export namespace SchemaEvolution {
           offset = newOffset;
           switch (index) {
             case 0n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10052,8 +10395,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 1n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10064,8 +10411,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 5n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10076,8 +10427,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 6n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10088,8 +10443,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 7n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10100,8 +10459,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 8n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10112,8 +10475,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 9n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
@@ -10124,8 +10491,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 10n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -10139,8 +10510,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 11n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -10154,8 +10529,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 12n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -10169,8 +10548,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 13n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -10184,8 +10567,12 @@ export namespace SchemaEvolution {
               ];
             }
             case 14n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
@@ -10276,10 +10663,15 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               xField = payload;
+              break;
             }
             default:
               offset += payloadSize;
@@ -10362,8 +10754,12 @@ export namespace SchemaEvolution {
           offset = newOffset;
           switch (index) {
             case 0n: {
-              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
-                  payloadSize));
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
               offset += payloadSize;
               return [
                 offset,
