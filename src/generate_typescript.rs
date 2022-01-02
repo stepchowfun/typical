@@ -154,6 +154,10 @@ pub fn generate(
 
 /* eslint-disable */
 
+export function unreachable(x: never): never {{
+  return x;
+}}
+
 function zigzagEncode(value: bigint): bigint {{
   const twice = value << 1n;
   return value < 0n ? -1n - twice : twice;
@@ -734,8 +738,106 @@ fn write_schema<T: Write>(
                 write!(buffer, "): [number, ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, "] {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 2)?;
+                    write!(buffer, "let ")?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    writeln!(buffer, "Field = undefined;")?;
+                }
+                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return [0, undefined!];")?;
+                writeln!(buffer, "while (true) {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);",
+                )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset = newOffset;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "switch (index) {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "case {}n: {{", field.index)?;
+                    if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                        write_deserialization_invocation(
+                            buffer,
+                            indentation + 5,
+                            &imports,
+                            namespace,
+                            &field.r#type.variant,
+                            true,
+                        )?;
+                        write_indentation(buffer, indentation + 5)?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, "Field = payload;")?;
+                    }
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "default:")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "offset += size;")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                if declaration.fields.iter().any(|field| match field.rule {
+                    schema::Rule::Asymmetric | schema::Rule::Optional => false,
+                    schema::Rule::Required => {
+                        !matches!(field.r#type.variant, schema::TypeVariant::Unit)
+                    }
+                }) {
+                    write_indentation(buffer, indentation + 2)?;
+                    write!(buffer, "if (")?;
+                    let mut first = true;
+                    for field in &declaration.fields {
+                        match field.rule {
+                            schema::Rule::Asymmetric | schema::Rule::Optional => {}
+                            schema::Rule::Required => {
+                                if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                    if first {
+                                        first = false;
+                                    } else {
+                                        write!(buffer, " || ")?;
+                                    }
+                                    write_identifier(buffer, &field.name, Camel, None)?;
+                                    write!(buffer, "Field === undefined")?;
+                                }
+                            }
+                        }
+                    }
+                    writeln!(buffer, ") {{")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(
+                        buffer,
+                        "throw new Error('Struct missing one or more field(s).');",
+                    )?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                    writeln!(buffer)?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "return [")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset,")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "{{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    write!(buffer, ": ")?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    writeln!(buffer, "Field,")?;
+                }
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "];")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
@@ -833,6 +935,14 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 3)?;
                         writeln!(buffer, "}}")?;
                     }
+                    if declaration.fields.len() != 1 {
+                        // The above check is needed due to
+                        // https://github.com/microsoft/TypeScript/issues/47288.
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "default:")?;
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "return unreachable(value);")?;
+                    }
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -916,6 +1026,14 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 3)?;
                         writeln!(buffer, "}}")?;
                     }
+                    if declaration.fields.len() != 1 {
+                        // The above check is needed due to
+                        // https://github.com/microsoft/TypeScript/issues/47288.
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "default:")?;
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "return unreachable(value);")?;
+                    }
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -935,7 +1053,79 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, "] {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return [0, undefined!];")?;
+                writeln!(buffer, "while (true) {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);",
+                )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset = newOffset;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "switch (index) {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "case {}n: {{", field.index)?;
+                    if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                        write_deserialization_invocation(
+                            buffer,
+                            indentation + 5,
+                            &imports,
+                            namespace,
+                            &field.r#type.variant,
+                            true,
+                        )?;
+                    }
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {}
+                        schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(
+                                buffer,
+                                "const [newNewOffset, fallback] = deserialize(dataView, offset);",
+                            )?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "offset = newNewOffset;")?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 5)?;
+                    writeln!(buffer, "return [")?;
+                    write_indentation(buffer, indentation + 6)?;
+                    writeln!(buffer, "offset,")?;
+                    write_indentation(buffer, indentation + 6)?;
+                    writeln!(buffer, "{{")?;
+                    write_indentation(buffer, indentation + 7)?;
+                    write!(buffer, "field: '")?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    writeln!(buffer, "',")?;
+                    if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                        write_indentation(buffer, indentation + 7)?;
+                        writeln!(buffer, "value: payload,")?;
+                    }
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {}
+                        schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 7)?;
+                            writeln!(buffer, "fallback,")?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 6)?;
+                    writeln!(buffer, "}},")?;
+                    write_indentation(buffer, indentation + 5)?;
+                    writeln!(buffer, "];")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "default:")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "offset += size;")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
@@ -1600,17 +1790,18 @@ fn write_u64_serialization_invocation<T: Write>(
 // Context variables:
 // - `dataView`
 // - `offset`
-// - `payload`
+// - `payload` (introduced)
 #[allow(clippy::unnecessary_wraps)] // DO NOT COMMIT
-fn _write_deserialization_invocation<T: Write>(
-    _buffer: &mut T,
-    _indentation: usize,
+fn write_deserialization_invocation<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
     _imports: &BTreeMap<Identifier, schema::Namespace>,
     _namespace: &schema::Namespace,
     _type_variant: &schema::TypeVariant,
     _is_field: bool,
 ) -> Result<(), fmt::Error> {
-    Ok(())
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "const payload = undefined!;")
 }
 
 // Determine whether a type is encoded as a varint.
@@ -1646,6 +1837,10 @@ mod tests {
 // Visit https://github.com/stepchowfun/typical for more information.
 
 /* eslint-disable */
+
+export function unreachable(x: never): never {
+  return x;
+}
 
 function zigzagEncode(value: bigint): bigint {
   const twice = value << 1n;
@@ -1948,7 +2143,32 @@ export namespace CircularDependency {
           dataView: DataView,
           offset: number,
         ): [number, StructFromBelowIn] {
-          return [0, undefined!];
+          let xField = undefined;
+
+          while (true) {
+            const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+            offset = newOffset;
+            switch (index) {
+              case 0n: {
+                const payload = undefined!;
+                xField = payload;
+              }
+              default:
+                offset += size;
+                break;
+            }
+          }
+
+          if (xField === undefined) {
+            throw new Error('Struct missing one or more field(s).');
+          }
+
+          return [
+            offset,
+            {
+              x: xField,
+            }
+          ];
         }
 
         export function outToIn(value: StructFromBelowOut): StructFromBelowIn {
@@ -1987,7 +2207,22 @@ export namespace CircularDependency {
         dataView: DataView,
         offset: number,
       ): [number, StructFromAboveIn] {
-        return [0, undefined!];
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        return [
+          offset,
+          {
+          }
+        ];
       }
 
       export function outToIn(value: StructFromAboveOut): StructFromAboveIn {
@@ -2635,6 +2870,8 @@ export namespace Comprehensive {
             }
             return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.fallback);
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -3687,6 +3924,8 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -3694,7 +3933,504 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, BarIn] {
-        return [0, undefined!];
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              return [
+                offset,
+                {
+                  field: 'aRequired',
+                },
+              ];
+            }
+            case 1n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'bRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 2n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'cRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 3n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'dRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 4n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'eRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 5n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'fRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 6n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'gRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 7n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'hRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 8n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'iRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 9n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'jRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 10n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'kRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 11n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'lRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 12n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'mRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 13n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'nRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 14n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'oRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 16n: {
+              return [
+                offset,
+                {
+                  field: 'aAsymmetric',
+                },
+              ];
+            }
+            case 17n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'bAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 18n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'cAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 19n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'dAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 20n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'eAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 21n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'fAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 22n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'gAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 23n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'hAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 24n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'iAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 25n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'jAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 26n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'kAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 27n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'lAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 28n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'mAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 29n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'nAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 30n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'oAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 32n: {
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'aOptional',
+                  fallback,
+                },
+              ];
+            }
+            case 33n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'bOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 34n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'cOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 35n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'dOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 36n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'eOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 37n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'fOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 38n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'gOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 39n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'hOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 40n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'iOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 41n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'jOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 42n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'kOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 43n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'lOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 44n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'mOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 45n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'nOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 46n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'oOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
       }
 
       export function outToIn(value: BarOut): BarIn {
@@ -5517,7 +6253,295 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooIn] {
-        return [0, undefined!];
+        let aRequiredField = undefined;
+        let bRequiredField = undefined;
+        let cRequiredField = undefined;
+        let dRequiredField = undefined;
+        let eRequiredField = undefined;
+        let fRequiredField = undefined;
+        let gRequiredField = undefined;
+        let hRequiredField = undefined;
+        let iRequiredField = undefined;
+        let jRequiredField = undefined;
+        let kRequiredField = undefined;
+        let lRequiredField = undefined;
+        let mRequiredField = undefined;
+        let nRequiredField = undefined;
+        let oRequiredField = undefined;
+        let aAsymmetricField = undefined;
+        let bAsymmetricField = undefined;
+        let cAsymmetricField = undefined;
+        let dAsymmetricField = undefined;
+        let eAsymmetricField = undefined;
+        let fAsymmetricField = undefined;
+        let gAsymmetricField = undefined;
+        let hAsymmetricField = undefined;
+        let iAsymmetricField = undefined;
+        let jAsymmetricField = undefined;
+        let kAsymmetricField = undefined;
+        let lAsymmetricField = undefined;
+        let mAsymmetricField = undefined;
+        let nAsymmetricField = undefined;
+        let oAsymmetricField = undefined;
+        let aOptionalField = undefined;
+        let bOptionalField = undefined;
+        let cOptionalField = undefined;
+        let dOptionalField = undefined;
+        let eOptionalField = undefined;
+        let fOptionalField = undefined;
+        let gOptionalField = undefined;
+        let hOptionalField = undefined;
+        let iOptionalField = undefined;
+        let jOptionalField = undefined;
+        let kOptionalField = undefined;
+        let lOptionalField = undefined;
+        let mOptionalField = undefined;
+        let nOptionalField = undefined;
+        let oOptionalField = undefined;
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+            }
+            case 1n: {
+              const payload = undefined!;
+              bRequiredField = payload;
+            }
+            case 2n: {
+              const payload = undefined!;
+              cRequiredField = payload;
+            }
+            case 3n: {
+              const payload = undefined!;
+              dRequiredField = payload;
+            }
+            case 4n: {
+              const payload = undefined!;
+              eRequiredField = payload;
+            }
+            case 5n: {
+              const payload = undefined!;
+              fRequiredField = payload;
+            }
+            case 6n: {
+              const payload = undefined!;
+              gRequiredField = payload;
+            }
+            case 7n: {
+              const payload = undefined!;
+              hRequiredField = payload;
+            }
+            case 8n: {
+              const payload = undefined!;
+              iRequiredField = payload;
+            }
+            case 9n: {
+              const payload = undefined!;
+              jRequiredField = payload;
+            }
+            case 10n: {
+              const payload = undefined!;
+              kRequiredField = payload;
+            }
+            case 11n: {
+              const payload = undefined!;
+              lRequiredField = payload;
+            }
+            case 12n: {
+              const payload = undefined!;
+              mRequiredField = payload;
+            }
+            case 13n: {
+              const payload = undefined!;
+              nRequiredField = payload;
+            }
+            case 14n: {
+              const payload = undefined!;
+              oRequiredField = payload;
+            }
+            case 16n: {
+            }
+            case 17n: {
+              const payload = undefined!;
+              bAsymmetricField = payload;
+            }
+            case 18n: {
+              const payload = undefined!;
+              cAsymmetricField = payload;
+            }
+            case 19n: {
+              const payload = undefined!;
+              dAsymmetricField = payload;
+            }
+            case 20n: {
+              const payload = undefined!;
+              eAsymmetricField = payload;
+            }
+            case 21n: {
+              const payload = undefined!;
+              fAsymmetricField = payload;
+            }
+            case 22n: {
+              const payload = undefined!;
+              gAsymmetricField = payload;
+            }
+            case 23n: {
+              const payload = undefined!;
+              hAsymmetricField = payload;
+            }
+            case 24n: {
+              const payload = undefined!;
+              iAsymmetricField = payload;
+            }
+            case 25n: {
+              const payload = undefined!;
+              jAsymmetricField = payload;
+            }
+            case 26n: {
+              const payload = undefined!;
+              kAsymmetricField = payload;
+            }
+            case 27n: {
+              const payload = undefined!;
+              lAsymmetricField = payload;
+            }
+            case 28n: {
+              const payload = undefined!;
+              mAsymmetricField = payload;
+            }
+            case 29n: {
+              const payload = undefined!;
+              nAsymmetricField = payload;
+            }
+            case 30n: {
+              const payload = undefined!;
+              oAsymmetricField = payload;
+            }
+            case 32n: {
+            }
+            case 33n: {
+              const payload = undefined!;
+              bOptionalField = payload;
+            }
+            case 34n: {
+              const payload = undefined!;
+              cOptionalField = payload;
+            }
+            case 35n: {
+              const payload = undefined!;
+              dOptionalField = payload;
+            }
+            case 36n: {
+              const payload = undefined!;
+              eOptionalField = payload;
+            }
+            case 37n: {
+              const payload = undefined!;
+              fOptionalField = payload;
+            }
+            case 38n: {
+              const payload = undefined!;
+              gOptionalField = payload;
+            }
+            case 39n: {
+              const payload = undefined!;
+              hOptionalField = payload;
+            }
+            case 40n: {
+              const payload = undefined!;
+              iOptionalField = payload;
+            }
+            case 41n: {
+              const payload = undefined!;
+              jOptionalField = payload;
+            }
+            case 42n: {
+              const payload = undefined!;
+              kOptionalField = payload;
+            }
+            case 43n: {
+              const payload = undefined!;
+              lOptionalField = payload;
+            }
+            case 44n: {
+              const payload = undefined!;
+              mOptionalField = payload;
+            }
+            case 45n: {
+              const payload = undefined!;
+              nOptionalField = payload;
+            }
+            case 46n: {
+              const payload = undefined!;
+              oOptionalField = payload;
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        if (bRequiredField === undefined || cRequiredField === undefined || dRequiredField === \
+            undefined || eRequiredField === undefined || fRequiredField === undefined || \
+            gRequiredField === undefined || hRequiredField === undefined || iRequiredField === \
+            undefined || jRequiredField === undefined || kRequiredField === undefined || \
+            lRequiredField === undefined || mRequiredField === undefined || nRequiredField === \
+            undefined || oRequiredField === undefined) {
+          throw new Error('Struct missing one or more field(s).');
+        }
+
+        return [
+          offset,
+          {
+            aRequired: aRequiredField,
+            bRequired: bRequiredField,
+            cRequired: cRequiredField,
+            dRequired: dRequiredField,
+            eRequired: eRequiredField,
+            fRequired: fRequiredField,
+            gRequired: gRequiredField,
+            hRequired: hRequiredField,
+            iRequired: iRequiredField,
+            jRequired: jRequiredField,
+            kRequired: kRequiredField,
+            lRequired: lRequiredField,
+            mRequired: mRequiredField,
+            nRequired: nRequiredField,
+            oRequired: oRequiredField,
+            aAsymmetric: aAsymmetricField,
+            bAsymmetric: bAsymmetricField,
+            cAsymmetric: cAsymmetricField,
+            dAsymmetric: dAsymmetricField,
+            eAsymmetric: eAsymmetricField,
+            fAsymmetric: fAsymmetricField,
+            gAsymmetric: gAsymmetricField,
+            hAsymmetric: hAsymmetricField,
+            iAsymmetric: iAsymmetricField,
+            jAsymmetric: jAsymmetricField,
+            kAsymmetric: kAsymmetricField,
+            lAsymmetric: lAsymmetricField,
+            mAsymmetric: mAsymmetricField,
+            nAsymmetric: nAsymmetricField,
+            oAsymmetric: oAsymmetricField,
+            aOptional: aOptionalField,
+            bOptional: bOptionalField,
+            cOptional: cOptionalField,
+            dOptional: dOptionalField,
+            eOptional: eOptionalField,
+            fOptional: fOptionalField,
+            gOptional: gOptionalField,
+            hOptional: hOptionalField,
+            iOptional: iOptionalField,
+            jOptional: jOptionalField,
+            kOptional: kOptionalField,
+            lOptional: lOptionalField,
+            mOptional: mOptionalField,
+            nOptional: nOptionalField,
+            oOptional: oOptionalField,
+          }
+        ];
       }
 
       export function outToIn(value: FooOut): FooIn {
@@ -5555,7 +6579,22 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, EmptyStructIn] {
-        return [0, undefined!];
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        return [
+          offset,
+          {
+          }
+        ];
       }
 
       export function outToIn(value: EmptyStructOut): EmptyStructIn {
@@ -5584,7 +6623,15 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, EmptyChoiceIn] {
-        return [0, undefined!];
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            default:
+              offset += size;
+              break;
+          }
+        }
       }
 
       export function outToIn(value: EmptyChoiceOut): EmptyChoiceIn {
@@ -5650,7 +6697,38 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooAndBarIn] {
-        return [0, undefined!];
+        let xField = undefined;
+        let yField = undefined;
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              xField = payload;
+            }
+            case 1n: {
+              const payload = undefined!;
+              yField = payload;
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        if (xField === undefined || yField === undefined) {
+          throw new Error('Struct missing one or more field(s).');
+        }
+
+        return [
+          offset,
+          {
+            x: xField,
+            y: yField,
+          }
+        ];
       }
 
       export function outToIn(value: FooAndBarOut): FooAndBarIn {
@@ -5681,6 +6759,8 @@ export namespace Comprehensive {
             payloadSize = Comprehensive.Bar.Bar.size(payload);
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -5706,6 +6786,8 @@ export namespace Comprehensive {
             offset = Comprehensive.Bar.Bar.serialize(dataView, offset, payload);
             return offset;
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -5713,7 +6795,35 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooOrBarIn] {
-        return [0, undefined!];
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'x',
+                  value: payload,
+                },
+              ];
+            }
+            case 1n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'y',
+                  value: payload,
+                },
+              ];
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
       }
 
       export function outToIn(value: FooOrBarOut): FooOrBarIn {
@@ -6059,7 +7169,105 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        return [0, undefined!];
+        let requiredToRequiredField = undefined;
+        let requiredToAsymmetricField = undefined;
+        let requiredToOptionalField = undefined;
+        let asymmetricToRequiredField = undefined;
+        let asymmetricToAsymmetricField = undefined;
+        let asymmetricToOptionalField = undefined;
+        let optionalNoneToAsymmetricField = undefined;
+        let optionalNoneToOptionalField = undefined;
+        let optionalSomeToRequiredField = undefined;
+        let optionalSomeToAsymmetricField = undefined;
+        let optionalSomeToOptionalField = undefined;
+        let nonexistentToAsymmetricField = undefined;
+        let nonexistentToOptionalField = undefined;
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              requiredToRequiredField = payload;
+            }
+            case 1n: {
+              const payload = undefined!;
+              requiredToAsymmetricField = payload;
+            }
+            case 2n: {
+              const payload = undefined!;
+              requiredToOptionalField = payload;
+            }
+            case 4n: {
+              const payload = undefined!;
+              asymmetricToRequiredField = payload;
+            }
+            case 5n: {
+              const payload = undefined!;
+              asymmetricToAsymmetricField = payload;
+            }
+            case 6n: {
+              const payload = undefined!;
+              asymmetricToOptionalField = payload;
+            }
+            case 9n: {
+              const payload = undefined!;
+              optionalNoneToAsymmetricField = payload;
+            }
+            case 10n: {
+              const payload = undefined!;
+              optionalNoneToOptionalField = payload;
+            }
+            case 12n: {
+              const payload = undefined!;
+              optionalSomeToRequiredField = payload;
+            }
+            case 13n: {
+              const payload = undefined!;
+              optionalSomeToAsymmetricField = payload;
+            }
+            case 14n: {
+              const payload = undefined!;
+              optionalSomeToOptionalField = payload;
+            }
+            case 17n: {
+              const payload = undefined!;
+              nonexistentToAsymmetricField = payload;
+            }
+            case 18n: {
+              const payload = undefined!;
+              nonexistentToOptionalField = payload;
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        if (requiredToRequiredField === undefined || asymmetricToRequiredField === undefined || \
+            optionalSomeToRequiredField === undefined) {
+          throw new Error('Struct missing one or more field(s).');
+        }
+
+        return [
+          offset,
+          {
+            requiredToRequired: requiredToRequiredField,
+            requiredToAsymmetric: requiredToAsymmetricField,
+            requiredToOptional: requiredToOptionalField,
+            asymmetricToRequired: asymmetricToRequiredField,
+            asymmetricToAsymmetric: asymmetricToAsymmetricField,
+            asymmetricToOptional: asymmetricToOptionalField,
+            optionalNoneToAsymmetric: optionalNoneToAsymmetricField,
+            optionalNoneToOptional: optionalNoneToOptionalField,
+            optionalSomeToRequired: optionalSomeToRequiredField,
+            optionalSomeToAsymmetric: optionalSomeToAsymmetricField,
+            optionalSomeToOptional: optionalSomeToOptionalField,
+            nonexistentToAsymmetric: nonexistentToAsymmetricField,
+            nonexistentToOptional: nonexistentToOptionalField,
+          }
+        ];
       }
 
       export function outToIn(value: ExampleStructOut): ExampleStructIn {
@@ -6174,6 +7382,8 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(18n, payloadSize, false) + payloadSize + size(value.fallback);
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -6377,6 +7587,8 @@ export namespace SchemaEvolution {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -6384,7 +7596,173 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleChoiceIn] {
-        return [0, undefined!];
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'requiredToRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 1n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'requiredToAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 5n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 6n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 7n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToOptionalHandled',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 8n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToOptionalFallback',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 10n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'optionalToRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 11n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'optionalToAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 12n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToOptionalHandled',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 13n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToOptionalFallback',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 15n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'nonexistentToRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 16n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'nonexistentToAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 17n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'nonexistentToOptionalHandled',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 18n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'nonexistentToOptionalFallback',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
       }
 
       export function outToIn(value: ExampleChoiceOut): ExampleChoiceIn {
@@ -6779,7 +8157,117 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        return [0, undefined!];
+        let requiredToRequiredField = undefined;
+        let requiredToAsymmetricField = undefined;
+        let requiredToOptionalField = undefined;
+        let requiredToNonexistentField = undefined;
+        let asymmetricToRequiredField = undefined;
+        let asymmetricToAsymmetricField = undefined;
+        let asymmetricToOptionalField = undefined;
+        let asymmetricToNonexistentField = undefined;
+        let optionalNoneToAsymmetricField = undefined;
+        let optionalNoneToOptionalField = undefined;
+        let optionalNoneToNonexistentField = undefined;
+        let optionalSomeToRequiredField = undefined;
+        let optionalSomeToAsymmetricField = undefined;
+        let optionalSomeToOptionalField = undefined;
+        let optionalSomeToNonexistentField = undefined;
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              requiredToRequiredField = payload;
+            }
+            case 1n: {
+              const payload = undefined!;
+              requiredToAsymmetricField = payload;
+            }
+            case 2n: {
+              const payload = undefined!;
+              requiredToOptionalField = payload;
+            }
+            case 3n: {
+              const payload = undefined!;
+              requiredToNonexistentField = payload;
+            }
+            case 4n: {
+              const payload = undefined!;
+              asymmetricToRequiredField = payload;
+            }
+            case 5n: {
+              const payload = undefined!;
+              asymmetricToAsymmetricField = payload;
+            }
+            case 6n: {
+              const payload = undefined!;
+              asymmetricToOptionalField = payload;
+            }
+            case 7n: {
+              const payload = undefined!;
+              asymmetricToNonexistentField = payload;
+            }
+            case 9n: {
+              const payload = undefined!;
+              optionalNoneToAsymmetricField = payload;
+            }
+            case 10n: {
+              const payload = undefined!;
+              optionalNoneToOptionalField = payload;
+            }
+            case 11n: {
+              const payload = undefined!;
+              optionalNoneToNonexistentField = payload;
+            }
+            case 12n: {
+              const payload = undefined!;
+              optionalSomeToRequiredField = payload;
+            }
+            case 13n: {
+              const payload = undefined!;
+              optionalSomeToAsymmetricField = payload;
+            }
+            case 14n: {
+              const payload = undefined!;
+              optionalSomeToOptionalField = payload;
+            }
+            case 15n: {
+              const payload = undefined!;
+              optionalSomeToNonexistentField = payload;
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        if (requiredToRequiredField === undefined || requiredToAsymmetricField === undefined || \
+            requiredToOptionalField === undefined || requiredToNonexistentField === undefined) {
+          throw new Error('Struct missing one or more field(s).');
+        }
+
+        return [
+          offset,
+          {
+            requiredToRequired: requiredToRequiredField,
+            requiredToAsymmetric: requiredToAsymmetricField,
+            requiredToOptional: requiredToOptionalField,
+            requiredToNonexistent: requiredToNonexistentField,
+            asymmetricToRequired: asymmetricToRequiredField,
+            asymmetricToAsymmetric: asymmetricToAsymmetricField,
+            asymmetricToOptional: asymmetricToOptionalField,
+            asymmetricToNonexistent: asymmetricToNonexistentField,
+            optionalNoneToAsymmetric: optionalNoneToAsymmetricField,
+            optionalNoneToOptional: optionalNoneToOptionalField,
+            optionalNoneToNonexistent: optionalNoneToNonexistentField,
+            optionalSomeToRequired: optionalSomeToRequiredField,
+            optionalSomeToAsymmetric: optionalSomeToAsymmetricField,
+            optionalSomeToOptional: optionalSomeToOptionalField,
+            optionalSomeToNonexistent: optionalSomeToNonexistentField,
+          }
+        ];
       }
 
       export function outToIn(value: ExampleStructOut): ExampleStructIn {
@@ -6880,6 +8368,8 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.fallback);
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -7057,6 +8547,8 @@ export namespace SchemaEvolution {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -7064,7 +8556,150 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleChoiceIn] {
-        return [0, undefined!];
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'requiredToRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 1n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'requiredToAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 5n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 6n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 7n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToOptionalHandled',
+                  value: payload,
+                },
+              ];
+            }
+            case 8n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToOptionalFallback',
+                  value: payload,
+                },
+              ];
+            }
+            case 9n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToNonexistent',
+                  value: payload,
+                },
+              ];
+            }
+            case 10n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToRequired',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 11n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToAsymmetric',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 12n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToOptionalHandled',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 13n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToOptionalFallback',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 14n: {
+              const payload = undefined!;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToNonexistent',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
       }
 
       export function outToIn(value: ExampleChoiceOut): ExampleChoiceIn {
@@ -7123,7 +8758,32 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonStructIn] {
-        return [0, undefined!];
+        let xField = undefined;
+
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              xField = payload;
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
+
+        if (xField === undefined) {
+          throw new Error('Struct missing one or more field(s).');
+        }
+
+        return [
+          offset,
+          {
+            x: xField,
+          }
+        ];
       }
 
       export function outToIn(value: SingletonStructOut): SingletonStructIn {
@@ -7178,7 +8838,25 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonChoiceIn] {
-        return [0, undefined!];
+        while (true) {
+          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          offset = newOffset;
+          switch (index) {
+            case 0n: {
+              const payload = undefined!;
+              return [
+                offset,
+                {
+                  field: 'x',
+                  value: payload,
+                },
+              ];
+            }
+            default:
+              offset += size;
+              break;
+          }
+        }
       }
 
       export function outToIn(value: SingletonChoiceOut): SingletonChoiceIn {
