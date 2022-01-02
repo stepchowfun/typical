@@ -53,8 +53,12 @@ Each of the code generators has a unit test which contains a large string of gen
 ```ruby
 #!/usr/bin/env ruby
 
+# Run this script as follows:
+#
+#   ./wrap.rb input.rs > output.rs
+
 MAX_COLUMNS = 100
-GENERATED_CODE_PATH = 'types.rs'
+GENERATED_CODE_PATH = ARGV[0]
 
 File.read(GENERATED_CODE_PATH).each_line do |line|
   line.gsub!('\\', '\\\\\\\\')

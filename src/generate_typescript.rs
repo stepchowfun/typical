@@ -411,7 +411,8 @@ function deserializeFieldHeader(
   return [offset, index, size];
 }}
 
-const textEncoder = new TextEncoder();",
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();",
             typical_version,
         )
         .unwrap();
@@ -756,13 +757,13 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "while (true) {{")?;
                     write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "let index, size;")?;
+                    writeln!(buffer, "let index, payloadSize;")?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "try {{")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(
                         buffer,
-                        "[offset, index, size] = deserializeFieldHeader(dataView, offset);",
+                        "[offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);",
                     )?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "}} catch (e) {{")?;
@@ -802,7 +803,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "default:")?;
                     write_indentation(buffer, indentation + 5)?;
-                    writeln!(buffer, "offset += size;")?;
+                    writeln!(buffer, "offset += payloadSize;")?;
                     write_indentation(buffer, indentation + 5)?;
                     writeln!(buffer, "break;")?;
                     write_indentation(buffer, indentation + 3)?;
@@ -1074,7 +1075,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);",
+                    "const [newOffset, index, payloadSize] = \
+                        deserializeFieldHeader(dataView, offset);",
                 )?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "offset = newOffset;")?;
@@ -1136,7 +1138,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "default:")?;
                 write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "offset += size;")?;
+                writeln!(buffer, "offset += payloadSize;")?;
                 write_indentation(buffer, indentation + 5)?;
                 writeln!(buffer, "break;")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -1815,18 +1817,273 @@ fn write_u64_serialization_invocation<T: Write>(
 // Context variables:
 // - `dataView`
 // - `offset`
+// - `payloadSize`
 // - `payload` (introduced)
-#[allow(clippy::unnecessary_wraps)] // DO NOT COMMIT
+//
+// This function introduces the `payload` variable with `let` rather than `const`, since it relies
+// on being able to mutate the `payload` from a recursive call.
+#[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
-    _imports: &BTreeMap<Identifier, schema::Namespace>,
-    _namespace: &schema::Namespace,
-    _type_variant: &schema::TypeVariant,
-    _is_field: bool,
+    imports: &BTreeMap<Identifier, schema::Namespace>,
+    namespace: &schema::Namespace,
+    type_variant: &schema::TypeVariant,
+    is_field: bool,
 ) -> Result<(), fmt::Error> {
-    write_indentation(buffer, indentation)?;
-    writeln!(buffer, "const payload = undefined!;")
+    match type_variant {
+        schema::TypeVariant::Array(inner_type) => match &inner_type.variant {
+            schema::TypeVariant::Array(_)
+            | schema::TypeVariant::Bytes
+            | schema::TypeVariant::Custom(_, _)
+            | schema::TypeVariant::String => {
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "let payload: ")?;
+                write_type(buffer, imports, namespace, &inner_type.variant, In)?;
+                writeln!(buffer, "[] = [];")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "let payloadAlias = payload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "while (true) {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "let payloadSizeBig;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "[offset, payloadSizeBig] = deserializeVarint(dataView, offset);",
+                )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "const payloadSize = Number(payloadSizeBig);")?;
+                write_deserialization_invocation(
+                    buffer,
+                    indentation + 3,
+                    imports,
+                    namespace,
+                    &inner_type.variant,
+                    false,
+                )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "payloadAlias.push(payload);")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            }
+            schema::TypeVariant::Bool
+            | schema::TypeVariant::S64
+            | schema::TypeVariant::U64
+            | schema::TypeVariant::F64 => {
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "let payload: ")?;
+                write_type(buffer, imports, namespace, &inner_type.variant, In)?;
+                writeln!(buffer, "[] = [];")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "let payloadAlias = payload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "while (true) {{")?;
+                write_deserialization_invocation(
+                    buffer,
+                    indentation + 3,
+                    imports,
+                    namespace,
+                    &inner_type.variant,
+                    false,
+                )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "payloadAlias.push(payload);")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            }
+            schema::TypeVariant::Unit => {
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "let payload;")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "let newPayload;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "const payloadSize: number = 0;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "{{")?;
+                write_deserialization_invocation(
+                    buffer,
+                    indentation + 2,
+                    imports,
+                    namespace,
+                    &schema::TypeVariant::U64,
+                    is_field,
+                )?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(
+                    buffer,
+                    "newPayload = Array(Number(payload)).fill(undefined);",
+                )?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "payload = newPayload;")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            }
+        },
+        schema::TypeVariant::Bool => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "let payload;")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "{{")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "let newPayload;")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "{{")?;
+            write_deserialization_invocation(
+                buffer,
+                indentation + 2,
+                imports,
+                namespace,
+                &schema::TypeVariant::U64,
+                is_field,
+            )?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "newPayload = payload !== 0n;")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "}}")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "payload = newPayload;")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "}}")
+        }
+        schema::TypeVariant::Bytes => {
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "let payload = dataView.buffer.slice(offset, offset + payloadSize);",
+            )?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "offset += payloadSize;")
+        }
+        schema::TypeVariant::Custom(import, name) => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "let payload;")?;
+            write_indentation(buffer, indentation)?;
+            write!(buffer, "[offset, payload] = ")?;
+            write_custom_type(buffer, imports, namespace, import, name, None)?;
+            writeln!(buffer, ".deserialize(dataView, offset);")
+        }
+        schema::TypeVariant::F64 => {
+            write_indentation(buffer, indentation)?;
+            if is_field {
+                writeln!(buffer, "let payload;")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "switch (payloadSize) {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "case 0:")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "payload = 0;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "default:")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "payload = dataView.getFloat64(offset, true);")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset += 8;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            } else {
+                writeln!(buffer, "let payload = dataView.getFloat64(offset, true);")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "offset += 8;")
+            }
+        }
+        schema::TypeVariant::S64 => {
+            write_deserialization_invocation(
+                buffer,
+                indentation,
+                imports,
+                namespace,
+                &schema::TypeVariant::U64,
+                is_field,
+            )?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "payload = zigzagDecode(payload);")
+        }
+        schema::TypeVariant::String => {
+            write_indentation(buffer, indentation)?;
+            writeln!(
+                buffer,
+                "let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                    payloadSize));",
+            )?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "offset += payloadSize;")
+        }
+        schema::TypeVariant::U64 => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "let payload;")?;
+            write_indentation(buffer, indentation)?;
+            if is_field {
+                writeln!(buffer, "{{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "switch (payloadSize) {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "case 0:")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "payload = 0n;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "case 8:")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "payload = dataView.getBigUint64(offset, true);")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset += 8;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "default:")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "[offset, payload] = deserializeVarint(dataView, offset);",
+                )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")
+            } else {
+                writeln!(
+                    buffer,
+                    "[offset, payload] = deserializeVarint(dataView, offset);",
+                )
+            }
+        }
+        schema::TypeVariant::Unit => {
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "let payload = undefined;")
+        }
+    }
 }
 
 // Determine whether a type is encoded as a varint.
@@ -2121,6 +2378,7 @@ function deserializeFieldHeader(
 }
 
 const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 
 export namespace CircularDependency {
   export namespace Dependency {
@@ -2171,9 +2429,9 @@ export namespace CircularDependency {
           let xField;
 
           while (true) {
-            let index, size;
+            let index, payloadSize;
             try {
-              [offset, index, size] = deserializeFieldHeader(dataView, offset);
+              [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
             } catch (e) {
               if (e instanceof RangeError) {
                 break;
@@ -2183,11 +2441,13 @@ export namespace CircularDependency {
             }
             switch (index) {
               case 0n: {
-                const payload = undefined!;
+                let payload;
+                [offset, payload] = CircularDependency.Main.StructFromAbove.deserialize(dataView, \
+                    offset);
                 xField = payload;
               }
               default:
-                offset += size;
+                offset += payloadSize;
                 break;
             }
           }
@@ -3956,7 +4216,7 @@ export namespace Comprehensive {
         offset: number,
       ): [number, BarIn] {
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
@@ -3968,7 +4228,18 @@ export namespace Comprehensive {
               ];
             }
             case 1n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
               return [
                 offset,
                 {
@@ -3978,7 +4249,21 @@ export namespace Comprehensive {
               ];
             }
             case 2n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
               return [
                 offset,
                 {
@@ -3988,7 +4273,22 @@ export namespace Comprehensive {
               ];
             }
             case 3n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
               return [
                 offset,
                 {
@@ -3998,7 +4298,29 @@ export namespace Comprehensive {
               ];
             }
             case 4n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
               return [
                 offset,
                 {
@@ -4008,7 +4330,8 @@ export namespace Comprehensive {
               ];
             }
             case 5n: {
-              const payload = undefined!;
+              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -4018,7 +4341,9 @@ export namespace Comprehensive {
               ];
             }
             case 6n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -4028,7 +4353,30 @@ export namespace Comprehensive {
               ];
             }
             case 7n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                const payloadSize: number = 0;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
               return [
                 offset,
                 {
@@ -4038,7 +4386,17 @@ export namespace Comprehensive {
               ];
             }
             case 8n: {
-              const payload = undefined!;
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4048,7 +4406,17 @@ export namespace Comprehensive {
               ];
             }
             case 9n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4058,7 +4426,18 @@ export namespace Comprehensive {
               ];
             }
             case 10n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4068,7 +4447,25 @@ export namespace Comprehensive {
               ];
             }
             case 11n: {
-              const payload = undefined!;
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4078,7 +4475,20 @@ export namespace Comprehensive {
               ];
             }
             case 12n: {
-              const payload = undefined!;
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4088,7 +4498,21 @@ export namespace Comprehensive {
               ];
             }
             case 13n: {
-              const payload = undefined!;
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                        payloadSize));
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4098,7 +4522,33 @@ export namespace Comprehensive {
               ];
             }
             case 14n: {
-              const payload = undefined!;
+              let payload: Comprehensive.Main.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Main.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = \
+                              Comprehensive.Main.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4116,7 +4566,18 @@ export namespace Comprehensive {
               ];
             }
             case 17n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
               return [
                 offset,
                 {
@@ -4126,7 +4587,21 @@ export namespace Comprehensive {
               ];
             }
             case 18n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
               return [
                 offset,
                 {
@@ -4136,7 +4611,22 @@ export namespace Comprehensive {
               ];
             }
             case 19n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
               return [
                 offset,
                 {
@@ -4146,7 +4636,29 @@ export namespace Comprehensive {
               ];
             }
             case 20n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
               return [
                 offset,
                 {
@@ -4156,7 +4668,8 @@ export namespace Comprehensive {
               ];
             }
             case 21n: {
-              const payload = undefined!;
+              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -4166,7 +4679,9 @@ export namespace Comprehensive {
               ];
             }
             case 22n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -4176,7 +4691,30 @@ export namespace Comprehensive {
               ];
             }
             case 23n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                const payloadSize: number = 0;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
               return [
                 offset,
                 {
@@ -4186,7 +4724,17 @@ export namespace Comprehensive {
               ];
             }
             case 24n: {
-              const payload = undefined!;
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4196,7 +4744,17 @@ export namespace Comprehensive {
               ];
             }
             case 25n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4206,7 +4764,18 @@ export namespace Comprehensive {
               ];
             }
             case 26n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4216,7 +4785,25 @@ export namespace Comprehensive {
               ];
             }
             case 27n: {
-              const payload = undefined!;
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4226,7 +4813,20 @@ export namespace Comprehensive {
               ];
             }
             case 28n: {
-              const payload = undefined!;
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4236,7 +4836,21 @@ export namespace Comprehensive {
               ];
             }
             case 29n: {
-              const payload = undefined!;
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                        payloadSize));
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4246,7 +4860,33 @@ export namespace Comprehensive {
               ];
             }
             case 30n: {
-              const payload = undefined!;
+              let payload: Comprehensive.Main.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Main.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = \
+                              Comprehensive.Main.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               return [
                 offset,
                 {
@@ -4267,7 +4907,18 @@ export namespace Comprehensive {
               ];
             }
             case 33n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4280,7 +4931,21 @@ export namespace Comprehensive {
               ];
             }
             case 34n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4293,7 +4958,22 @@ export namespace Comprehensive {
               ];
             }
             case 35n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4306,7 +4986,29 @@ export namespace Comprehensive {
               ];
             }
             case 36n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4319,7 +5021,8 @@ export namespace Comprehensive {
               ];
             }
             case 37n: {
-              const payload = undefined!;
+              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4332,7 +5035,9 @@ export namespace Comprehensive {
               ];
             }
             case 38n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4345,7 +5050,30 @@ export namespace Comprehensive {
               ];
             }
             case 39n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                const payloadSize: number = 0;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4358,7 +5086,17 @@ export namespace Comprehensive {
               ];
             }
             case 40n: {
-              const payload = undefined!;
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4371,7 +5109,17 @@ export namespace Comprehensive {
               ];
             }
             case 41n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4384,7 +5132,18 @@ export namespace Comprehensive {
               ];
             }
             case 42n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4397,7 +5156,25 @@ export namespace Comprehensive {
               ];
             }
             case 43n: {
-              const payload = undefined!;
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4410,7 +5187,20 @@ export namespace Comprehensive {
               ];
             }
             case 44n: {
-              const payload = undefined!;
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4423,7 +5213,21 @@ export namespace Comprehensive {
               ];
             }
             case 45n: {
-              const payload = undefined!;
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                        payloadSize));
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4436,7 +5240,33 @@ export namespace Comprehensive {
               ];
             }
             case 46n: {
-              const payload = undefined!;
+              let payload: Comprehensive.Main.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Main.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = \
+                              Comprehensive.Main.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -4449,7 +5279,7 @@ export namespace Comprehensive {
               ];
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -6287,9 +7117,9 @@ export namespace Comprehensive {
             mOptionalField, nOptionalField, oOptionalField;
 
         while (true) {
-          let index, size;
+          let index, payloadSize;
           try {
-            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -6301,179 +7131,749 @@ export namespace Comprehensive {
             case 0n: {
             }
             case 1n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
               bRequiredField = payload;
             }
             case 2n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
               cRequiredField = payload;
             }
             case 3n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
               dRequiredField = payload;
             }
             case 4n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
               eRequiredField = payload;
             }
             case 5n: {
-              const payload = undefined!;
+              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              offset += payloadSize;
               fRequiredField = payload;
             }
             case 6n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               gRequiredField = payload;
             }
             case 7n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                const payloadSize: number = 0;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
               hRequiredField = payload;
             }
             case 8n: {
-              const payload = undefined!;
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               iRequiredField = payload;
             }
             case 9n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               jRequiredField = payload;
             }
             case 10n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               kRequiredField = payload;
             }
             case 11n: {
-              const payload = undefined!;
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               lRequiredField = payload;
             }
             case 12n: {
-              const payload = undefined!;
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               mRequiredField = payload;
             }
             case 13n: {
-              const payload = undefined!;
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                        payloadSize));
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               nRequiredField = payload;
             }
             case 14n: {
-              const payload = undefined!;
+              let payload: Comprehensive.Main.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Main.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = \
+                              Comprehensive.Main.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               oRequiredField = payload;
             }
             case 16n: {
             }
             case 17n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
               bAsymmetricField = payload;
             }
             case 18n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
               cAsymmetricField = payload;
             }
             case 19n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
               dAsymmetricField = payload;
             }
             case 20n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
               eAsymmetricField = payload;
             }
             case 21n: {
-              const payload = undefined!;
+              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              offset += payloadSize;
               fAsymmetricField = payload;
             }
             case 22n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               gAsymmetricField = payload;
             }
             case 23n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                const payloadSize: number = 0;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
               hAsymmetricField = payload;
             }
             case 24n: {
-              const payload = undefined!;
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               iAsymmetricField = payload;
             }
             case 25n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               jAsymmetricField = payload;
             }
             case 26n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               kAsymmetricField = payload;
             }
             case 27n: {
-              const payload = undefined!;
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               lAsymmetricField = payload;
             }
             case 28n: {
-              const payload = undefined!;
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               mAsymmetricField = payload;
             }
             case 29n: {
-              const payload = undefined!;
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                        payloadSize));
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               nAsymmetricField = payload;
             }
             case 30n: {
-              const payload = undefined!;
+              let payload: Comprehensive.Main.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Main.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = \
+                              Comprehensive.Main.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               oAsymmetricField = payload;
             }
             case 32n: {
             }
             case 33n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
               bOptionalField = payload;
             }
             case 34n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
               cOptionalField = payload;
             }
             case 35n: {
-              const payload = undefined!;
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
               dOptionalField = payload;
             }
             case 36n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
               eOptionalField = payload;
             }
             case 37n: {
-              const payload = undefined!;
+              let payload = dataView.buffer.slice(offset, offset + payloadSize);
+              offset += payloadSize;
               fOptionalField = payload;
             }
             case 38n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               gOptionalField = payload;
             }
             case 39n: {
-              const payload = undefined!;
+              let payload;
+              {
+                let newPayload;
+                const payloadSize: number = 0;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
               hOptionalField = payload;
             }
             case 40n: {
-              const payload = undefined!;
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               iOptionalField = payload;
             }
             case 41n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               jOptionalField = payload;
             }
             case 42n: {
-              const payload = undefined!;
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               kOptionalField = payload;
             }
             case 43n: {
-              const payload = undefined!;
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               lOptionalField = payload;
             }
             case 44n: {
-              const payload = undefined!;
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(offset, offset + payloadSize);
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               mOptionalField = payload;
             }
             case 45n: {
-              const payload = undefined!;
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                        payloadSize));
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               nOptionalField = payload;
             }
             case 46n: {
-              const payload = undefined!;
+              let payload: Comprehensive.Main.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Main.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = \
+                              Comprehensive.Main.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
               oOptionalField = payload;
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -6608,11 +8008,11 @@ export namespace Comprehensive {
         offset: number,
       ): [number, EmptyChoiceIn] {
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           offset = newOffset;
           switch (index) {
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -6684,9 +8084,9 @@ export namespace Comprehensive {
         let xField, yField;
 
         while (true) {
-          let index, size;
+          let index, payloadSize;
           try {
-            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -6696,15 +8096,17 @@ export namespace Comprehensive {
           }
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload;
+              [offset, payload] = Comprehensive.Foo.Foo.deserialize(dataView, offset);
               xField = payload;
             }
             case 1n: {
-              const payload = undefined!;
+              let payload;
+              [offset, payload] = Comprehensive.Bar.Bar.deserialize(dataView, offset);
               yField = payload;
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -6787,11 +8189,12 @@ export namespace Comprehensive {
         offset: number,
       ): [number, FooOrBarIn] {
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload;
+              [offset, payload] = Comprehensive.Foo.Foo.deserialize(dataView, offset);
               return [
                 offset,
                 {
@@ -6801,7 +8204,8 @@ export namespace Comprehensive {
               ];
             }
             case 1n: {
-              const payload = undefined!;
+              let payload;
+              [offset, payload] = Comprehensive.Bar.Bar.deserialize(dataView, offset);
               return [
                 offset,
                 {
@@ -6811,7 +8215,7 @@ export namespace Comprehensive {
               ];
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -7167,9 +8571,9 @@ export namespace SchemaEvolution {
             optionalSomeToOptionalField, nonexistentToAsymmetricField, nonexistentToOptionalField;
 
         while (true) {
-          let index, size;
+          let index, payloadSize;
           try {
-            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -7179,59 +8583,85 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToRequiredField = payload;
             }
             case 1n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToAsymmetricField = payload;
             }
             case 2n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToOptionalField = payload;
             }
             case 4n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToRequiredField = payload;
             }
             case 5n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToAsymmetricField = payload;
             }
             case 6n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToOptionalField = payload;
             }
             case 9n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalNoneToAsymmetricField = payload;
             }
             case 10n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalNoneToOptionalField = payload;
             }
             case 12n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToRequiredField = payload;
             }
             case 13n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToAsymmetricField = payload;
             }
             case 14n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToOptionalField = payload;
             }
             case 17n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               nonexistentToAsymmetricField = payload;
             }
             case 18n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               nonexistentToOptionalField = payload;
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -7588,11 +9018,13 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, ExampleChoiceIn] {
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7602,7 +9034,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 1n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7612,7 +9046,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 5n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7622,7 +9058,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 6n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7632,7 +9070,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 7n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -7645,7 +9085,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 8n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -7658,7 +9100,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 10n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7668,7 +9112,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 11n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7678,7 +9124,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 12n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -7691,7 +9139,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 13n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -7704,7 +9154,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 15n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7714,7 +9166,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 16n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -7724,7 +9178,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 17n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -7737,7 +9193,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 18n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -7750,7 +9208,7 @@ export namespace SchemaEvolution {
               ];
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -8157,9 +9615,9 @@ export namespace SchemaEvolution {
             optionalSomeToNonexistentField;
 
         while (true) {
-          let index, size;
+          let index, payloadSize;
           try {
-            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -8169,67 +9627,97 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToRequiredField = payload;
             }
             case 1n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToAsymmetricField = payload;
             }
             case 2n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToOptionalField = payload;
             }
             case 3n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               requiredToNonexistentField = payload;
             }
             case 4n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToRequiredField = payload;
             }
             case 5n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToAsymmetricField = payload;
             }
             case 6n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToOptionalField = payload;
             }
             case 7n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               asymmetricToNonexistentField = payload;
             }
             case 9n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalNoneToAsymmetricField = payload;
             }
             case 10n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalNoneToOptionalField = payload;
             }
             case 11n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalNoneToNonexistentField = payload;
             }
             case 12n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToRequiredField = payload;
             }
             case 13n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToAsymmetricField = payload;
             }
             case 14n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToOptionalField = payload;
             }
             case 15n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               optionalSomeToNonexistentField = payload;
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -8548,11 +10036,13 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, ExampleChoiceIn] {
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8562,7 +10052,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 1n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8572,7 +10064,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 5n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8582,7 +10076,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 6n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8592,7 +10088,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 7n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8602,7 +10100,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 8n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8612,7 +10112,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 9n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8622,7 +10124,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 10n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -8635,7 +10139,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 11n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -8648,7 +10154,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 12n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -8661,7 +10169,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 13n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -8674,7 +10184,9 @@ export namespace SchemaEvolution {
               ];
             }
             case 14n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -8687,7 +10199,7 @@ export namespace SchemaEvolution {
               ];
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -8752,9 +10264,9 @@ export namespace SchemaEvolution {
         let xField;
 
         while (true) {
-          let index, size;
+          let index, payloadSize;
           try {
-            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -8764,11 +10276,13 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               xField = payload;
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }
@@ -8844,11 +10358,13 @@ export namespace SchemaEvolution {
         offset: number,
       ): [number, SingletonChoiceIn] {
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
-              const payload = undefined!;
+              let payload = textDecoder.decode(dataView.buffer.slice(offset, offset + \
+                  payloadSize));
+              offset += payloadSize;
               return [
                 offset,
                 {
@@ -8858,7 +10374,7 @@ export namespace SchemaEvolution {
               ];
             }
             default:
-              offset += size;
+              offset += payloadSize;
               break;
           }
         }

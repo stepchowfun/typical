@@ -610,7 +610,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
-                write!(buffer, "let (index, size) = match ")?;
+                write!(buffer, "let (index, payload_size) = match ")?;
                 write_supers(buffer, indentation)?;
                 writeln!(buffer, "deserialize_field_header(&mut *reader) {{")?;
                 write_indentation(buffer, indentation + 4)?;
@@ -637,7 +637,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);",
+                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, \
+                        payload_size as u64);",
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
@@ -665,7 +666,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "_ => {{")?;
                 write_indentation(buffer, indentation + 5)?;
                 write_supers(buffer, indentation)?;
-                writeln!(buffer, "skip(&mut sub_reader, size as usize)?;")?;
+                writeln!(buffer, "skip(&mut sub_reader, payload_size as usize)?;")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -968,14 +969,15 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 3)?;
-                write!(buffer, "let (index, size) = ")?;
+                write!(buffer, "let (index, payload_size) = ")?;
                 write_supers(buffer, indentation)?;
                 writeln!(buffer, "deserialize_field_header(&mut *reader)?;")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);",
+                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, \
+                        payload_size as u64);",
                 )?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
@@ -1031,7 +1033,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "_ => {{")?;
                 write_indentation(buffer, indentation + 5)?;
                 write_supers(buffer, indentation)?;
-                writeln!(buffer, "skip(&mut sub_reader, size as usize)?;")?;
+                writeln!(buffer, "skip(&mut sub_reader, payload_size as usize)?;")?;
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -1629,8 +1631,9 @@ fn write_u64_serialization_invocation<T: Write>(
 // Write the logic to invoke the deserialization logic for a value, including a trailing line break.
 //
 // Context variables:
+// - `payload_size`
 // - `payload` (introduced)
-// - `reader`
+// - `sub_reader`
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
@@ -1808,7 +1811,7 @@ fn write_deserialization_invocation<T: Write>(
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "let payload = if size == 0_usize {{")?;
+                writeln!(buffer, "let payload = if payload_size == 0_usize {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "0.0_f64")?;
                 write_indentation(buffer, indentation)?;
@@ -1876,7 +1879,7 @@ fn write_deserialization_invocation<T: Write>(
         schema::TypeVariant::U64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "let payload = match size {{")?;
+                writeln!(buffer, "let payload = match payload_size {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "0_usize => 0_u64,")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1893,10 +1896,9 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "_ => super::super::deserialize_varint(&mut sub_reader)?,",
-                )?;
+                write!(buffer, "_ => ")?;
+                write_supers(buffer, supers)?;
+                writeln!(buffer, "deserialize_varint(&mut sub_reader)?,")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}};")
             } else {
@@ -2213,7 +2215,7 @@ pub mod circular_dependency {
                     let mut x_field: Option<super::super::main::StructFromAboveIn> = None;
 
                     loop {
-                        let (index, size) = match \
+                        let (index, payload_size) = match \
                             super::super::super::deserialize_field_header(&mut *reader) {
                             Ok(header) => header,
                             Err(err) => {
@@ -2225,7 +2227,8 @@ pub mod circular_dependency {
                             }
                         };
 
-                        let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                        let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as \
+                            u64);
 
                         match index {
                             0 => {
@@ -2236,7 +2239,7 @@ pub mod circular_dependency {
                                 x_field.get_or_insert(payload);
                             }
                             _ => {
-                                super::super::super::skip(&mut sub_reader, size as usize)?;
+                                super::super::super::skip(&mut sub_reader, payload_size as usize)?;
                             }
                         }
                     }
@@ -2290,8 +2293,8 @@ pub mod circular_dependency {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -2302,11 +2305,11 @@ pub mod circular_dependency {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -3386,9 +3389,10 @@ pub mod comprehensive {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut \
+                        *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -3396,7 +3400,7 @@ pub mod comprehensive {
                             return Ok(BarIn::ARequired);
                         }
                         1 => {
-                            let payload = if size == 0_usize {
+                            let payload = if payload_size == 0_usize {
                                 0.0_f64
                             } else {
                                 let mut buffer = [0; 8];
@@ -3406,7 +3410,7 @@ pub mod comprehensive {
                             return Ok(BarIn::BRequired(payload));
                         }
                         2 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3418,7 +3422,7 @@ pub mod comprehensive {
                             return Ok(BarIn::CRequired(payload));
                         }
                         3 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3432,7 +3436,7 @@ pub mod comprehensive {
                                 return Ok(BarIn::DRequired(payload));
                         }
                         4 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3459,7 +3463,7 @@ pub mod comprehensive {
                             return Ok(BarIn::GRequired(payload));
                         }
                         7 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3681,7 +3685,7 @@ pub mod comprehensive {
                             return Ok(BarIn::AAsymmetric);
                         }
                         17 => {
-                            let payload = if size == 0_usize {
+                            let payload = if payload_size == 0_usize {
                                 0.0_f64
                             } else {
                                 let mut buffer = [0; 8];
@@ -3691,7 +3695,7 @@ pub mod comprehensive {
                             return Ok(BarIn::BAsymmetric(payload));
                         }
                         18 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3703,7 +3707,7 @@ pub mod comprehensive {
                             return Ok(BarIn::CAsymmetric(payload));
                         }
                         19 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3717,7 +3721,7 @@ pub mod comprehensive {
                                 return Ok(BarIn::DAsymmetric(payload));
                         }
                         20 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3744,7 +3748,7 @@ pub mod comprehensive {
                             return Ok(BarIn::GAsymmetric(payload));
                         }
                         23 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3968,7 +3972,7 @@ pub mod comprehensive {
                             return Ok(BarIn::AOptional(fallback));
                         }
                         33 => {
-                            let payload = if size == 0_usize {
+                            let payload = if payload_size == 0_usize {
                                 0.0_f64
                             } else {
                                 let mut buffer = [0; 8];
@@ -3980,7 +3984,7 @@ pub mod comprehensive {
                             return Ok(BarIn::BOptional(payload, fallback));
                         }
                         34 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -3994,7 +3998,7 @@ pub mod comprehensive {
                             return Ok(BarIn::COptional(payload, fallback));
                         }
                         35 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -4010,7 +4014,7 @@ pub mod comprehensive {
                             return Ok(BarIn::DOptional(payload, fallback));
                         }
                         36 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -4043,7 +4047,7 @@ pub mod comprehensive {
                             return Ok(BarIn::GOptional(payload, fallback));
                         }
                         39 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -4277,7 +4281,7 @@ pub mod comprehensive {
                             return Ok(BarIn::OOptional(payload, fallback));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -5376,8 +5380,8 @@ pub mod comprehensive {
                 let mut o_optional_field: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
 
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -5388,7 +5392,7 @@ pub mod comprehensive {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -5397,7 +5401,7 @@ pub mod comprehensive {
                             a_required_field.get_or_insert(payload);
                         }
                         1 => {
-                            let payload = if size == 0_usize {
+                            let payload = if payload_size == 0_usize {
                                 0.0_f64
                             } else {
                                 let mut buffer = [0; 8];
@@ -5408,7 +5412,7 @@ pub mod comprehensive {
                             b_required_field.get_or_insert(payload);
                         }
                         2 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5421,7 +5425,7 @@ pub mod comprehensive {
                             c_required_field.get_or_insert(payload);
                         }
                         3 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5434,7 +5438,7 @@ pub mod comprehensive {
                             d_required_field.get_or_insert(payload);
                         }
                         4 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5464,7 +5468,7 @@ pub mod comprehensive {
                             g_required_field.get_or_insert(payload);
                         }
                         7 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5695,7 +5699,7 @@ pub mod comprehensive {
                             a_asymmetric_field.get_or_insert(payload);
                         }
                         17 => {
-                            let payload = if size == 0_usize {
+                            let payload = if payload_size == 0_usize {
                                 0.0_f64
                             } else {
                                 let mut buffer = [0; 8];
@@ -5706,7 +5710,7 @@ pub mod comprehensive {
                             b_asymmetric_field.get_or_insert(payload);
                         }
                         18 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5719,7 +5723,7 @@ pub mod comprehensive {
                             c_asymmetric_field.get_or_insert(payload);
                         }
                         19 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5732,7 +5736,7 @@ pub mod comprehensive {
                             d_asymmetric_field.get_or_insert(payload);
                         }
                         20 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5762,7 +5766,7 @@ pub mod comprehensive {
                             g_asymmetric_field.get_or_insert(payload);
                         }
                         23 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -5993,7 +5997,7 @@ pub mod comprehensive {
                             a_optional_field.get_or_insert(payload);
                         }
                         33 => {
-                            let payload = if size == 0_usize {
+                            let payload = if payload_size == 0_usize {
                                 0.0_f64
                             } else {
                                 let mut buffer = [0; 8];
@@ -6004,7 +6008,7 @@ pub mod comprehensive {
                             b_optional_field.get_or_insert(payload);
                         }
                         34 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -6017,7 +6021,7 @@ pub mod comprehensive {
                             c_optional_field.get_or_insert(payload);
                         }
                         35 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -6030,7 +6034,7 @@ pub mod comprehensive {
                             d_optional_field.get_or_insert(payload);
                         }
                         36 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -6060,7 +6064,7 @@ pub mod comprehensive {
                             g_optional_field.get_or_insert(payload);
                         }
                         39 => {
-                            let payload = match size {
+                            let payload = match payload_size {
                                 0_usize => 0_u64,
                                 8_usize => {
                                     let mut buffer = [0; 8];
@@ -6286,7 +6290,7 @@ pub mod comprehensive {
                             o_optional_field.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -6437,8 +6441,8 @@ pub mod comprehensive {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -6449,11 +6453,11 @@ pub mod comprehensive {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -6497,13 +6501,14 @@ pub mod comprehensive {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut \
+                        *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -6571,8 +6576,8 @@ pub mod comprehensive {
                 let mut y_field: Option<super::bar::BarIn> = None;
 
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -6583,7 +6588,7 @@ pub mod comprehensive {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -6599,7 +6604,7 @@ pub mod comprehensive {
                             y_field.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -6680,9 +6685,10 @@ pub mod comprehensive {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut \
+                        *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -6696,7 +6702,7 @@ pub mod comprehensive {
                             return Ok(FooOrBarIn::Y(payload));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -6917,8 +6923,8 @@ pub mod schema_evolution {
                 let mut nonexistent_to_optional_field: Option<String> = None;
 
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -6929,7 +6935,7 @@ pub mod schema_evolution {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -7063,7 +7069,7 @@ pub mod schema_evolution {
                             nonexistent_to_optional_field.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -7339,9 +7345,10 @@ pub mod schema_evolution {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut \
+                        *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -7489,7 +7496,7 @@ pub mod schema_evolution {
                                 fallback));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -7761,8 +7768,8 @@ pub mod schema_evolution {
                 let mut optional_some_to_nonexistent_field: Option<String> = None;
 
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -7773,7 +7780,7 @@ pub mod schema_evolution {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -7927,7 +7934,7 @@ pub mod schema_evolution {
                             optional_some_to_nonexistent_field.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -8184,9 +8191,10 @@ pub mod schema_evolution {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut \
+                        *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -8310,7 +8318,7 @@ pub mod schema_evolution {
                             return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -8395,8 +8403,8 @@ pub mod schema_evolution {
                 let mut x_field: Option<String> = None;
 
                 loop {
-                    let (index, size) = match super::super::deserialize_field_header(&mut \
-                        *reader) {
+                    let (index, payload_size) = match \
+                        super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
                         Err(err) => {
                             if let std::io::ErrorKind::UnexpectedEof = err.kind() {
@@ -8407,7 +8415,7 @@ pub mod schema_evolution {
                         }
                     };
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -8421,7 +8429,7 @@ pub mod schema_evolution {
                             x_field.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
@@ -8487,9 +8495,10 @@ pub mod schema_evolution {
                 T: ::std::io::BufRead,
             {
                 loop {
-                    let (index, size) = super::super::deserialize_field_header(&mut *reader)?;
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut \
+                        *reader)?;
 
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, size as u64);
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
                         0 => {
@@ -8502,7 +8511,7 @@ pub mod schema_evolution {
                             return Ok(SingletonChoiceIn::X(payload));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
