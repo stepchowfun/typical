@@ -586,10 +586,10 @@ OPTIONS:
 
 SUBCOMMANDS:
     format
-            Format a schema and its transitive dependencies
+            Formats a schema and its transitive dependencies
 
     generate
-            Generate code for a schema and its transitive dependencies
+            Generates code for a schema and its transitive dependencies
 
     help
             Prints this message or the help of the given subcommand(s)

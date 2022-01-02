@@ -65,7 +65,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         .setting(AppSettings::VersionlessSubcommands)
         .subcommand(
             SubCommand::with_name(GENERATE_SUBCOMMAND)
-                .about("Generate code for a schema and its transitive dependencies")
+                .about("Generates code for a schema and its transitive dependencies")
                 .arg(
                     Arg::with_name(GENERATE_SUBCOMMAND_PATH_OPTION)
                         .value_name("SCHEMA_PATH")
@@ -95,7 +95,7 @@ fn cli<'a, 'b>() -> App<'a, 'b> {
         )
         .subcommand(
             SubCommand::with_name(FORMAT_SUBCOMMAND)
-                .about("Format a schema and its transitive dependencies")
+                .about("Formats a schema and its transitive dependencies")
                 .arg(
                     Arg::with_name(FORMAT_SUBCOMMAND_PATH_OPTION)
                         .value_name("SCHEMA_PATH")
