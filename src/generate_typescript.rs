@@ -960,14 +960,10 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 3)?;
                         writeln!(buffer, "}}")?;
                     }
-                    if declaration.fields.len() != 1 {
-                        // The above check is needed due to
-                        // https://github.com/microsoft/TypeScript/issues/47288.
-                        write_indentation(buffer, indentation + 3)?;
-                        writeln!(buffer, "default:")?;
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "return unreachable(value);")?;
-                    }
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "default:")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "return unreachable(value);")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -1051,14 +1047,10 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 3)?;
                         writeln!(buffer, "}}")?;
                     }
-                    if declaration.fields.len() != 1 {
-                        // The above check is needed due to
-                        // https://github.com/microsoft/TypeScript/issues/47288.
-                        write_indentation(buffer, indentation + 3)?;
-                        writeln!(buffer, "default:")?;
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "return unreachable(value);")?;
-                    }
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "default:")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "return unreachable(value);")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -1263,6 +1255,14 @@ fn write_choice<T: Write>(
             write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         }
         write!(buffer, " }}")?;
+    }
+
+    // See https://github.com/microsoft/TypeScript/issues/46978#issuecomment-984093435 for an
+    // explanation of this extra case.
+    if fields.len() == 1 {
+        writeln!(buffer)?;
+        write_indentation(buffer, indentation + 1)?;
+        write!(buffer, "| {{ field: never }}")?;
     }
 
     if fields.is_empty() {
@@ -8791,10 +8791,12 @@ export namespace SchemaEvolution {
     }
 
     export type SingletonChoiceOut =
-      | { field: 'x'; value: string };
+      | { field: 'x'; value: string }
+      | { field: never };
 
     export type SingletonChoiceIn =
-      | { field: 'x'; value: string };
+      | { field: 'x'; value: string }
+      | { field: never };
 
     export namespace SingletonChoice {
       export function size(value: SingletonChoiceOut): number {
@@ -8806,6 +8808,8 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
+          default:
+            return unreachable(value);
         }
       }
 
@@ -8830,6 +8834,8 @@ export namespace SchemaEvolution {
             }
             return offset;
           }
+          default:
+            return unreachable(value);
         }
       }
 
