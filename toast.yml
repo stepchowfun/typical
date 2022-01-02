@@ -161,9 +161,13 @@ tasks:
       - build
     input_paths:
       - .gitignore
+      - examples/typescript
       - integration_tests/types
       - integration_tests/typescript
     excluded_input_paths:
+      - examples/typescript/dist
+      - examples/typescript/generated
+      - examples/typescript/node_modules
       - integration_tests/typescript/dist
       - integration_tests/typescript/generated
       - integration_tests/typescript/node_modules
@@ -171,8 +175,10 @@ tasks:
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
-      # Validate the resulting TypeScript code.
-      (cd integration_tests/typescript && npm run check)
+      # Validate and run the example project and the integration test.
+      for SCENARIO in examples/typescript integration_tests/typescript; do
+        (cd "$SCENARIO" && npm run run)
+      done
 
   lint:
     description: Run the linters.
@@ -186,6 +192,9 @@ tasks:
       # [tag:excluded_input_paths] Keep this in sync with [ref:gitignore].
       - artifacts
       - examples/rust/target
+      - examples/typescript/dist
+      - examples/typescript/generated
+      - examples/typescript/node_modules
       - integration_tests/rust/target
       - integration_tests/typescript/dist
       - integration_tests/typescript/generated

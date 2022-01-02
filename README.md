@@ -14,7 +14,7 @@ In short, Typical offers two important features that are conventionally thought 
 **Supported programming languages:**
 
 - Rust
-- *Coming soon:* TypeScript
+- TypeScript (and thereby JavaScript)
 
 ## Tutorial
 
