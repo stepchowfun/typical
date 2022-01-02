@@ -1,5 +1,5 @@
-import checkOk from './round-trip';
 import { Comprehensive } from '../generated/types';
+import { checkOk, checkMatch } from './round-trip';
 
 checkOk(
   Comprehensive.Bar.Bar.size,
@@ -8,7 +8,10 @@ checkOk(
   { field: 'aRequired' },
 );
 
-checkOk(
+// eslint-disable-next-line no-console
+console.log();
+
+checkMatch(
   Comprehensive.Main.EmptyStruct.size,
   Comprehensive.Main.EmptyStruct.serialize,
   Comprehensive.Main.EmptyStruct.deserialize,

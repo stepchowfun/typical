@@ -282,7 +282,7 @@ function deserializeVarint(
   const firstByte = dataView.getUint8(offset);
   const sizeMinusOne = varintSizeFromFirstByte(firstByte) - 1;
   const offsetPlusOne = offset + 1;
-  dataView64.setBigUint64(offset, 0n, true);
+  dataView64.setBigUint64(0, 0n, true);
   for (let i = 0; i < sizeMinusOne; ++i) {{
     dataView64.setUint8(i, dataView.getUint8(offsetPlusOne + i));
   }}
@@ -2248,7 +2248,7 @@ function deserializeVarint(
   const firstByte = dataView.getUint8(offset);
   const sizeMinusOne = varintSizeFromFirstByte(firstByte) - 1;
   const offsetPlusOne = offset + 1;
-  dataView64.setBigUint64(offset, 0n, true);
+  dataView64.setBigUint64(0, 0n, true);
   for (let i = 0; i < sizeMinusOne; ++i) {
     dataView64.setUint8(i, dataView.getUint8(offsetPlusOne + i));
   }
