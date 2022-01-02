@@ -601,7 +601,7 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 2)?;
                         write!(buffer, "let mut ")?;
                         write_identifier(buffer, &field.name, Snake, None)?;
-                        write!(buffer, ": Option<")?;
+                        write!(buffer, "_field: Option<")?;
                         write_type(buffer, &imports, namespace, &field.r#type.variant, In)?;
                         writeln!(buffer, "> = None;")?;
                     }
@@ -657,7 +657,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 5)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    writeln!(buffer, ".get_or_insert(payload);")?;
+                    writeln!(buffer, "_field.get_or_insert(payload);")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -690,7 +690,7 @@ fn write_schema<T: Write>(
                                     write!(buffer, " || ")?;
                                 }
                                 write_identifier(buffer, &field.name, Snake, None)?;
-                                write!(buffer, ".is_none()")?;
+                                write!(buffer, "_field.is_none()")?;
                             }
                         }
                     }
@@ -714,11 +714,12 @@ fn write_schema<T: Write>(
                 for field in &declaration.fields {
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ": ")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, "_field")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Optional => {}
                         schema::Rule::Required => {
-                            write!(buffer, ": ")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
                             write!(buffer, ".unwrap()")?;
                         }
                     }
@@ -992,6 +993,18 @@ fn write_schema<T: Write>(
                         true,
                     )?;
                     match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "return Ok(")?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, ");")?;
+                            } else {
+                                writeln!(buffer, "(payload));")?;
+                            }
+                        }
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "let fallback = Box::new(<")?;
@@ -1008,18 +1021,6 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, "(fallback));")?;
                             } else {
                                 writeln!(buffer, "(payload, fallback));")?;
-                            }
-                        }
-                        schema::Rule::Asymmetric | schema::Rule::Required => {
-                            write_indentation(buffer, indentation + 5)?;
-                            write!(buffer, "return Ok(")?;
-                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                            write!(buffer, "::")?;
-                            write_identifier(buffer, &field.name, Pascal, None)?;
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, ");")?;
-                            } else {
-                                writeln!(buffer, "(payload));")?;
                             }
                         }
                     }
@@ -1081,15 +1082,6 @@ fn write_schema<T: Write>(
                     write!(buffer, "::")?;
                     write_identifier(buffer, &field.name, Pascal, None)?;
                     match field.rule {
-                        schema::Rule::Optional => {
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, "(Box::new((*fallback).into())),")?;
-                            } else {
-                                write!(buffer, "(payload")?;
-                                write_into_invocation(buffer, &field.r#type.variant)?;
-                                writeln!(buffer, ", Box::new((*fallback).into())),")?;
-                            }
-                        }
                         schema::Rule::Asymmetric | schema::Rule::Required => {
                             if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                                 writeln!(buffer, ",")?;
@@ -1097,6 +1089,15 @@ fn write_schema<T: Write>(
                                 write!(buffer, "(payload")?;
                                 write_into_invocation(buffer, &field.r#type.variant)?;
                                 writeln!(buffer, "),")?;
+                            }
+                        }
+                        schema::Rule::Optional => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(Box::new((*fallback).into())),")?;
+                            } else {
+                                write!(buffer, "(payload")?;
+                                write_into_invocation(buffer, &field.r#type.variant)?;
+                                writeln!(buffer, ", Box::new((*fallback).into())),")?;
                             }
                         }
                     }
@@ -2209,7 +2210,7 @@ pub mod circular_dependency {
                     Self: Sized,
                     T: ::std::io::BufRead,
                 {
-                    let mut x: Option<super::super::main::StructFromAboveIn> = None;
+                    let mut x_field: Option<super::super::main::StructFromAboveIn> = None;
 
                     loop {
                         let (index, size) = match \
@@ -2232,7 +2233,7 @@ pub mod circular_dependency {
                                     super::super::super::Deserialize>::deserialize(&mut \
                                     sub_reader)?;
 
-                                x.get_or_insert(payload);
+                                x_field.get_or_insert(payload);
                             }
                             _ => {
                                 super::super::super::skip(&mut sub_reader, size as usize)?;
@@ -2240,7 +2241,7 @@ pub mod circular_dependency {
                         }
                     }
 
-                    if x.is_none() {
+                    if x_field.is_none() {
                         return Err(::std::io::Error::new(
                             ::std::io::ErrorKind::InvalidData,
                             \"Struct missing one or more field(s).\",
@@ -2248,7 +2249,7 @@ pub mod circular_dependency {
                     }
 
                     Ok(StructFromBelowIn {
-                        x: x.unwrap(),
+                        x: x_field.unwrap(),
                     })
                 }
             }
@@ -5328,51 +5329,51 @@ pub mod comprehensive {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut a_required: Option<()> = None;
-                let mut b_required: Option<f64> = None;
-                let mut c_required: Option<u64> = None;
-                let mut d_required: Option<i64> = None;
-                let mut e_required: Option<bool> = None;
-                let mut f_required: Option<Vec<u8>> = None;
-                let mut g_required: Option<String> = None;
-                let mut h_required: Option<Vec<()>> = None;
-                let mut i_required: Option<Vec<f64>> = None;
-                let mut j_required: Option<Vec<u64>> = None;
-                let mut k_required: Option<Vec<i64>> = None;
-                let mut l_required: Option<Vec<bool>> = None;
-                let mut m_required: Option<Vec<Vec<u8>>> = None;
-                let mut n_required: Option<Vec<String>> = None;
-                let mut o_required: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
-                let mut a_asymmetric: Option<()> = None;
-                let mut b_asymmetric: Option<f64> = None;
-                let mut c_asymmetric: Option<u64> = None;
-                let mut d_asymmetric: Option<i64> = None;
-                let mut e_asymmetric: Option<bool> = None;
-                let mut f_asymmetric: Option<Vec<u8>> = None;
-                let mut g_asymmetric: Option<String> = None;
-                let mut h_asymmetric: Option<Vec<()>> = None;
-                let mut i_asymmetric: Option<Vec<f64>> = None;
-                let mut j_asymmetric: Option<Vec<u64>> = None;
-                let mut k_asymmetric: Option<Vec<i64>> = None;
-                let mut l_asymmetric: Option<Vec<bool>> = None;
-                let mut m_asymmetric: Option<Vec<Vec<u8>>> = None;
-                let mut n_asymmetric: Option<Vec<String>> = None;
-                let mut o_asymmetric: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
-                let mut a_optional: Option<()> = None;
-                let mut b_optional: Option<f64> = None;
-                let mut c_optional: Option<u64> = None;
-                let mut d_optional: Option<i64> = None;
-                let mut e_optional: Option<bool> = None;
-                let mut f_optional: Option<Vec<u8>> = None;
-                let mut g_optional: Option<String> = None;
-                let mut h_optional: Option<Vec<()>> = None;
-                let mut i_optional: Option<Vec<f64>> = None;
-                let mut j_optional: Option<Vec<u64>> = None;
-                let mut k_optional: Option<Vec<i64>> = None;
-                let mut l_optional: Option<Vec<bool>> = None;
-                let mut m_optional: Option<Vec<Vec<u8>>> = None;
-                let mut n_optional: Option<Vec<String>> = None;
-                let mut o_optional: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
+                let mut a_required_field: Option<()> = None;
+                let mut b_required_field: Option<f64> = None;
+                let mut c_required_field: Option<u64> = None;
+                let mut d_required_field: Option<i64> = None;
+                let mut e_required_field: Option<bool> = None;
+                let mut f_required_field: Option<Vec<u8>> = None;
+                let mut g_required_field: Option<String> = None;
+                let mut h_required_field: Option<Vec<()>> = None;
+                let mut i_required_field: Option<Vec<f64>> = None;
+                let mut j_required_field: Option<Vec<u64>> = None;
+                let mut k_required_field: Option<Vec<i64>> = None;
+                let mut l_required_field: Option<Vec<bool>> = None;
+                let mut m_required_field: Option<Vec<Vec<u8>>> = None;
+                let mut n_required_field: Option<Vec<String>> = None;
+                let mut o_required_field: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
+                let mut a_asymmetric_field: Option<()> = None;
+                let mut b_asymmetric_field: Option<f64> = None;
+                let mut c_asymmetric_field: Option<u64> = None;
+                let mut d_asymmetric_field: Option<i64> = None;
+                let mut e_asymmetric_field: Option<bool> = None;
+                let mut f_asymmetric_field: Option<Vec<u8>> = None;
+                let mut g_asymmetric_field: Option<String> = None;
+                let mut h_asymmetric_field: Option<Vec<()>> = None;
+                let mut i_asymmetric_field: Option<Vec<f64>> = None;
+                let mut j_asymmetric_field: Option<Vec<u64>> = None;
+                let mut k_asymmetric_field: Option<Vec<i64>> = None;
+                let mut l_asymmetric_field: Option<Vec<bool>> = None;
+                let mut m_asymmetric_field: Option<Vec<Vec<u8>>> = None;
+                let mut n_asymmetric_field: Option<Vec<String>> = None;
+                let mut o_asymmetric_field: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
+                let mut a_optional_field: Option<()> = None;
+                let mut b_optional_field: Option<f64> = None;
+                let mut c_optional_field: Option<u64> = None;
+                let mut d_optional_field: Option<i64> = None;
+                let mut e_optional_field: Option<bool> = None;
+                let mut f_optional_field: Option<Vec<u8>> = None;
+                let mut g_optional_field: Option<String> = None;
+                let mut h_optional_field: Option<Vec<()>> = None;
+                let mut i_optional_field: Option<Vec<f64>> = None;
+                let mut j_optional_field: Option<Vec<u64>> = None;
+                let mut k_optional_field: Option<Vec<i64>> = None;
+                let mut l_optional_field: Option<Vec<bool>> = None;
+                let mut m_optional_field: Option<Vec<Vec<u8>>> = None;
+                let mut n_optional_field: Option<Vec<String>> = None;
+                let mut o_optional_field: Option<Vec<Vec<super::main::EmptyStructIn>>> = None;
 
                 loop {
                     let (index, size) = match super::super::deserialize_field_header(&mut \
@@ -5393,7 +5394,7 @@ pub mod comprehensive {
                         0 => {
                             let payload = ();
 
-                            a_required.get_or_insert(payload);
+                            a_required_field.get_or_insert(payload);
                         }
                         1 => {
                             let payload = if size == 0_usize {
@@ -5404,7 +5405,7 @@ pub mod comprehensive {
                                 f64::from_le_bytes(buffer)
                             };
 
-                            b_required.get_or_insert(payload);
+                            b_required_field.get_or_insert(payload);
                         }
                         2 => {
                             let payload = match size {
@@ -5417,7 +5418,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
 
-                            c_required.get_or_insert(payload);
+                            c_required_field.get_or_insert(payload);
                         }
                         3 => {
                             let payload = match size {
@@ -5430,7 +5431,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
-                            d_required.get_or_insert(payload);
+                            d_required_field.get_or_insert(payload);
                         }
                         4 => {
                             let payload = match size {
@@ -5444,13 +5445,13 @@ pub mod comprehensive {
                             };
                             let payload = payload != 0_u64;
 
-                            e_required.get_or_insert(payload);
+                            e_required_field.get_or_insert(payload);
                         }
                         5 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
 
-                            f_required.get_or_insert(payload);
+                            f_required_field.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -5460,7 +5461,7 @@ pub mod comprehensive {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            g_required.get_or_insert(payload);
+                            g_required_field.get_or_insert(payload);
                         }
                         7 => {
                             let payload = match size {
@@ -5474,7 +5475,7 @@ pub mod comprehensive {
                             };
                             let payload = vec![(); payload as usize];
 
-                            h_required.get_or_insert(payload);
+                            h_required_field.get_or_insert(payload);
                         }
                         8 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5501,7 +5502,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            i_required.get_or_insert(payload);
+                            i_required_field.get_or_insert(payload);
                         }
                         9 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5526,7 +5527,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            j_required.get_or_insert(payload);
+                            j_required_field.get_or_insert(payload);
                         }
                         10 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5551,7 +5552,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            k_required.get_or_insert(payload);
+                            k_required_field.get_or_insert(payload);
                         }
                         11 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5577,7 +5578,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            l_required.get_or_insert(payload);
+                            l_required_field.get_or_insert(payload);
                         }
                         12 => {
                             let mut payload = Vec::new();
@@ -5604,7 +5605,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            m_required.get_or_insert(payload);
+                            m_required_field.get_or_insert(payload);
                         }
                         13 => {
                             let mut payload = Vec::new();
@@ -5636,7 +5637,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            n_required.get_or_insert(payload);
+                            n_required_field.get_or_insert(payload);
                         }
                         14 => {
                             let mut payload = Vec::new();
@@ -5686,12 +5687,12 @@ pub mod comprehensive {
                                 });
                             }
 
-                            o_required.get_or_insert(payload);
+                            o_required_field.get_or_insert(payload);
                         }
                         16 => {
                             let payload = ();
 
-                            a_asymmetric.get_or_insert(payload);
+                            a_asymmetric_field.get_or_insert(payload);
                         }
                         17 => {
                             let payload = if size == 0_usize {
@@ -5702,7 +5703,7 @@ pub mod comprehensive {
                                 f64::from_le_bytes(buffer)
                             };
 
-                            b_asymmetric.get_or_insert(payload);
+                            b_asymmetric_field.get_or_insert(payload);
                         }
                         18 => {
                             let payload = match size {
@@ -5715,7 +5716,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
 
-                            c_asymmetric.get_or_insert(payload);
+                            c_asymmetric_field.get_or_insert(payload);
                         }
                         19 => {
                             let payload = match size {
@@ -5728,7 +5729,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
-                            d_asymmetric.get_or_insert(payload);
+                            d_asymmetric_field.get_or_insert(payload);
                         }
                         20 => {
                             let payload = match size {
@@ -5742,13 +5743,13 @@ pub mod comprehensive {
                             };
                             let payload = payload != 0_u64;
 
-                            e_asymmetric.get_or_insert(payload);
+                            e_asymmetric_field.get_or_insert(payload);
                         }
                         21 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
 
-                            f_asymmetric.get_or_insert(payload);
+                            f_asymmetric_field.get_or_insert(payload);
                         }
                         22 => {
                             let mut buffer = vec![];
@@ -5758,7 +5759,7 @@ pub mod comprehensive {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            g_asymmetric.get_or_insert(payload);
+                            g_asymmetric_field.get_or_insert(payload);
                         }
                         23 => {
                             let payload = match size {
@@ -5772,7 +5773,7 @@ pub mod comprehensive {
                             };
                             let payload = vec![(); payload as usize];
 
-                            h_asymmetric.get_or_insert(payload);
+                            h_asymmetric_field.get_or_insert(payload);
                         }
                         24 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5799,7 +5800,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            i_asymmetric.get_or_insert(payload);
+                            i_asymmetric_field.get_or_insert(payload);
                         }
                         25 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5824,7 +5825,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            j_asymmetric.get_or_insert(payload);
+                            j_asymmetric_field.get_or_insert(payload);
                         }
                         26 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5849,7 +5850,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            k_asymmetric.get_or_insert(payload);
+                            k_asymmetric_field.get_or_insert(payload);
                         }
                         27 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -5875,7 +5876,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            l_asymmetric.get_or_insert(payload);
+                            l_asymmetric_field.get_or_insert(payload);
                         }
                         28 => {
                             let mut payload = Vec::new();
@@ -5902,7 +5903,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            m_asymmetric.get_or_insert(payload);
+                            m_asymmetric_field.get_or_insert(payload);
                         }
                         29 => {
                             let mut payload = Vec::new();
@@ -5934,7 +5935,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            n_asymmetric.get_or_insert(payload);
+                            n_asymmetric_field.get_or_insert(payload);
                         }
                         30 => {
                             let mut payload = Vec::new();
@@ -5984,12 +5985,12 @@ pub mod comprehensive {
                                 });
                             }
 
-                            o_asymmetric.get_or_insert(payload);
+                            o_asymmetric_field.get_or_insert(payload);
                         }
                         32 => {
                             let payload = ();
 
-                            a_optional.get_or_insert(payload);
+                            a_optional_field.get_or_insert(payload);
                         }
                         33 => {
                             let payload = if size == 0_usize {
@@ -6000,7 +6001,7 @@ pub mod comprehensive {
                                 f64::from_le_bytes(buffer)
                             };
 
-                            b_optional.get_or_insert(payload);
+                            b_optional_field.get_or_insert(payload);
                         }
                         34 => {
                             let payload = match size {
@@ -6013,7 +6014,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
 
-                            c_optional.get_or_insert(payload);
+                            c_optional_field.get_or_insert(payload);
                         }
                         35 => {
                             let payload = match size {
@@ -6026,7 +6027,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
-                            d_optional.get_or_insert(payload);
+                            d_optional_field.get_or_insert(payload);
                         }
                         36 => {
                             let payload = match size {
@@ -6040,13 +6041,13 @@ pub mod comprehensive {
                             };
                             let payload = payload != 0_u64;
 
-                            e_optional.get_or_insert(payload);
+                            e_optional_field.get_or_insert(payload);
                         }
                         37 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
 
-                            f_optional.get_or_insert(payload);
+                            f_optional_field.get_or_insert(payload);
                         }
                         38 => {
                             let mut buffer = vec![];
@@ -6056,7 +6057,7 @@ pub mod comprehensive {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            g_optional.get_or_insert(payload);
+                            g_optional_field.get_or_insert(payload);
                         }
                         39 => {
                             let payload = match size {
@@ -6070,7 +6071,7 @@ pub mod comprehensive {
                             };
                             let payload = vec![(); payload as usize];
 
-                            h_optional.get_or_insert(payload);
+                            h_optional_field.get_or_insert(payload);
                         }
                         40 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -6097,7 +6098,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            i_optional.get_or_insert(payload);
+                            i_optional_field.get_or_insert(payload);
                         }
                         41 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -6122,7 +6123,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            j_optional.get_or_insert(payload);
+                            j_optional_field.get_or_insert(payload);
                         }
                         42 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -6147,7 +6148,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            k_optional.get_or_insert(payload);
+                            k_optional_field.get_or_insert(payload);
                         }
                         43 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut \
@@ -6173,7 +6174,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            l_optional.get_or_insert(payload);
+                            l_optional_field.get_or_insert(payload);
                         }
                         44 => {
                             let mut payload = Vec::new();
@@ -6200,7 +6201,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            m_optional.get_or_insert(payload);
+                            m_optional_field.get_or_insert(payload);
                         }
                         45 => {
                             let mut payload = Vec::new();
@@ -6232,7 +6233,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            n_optional.get_or_insert(payload);
+                            n_optional_field.get_or_insert(payload);
                         }
                         46 => {
                             let mut payload = Vec::new();
@@ -6282,7 +6283,7 @@ pub mod comprehensive {
                                 });
                             }
 
-                            o_optional.get_or_insert(payload);
+                            o_optional_field.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -6290,11 +6291,14 @@ pub mod comprehensive {
                     }
                 }
 
-                if a_required.is_none() || b_required.is_none() || c_required.is_none() || \
-                    d_required.is_none() || e_required.is_none() || f_required.is_none() || \
-                    g_required.is_none() || h_required.is_none() || i_required.is_none() || \
-                    j_required.is_none() || k_required.is_none() || l_required.is_none() || \
-                    m_required.is_none() || n_required.is_none() || o_required.is_none() {
+                if a_required_field.is_none() || b_required_field.is_none() || \
+                    c_required_field.is_none() || d_required_field.is_none() || \
+                    e_required_field.is_none() || f_required_field.is_none() || \
+                    g_required_field.is_none() || h_required_field.is_none() || \
+                    i_required_field.is_none() || j_required_field.is_none() || \
+                    k_required_field.is_none() || l_required_field.is_none() || \
+                    m_required_field.is_none() || n_required_field.is_none() || \
+                    o_required_field.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
@@ -6302,51 +6306,51 @@ pub mod comprehensive {
                 }
 
                 Ok(FooIn {
-                    a_required: a_required.unwrap(),
-                    b_required: b_required.unwrap(),
-                    c_required: c_required.unwrap(),
-                    d_required: d_required.unwrap(),
-                    e_required: e_required.unwrap(),
-                    f_required: f_required.unwrap(),
-                    g_required: g_required.unwrap(),
-                    h_required: h_required.unwrap(),
-                    i_required: i_required.unwrap(),
-                    j_required: j_required.unwrap(),
-                    k_required: k_required.unwrap(),
-                    l_required: l_required.unwrap(),
-                    m_required: m_required.unwrap(),
-                    n_required: n_required.unwrap(),
-                    o_required: o_required.unwrap(),
-                    a_asymmetric,
-                    b_asymmetric,
-                    c_asymmetric,
-                    d_asymmetric,
-                    e_asymmetric,
-                    f_asymmetric,
-                    g_asymmetric,
-                    h_asymmetric,
-                    i_asymmetric,
-                    j_asymmetric,
-                    k_asymmetric,
-                    l_asymmetric,
-                    m_asymmetric,
-                    n_asymmetric,
-                    o_asymmetric,
-                    a_optional,
-                    b_optional,
-                    c_optional,
-                    d_optional,
-                    e_optional,
-                    f_optional,
-                    g_optional,
-                    h_optional,
-                    i_optional,
-                    j_optional,
-                    k_optional,
-                    l_optional,
-                    m_optional,
-                    n_optional,
-                    o_optional,
+                    a_required: a_required_field.unwrap(),
+                    b_required: b_required_field.unwrap(),
+                    c_required: c_required_field.unwrap(),
+                    d_required: d_required_field.unwrap(),
+                    e_required: e_required_field.unwrap(),
+                    f_required: f_required_field.unwrap(),
+                    g_required: g_required_field.unwrap(),
+                    h_required: h_required_field.unwrap(),
+                    i_required: i_required_field.unwrap(),
+                    j_required: j_required_field.unwrap(),
+                    k_required: k_required_field.unwrap(),
+                    l_required: l_required_field.unwrap(),
+                    m_required: m_required_field.unwrap(),
+                    n_required: n_required_field.unwrap(),
+                    o_required: o_required_field.unwrap(),
+                    a_asymmetric: a_asymmetric_field,
+                    b_asymmetric: b_asymmetric_field,
+                    c_asymmetric: c_asymmetric_field,
+                    d_asymmetric: d_asymmetric_field,
+                    e_asymmetric: e_asymmetric_field,
+                    f_asymmetric: f_asymmetric_field,
+                    g_asymmetric: g_asymmetric_field,
+                    h_asymmetric: h_asymmetric_field,
+                    i_asymmetric: i_asymmetric_field,
+                    j_asymmetric: j_asymmetric_field,
+                    k_asymmetric: k_asymmetric_field,
+                    l_asymmetric: l_asymmetric_field,
+                    m_asymmetric: m_asymmetric_field,
+                    n_asymmetric: n_asymmetric_field,
+                    o_asymmetric: o_asymmetric_field,
+                    a_optional: a_optional_field,
+                    b_optional: b_optional_field,
+                    c_optional: c_optional_field,
+                    d_optional: d_optional_field,
+                    e_optional: e_optional_field,
+                    f_optional: f_optional_field,
+                    g_optional: g_optional_field,
+                    h_optional: h_optional_field,
+                    i_optional: i_optional_field,
+                    j_optional: j_optional_field,
+                    k_optional: k_optional_field,
+                    l_optional: l_optional_field,
+                    m_optional: m_optional_field,
+                    n_optional: n_optional_field,
+                    o_optional: o_optional_field,
                 })
             }
         }
@@ -6563,8 +6567,8 @@ pub mod comprehensive {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut x: Option<super::foo::FooIn> = None;
-                let mut y: Option<super::bar::BarIn> = None;
+                let mut x_field: Option<super::foo::FooIn> = None;
+                let mut y_field: Option<super::bar::BarIn> = None;
 
                 loop {
                     let (index, size) = match super::super::deserialize_field_header(&mut \
@@ -6586,13 +6590,13 @@ pub mod comprehensive {
                             let payload = <super::foo::FooIn as \
                                 super::super::Deserialize>::deserialize(&mut sub_reader)?;
 
-                            x.get_or_insert(payload);
+                            x_field.get_or_insert(payload);
                         }
                         1 => {
                             let payload = <super::bar::BarIn as \
                                 super::super::Deserialize>::deserialize(&mut sub_reader)?;
 
-                            y.get_or_insert(payload);
+                            y_field.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -6600,7 +6604,7 @@ pub mod comprehensive {
                     }
                 }
 
-                if x.is_none() || y.is_none() {
+                if x_field.is_none() || y_field.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
@@ -6608,8 +6612,8 @@ pub mod comprehensive {
                 }
 
                 Ok(FooAndBarIn {
-                    x: x.unwrap(),
-                    y: y.unwrap(),
+                    x: x_field.unwrap(),
+                    y: y_field.unwrap(),
                 })
             }
         }
@@ -6898,19 +6902,19 @@ pub mod schema_evolution {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut required_to_required: Option<String> = None;
-                let mut required_to_asymmetric: Option<String> = None;
-                let mut required_to_optional: Option<String> = None;
-                let mut asymmetric_to_required: Option<String> = None;
-                let mut asymmetric_to_asymmetric: Option<String> = None;
-                let mut asymmetric_to_optional: Option<String> = None;
-                let mut optional_none_to_asymmetric: Option<String> = None;
-                let mut optional_none_to_optional: Option<String> = None;
-                let mut optional_some_to_required: Option<String> = None;
-                let mut optional_some_to_asymmetric: Option<String> = None;
-                let mut optional_some_to_optional: Option<String> = None;
-                let mut nonexistent_to_asymmetric: Option<String> = None;
-                let mut nonexistent_to_optional: Option<String> = None;
+                let mut required_to_required_field: Option<String> = None;
+                let mut required_to_asymmetric_field: Option<String> = None;
+                let mut required_to_optional_field: Option<String> = None;
+                let mut asymmetric_to_required_field: Option<String> = None;
+                let mut asymmetric_to_asymmetric_field: Option<String> = None;
+                let mut asymmetric_to_optional_field: Option<String> = None;
+                let mut optional_none_to_asymmetric_field: Option<String> = None;
+                let mut optional_none_to_optional_field: Option<String> = None;
+                let mut optional_some_to_required_field: Option<String> = None;
+                let mut optional_some_to_asymmetric_field: Option<String> = None;
+                let mut optional_some_to_optional_field: Option<String> = None;
+                let mut nonexistent_to_asymmetric_field: Option<String> = None;
+                let mut nonexistent_to_optional_field: Option<String> = None;
 
                 loop {
                     let (index, size) = match super::super::deserialize_field_header(&mut \
@@ -6936,7 +6940,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_required.get_or_insert(payload);
+                            required_to_required_field.get_or_insert(payload);
                         }
                         1 => {
                             let mut buffer = vec![];
@@ -6946,7 +6950,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_asymmetric.get_or_insert(payload);
+                            required_to_asymmetric_field.get_or_insert(payload);
                         }
                         2 => {
                             let mut buffer = vec![];
@@ -6956,7 +6960,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_optional.get_or_insert(payload);
+                            required_to_optional_field.get_or_insert(payload);
                         }
                         4 => {
                             let mut buffer = vec![];
@@ -6966,7 +6970,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_required.get_or_insert(payload);
+                            asymmetric_to_required_field.get_or_insert(payload);
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -6976,7 +6980,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_asymmetric.get_or_insert(payload);
+                            asymmetric_to_asymmetric_field.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -6986,7 +6990,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_optional.get_or_insert(payload);
+                            asymmetric_to_optional_field.get_or_insert(payload);
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -6996,7 +7000,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_asymmetric.get_or_insert(payload);
+                            optional_none_to_asymmetric_field.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -7006,7 +7010,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_optional.get_or_insert(payload);
+                            optional_none_to_optional_field.get_or_insert(payload);
                         }
                         12 => {
                             let mut buffer = vec![];
@@ -7016,7 +7020,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_required.get_or_insert(payload);
+                            optional_some_to_required_field.get_or_insert(payload);
                         }
                         13 => {
                             let mut buffer = vec![];
@@ -7026,7 +7030,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_asymmetric.get_or_insert(payload);
+                            optional_some_to_asymmetric_field.get_or_insert(payload);
                         }
                         14 => {
                             let mut buffer = vec![];
@@ -7036,7 +7040,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_optional.get_or_insert(payload);
+                            optional_some_to_optional_field.get_or_insert(payload);
                         }
                         17 => {
                             let mut buffer = vec![];
@@ -7046,7 +7050,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            nonexistent_to_asymmetric.get_or_insert(payload);
+                            nonexistent_to_asymmetric_field.get_or_insert(payload);
                         }
                         18 => {
                             let mut buffer = vec![];
@@ -7056,7 +7060,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            nonexistent_to_optional.get_or_insert(payload);
+                            nonexistent_to_optional_field.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -7064,8 +7068,9 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required.is_none() || asymmetric_to_required.is_none() || \
-                    optional_some_to_required.is_none() {
+                if required_to_required_field.is_none() || \
+                    asymmetric_to_required_field.is_none() || \
+                    optional_some_to_required_field.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
@@ -7073,19 +7078,19 @@ pub mod schema_evolution {
                 }
 
                 Ok(ExampleStructIn {
-                    required_to_required: required_to_required.unwrap(),
-                    required_to_asymmetric,
-                    required_to_optional,
-                    asymmetric_to_required: asymmetric_to_required.unwrap(),
-                    asymmetric_to_asymmetric,
-                    asymmetric_to_optional,
-                    optional_none_to_asymmetric,
-                    optional_none_to_optional,
-                    optional_some_to_required: optional_some_to_required.unwrap(),
-                    optional_some_to_asymmetric,
-                    optional_some_to_optional,
-                    nonexistent_to_asymmetric,
-                    nonexistent_to_optional,
+                    required_to_required: required_to_required_field.unwrap(),
+                    required_to_asymmetric: required_to_asymmetric_field,
+                    required_to_optional: required_to_optional_field,
+                    asymmetric_to_required: asymmetric_to_required_field.unwrap(),
+                    asymmetric_to_asymmetric: asymmetric_to_asymmetric_field,
+                    asymmetric_to_optional: asymmetric_to_optional_field,
+                    optional_none_to_asymmetric: optional_none_to_asymmetric_field,
+                    optional_none_to_optional: optional_none_to_optional_field,
+                    optional_some_to_required: optional_some_to_required_field.unwrap(),
+                    optional_some_to_asymmetric: optional_some_to_asymmetric_field,
+                    optional_some_to_optional: optional_some_to_optional_field,
+                    nonexistent_to_asymmetric: nonexistent_to_asymmetric_field,
+                    nonexistent_to_optional: nonexistent_to_optional_field,
                 })
             }
         }
@@ -7739,21 +7744,21 @@ pub mod schema_evolution {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut required_to_required: Option<String> = None;
-                let mut required_to_asymmetric: Option<String> = None;
-                let mut required_to_optional: Option<String> = None;
-                let mut required_to_nonexistent: Option<String> = None;
-                let mut asymmetric_to_required: Option<String> = None;
-                let mut asymmetric_to_asymmetric: Option<String> = None;
-                let mut asymmetric_to_optional: Option<String> = None;
-                let mut asymmetric_to_nonexistent: Option<String> = None;
-                let mut optional_none_to_asymmetric: Option<String> = None;
-                let mut optional_none_to_optional: Option<String> = None;
-                let mut optional_none_to_nonexistent: Option<String> = None;
-                let mut optional_some_to_required: Option<String> = None;
-                let mut optional_some_to_asymmetric: Option<String> = None;
-                let mut optional_some_to_optional: Option<String> = None;
-                let mut optional_some_to_nonexistent: Option<String> = None;
+                let mut required_to_required_field: Option<String> = None;
+                let mut required_to_asymmetric_field: Option<String> = None;
+                let mut required_to_optional_field: Option<String> = None;
+                let mut required_to_nonexistent_field: Option<String> = None;
+                let mut asymmetric_to_required_field: Option<String> = None;
+                let mut asymmetric_to_asymmetric_field: Option<String> = None;
+                let mut asymmetric_to_optional_field: Option<String> = None;
+                let mut asymmetric_to_nonexistent_field: Option<String> = None;
+                let mut optional_none_to_asymmetric_field: Option<String> = None;
+                let mut optional_none_to_optional_field: Option<String> = None;
+                let mut optional_none_to_nonexistent_field: Option<String> = None;
+                let mut optional_some_to_required_field: Option<String> = None;
+                let mut optional_some_to_asymmetric_field: Option<String> = None;
+                let mut optional_some_to_optional_field: Option<String> = None;
+                let mut optional_some_to_nonexistent_field: Option<String> = None;
 
                 loop {
                     let (index, size) = match super::super::deserialize_field_header(&mut \
@@ -7779,7 +7784,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_required.get_or_insert(payload);
+                            required_to_required_field.get_or_insert(payload);
                         }
                         1 => {
                             let mut buffer = vec![];
@@ -7789,7 +7794,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_asymmetric.get_or_insert(payload);
+                            required_to_asymmetric_field.get_or_insert(payload);
                         }
                         2 => {
                             let mut buffer = vec![];
@@ -7799,7 +7804,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_optional.get_or_insert(payload);
+                            required_to_optional_field.get_or_insert(payload);
                         }
                         3 => {
                             let mut buffer = vec![];
@@ -7809,7 +7814,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            required_to_nonexistent.get_or_insert(payload);
+                            required_to_nonexistent_field.get_or_insert(payload);
                         }
                         4 => {
                             let mut buffer = vec![];
@@ -7819,7 +7824,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_required.get_or_insert(payload);
+                            asymmetric_to_required_field.get_or_insert(payload);
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -7829,7 +7834,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_asymmetric.get_or_insert(payload);
+                            asymmetric_to_asymmetric_field.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -7839,7 +7844,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_optional.get_or_insert(payload);
+                            asymmetric_to_optional_field.get_or_insert(payload);
                         }
                         7 => {
                             let mut buffer = vec![];
@@ -7849,7 +7854,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            asymmetric_to_nonexistent.get_or_insert(payload);
+                            asymmetric_to_nonexistent_field.get_or_insert(payload);
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -7859,7 +7864,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_asymmetric.get_or_insert(payload);
+                            optional_none_to_asymmetric_field.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -7869,7 +7874,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_optional.get_or_insert(payload);
+                            optional_none_to_optional_field.get_or_insert(payload);
                         }
                         11 => {
                             let mut buffer = vec![];
@@ -7879,7 +7884,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_none_to_nonexistent.get_or_insert(payload);
+                            optional_none_to_nonexistent_field.get_or_insert(payload);
                         }
                         12 => {
                             let mut buffer = vec![];
@@ -7889,7 +7894,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_required.get_or_insert(payload);
+                            optional_some_to_required_field.get_or_insert(payload);
                         }
                         13 => {
                             let mut buffer = vec![];
@@ -7899,7 +7904,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_asymmetric.get_or_insert(payload);
+                            optional_some_to_asymmetric_field.get_or_insert(payload);
                         }
                         14 => {
                             let mut buffer = vec![];
@@ -7909,7 +7914,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_optional.get_or_insert(payload);
+                            optional_some_to_optional_field.get_or_insert(payload);
                         }
                         15 => {
                             let mut buffer = vec![];
@@ -7919,7 +7924,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            optional_some_to_nonexistent.get_or_insert(payload);
+                            optional_some_to_nonexistent_field.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -7927,8 +7932,10 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required.is_none() || required_to_asymmetric.is_none() || \
-                    required_to_optional.is_none() || required_to_nonexistent.is_none() {
+                if required_to_required_field.is_none() || \
+                    required_to_asymmetric_field.is_none() || \
+                    required_to_optional_field.is_none() || \
+                    required_to_nonexistent_field.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
@@ -7936,21 +7943,21 @@ pub mod schema_evolution {
                 }
 
                 Ok(ExampleStructIn {
-                    required_to_required: required_to_required.unwrap(),
-                    required_to_asymmetric: required_to_asymmetric.unwrap(),
-                    required_to_optional: required_to_optional.unwrap(),
-                    required_to_nonexistent: required_to_nonexistent.unwrap(),
-                    asymmetric_to_required,
-                    asymmetric_to_asymmetric,
-                    asymmetric_to_optional,
-                    asymmetric_to_nonexistent,
-                    optional_none_to_asymmetric,
-                    optional_none_to_optional,
-                    optional_none_to_nonexistent,
-                    optional_some_to_required,
-                    optional_some_to_asymmetric,
-                    optional_some_to_optional,
-                    optional_some_to_nonexistent,
+                    required_to_required: required_to_required_field.unwrap(),
+                    required_to_asymmetric: required_to_asymmetric_field.unwrap(),
+                    required_to_optional: required_to_optional_field.unwrap(),
+                    required_to_nonexistent: required_to_nonexistent_field.unwrap(),
+                    asymmetric_to_required: asymmetric_to_required_field,
+                    asymmetric_to_asymmetric: asymmetric_to_asymmetric_field,
+                    asymmetric_to_optional: asymmetric_to_optional_field,
+                    asymmetric_to_nonexistent: asymmetric_to_nonexistent_field,
+                    optional_none_to_asymmetric: optional_none_to_asymmetric_field,
+                    optional_none_to_optional: optional_none_to_optional_field,
+                    optional_none_to_nonexistent: optional_none_to_nonexistent_field,
+                    optional_some_to_required: optional_some_to_required_field,
+                    optional_some_to_asymmetric: optional_some_to_asymmetric_field,
+                    optional_some_to_optional: optional_some_to_optional_field,
+                    optional_some_to_nonexistent: optional_some_to_nonexistent_field,
                 })
             }
         }
@@ -8385,7 +8392,7 @@ pub mod schema_evolution {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut x: Option<String> = None;
+                let mut x_field: Option<String> = None;
 
                 loop {
                     let (index, size) = match super::super::deserialize_field_header(&mut \
@@ -8411,7 +8418,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
 
-                            x.get_or_insert(payload);
+                            x_field.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, size as usize)?;
@@ -8419,7 +8426,7 @@ pub mod schema_evolution {
                     }
                 }
 
-                if x.is_none() {
+                if x_field.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         \"Struct missing one or more field(s).\",
@@ -8427,7 +8434,7 @@ pub mod schema_evolution {
                 }
 
                 Ok(SingletonStructIn {
-                    x: x.unwrap(),
+                    x: x_field.unwrap(),
                 })
             }
         }

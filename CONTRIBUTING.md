@@ -46,7 +46,7 @@ macro_rules! my_macro {
 }
 ```
 
-### The code generation unit tests
+## The code generation unit tests
 
 Each of the code generators has a unit test which contains a large string of generated code produced from the schemas in `integration_tests/types`. This generated code generally doesn't adhere to the 100-column line length limit enforced by the lint CI check. The following Ruby script can be used to wrap the lines for inclusion in the unit test such that they conform to the line length limit:
 
