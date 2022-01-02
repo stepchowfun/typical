@@ -1,19 +1,16 @@
+import checkOk from './round-trip';
 import { Comprehensive } from '../generated/types';
 
-const bar: Comprehensive.Bar.BarOut = { field: 'aRequired' };
-const barSize1 = Comprehensive.Bar.Bar.size(bar);
-const arrayBuffer = new ArrayBuffer(barSize1);
-const dataView = new DataView(arrayBuffer);
-const barSize2 = Comprehensive.Bar.Bar.serialize(dataView, 0, bar);
+checkOk(
+  Comprehensive.Bar.Bar.size,
+  Comprehensive.Bar.Bar.serialize,
+  Comprehensive.Bar.Bar.deserialize,
+  { field: 'aRequired' },
+);
 
-// eslint-disable-next-line no-console
-console.log(bar);
-
-// eslint-disable-next-line no-console
-console.log(barSize1);
-
-// eslint-disable-next-line no-console
-console.log(barSize2);
-
-// eslint-disable-next-line no-console
-console.log(arrayBuffer);
+checkOk(
+  Comprehensive.Main.EmptyStruct.size,
+  Comprehensive.Main.EmptyStruct.serialize,
+  Comprehensive.Main.EmptyStruct.deserialize,
+  {},
+);
