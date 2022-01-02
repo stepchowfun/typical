@@ -738,88 +738,113 @@ fn write_schema<T: Write>(
                 write!(buffer, "): [number, ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, "] {{")?;
-                for field in &declaration.fields {
+                if !declaration.fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "let ")?;
-                    write_identifier(buffer, &field.name, Camel, None)?;
-                    writeln!(buffer, "Field = undefined;")?;
-                }
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "while (true) {{")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(
-                    buffer,
-                    "const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);",
-                )?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "offset = newOffset;")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "switch (index) {{")?;
-                for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "case {}n: {{", field.index)?;
-                    if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                        write_deserialization_invocation(
-                            buffer,
-                            indentation + 5,
-                            &imports,
-                            namespace,
-                            &field.r#type.variant,
-                            true,
-                        )?;
-                        write_indentation(buffer, indentation + 5)?;
-                        write_identifier(buffer, &field.name, Camel, None)?;
-                        writeln!(buffer, "Field = payload;")?;
-                    }
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "}}")?;
-                }
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "default:")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "offset += size;")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
-                if declaration.fields.iter().any(|field| match field.rule {
-                    schema::Rule::Asymmetric | schema::Rule::Optional => false,
-                    schema::Rule::Required => {
-                        !matches!(field.r#type.variant, schema::TypeVariant::Unit)
-                    }
-                }) {
-                    write_indentation(buffer, indentation + 2)?;
-                    write!(buffer, "if (")?;
                     let mut first = true;
                     for field in &declaration.fields {
-                        match field.rule {
-                            schema::Rule::Asymmetric | schema::Rule::Optional => {}
-                            schema::Rule::Required => {
-                                if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                    if first {
-                                        first = false;
-                                    } else {
-                                        write!(buffer, " || ")?;
-                                    }
-                                    write_identifier(buffer, &field.name, Camel, None)?;
-                                    write!(buffer, "Field === undefined")?;
-                                }
-                            }
+                        if first {
+                            first = false;
+                        } else {
+                            write!(buffer, ", ")?;
                         }
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        write!(buffer, "Field")?;
                     }
-                    writeln!(buffer, ") {{")?;
+                    writeln!(buffer, ";")?;
+                    writeln!(buffer)?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "while (true) {{")?;
                     write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "let index, size;")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "try {{")?;
+                    write_indentation(buffer, indentation + 4)?;
                     writeln!(
                         buffer,
-                        "throw new Error('Struct missing one or more field(s).');",
+                        "[offset, index, size] = deserializeFieldHeader(dataView, offset);",
                     )?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "}} catch (e) {{")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "if (e instanceof RangeError) {{")?;
+                    write_indentation(buffer, indentation + 5)?;
+                    writeln!(buffer, "break;")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}} else {{")?;
+                    write_indentation(buffer, indentation + 5)?;
+                    writeln!(buffer, "throw e;")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "}}")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "switch (index) {{")?;
+                    for field in &declaration.fields {
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "case {}n: {{", field.index)?;
+                        if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                            write_deserialization_invocation(
+                                buffer,
+                                indentation + 5,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                true,
+                            )?;
+                            write_indentation(buffer, indentation + 5)?;
+                            write_identifier(buffer, &field.name, Camel, None)?;
+                            writeln!(buffer, "Field = payload;")?;
+                        }
+                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "}}")?;
+                    }
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "default:")?;
+                    write_indentation(buffer, indentation + 5)?;
+                    writeln!(buffer, "offset += size;")?;
+                    write_indentation(buffer, indentation + 5)?;
+                    writeln!(buffer, "break;")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "}}")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                     writeln!(buffer)?;
+                    if declaration.fields.iter().any(|field| match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => false,
+                        schema::Rule::Required => {
+                            !matches!(field.r#type.variant, schema::TypeVariant::Unit)
+                        }
+                    }) {
+                        write_indentation(buffer, indentation + 2)?;
+                        write!(buffer, "if (")?;
+                        first = true;
+                        for field in &declaration.fields {
+                            match field.rule {
+                                schema::Rule::Asymmetric | schema::Rule::Optional => {}
+                                schema::Rule::Required => {
+                                    if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                        if first {
+                                            first = false;
+                                        } else {
+                                            write!(buffer, " || ")?;
+                                        }
+                                        write_identifier(buffer, &field.name, Camel, None)?;
+                                        write!(buffer, "Field === undefined")?;
+                                    }
+                                }
+                            }
+                        }
+                        writeln!(buffer, ") {{")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        writeln!(
+                            buffer,
+                            "throw new Error('Struct missing one or more field(s).');",
+                        )?;
+                        write_indentation(buffer, indentation + 2)?;
+                        writeln!(buffer, "}}")?;
+                        writeln!(buffer)?;
+                    }
                 }
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "return [")?;
@@ -2143,11 +2168,19 @@ export namespace CircularDependency {
           dataView: DataView,
           offset: number,
         ): [number, StructFromBelowIn] {
-          let xField = undefined;
+          let xField;
 
           while (true) {
-            const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-            offset = newOffset;
+            let index, size;
+            try {
+              [offset, index, size] = deserializeFieldHeader(dataView, offset);
+            } catch (e) {
+              if (e instanceof RangeError) {
+                break;
+              } else {
+                throw e;
+              }
+            }
             switch (index) {
               case 0n: {
                 const payload = undefined!;
@@ -2207,17 +2240,6 @@ export namespace CircularDependency {
         dataView: DataView,
         offset: number,
       ): [number, StructFromAboveIn] {
-
-        while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
-          switch (index) {
-            default:
-              offset += size;
-              break;
-          }
-        }
-
         return [
           offset,
           {
@@ -6253,55 +6275,28 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooIn] {
-        let aRequiredField = undefined;
-        let bRequiredField = undefined;
-        let cRequiredField = undefined;
-        let dRequiredField = undefined;
-        let eRequiredField = undefined;
-        let fRequiredField = undefined;
-        let gRequiredField = undefined;
-        let hRequiredField = undefined;
-        let iRequiredField = undefined;
-        let jRequiredField = undefined;
-        let kRequiredField = undefined;
-        let lRequiredField = undefined;
-        let mRequiredField = undefined;
-        let nRequiredField = undefined;
-        let oRequiredField = undefined;
-        let aAsymmetricField = undefined;
-        let bAsymmetricField = undefined;
-        let cAsymmetricField = undefined;
-        let dAsymmetricField = undefined;
-        let eAsymmetricField = undefined;
-        let fAsymmetricField = undefined;
-        let gAsymmetricField = undefined;
-        let hAsymmetricField = undefined;
-        let iAsymmetricField = undefined;
-        let jAsymmetricField = undefined;
-        let kAsymmetricField = undefined;
-        let lAsymmetricField = undefined;
-        let mAsymmetricField = undefined;
-        let nAsymmetricField = undefined;
-        let oAsymmetricField = undefined;
-        let aOptionalField = undefined;
-        let bOptionalField = undefined;
-        let cOptionalField = undefined;
-        let dOptionalField = undefined;
-        let eOptionalField = undefined;
-        let fOptionalField = undefined;
-        let gOptionalField = undefined;
-        let hOptionalField = undefined;
-        let iOptionalField = undefined;
-        let jOptionalField = undefined;
-        let kOptionalField = undefined;
-        let lOptionalField = undefined;
-        let mOptionalField = undefined;
-        let nOptionalField = undefined;
-        let oOptionalField = undefined;
+        let aRequiredField, bRequiredField, cRequiredField, dRequiredField, eRequiredField, \
+            fRequiredField, gRequiredField, hRequiredField, iRequiredField, jRequiredField, \
+            kRequiredField, lRequiredField, mRequiredField, nRequiredField, oRequiredField, \
+            aAsymmetricField, bAsymmetricField, cAsymmetricField, dAsymmetricField, \
+            eAsymmetricField, fAsymmetricField, gAsymmetricField, hAsymmetricField, \
+            iAsymmetricField, jAsymmetricField, kAsymmetricField, lAsymmetricField, \
+            mAsymmetricField, nAsymmetricField, oAsymmetricField, aOptionalField, bOptionalField, \
+            cOptionalField, dOptionalField, eOptionalField, fOptionalField, gOptionalField, \
+            hOptionalField, iOptionalField, jOptionalField, kOptionalField, lOptionalField, \
+            mOptionalField, nOptionalField, oOptionalField;
 
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
+          let index, size;
+          try {
+            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+          } catch (e) {
+            if (e instanceof RangeError) {
+              break;
+            } else {
+              throw e;
+            }
+          }
           switch (index) {
             case 0n: {
             }
@@ -6579,17 +6574,6 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, EmptyStructIn] {
-
-        while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
-          switch (index) {
-            default:
-              offset += size;
-              break;
-          }
-        }
-
         return [
           offset,
           {
@@ -6697,12 +6681,19 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooAndBarIn] {
-        let xField = undefined;
-        let yField = undefined;
+        let xField, yField;
 
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
+          let index, size;
+          try {
+            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+          } catch (e) {
+            if (e instanceof RangeError) {
+              break;
+            } else {
+              throw e;
+            }
+          }
           switch (index) {
             case 0n: {
               const payload = undefined!;
@@ -7169,23 +7160,23 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        let requiredToRequiredField = undefined;
-        let requiredToAsymmetricField = undefined;
-        let requiredToOptionalField = undefined;
-        let asymmetricToRequiredField = undefined;
-        let asymmetricToAsymmetricField = undefined;
-        let asymmetricToOptionalField = undefined;
-        let optionalNoneToAsymmetricField = undefined;
-        let optionalNoneToOptionalField = undefined;
-        let optionalSomeToRequiredField = undefined;
-        let optionalSomeToAsymmetricField = undefined;
-        let optionalSomeToOptionalField = undefined;
-        let nonexistentToAsymmetricField = undefined;
-        let nonexistentToOptionalField = undefined;
+        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, \
+            asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, \
+            optionalNoneToAsymmetricField, optionalNoneToOptionalField, \
+            optionalSomeToRequiredField, optionalSomeToAsymmetricField, \
+            optionalSomeToOptionalField, nonexistentToAsymmetricField, nonexistentToOptionalField;
 
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
+          let index, size;
+          try {
+            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+          } catch (e) {
+            if (e instanceof RangeError) {
+              break;
+            } else {
+              throw e;
+            }
+          }
           switch (index) {
             case 0n: {
               const payload = undefined!;
@@ -8157,25 +8148,25 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        let requiredToRequiredField = undefined;
-        let requiredToAsymmetricField = undefined;
-        let requiredToOptionalField = undefined;
-        let requiredToNonexistentField = undefined;
-        let asymmetricToRequiredField = undefined;
-        let asymmetricToAsymmetricField = undefined;
-        let asymmetricToOptionalField = undefined;
-        let asymmetricToNonexistentField = undefined;
-        let optionalNoneToAsymmetricField = undefined;
-        let optionalNoneToOptionalField = undefined;
-        let optionalNoneToNonexistentField = undefined;
-        let optionalSomeToRequiredField = undefined;
-        let optionalSomeToAsymmetricField = undefined;
-        let optionalSomeToOptionalField = undefined;
-        let optionalSomeToNonexistentField = undefined;
+        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, \
+            requiredToNonexistentField, asymmetricToRequiredField, asymmetricToAsymmetricField, \
+            asymmetricToOptionalField, asymmetricToNonexistentField, \
+            optionalNoneToAsymmetricField, optionalNoneToOptionalField, \
+            optionalNoneToNonexistentField, optionalSomeToRequiredField, \
+            optionalSomeToAsymmetricField, optionalSomeToOptionalField, \
+            optionalSomeToNonexistentField;
 
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
+          let index, size;
+          try {
+            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+          } catch (e) {
+            if (e instanceof RangeError) {
+              break;
+            } else {
+              throw e;
+            }
+          }
           switch (index) {
             case 0n: {
               const payload = undefined!;
@@ -8758,11 +8749,19 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonStructIn] {
-        let xField = undefined;
+        let xField;
 
         while (true) {
-          const [newOffset, index, size] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
+          let index, size;
+          try {
+            [offset, index, size] = deserializeFieldHeader(dataView, offset);
+          } catch (e) {
+            if (e instanceof RangeError) {
+              break;
+            } else {
+              throw e;
+            }
+          }
           switch (index) {
             case 0n: {
               const payload = undefined!;
