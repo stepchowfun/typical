@@ -212,6 +212,19 @@ fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {
     Ok(())
 }
 
+fn finish<T: BufRead>(reader: &mut T) -> io::Result<()> {
+    loop {
+        let buffer = reader.fill_buf()?;
+
+        if buffer.is_empty() {
+            return Ok(());
+        }
+
+        let buffer_size = buffer.len();
+        reader.consume(buffer_size);
+    }
+}
+
 pub trait Serialize {
     fn size(&self) -> usize;
 
@@ -1946,6 +1959,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
+
                             d_required_field.get_or_insert(payload);
                         }
                         4 => {
@@ -2056,6 +2070,7 @@ pub mod comprehensive {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
+
                                 Ok(payload)
                             }
 
@@ -2336,6 +2351,7 @@ pub mod comprehensive {
                                     fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
+
                                         Ok(payload)
                                     }
 
@@ -2621,6 +2637,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
+
                             d_asymmetric_field.get_or_insert(payload);
                         }
                         32 => {
@@ -2731,6 +2748,7 @@ pub mod comprehensive {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
+
                                 Ok(payload)
                             }
 
@@ -3011,6 +3029,7 @@ pub mod comprehensive {
                                     fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
+
                                         Ok(payload)
                                     }
 
@@ -3296,6 +3315,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
+
                             d_optional_field.get_or_insert(payload);
                         }
                         60 => {
@@ -3406,6 +3426,7 @@ pub mod comprehensive {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
+
                                 Ok(payload)
                             }
 
@@ -3686,6 +3707,7 @@ pub mod comprehensive {
                                     fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
+
                                         Ok(payload)
                                     }
 
@@ -5610,6 +5632,7 @@ pub mod comprehensive {
                     match index {
                         0 => {
                             let payload = ();
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ARequired);
                         }
                         1 => {
@@ -5620,6 +5643,7 @@ pub mod comprehensive {
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 f64::from_le_bytes(buffer)
                             };
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::BRequired(payload));
                         }
                         2 => {
@@ -5632,6 +5656,7 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::CRequired(payload));
                         }
                         3 => {
@@ -5644,7 +5669,9 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
-                            let payload = super::super::zigzag_decode(payload);                            return Ok(BarIn::DRequired(payload));
+                            let payload = super::super::zigzag_decode(payload);
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::DRequired(payload));
                         }
                         4 => {
                             let payload = match payload_size {
@@ -5657,11 +5684,13 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = payload != 0_u64;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ERequired(payload));
                         }
                         5 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::FRequired(payload));
                         }
                         6 => {
@@ -5671,14 +5700,17 @@ pub mod comprehensive {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::GRequired(payload));
                         }
                         7 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::HRequired(payload));
                         }
                         8 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::IRequired(payload));
                         }
                         9 => {
@@ -5692,6 +5724,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = vec![(); payload as usize];
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::JRequired(payload));
                         }
                         10 => {
@@ -5717,6 +5750,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::KRequired(payload));
                         }
                         11 => {
@@ -5740,12 +5774,14 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::LRequired(payload));
                         }
                         12 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
+
                                 Ok(payload)
                             }
 
@@ -5763,6 +5799,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::MRequired(payload));
                         }
                         13 => {
@@ -5787,6 +5824,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::NRequired(payload));
                         }
                         14 => {
@@ -5811,6 +5849,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ORequired(payload));
                         }
                         15 => {
@@ -5839,6 +5878,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::PRequired(payload));
                         }
                         16 => {
@@ -5862,6 +5902,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::QRequired(payload));
                         }
                         17 => {
@@ -5885,6 +5926,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::RRequired(payload));
                         }
                         18 => {
@@ -5909,6 +5951,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::SRequired(payload));
                         }
                         19 => {
@@ -5953,6 +5996,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::TRequired(payload));
                         }
                         20 => {
@@ -5995,6 +6039,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::URequired(payload));
                         }
                         21 => {
@@ -6017,6 +6062,7 @@ pub mod comprehensive {
                                     fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
+
                                         Ok(payload)
                                     }
 
@@ -6037,6 +6083,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::VRequired(payload));
                         }
                         22 => {
@@ -6080,6 +6127,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::WRequired(payload));
                         }
                         23 => {
@@ -6123,6 +6171,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::XRequired(payload));
                         }
                         24 => {
@@ -6170,6 +6219,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::YRequired(payload));
                         }
                         25 => {
@@ -6212,6 +6262,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ZRequired(payload));
                         }
                         26 => {
@@ -6254,10 +6305,12 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AaRequired(payload));
                         }
                         28 => {
                             let payload = ();
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AAsymmetric);
                         }
                         29 => {
@@ -6268,6 +6321,7 @@ pub mod comprehensive {
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 f64::from_le_bytes(buffer)
                             };
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::BAsymmetric(payload));
                         }
                         30 => {
@@ -6280,6 +6334,7 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::CAsymmetric(payload));
                         }
                         31 => {
@@ -6292,7 +6347,9 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
-                            let payload = super::super::zigzag_decode(payload);                            return Ok(BarIn::DAsymmetric(payload));
+                            let payload = super::super::zigzag_decode(payload);
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::DAsymmetric(payload));
                         }
                         32 => {
                             let payload = match payload_size {
@@ -6305,11 +6362,13 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = payload != 0_u64;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::EAsymmetric(payload));
                         }
                         33 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::FAsymmetric(payload));
                         }
                         34 => {
@@ -6319,14 +6378,17 @@ pub mod comprehensive {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::GAsymmetric(payload));
                         }
                         35 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::HAsymmetric(payload));
                         }
                         36 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::IAsymmetric(payload));
                         }
                         37 => {
@@ -6340,6 +6402,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = vec![(); payload as usize];
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::JAsymmetric(payload));
                         }
                         38 => {
@@ -6365,6 +6428,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::KAsymmetric(payload));
                         }
                         39 => {
@@ -6388,12 +6452,14 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::LAsymmetric(payload));
                         }
                         40 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
+
                                 Ok(payload)
                             }
 
@@ -6411,6 +6477,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::MAsymmetric(payload));
                         }
                         41 => {
@@ -6435,6 +6502,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::NAsymmetric(payload));
                         }
                         42 => {
@@ -6459,6 +6527,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::OAsymmetric(payload));
                         }
                         43 => {
@@ -6487,6 +6556,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::PAsymmetric(payload));
                         }
                         44 => {
@@ -6510,6 +6580,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::QAsymmetric(payload));
                         }
                         45 => {
@@ -6533,6 +6604,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::RAsymmetric(payload));
                         }
                         46 => {
@@ -6557,6 +6629,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::SAsymmetric(payload));
                         }
                         47 => {
@@ -6601,6 +6674,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::TAsymmetric(payload));
                         }
                         48 => {
@@ -6643,6 +6717,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::UAsymmetric(payload));
                         }
                         49 => {
@@ -6665,6 +6740,7 @@ pub mod comprehensive {
                                     fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
+
                                         Ok(payload)
                                     }
 
@@ -6685,6 +6761,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::VAsymmetric(payload));
                         }
                         50 => {
@@ -6728,6 +6805,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::WAsymmetric(payload));
                         }
                         51 => {
@@ -6771,6 +6849,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::XAsymmetric(payload));
                         }
                         52 => {
@@ -6818,6 +6897,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::YAsymmetric(payload));
                         }
                         53 => {
@@ -6860,6 +6940,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ZAsymmetric(payload));
                         }
                         54 => {
@@ -6902,11 +6983,13 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AaAsymmetric(payload));
                         }
                         56 => {
                             let payload = ();
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AOptional(fallback));
                         }
                         57 => {
@@ -6918,6 +7001,7 @@ pub mod comprehensive {
                                 f64::from_le_bytes(buffer)
                             };
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::BOptional(payload, fallback));
                         }
                         58 => {
@@ -6931,6 +7015,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::COptional(payload, fallback));
                         }
                         59 => {
@@ -6943,7 +7028,9 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
-                            let payload = super::super::zigzag_decode(payload);                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            let payload = super::super::zigzag_decode(payload);
+                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::DOptional(payload, fallback));
                         }
                         60 => {
@@ -6958,12 +7045,14 @@ pub mod comprehensive {
                             };
                             let payload = payload != 0_u64;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::EOptional(payload, fallback));
                         }
                         61 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::FOptional(payload, fallback));
                         }
                         62 => {
@@ -6974,16 +7063,19 @@ pub mod comprehensive {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::GOptional(payload, fallback));
                         }
                         63 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::HOptional(payload, fallback));
                         }
                         64 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::IOptional(payload, fallback));
                         }
                         65 => {
@@ -6998,6 +7090,7 @@ pub mod comprehensive {
                             };
                             let payload = vec![(); payload as usize];
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::JOptional(payload, fallback));
                         }
                         66 => {
@@ -7024,6 +7117,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::KOptional(payload, fallback));
                         }
                         67 => {
@@ -7048,12 +7142,14 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::LOptional(payload, fallback));
                         }
                         68 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
+
                                 Ok(payload)
                             }
 
@@ -7072,6 +7168,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::MOptional(payload, fallback));
                         }
                         69 => {
@@ -7097,6 +7194,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::NOptional(payload, fallback));
                         }
                         70 => {
@@ -7122,6 +7220,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::OOptional(payload, fallback));
                         }
                         71 => {
@@ -7151,6 +7250,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::POptional(payload, fallback));
                         }
                         72 => {
@@ -7175,6 +7275,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::QOptional(payload, fallback));
                         }
                         73 => {
@@ -7199,6 +7300,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ROptional(payload, fallback));
                         }
                         74 => {
@@ -7224,6 +7326,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::SOptional(payload, fallback));
                         }
                         75 => {
@@ -7269,6 +7372,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::TOptional(payload, fallback));
                         }
                         76 => {
@@ -7312,6 +7416,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::UOptional(payload, fallback));
                         }
                         77 => {
@@ -7334,6 +7439,7 @@ pub mod comprehensive {
                                     fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
+
                                         Ok(payload)
                                     }
 
@@ -7355,6 +7461,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::VOptional(payload, fallback));
                         }
                         78 => {
@@ -7399,6 +7506,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::WOptional(payload, fallback));
                         }
                         79 => {
@@ -7443,6 +7551,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::XOptional(payload, fallback));
                         }
                         80 => {
@@ -7491,6 +7600,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::YOptional(payload, fallback));
                         }
                         81 => {
@@ -7534,6 +7644,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ZOptional(payload, fallback));
                         }
                         82 => {
@@ -7577,6 +7688,7 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AaOptional(payload, fallback));
                         }
                         _ => {
@@ -8411,6 +8523,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::RequiredToRequired(payload));
                         }
                         1 => {
@@ -8420,6 +8533,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
                         }
                         5 => {
@@ -8429,6 +8543,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
                         }
                         6 => {
@@ -8438,6 +8553,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
                         }
                         7 => {
@@ -8448,6 +8564,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload, fallback));
                         }
                         8 => {
@@ -8458,6 +8575,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload, fallback));
                         }
                         10 => {
@@ -8467,6 +8585,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToRequired(payload));
                         }
                         11 => {
@@ -8476,6 +8595,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload));
                         }
                         12 => {
@@ -8486,6 +8606,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToOptionalHandled(payload, fallback));
                         }
                         13 => {
@@ -8496,6 +8617,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToOptionalFallback(payload, fallback));
                         }
                         15 => {
@@ -8505,6 +8627,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::NonexistentToRequired(payload));
                         }
                         16 => {
@@ -8514,6 +8637,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::NonexistentToAsymmetric(payload));
                         }
                         17 => {
@@ -8524,6 +8648,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::NonexistentToOptionalHandled(payload, fallback));
                         }
                         18 => {
@@ -8534,6 +8659,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::NonexistentToOptionalFallback(payload, fallback));
                         }
                         _ => {
@@ -9213,6 +9339,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::RequiredToRequired(payload));
                         }
                         1 => {
@@ -9222,6 +9349,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
                         }
                         5 => {
@@ -9231,6 +9359,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
                         }
                         6 => {
@@ -9240,6 +9369,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
                         }
                         7 => {
@@ -9249,6 +9379,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload));
                         }
                         8 => {
@@ -9258,6 +9389,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload));
                         }
                         9 => {
@@ -9267,6 +9399,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
                         }
                         10 => {
@@ -9277,6 +9410,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
                         }
                         11 => {
@@ -9287,6 +9421,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
                         }
                         12 => {
@@ -9297,6 +9432,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToOptionalHandled(payload, fallback));
                         }
                         13 => {
@@ -9307,6 +9443,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToOptionalFallback(payload, fallback));
                         }
                         14 => {
@@ -9317,6 +9454,7 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
+                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
                         }
                         _ => {
@@ -9491,6 +9629,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
+                            super::super::finish(&mut *reader)?;
                             return Ok(SingletonChoiceIn::X(payload));
                         }
                         _ => {

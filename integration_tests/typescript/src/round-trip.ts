@@ -16,7 +16,8 @@ export function checkMatch<T, U>(
   const arrayBuffer = new ArrayBuffer(valueSize);
   const dataView = new DataView(arrayBuffer);
 
-  serialize(dataView, 0, value);
+  const numBytesWritten = serialize(dataView, 0, value);
+  deepStrictEqual(numBytesWritten, valueSize);
 
   // eslint-disable-next-line no-console
   console.log('Bytes from serialization:', arrayBuffer);
@@ -24,11 +25,12 @@ export function checkMatch<T, U>(
   // eslint-disable-next-line no-console
   console.log('Size of the serialized value:', arrayBuffer.byteLength);
 
-  const clone = deserialize(dataView, 0)[1];
+  const [numBytesRead, clone] = deserialize(dataView, 0);
 
   // eslint-disable-next-line no-console
   console.log('Value deserialized from those bytes:', clone);
 
+  deepStrictEqual(numBytesRead, numBytesWritten);
   deepStrictEqual(clone, value);
 }
 
@@ -48,7 +50,8 @@ export function checkOk<T, U>(
   const arrayBuffer = new ArrayBuffer(valueSize);
   const dataView = new DataView(arrayBuffer);
 
-  serialize(dataView, 0, value);
+  const numBytesWritten = serialize(dataView, 0, value);
+  deepStrictEqual(numBytesWritten, valueSize);
 
   // eslint-disable-next-line no-console
   console.log('Bytes from serialization:', arrayBuffer);
@@ -56,8 +59,10 @@ export function checkOk<T, U>(
   // eslint-disable-next-line no-console
   console.log('Size of the serialized value:', arrayBuffer.byteLength);
 
-  const clone = deserialize(dataView, 0)[1];
+  const [numBytesRead, clone] = deserialize(dataView, 0);
 
   // eslint-disable-next-line no-console
   console.log('Value deserialized from those bytes:', clone);
+
+  deepStrictEqual(numBytesRead, numBytesWritten);
 }
