@@ -124,6 +124,7 @@ tasks:
       - build
     input_paths:
       - integration_tests/types
+      - test_data
     command: |
       # Run the tests with Cargo. The `NO_COLOR` variable is used to disable colored output for
       # tests that make assertions regarding the output [tag:colorless_tests].
@@ -237,7 +238,7 @@ tasks:
 
       # Check schema formatting with Typical.
       typical format --check examples/rust/types.t
-      typical format --check integration_tests/types/main.t
+      typical format --check integration_tests/types/types.t
 
   run:
     description: Run the program.
@@ -265,7 +266,7 @@ tasks:
 
       # Format schemas with Typical.
       typical format examples/rust/types.t
-      typical format integration_tests/types/main.t
+      typical format integration_tests/types/types.t
 
       # Format the code with Rustfmt. We temporarily convert macro invocations into function calls
       # so Rustfmt's `trailing_comma` feature applies to macro arguments [tag:format_macros].

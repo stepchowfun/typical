@@ -3,7 +3,7 @@ use {
         round_trip::check_ok,
         types::schema_evolution::{
             after, before,
-            main::{SingletonChoiceIn, SingletonChoiceOut, SingletonStructIn, SingletonStructOut},
+            types::{SingletonChoiceIn, SingletonChoiceOut, SingletonStructIn, SingletonStructOut},
         },
     },
     std::io,

@@ -1,12 +1,6 @@
 import 'bar.t'
 import 'foo.t'
 
-struct EmptyStruct {
-}
-
-choice EmptyChoice {
-}
-
 struct FooAndBar {
     x: foo.Foo = 0
     y: bar.Bar = 1

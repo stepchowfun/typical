@@ -5,7 +5,7 @@ use std::{
     process::Command,
 };
 
-const SCHEMA_PATH: &str = "../types/main.t";
+const SCHEMA_PATH: &str = "../types/types.t";
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
