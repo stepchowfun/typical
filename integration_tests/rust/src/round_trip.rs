@@ -21,14 +21,22 @@ pub fn check_match<T: Debug + Serialize, U: Debug + Deserialize + From<T>>(x: T)
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));
     }
 
-    let y = U::deserialize(&mut buffer.as_slice())?;
+    let mut slice = buffer.as_slice();
+    let y = U::deserialize(&mut slice)?;
     println!("Value deserialized from those bytes: {:?}", y);
 
-    if format!("{:?}", y) == format!("{:?}", U::from(x)) {
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::Other, "Mismatch!"))
+    if !slice.is_empty() {
+        return Err(Error::new(
+            ErrorKind::Other,
+            "The buffer was not consumed completely!",
+        ));
     }
+
+    if format!("{:?}", y) != format!("{:?}", U::from(x)) {
+        return Err(Error::new(ErrorKind::Other, "Mismatch!"));
+    }
+
+    Ok(())
 }
 
 pub fn check_ok<T: Debug + Serialize, U: Debug + Deserialize>(x: &T) -> io::Result<()> {
@@ -46,8 +54,16 @@ pub fn check_ok<T: Debug + Serialize, U: Debug + Deserialize>(x: &T) -> io::Resu
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));
     }
 
-    let y = U::deserialize(&mut buffer.as_slice())?;
+    let mut slice = buffer.as_slice();
+    let y = U::deserialize(&mut slice)?;
     println!("Value deserialized from those bytes: {:?}", y);
+
+    if !slice.is_empty() {
+        return Err(Error::new(
+            ErrorKind::Other,
+            "The buffer was not consumed completely!",
+        ));
+    }
 
     Ok(())
 }

@@ -299,6 +299,19 @@ fn skip<T: BufRead>(reader: &mut T, mut amount: usize) -> io::Result<()> {{
     Ok(())
 }}
 
+fn finish<T: BufRead>(reader: &mut T) -> io::Result<()> {{
+    loop {{
+        let buffer = reader.fill_buf()?;
+
+        if buffer.is_empty() {{
+            return Ok(());
+        }}
+
+        let buffer_size = buffer.len();
+        reader.consume(buffer_size);
+    }}
+}}
+
 pub trait Serialize {{
     fn size(&self) -> usize;
 
@@ -997,6 +1010,9 @@ fn write_schema<T: Write>(
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {
                             write_indentation(buffer, indentation + 5)?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "finish(&mut *reader)?;")?;
+                            write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
                             write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                             write!(buffer, "::")?;
@@ -1014,6 +1030,9 @@ fn write_schema<T: Write>(
                             write!(buffer, " as ")?;
                             write_supers(buffer, indentation)?;
                             writeln!(buffer, "Deserialize>::deserialize(&mut *reader)?);")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "finish(&mut *reader)?;")?;
                             write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
                             write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
@@ -1860,7 +1879,7 @@ fn write_deserialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             write!(buffer, "let payload = ")?;
             write_supers(buffer, supers)?;
-            write!(buffer, "zigzag_decode(payload);")
+            writeln!(buffer, "zigzag_decode(payload);")
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
