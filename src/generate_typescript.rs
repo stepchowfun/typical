@@ -741,6 +741,9 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "] {{")?;
                 if !declaration.fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "let dataViewAlias = dataView;")?;
+                    writeln!(buffer)?;
+                    write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "let ")?;
                     let mut first = true;
                     for field in &declaration.fields {
@@ -763,7 +766,8 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(
                         buffer,
-                        "[offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);",
+                        "[offset, index, payloadSize] = \
+                            deserializeFieldHeader(dataViewAlias, offset);",
                     )?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "}} catch (e) {{")?;
@@ -785,6 +789,20 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(buffer, "case {}n: {{", field.index)?;
                         if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "const dataView = new DataView(")?;
+                            write_indentation(buffer, indentation + 6)?;
+                            writeln!(buffer, "dataViewAlias.buffer,")?;
+                            write_indentation(buffer, indentation + 6)?;
+                            writeln!(buffer, "dataViewAlias.byteOffset + offset,")?;
+                            write_indentation(buffer, indentation + 6)?;
+                            writeln!(buffer, "payloadSize,")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, ");")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "const oldOffset = offset;")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "offset = 0;")?;
                             write_deserialization_invocation(
                                 buffer,
                                 indentation + 5,
@@ -793,6 +811,8 @@ fn write_schema<T: Write>(
                                 &field.r#type.variant,
                                 true,
                             )?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "offset += oldOffset;")?;
                             write_indentation(buffer, indentation + 5)?;
                             write_identifier(buffer, &field.name, Camel, None)?;
                             writeln!(buffer, "Field = payload;")?;
@@ -1073,12 +1093,15 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, "] {{")?;
                 write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "let dataViewAlias = dataView;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "while (true) {{")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
                     "const [newOffset, index, payloadSize] = \
-                        deserializeFieldHeader(dataView, offset);",
+                        deserializeFieldHeader(dataViewAlias, offset);",
                 )?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "offset = newOffset;")?;
@@ -1088,6 +1111,20 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "case {}n: {{", field.index)?;
                     if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "const dataView = new DataView(")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        writeln!(buffer, "dataViewAlias.buffer,")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        writeln!(buffer, "dataViewAlias.byteOffset + offset,")?;
+                        write_indentation(buffer, indentation + 6)?;
+                        writeln!(buffer, "payloadSize,")?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, ");")?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "const oldOffset = offset;")?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "offset = 0;")?;
                         write_deserialization_invocation(
                             buffer,
                             indentation + 5,
@@ -1096,6 +1133,8 @@ fn write_schema<T: Write>(
                             &field.r#type.variant,
                             true,
                         )?;
+                        write_indentation(buffer, indentation + 5)?;
+                        writeln!(buffer, "offset += oldOffset;")?;
                     }
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {}
@@ -1103,7 +1142,8 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(
                                 buffer,
-                                "const [newNewOffset, fallback] = deserialize(dataView, offset);",
+                                "const [newNewOffset, fallback] = \
+                                    deserialize(dataViewAlias, offset);",
                             )?;
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, "offset = newNewOffset;")?;
@@ -1390,8 +1430,8 @@ fn write_indentation<T: Write>(buffer: &mut T, indentation: usize) -> Result<(),
 // Write the logic to invoke the size calculation logic for a value.
 //
 // Context variables:
-// - `payloadSize`
-// - `payload`
+// - `payloadSize` (out)
+// - `payload` (in)
 #[allow(clippy::too_many_lines)]
 fn write_size_calculation<T: Write>(
     buffer: &mut T,
@@ -1606,10 +1646,10 @@ fn write_size_calculation<T: Write>(
 // Write the logic to invoke the serialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `dataView`
-// - `offset`
-// - `payloadSize`
-// - `payload`
+// - `dataView` (in and out)
+// - `offset` (in and out)
+// - `payloadSize` (in)
+// - `payload` (in)
 #[allow(clippy::too_many_lines)]
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
@@ -1782,9 +1822,9 @@ fn write_serialization_invocation<T: Write>(
 // Write the logic to invoke the serialization logic for a varint, including a trailing line break.
 //
 // Context variables:
-// - `dataView`
-// - `offset`
-// - `varint`
+// - `dataView` (in and out)
+// - `offset` (in and out)
+// - `varint` (in)
 fn write_u64_serialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1817,13 +1857,16 @@ fn write_u64_serialization_invocation<T: Write>(
 // Write the logic to invoke the deserialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `dataView`
-// - `offset`
-// - `payloadSize`
-// - `payload` (introduced)
+// - `dataView` (in and out)
+// - `offset` (in and out)
+// - `payloadSize` (in, unused if `is_field` is `false`)
+// - `payload` (out, introduced)
 //
-// This function introduces the `payload` variable with `let` rather than `const`, since it relies
-// on being able to mutate the `payload` from a recursive call.
+// Additional notes:
+// - This function introduces the `payload` variable with `let` rather than `const`, since it relies
+//   on being able to mutate the `payload` from a recursive call.
+// - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String`, then `dataView` is consumed to
+//   the end.
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
@@ -1846,6 +1889,8 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "let dataViewAlias = dataView;")?;
+                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "let payloadAlias = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
@@ -1856,10 +1901,22 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "[offset, payloadSizeBig] = deserializeVarint(dataView, offset);",
+                    "[offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);",
                 )?;
                 write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "const payloadSize = Number(payloadSizeBig);")?;
+                writeln!(buffer, "const dataView = new DataView(")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "dataViewAlias.buffer,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "dataViewAlias.byteOffset + offset,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "Number(payloadSizeBig),")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, ");")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "const oldOffset = offset;")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset = 0;")?;
                 write_deserialization_invocation(
                     buffer,
                     indentation + 3,
@@ -1868,6 +1925,8 @@ fn write_deserialization_invocation<T: Write>(
                     &inner_type.variant,
                     false,
                 )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "offset += oldOffset;")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "payloadAlias.push(payload);")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1972,11 +2031,11 @@ fn write_deserialization_invocation<T: Write>(
             write_indentation(buffer, indentation + 1)?;
             writeln!(buffer, "dataView.byteOffset + offset,")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "dataView.byteOffset + offset + payloadSize,")?;
+            writeln!(buffer, "dataView.byteOffset + dataView.byteLength,")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, ");")?;
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "offset += payloadSize;")
+            writeln!(buffer, "offset = dataView.byteLength;")
         }
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
@@ -2034,17 +2093,19 @@ fn write_deserialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "let payload = textDecoder.decode(")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "dataView.buffer.slice(")?;
+            writeln!(buffer, "new Uint8Array(")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.buffer,")?;
             write_indentation(buffer, indentation + 2)?;
             writeln!(buffer, "dataView.byteOffset + offset,")?;
             write_indentation(buffer, indentation + 2)?;
-            writeln!(buffer, "dataView.byteOffset + offset + payloadSize,")?;
+            writeln!(buffer, "dataView.byteLength - offset,")?;
             write_indentation(buffer, indentation + 1)?;
             writeln!(buffer, "),")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, ");")?;
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "offset += payloadSize;")
+            writeln!(buffer, "offset = dataView.byteLength;")
         }
         schema::TypeVariant::U64 => {
             write_indentation(buffer, indentation)?;
