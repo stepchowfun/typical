@@ -345,10 +345,10 @@ function fieldHeaderSize(
       return varintSizeFromValue((index << 2n) | BigInt(0b01));
     default:
       if (integerEncoded) {{
-        return varintSizeFromValue((index << 2n) | BigInt(0b11));
+        return varintSizeFromValue((index << 2n) | BigInt(0b10));
       }} else {{
         return (
-          varintSizeFromValue((index << 2n) | BigInt(0b10)) +
+          varintSizeFromValue((index << 2n) | BigInt(0b11)) +
           varintSizeFromValue(BigInt(payloadSize))
         );
       }}
@@ -369,12 +369,12 @@ function serializeFieldHeader(
       return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b01));
     default:
       if (integerEncoded) {{
-        return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b11));
+        return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b10));
       }} else {{
         offset = serializeVarint(
           dataView,
           offset,
-          (index << 2n) | BigInt(0b10),
+          (index << 2n) | BigInt(0b11),
         );
         return serializeVarint(dataView, offset, BigInt(payloadSize));
       }}
@@ -399,12 +399,12 @@ function deserializeFieldHeader(
       size = 8;
       break;
     case 2n:
+      size = varintSizeFromFirstByte(dataView.getUint8(offset));
+      break;
+    default:
       const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
       offset = newNewOffset;
       size = Number(sizeValue);
-      break;
-    default:
-      size = varintSizeFromFirstByte(dataView.getUint8(offset));
       break;
   }}
 

@@ -519,10 +519,10 @@ A struct is encoded as the contiguous arrangement of (*header*, *value*) pairs, 
     - The two least significant bits of the tag (not its variable-width encoding) are called the *size mode* and indicate how to compute the size of the value:
       - `0`: The size of the value is 0 bytes.
       - `1`: The size of the value is 8 bytes.
-      - `2`: The size of the value is given by the second part of the header (below).
-      - `3`: The value is encoded as a variable-width integer, so its size can be determined from its first byte.
+      - `2`: The value is encoded as a variable-width integer, so its size can be determined from its first byte.
+      - `3`: The size of the value is given by the second part of the header (below).
     - The remaining bits of the tag (not its variable-width encoding) represent the index of the field as an unsigned integer.
-  - The second part of the header is the size of the value encoded as a variable-width integer. It's only present if the size mode is `2`.
+  - The second part of the header is the size of the value encoded as a variable-width integer. It's only present if the size mode is `3`.
 
 For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the header is encoded as a single byte.
 
