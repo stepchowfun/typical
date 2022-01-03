@@ -67,7 +67,8 @@ tasks:
         -y \
         --default-toolchain 1.56.0 \
         --profile minimal \
-        --component clippy
+        --component clippy \
+        --component rustfmt
 
       # Add Rust tools to `$PATH`.
       . "$HOME/.cargo/env"
@@ -161,7 +162,6 @@ tasks:
     dependencies:
       - build
     input_paths:
-      - .gitignore
       - examples/typescript
       - integration_tests/types
       - integration_tests/typescript
@@ -178,7 +178,7 @@ tasks:
 
       # Validate and run the example project and the integration test.
       for SCENARIO in examples/typescript integration_tests/typescript; do
-        (cd "$SCENARIO" && npm run run)
+        (cd "$SCENARIO" && npm ci && npm run run)
       done
 
   lint:
@@ -253,12 +253,26 @@ tasks:
     dependencies:
       - build
     input_paths:
-      - examples/rust/types.t
+      - examples/rust
+      - examples/typescript
+      - integration_tests/rust
       - integration_tests/types
+      - integration_tests/typescript
       - src
+    excluded_input_paths:
+      - examples/rust/target
+      - examples/typescript/dist
+      - examples/typescript/generated
+      - examples/typescript/node_modules
+      - integration_tests/rust/target
+      - integration_tests/typescript/dist
+      - integration_tests/typescript/generated
+      - integration_tests/typescript/node_modules
     output_paths:
       - examples/rust/types.t
+      - integration_tests/rust/src
       - integration_tests/types
+      - integration_tests/typescript/src
       - src
     command: |
       # Add Typical to `$PATH`.
@@ -273,6 +287,12 @@ tasks:
       rg '!\(' --type rust --files-with-matches src | xargs sed -i 's/!(/_(/g'
       cargo-fmt
       rg '_\(' --type rust --files-with-matches src | xargs sed -i 's/_(/!(/g'
+
+      # Format the examples and integration tests.
+      (cd examples/rust && cargo fmt)
+      (cd examples/typescript && npm ci && npm run format)
+      (cd integration_tests/rust && cargo fmt)
+      (cd integration_tests/typescript && npm ci && npm run format)
 
   release:
     description: Build and output the release binaries for Linux.
