@@ -6,14 +6,17 @@ use {
     },
 };
 
-pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(x: &T, y: &U) -> io::Result<()> {
-    println!("Value to be serialized: {:?}", x);
+pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
+    actual: &T,
+    expected: &U,
+) -> io::Result<()> {
+    println!("Value to be serialized: {:?}", actual);
 
-    let size = x.size();
+    let size = actual.size();
     println!("Expected size of the serialized value: {:?}", size);
 
     let mut buffer = Vec::<u8>::new();
-    x.serialize(&mut buffer)?;
+    actual.serialize(&mut buffer)?;
     println!("Bytes from serialization: {:?}", buffer);
 
     println!("Size of the serialized value: {:?}", buffer.len());
@@ -22,8 +25,8 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(x: &T, y: &U) 
     }
 
     let mut slice = buffer.as_slice();
-    let z = U::deserialize(&mut slice)?;
-    println!("Value deserialized from those bytes: {:?}", z);
+    let replica = U::deserialize(&mut slice)?;
+    println!("Value deserialized from those bytes: {:?}", replica);
 
     if !slice.is_empty() {
         return Err(Error::new(
@@ -32,7 +35,7 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(x: &T, y: &U) 
         ));
     }
 
-    if format!("{:?}", z) != format!("{:?}", y) {
+    if format!("{:?}", replica) != format!("{:?}", expected) {
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));
     }
 
@@ -40,7 +43,7 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(x: &T, y: &U) 
 }
 
 pub fn assert_round_trip<T: Debug + Serialize + Clone, U: Debug + Deserialize + From<T>>(
-    x: &T,
+    value: &T,
 ) -> io::Result<()> {
-    assert_match(x, &U::from(x.clone()))
+    assert_match(value, &U::from(value.clone()))
 }
