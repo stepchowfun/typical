@@ -1366,7 +1366,7 @@ fn write_supers<T: Write>(buffer: &mut T, count: usize) -> Result<(), fmt::Error
 // Write the logic to convert a message from one type to another.
 //
 // Context variables:
-// - `writer`
+// - `writer` (in and out)
 fn write_into_invocation<T: Write>(
     buffer: &mut T,
     type_variant: &schema::TypeVariant,
@@ -1401,7 +1401,7 @@ fn write_into_invocation<T: Write>(
 // Write the logic to invoke the size calculation logic for a value.
 //
 // Context variables:
-// - `payload`
+// - `payload` (in)
 fn write_size_calculation<T: Write>(
     buffer: &mut T,
     supers: usize,
@@ -1501,8 +1501,8 @@ fn write_size_calculation<T: Write>(
 // Write the logic to invoke the serialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `payload`
-// - `writer`
+// - `payload` (in)
+// - `writer` (in and out)
 #[allow(clippy::too_many_lines)]
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
@@ -1620,8 +1620,8 @@ fn write_serialization_invocation<T: Write>(
 // Write the logic to invoke the serialization logic for a varint, including a trailing line break.
 //
 // Context variables:
-// - `varint`
-// - `writer`
+// - `varint` (in)
+// - `writer` (in and out)
 fn write_u64_serialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1654,9 +1654,9 @@ fn write_u64_serialization_invocation<T: Write>(
 // Write the logic to invoke the deserialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `payload_size` (not used if `is_field` is `false`)
-// - `payload` (introduced)
-// - `sub_reader`
+// - `payload_size` (in, unused if `is_field` is `false`)
+// - `payload` (out, introduced)
+// - `sub_reader` (in and out)
 //
 // Additional notes:
 // - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String`, then `sub_reader` is consumed to

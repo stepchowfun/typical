@@ -309,12 +309,14 @@ export namespace CircularDependency {
           dataView: DataView,
           offset: number,
         ): [number, StructFromBelowIn] {
+          let dataViewAlias = dataView;
+
           let xField;
 
           while (true) {
             let index, payloadSize;
             try {
-              [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+              [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
             } catch (e) {
               if (e instanceof RangeError) {
                 break;
@@ -324,8 +326,16 @@ export namespace CircularDependency {
             }
             switch (index) {
               case 0n: {
+                const dataView = new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  payloadSize,
+                );
+                const oldOffset = offset;
+                offset = 0;
                 let payload;
                 [offset, payload] = CircularDependency.Types.StructFromAbove.deserialize(dataView, offset);
+                offset += oldOffset;
                 xField = payload;
                 break;
               }
@@ -4475,12 +4485,14 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooIn] {
+        let dataViewAlias = dataView;
+
         let aRequiredField, bRequiredField, cRequiredField, dRequiredField, eRequiredField, fRequiredField, gRequiredField, hRequiredField, iRequiredField, jRequiredField, kRequiredField, lRequiredField, mRequiredField, nRequiredField, oRequiredField, pRequiredField, qRequiredField, rRequiredField, sRequiredField, tRequiredField, uRequiredField, vRequiredField, wRequiredField, xRequiredField, yRequiredField, zRequiredField, aaRequiredField, aAsymmetricField, bAsymmetricField, cAsymmetricField, dAsymmetricField, eAsymmetricField, fAsymmetricField, gAsymmetricField, hAsymmetricField, iAsymmetricField, jAsymmetricField, kAsymmetricField, lAsymmetricField, mAsymmetricField, nAsymmetricField, oAsymmetricField, pAsymmetricField, qAsymmetricField, rAsymmetricField, sAsymmetricField, tAsymmetricField, uAsymmetricField, vAsymmetricField, wAsymmetricField, xAsymmetricField, yAsymmetricField, zAsymmetricField, aaAsymmetricField, aOptionalField, bOptionalField, cOptionalField, dOptionalField, eOptionalField, fOptionalField, gOptionalField, hOptionalField, iOptionalField, jOptionalField, kOptionalField, lOptionalField, mOptionalField, nOptionalField, oOptionalField, pOptionalField, qOptionalField, rOptionalField, sOptionalField, tOptionalField, uOptionalField, vOptionalField, wOptionalField, xOptionalField, yOptionalField, zOptionalField, aaOptionalField;
 
         while (true) {
           let index, payloadSize;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -4493,6 +4505,13 @@ export namespace Comprehensive {
               break;
             }
             case 1n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -4505,10 +4524,18 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               bRequiredField = payload;
               break;
             }
             case 2n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -4524,10 +4551,18 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               cRequiredField = payload;
               break;
             }
             case 3n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -4544,10 +4579,18 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
+              offset += oldOffset;
               dRequiredField = payload;
               break;
             }
             case 4n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -4571,42 +4614,83 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               eRequiredField = payload;
               break;
             }
             case 5n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
+                dataView.byteOffset + dataView.byteLength,
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               fRequiredField = payload;
               break;
             }
             case 6n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               gRequiredField = payload;
               break;
             }
             case 7n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               hRequiredField = payload;
               break;
             }
             case 8n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               iRequiredField = payload;
               break;
             }
             case 9n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -4630,10 +4714,18 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               jRequiredField = payload;
               break;
             }
             case 10n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -4645,10 +4737,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               kRequiredField = payload;
               break;
             }
             case 11n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -4660,10 +4760,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               lRequiredField = payload;
               break;
             }
             case 12n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -4676,10 +4784,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               mRequiredField = payload;
               break;
             }
             case 13n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -4699,98 +4815,178 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               nRequiredField = payload;
               break;
             }
             case 14n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = dataView.buffer.slice(
                       dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
+                      dataView.byteOffset + dataView.byteLength,
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               oRequiredField = payload;
               break;
             }
             case 15n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = textDecoder.decode(
-                      dataView.buffer.slice(
+                      new Uint8Array(
+                        dataView.buffer,
                         dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
+                        dataView.byteLength - offset,
                       ),
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               pRequiredField = payload;
               break;
             }
             case 16n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               qRequiredField = payload;
               break;
             }
             case 17n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               rRequiredField = payload;
               break;
             }
             case 18n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: undefined[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     {
                       let newPayload;
@@ -4801,22 +4997,38 @@ export namespace Comprehensive {
                       }
                       payload = newPayload;
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               sRequiredField = payload;
               break;
             }
             case 19n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: number[] = [];
                     {
                       let payloadAlias = payload;
@@ -4828,22 +5040,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               tRequiredField = payload;
               break;
             }
             case 20n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -4855,22 +5083,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               uRequiredField = payload;
               break;
             }
             case 21n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -4883,22 +5127,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               vRequiredField = payload;
               break;
             }
             case 22n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: boolean[] = [];
                     {
                       let payloadAlias = payload;
@@ -4918,138 +5178,237 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               wRequiredField = payload;
               break;
             }
             case 23n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = dataView.buffer.slice(
                             dataView.byteOffset + offset,
-                            dataView.byteOffset + offset + payloadSize,
+                            dataView.byteOffset + dataView.byteLength,
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               xRequiredField = payload;
               break;
             }
             case 24n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: string[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = textDecoder.decode(
-                            dataView.buffer.slice(
+                            new Uint8Array(
+                              dataView.buffer,
                               dataView.byteOffset + offset,
-                              dataView.byteOffset + offset + payloadSize,
+                              dataView.byteLength - offset,
                             ),
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               yRequiredField = payload;
               break;
             }
             case 25n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               zRequiredField = payload;
               break;
             }
             case 26n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               aaRequiredField = payload;
               break;
             }
@@ -5057,6 +5416,13 @@ export namespace Comprehensive {
               break;
             }
             case 29n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -5069,10 +5435,18 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               bAsymmetricField = payload;
               break;
             }
             case 30n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -5088,10 +5462,18 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               cAsymmetricField = payload;
               break;
             }
             case 31n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -5108,10 +5490,18 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
+              offset += oldOffset;
               dAsymmetricField = payload;
               break;
             }
             case 32n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -5135,42 +5525,83 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               eAsymmetricField = payload;
               break;
             }
             case 33n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
+                dataView.byteOffset + dataView.byteLength,
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               fAsymmetricField = payload;
               break;
             }
             case 34n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               gAsymmetricField = payload;
               break;
             }
             case 35n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               hAsymmetricField = payload;
               break;
             }
             case 36n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               iAsymmetricField = payload;
               break;
             }
             case 37n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -5194,10 +5625,18 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               jAsymmetricField = payload;
               break;
             }
             case 38n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -5209,10 +5648,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               kAsymmetricField = payload;
               break;
             }
             case 39n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -5224,10 +5671,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               lAsymmetricField = payload;
               break;
             }
             case 40n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -5240,10 +5695,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               mAsymmetricField = payload;
               break;
             }
             case 41n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -5263,98 +5726,178 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               nAsymmetricField = payload;
               break;
             }
             case 42n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = dataView.buffer.slice(
                       dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
+                      dataView.byteOffset + dataView.byteLength,
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               oAsymmetricField = payload;
               break;
             }
             case 43n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = textDecoder.decode(
-                      dataView.buffer.slice(
+                      new Uint8Array(
+                        dataView.buffer,
                         dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
+                        dataView.byteLength - offset,
                       ),
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               pAsymmetricField = payload;
               break;
             }
             case 44n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               qAsymmetricField = payload;
               break;
             }
             case 45n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               rAsymmetricField = payload;
               break;
             }
             case 46n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: undefined[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     {
                       let newPayload;
@@ -5365,22 +5908,38 @@ export namespace Comprehensive {
                       }
                       payload = newPayload;
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               sAsymmetricField = payload;
               break;
             }
             case 47n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: number[] = [];
                     {
                       let payloadAlias = payload;
@@ -5392,22 +5951,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               tAsymmetricField = payload;
               break;
             }
             case 48n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -5419,22 +5994,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               uAsymmetricField = payload;
               break;
             }
             case 49n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -5447,22 +6038,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               vAsymmetricField = payload;
               break;
             }
             case 50n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: boolean[] = [];
                     {
                       let payloadAlias = payload;
@@ -5482,138 +6089,237 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               wAsymmetricField = payload;
               break;
             }
             case 51n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = dataView.buffer.slice(
                             dataView.byteOffset + offset,
-                            dataView.byteOffset + offset + payloadSize,
+                            dataView.byteOffset + dataView.byteLength,
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               xAsymmetricField = payload;
               break;
             }
             case 52n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: string[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = textDecoder.decode(
-                            dataView.buffer.slice(
+                            new Uint8Array(
+                              dataView.buffer,
                               dataView.byteOffset + offset,
-                              dataView.byteOffset + offset + payloadSize,
+                              dataView.byteLength - offset,
                             ),
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               yAsymmetricField = payload;
               break;
             }
             case 53n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               zAsymmetricField = payload;
               break;
             }
             case 54n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               aaAsymmetricField = payload;
               break;
             }
@@ -5621,6 +6327,13 @@ export namespace Comprehensive {
               break;
             }
             case 57n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -5633,10 +6346,18 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               bOptionalField = payload;
               break;
             }
             case 58n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -5652,10 +6373,18 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               cOptionalField = payload;
               break;
             }
             case 59n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -5672,10 +6401,18 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
+              offset += oldOffset;
               dOptionalField = payload;
               break;
             }
             case 60n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -5699,42 +6436,83 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               eOptionalField = payload;
               break;
             }
             case 61n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
+                dataView.byteOffset + dataView.byteLength,
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               fOptionalField = payload;
               break;
             }
             case 62n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               gOptionalField = payload;
               break;
             }
             case 63n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               hOptionalField = payload;
               break;
             }
             case 64n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               iOptionalField = payload;
               break;
             }
             case 65n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -5758,10 +6536,18 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               jOptionalField = payload;
               break;
             }
             case 66n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -5773,10 +6559,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               kOptionalField = payload;
               break;
             }
             case 67n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -5788,10 +6582,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               lOptionalField = payload;
               break;
             }
             case 68n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -5804,10 +6606,18 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               mOptionalField = payload;
               break;
             }
             case 69n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -5827,98 +6637,178 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               nOptionalField = payload;
               break;
             }
             case 70n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = dataView.buffer.slice(
                       dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
+                      dataView.byteOffset + dataView.byteLength,
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               oOptionalField = payload;
               break;
             }
             case 71n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = textDecoder.decode(
-                      dataView.buffer.slice(
+                      new Uint8Array(
+                        dataView.buffer,
                         dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
+                        dataView.byteLength - offset,
                       ),
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               pOptionalField = payload;
               break;
             }
             case 72n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               qOptionalField = payload;
               break;
             }
             case 73n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               rOptionalField = payload;
               break;
             }
             case 74n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: undefined[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     {
                       let newPayload;
@@ -5929,22 +6819,38 @@ export namespace Comprehensive {
                       }
                       payload = newPayload;
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               sOptionalField = payload;
               break;
             }
             case 75n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: number[] = [];
                     {
                       let payloadAlias = payload;
@@ -5956,22 +6862,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               tOptionalField = payload;
               break;
             }
             case 76n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -5983,22 +6905,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               uOptionalField = payload;
               break;
             }
             case 77n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -6011,22 +6949,38 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               vOptionalField = payload;
               break;
             }
             case 78n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: boolean[] = [];
                     {
                       let payloadAlias = payload;
@@ -6046,138 +7000,237 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               wOptionalField = payload;
               break;
             }
             case 79n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = dataView.buffer.slice(
                             dataView.byteOffset + offset,
-                            dataView.byteOffset + offset + payloadSize,
+                            dataView.byteOffset + dataView.byteLength,
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               xOptionalField = payload;
               break;
             }
             case 80n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: string[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = textDecoder.decode(
-                            dataView.buffer.slice(
+                            new Uint8Array(
+                              dataView.buffer,
                               dataView.byteOffset + offset,
-                              dataView.byteOffset + offset + payloadSize,
+                              dataView.byteLength - offset,
                             ),
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               yOptionalField = payload;
               break;
             }
             case 81n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               zOptionalField = payload;
               break;
             }
             case 82n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               aaOptionalField = payload;
               break;
             }
@@ -10122,8 +11175,10 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, BarIn] {
+        let dataViewAlias = dataView;
+
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
@@ -10135,6 +11190,13 @@ export namespace Comprehensive {
               ];
             }
             case 1n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -10147,6 +11209,7 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10156,6 +11219,13 @@ export namespace Comprehensive {
               ];
             }
             case 2n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -10171,6 +11241,7 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10180,6 +11251,13 @@ export namespace Comprehensive {
               ];
             }
             case 3n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -10196,6 +11274,7 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10205,6 +11284,13 @@ export namespace Comprehensive {
               ];
             }
             case 4n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -10228,6 +11314,7 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10237,11 +11324,19 @@ export namespace Comprehensive {
               ];
             }
             case 5n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
+                dataView.byteOffset + dataView.byteLength,
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10251,13 +11346,22 @@ export namespace Comprehensive {
               ];
             }
             case 6n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10267,8 +11371,16 @@ export namespace Comprehensive {
               ];
             }
             case 7n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10278,8 +11390,16 @@ export namespace Comprehensive {
               ];
             }
             case 8n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10289,6 +11409,13 @@ export namespace Comprehensive {
               ];
             }
             case 9n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -10312,6 +11439,7 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10321,6 +11449,13 @@ export namespace Comprehensive {
               ];
             }
             case 10n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -10332,6 +11467,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10341,6 +11477,13 @@ export namespace Comprehensive {
               ];
             }
             case 11n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -10352,6 +11495,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10361,6 +11505,13 @@ export namespace Comprehensive {
               ];
             }
             case 12n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -10373,6 +11524,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10382,6 +11534,13 @@ export namespace Comprehensive {
               ];
             }
             case 13n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -10401,6 +11560,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10410,23 +11570,39 @@ export namespace Comprehensive {
               ];
             }
             case 14n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = dataView.buffer.slice(
                       dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
+                      dataView.byteOffset + dataView.byteLength,
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10436,25 +11612,42 @@ export namespace Comprehensive {
               ];
             }
             case 15n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = textDecoder.decode(
-                      dataView.buffer.slice(
+                      new Uint8Array(
+                        dataView.buffer,
                         dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
+                        dataView.byteLength - offset,
                       ),
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10464,20 +11657,36 @@ export namespace Comprehensive {
               ];
             }
             case 16n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10487,20 +11696,36 @@ export namespace Comprehensive {
               ];
             }
             case 17n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10510,14 +11735,28 @@ export namespace Comprehensive {
               ];
             }
             case 18n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: undefined[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     {
                       let newPayload;
@@ -10528,10 +11767,12 @@ export namespace Comprehensive {
                       }
                       payload = newPayload;
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10541,14 +11782,28 @@ export namespace Comprehensive {
               ];
             }
             case 19n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: number[] = [];
                     {
                       let payloadAlias = payload;
@@ -10560,10 +11815,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10573,14 +11830,28 @@ export namespace Comprehensive {
               ];
             }
             case 20n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -10592,10 +11863,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10605,14 +11878,28 @@ export namespace Comprehensive {
               ];
             }
             case 21n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -10625,10 +11912,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10638,14 +11927,28 @@ export namespace Comprehensive {
               ];
             }
             case 22n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: boolean[] = [];
                     {
                       let payloadAlias = payload;
@@ -10665,10 +11968,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10678,35 +11983,59 @@ export namespace Comprehensive {
               ];
             }
             case 23n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = dataView.buffer.slice(
                             dataView.byteOffset + offset,
-                            dataView.byteOffset + offset + payloadSize,
+                            dataView.byteOffset + dataView.byteLength,
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10716,37 +12045,62 @@ export namespace Comprehensive {
               ];
             }
             case 24n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: string[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = textDecoder.decode(
-                            dataView.buffer.slice(
+                            new Uint8Array(
+                              dataView.buffer,
                               dataView.byteOffset + offset,
-                              dataView.byteOffset + offset + payloadSize,
+                              dataView.byteLength - offset,
                             ),
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10756,32 +12110,56 @@ export namespace Comprehensive {
               ];
             }
             case 25n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10791,32 +12169,56 @@ export namespace Comprehensive {
               ];
             }
             case 26n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10834,6 +12236,13 @@ export namespace Comprehensive {
               ];
             }
             case 29n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -10846,6 +12255,7 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10855,6 +12265,13 @@ export namespace Comprehensive {
               ];
             }
             case 30n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -10870,6 +12287,7 @@ export namespace Comprehensive {
                     break;
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10879,6 +12297,13 @@ export namespace Comprehensive {
               ];
             }
             case 31n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -10895,6 +12320,7 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10904,6 +12330,13 @@ export namespace Comprehensive {
               ];
             }
             case 32n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -10927,6 +12360,7 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10936,11 +12370,19 @@ export namespace Comprehensive {
               ];
             }
             case 33n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
+                dataView.byteOffset + dataView.byteLength,
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10950,13 +12392,22 @@ export namespace Comprehensive {
               ];
             }
             case 34n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10966,8 +12417,16 @@ export namespace Comprehensive {
               ];
             }
             case 35n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10977,8 +12436,16 @@ export namespace Comprehensive {
               ];
             }
             case 36n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -10988,6 +12455,13 @@ export namespace Comprehensive {
               ];
             }
             case 37n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -11011,6 +12485,7 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11020,6 +12495,13 @@ export namespace Comprehensive {
               ];
             }
             case 38n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -11031,6 +12513,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11040,6 +12523,13 @@ export namespace Comprehensive {
               ];
             }
             case 39n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -11051,6 +12541,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11060,6 +12551,13 @@ export namespace Comprehensive {
               ];
             }
             case 40n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -11072,6 +12570,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11081,6 +12580,13 @@ export namespace Comprehensive {
               ];
             }
             case 41n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -11100,6 +12606,7 @@ export namespace Comprehensive {
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11109,23 +12616,39 @@ export namespace Comprehensive {
               ];
             }
             case 42n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = dataView.buffer.slice(
                       dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
+                      dataView.byteOffset + dataView.byteLength,
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11135,25 +12658,42 @@ export namespace Comprehensive {
               ];
             }
             case 43n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = textDecoder.decode(
-                      dataView.buffer.slice(
+                      new Uint8Array(
+                        dataView.buffer,
                         dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
+                        dataView.byteLength - offset,
                       ),
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11163,20 +12703,36 @@ export namespace Comprehensive {
               ];
             }
             case 44n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11186,20 +12742,36 @@ export namespace Comprehensive {
               ];
             }
             case 45n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11209,14 +12781,28 @@ export namespace Comprehensive {
               ];
             }
             case 46n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: undefined[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     {
                       let newPayload;
@@ -11227,10 +12813,12 @@ export namespace Comprehensive {
                       }
                       payload = newPayload;
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11240,14 +12828,28 @@ export namespace Comprehensive {
               ];
             }
             case 47n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: number[] = [];
                     {
                       let payloadAlias = payload;
@@ -11259,10 +12861,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11272,14 +12876,28 @@ export namespace Comprehensive {
               ];
             }
             case 48n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -11291,10 +12909,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11304,14 +12924,28 @@ export namespace Comprehensive {
               ];
             }
             case 49n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -11324,10 +12958,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11337,14 +12973,28 @@ export namespace Comprehensive {
               ];
             }
             case 50n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: boolean[] = [];
                     {
                       let payloadAlias = payload;
@@ -11364,10 +13014,12 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11377,35 +13029,59 @@ export namespace Comprehensive {
               ];
             }
             case 51n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = dataView.buffer.slice(
                             dataView.byteOffset + offset,
-                            dataView.byteOffset + offset + payloadSize,
+                            dataView.byteOffset + dataView.byteLength,
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11415,37 +13091,62 @@ export namespace Comprehensive {
               ];
             }
             case 52n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: string[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = textDecoder.decode(
-                            dataView.buffer.slice(
+                            new Uint8Array(
+                              dataView.buffer,
                               dataView.byteOffset + offset,
-                              dataView.byteOffset + offset + payloadSize,
+                              dataView.byteLength - offset,
                             ),
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11455,32 +13156,56 @@ export namespace Comprehensive {
               ];
             }
             case 53n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11490,32 +13215,56 @@ export namespace Comprehensive {
               ];
             }
             case 54n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -11525,7 +13274,7 @@ export namespace Comprehensive {
               ];
             }
             case 56n: {
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11536,6 +13285,13 @@ export namespace Comprehensive {
               ];
             }
             case 57n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -11548,7 +13304,8 @@ export namespace Comprehensive {
                     break;
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11560,6 +13317,13 @@ export namespace Comprehensive {
               ];
             }
             case 58n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -11575,7 +13339,8 @@ export namespace Comprehensive {
                     break;
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11587,6 +13352,13 @@ export namespace Comprehensive {
               ];
             }
             case 59n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 switch (payloadSize) {
@@ -11603,7 +13375,8 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11615,6 +13388,13 @@ export namespace Comprehensive {
               ];
             }
             case 60n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -11638,7 +13418,8 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11650,12 +13431,20 @@ export namespace Comprehensive {
               ];
             }
             case 61n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
+                dataView.byteOffset + dataView.byteLength,
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11667,14 +13456,23 @@ export namespace Comprehensive {
               ];
             }
             case 62n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11686,9 +13484,17 @@ export namespace Comprehensive {
               ];
             }
             case 63n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11700,9 +13506,17 @@ export namespace Comprehensive {
               ];
             }
             case 64n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11714,6 +13528,13 @@ export namespace Comprehensive {
               ];
             }
             case 65n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload;
               {
                 let newPayload;
@@ -11737,7 +13558,8 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11749,6 +13571,13 @@ export namespace Comprehensive {
               ];
             }
             case 66n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -11760,7 +13589,8 @@ export namespace Comprehensive {
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11772,6 +13602,13 @@ export namespace Comprehensive {
               ];
             }
             case 67n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -11783,7 +13620,8 @@ export namespace Comprehensive {
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11795,6 +13633,13 @@ export namespace Comprehensive {
               ];
             }
             case 68n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -11807,7 +13652,8 @@ export namespace Comprehensive {
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11819,6 +13665,13 @@ export namespace Comprehensive {
               ];
             }
             case 69n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -11838,7 +13691,8 @@ export namespace Comprehensive {
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11850,24 +13704,40 @@ export namespace Comprehensive {
               ];
             }
             case 70n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = dataView.buffer.slice(
                       dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
+                      dataView.byteOffset + dataView.byteLength,
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11879,26 +13749,43 @@ export namespace Comprehensive {
               ];
             }
             case 71n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload = textDecoder.decode(
-                      dataView.buffer.slice(
+                      new Uint8Array(
+                        dataView.buffer,
                         dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
+                        dataView.byteLength - offset,
                       ),
                     );
-                    offset += payloadSize;
+                    offset = dataView.byteLength;
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11910,21 +13797,37 @@ export namespace Comprehensive {
               ];
             }
             case 72n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11936,21 +13839,37 @@ export namespace Comprehensive {
               ];
             }
             case 73n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11962,14 +13881,28 @@ export namespace Comprehensive {
               ];
             }
             case 74n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: undefined[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload;
                     {
                       let newPayload;
@@ -11980,11 +13913,13 @@ export namespace Comprehensive {
                       }
                       payload = newPayload;
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -11996,14 +13931,28 @@ export namespace Comprehensive {
               ];
             }
             case 75n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: number[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: number[] = [];
                     {
                       let payloadAlias = payload;
@@ -12015,11 +13964,13 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12031,14 +13982,28 @@ export namespace Comprehensive {
               ];
             }
             case 76n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -12050,11 +14015,13 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12066,14 +14033,28 @@ export namespace Comprehensive {
               ];
             }
             case 77n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: bigint[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: bigint[] = [];
                     {
                       let payloadAlias = payload;
@@ -12086,11 +14067,13 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12102,14 +14085,28 @@ export namespace Comprehensive {
               ];
             }
             case 78n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: boolean[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: boolean[] = [];
                     {
                       let payloadAlias = payload;
@@ -12129,11 +14126,13 @@ export namespace Comprehensive {
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12145,36 +14144,60 @@ export namespace Comprehensive {
               ];
             }
             case 79n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = dataView.buffer.slice(
                             dataView.byteOffset + offset,
-                            dataView.byteOffset + offset + payloadSize,
+                            dataView.byteOffset + dataView.byteLength,
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12186,38 +14209,63 @@ export namespace Comprehensive {
               ];
             }
             case 80n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: string[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: string[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload = textDecoder.decode(
-                            dataView.buffer.slice(
+                            new Uint8Array(
+                              dataView.buffer,
                               dataView.byteOffset + offset,
-                              dataView.byteOffset + offset + payloadSize,
+                              dataView.byteLength - offset,
                             ),
                           );
-                          offset += payloadSize;
+                          offset = dataView.byteLength;
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12229,33 +14277,57 @@ export namespace Comprehensive {
               ];
             }
             case 81n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12267,33 +14339,57 @@ export namespace Comprehensive {
               ];
             }
             case 82n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
+                let dataViewAlias = dataView;
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
+                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    const dataView = new DataView(
+                      dataViewAlias.buffer,
+                      dataViewAlias.byteOffset + offset,
+                      Number(payloadSizeBig),
+                    );
+                    const oldOffset = offset;
+                    offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
+                      let dataViewAlias = dataView;
                       let payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
+                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          const dataView = new DataView(
+                            dataViewAlias.buffer,
+                            dataViewAlias.byteOffset + offset,
+                            Number(payloadSizeBig),
+                          );
+                          const oldOffset = offset;
+                          offset = 0;
                           let payload;
                           [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          offset += oldOffset;
                           payloadAlias.push(payload);
                         }
                       }
                     }
+                    offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -12381,8 +14477,10 @@ export namespace Degenerate {
         dataView: DataView,
         offset: number,
       ): [number, EmptyChoiceIn] {
+        let dataViewAlias = dataView;
+
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             default:
@@ -12670,12 +14768,14 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
+        let dataViewAlias = dataView;
+
         let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, optionalToRequiredField, optionalToAsymmetricField, optionalToOptionalField, nonexistentToAsymmetricField, nonexistentToOptionalField;
 
         while (true) {
           let index, payloadSize;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -12685,101 +14785,182 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToRequiredField = payload;
               break;
             }
             case 1n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToAsymmetricField = payload;
               break;
             }
             case 2n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToOptionalField = payload;
               break;
             }
             case 4n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToRequiredField = payload;
               break;
             }
             case 5n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToAsymmetricField = payload;
               break;
             }
             case 6n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToOptionalField = payload;
               break;
             }
             case 8n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToRequiredField = payload;
               break;
             }
             case 9n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToAsymmetricField = payload;
               break;
             }
             case 10n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToOptionalField = payload;
               break;
             }
@@ -13047,18 +15228,29 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleChoiceIn] {
+        let dataViewAlias = dataView;
+
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13068,13 +15260,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 1n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13084,13 +15285,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 4n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13100,13 +15310,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 5n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13116,14 +15335,23 @@ export namespace SchemaEvolution {
               ];
             }
             case 6n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -13135,13 +15363,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 8n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13151,13 +15388,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 9n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13167,14 +15413,23 @@ export namespace SchemaEvolution {
               ];
             }
             case 10n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -13202,7 +15457,7 @@ export namespace SchemaEvolution {
               ];
             }
             case 14n: {
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -13530,12 +15785,14 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
+        let dataViewAlias = dataView;
+
         let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, requiredToNonexistentField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, asymmetricToNonexistentField, optionalToRequiredField, optionalToAsymmetricField, optionalToOptionalField, optionalToNonexistentField;
 
         while (true) {
           let index, payloadSize;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -13545,134 +15802,242 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToRequiredField = payload;
               break;
             }
             case 1n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToAsymmetricField = payload;
               break;
             }
             case 2n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToOptionalField = payload;
               break;
             }
             case 3n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               requiredToNonexistentField = payload;
               break;
             }
             case 4n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToRequiredField = payload;
               break;
             }
             case 5n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToAsymmetricField = payload;
               break;
             }
             case 6n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToOptionalField = payload;
               break;
             }
             case 7n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               asymmetricToNonexistentField = payload;
               break;
             }
             case 8n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToRequiredField = payload;
               break;
             }
             case 9n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToAsymmetricField = payload;
               break;
             }
             case 10n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToOptionalField = payload;
               break;
             }
             case 11n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               optionalToNonexistentField = payload;
               break;
             }
@@ -13949,18 +16314,29 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleChoiceIn] {
+        let dataViewAlias = dataView;
+
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13970,13 +16346,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 1n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -13986,13 +16371,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 4n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -14002,13 +16396,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 5n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -14018,13 +16421,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 6n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -14034,13 +16446,22 @@ export namespace SchemaEvolution {
               ];
             }
             case 7n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
@@ -14050,14 +16471,23 @@ export namespace SchemaEvolution {
               ];
             }
             case 8n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -14069,14 +16499,23 @@ export namespace SchemaEvolution {
               ];
             }
             case 9n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -14088,14 +16527,23 @@ export namespace SchemaEvolution {
               ];
             }
             case 10n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -14107,14 +16555,23 @@ export namespace SchemaEvolution {
               ];
             }
             case 11n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = dataView.byteLength;
+              offset += oldOffset;
+              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 offset,
@@ -14188,12 +16645,14 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonStructIn] {
+        let dataViewAlias = dataView;
+
         let xField;
 
         while (true) {
           let index, payloadSize;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -14203,13 +16662,22 @@ export namespace SchemaEvolution {
           }
           switch (index) {
             case 0n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               xField = payload;
               break;
             }
@@ -14289,18 +16757,29 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonChoiceIn] {
+        let dataViewAlias = dataView;
+
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
+              const dataView = new DataView(
+                dataViewAlias.buffer,
+                dataViewAlias.byteOffset + offset,
+                payloadSize,
+              );
+              const oldOffset = offset;
+              offset = 0;
               let payload = textDecoder.decode(
-                dataView.buffer.slice(
+                new Uint8Array(
+                  dataView.buffer,
                   dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
+                  dataView.byteLength - offset,
                 ),
               );
-              offset += payloadSize;
+              offset = dataView.byteLength;
+              offset += oldOffset;
               return [
                 offset,
                 {
