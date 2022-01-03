@@ -365,7 +365,7 @@ function serializeFieldHeader(
   switch (payloadSize) {{
     case 0:
       return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b00));
-    case 1:
+    case 8:
       return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b01));
     default:
       if (integerEncoded) {{
@@ -1770,10 +1770,14 @@ fn write_serialization_invocation<T: Write>(
                 writeln!(buffer, "if (payloadSize !== 0) {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "dataView.setFloat64(offset, payload, true);")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "offset += 8;")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             } else {
-                writeln!(buffer, "dataView.setFloat64(offset, payload, true);")
+                writeln!(buffer, "dataView.setFloat64(offset, payload, true);")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "offset += 8;")
             }
         }
         schema::TypeVariant::S64 => {
@@ -1894,10 +1898,26 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "let payloadSizeBig;")?;
                 write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "try {{")?;
+                write_indentation(buffer, indentation + 4)?;
                 writeln!(
                     buffer,
                     "[offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);",
                 )?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}} catch (e) {{")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "if (e instanceof RangeError) {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}} else {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "throw e;")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "const dataView = new DataView(")?;
                 write_indentation(buffer, indentation + 4)?;
@@ -1947,16 +1967,32 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "while (true) {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "try {{")?;
                 write_deserialization_invocation(
                     buffer,
-                    indentation + 3,
+                    indentation + 4,
                     imports,
                     namespace,
                     &inner_type.variant,
                     false,
                 )?;
-                write_indentation(buffer, indentation + 3)?;
+                write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "payloadAlias.push(payload);")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}} catch (e) {{")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "if (e instanceof RangeError) {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}} else {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "throw e;")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
