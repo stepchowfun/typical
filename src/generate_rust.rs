@@ -1390,6 +1390,8 @@ fn write_size_calculation<T: Write>(
     type_variant: &schema::TypeVariant,
     is_field: bool,
 ) -> Result<(), fmt::Error> {
+    write!(buffer, "(")?;
+
     match type_variant {
         schema::TypeVariant::Array(inner_type) => match &inner_type.variant {
             schema::TypeVariant::Array(_)
@@ -1406,37 +1408,43 @@ fn write_size_calculation<T: Write>(
                 write!(
                     buffer,
                     "varint_size_from_value(payload_size as u64) + payload_size }})",
-                )
+                )?;
             }
             schema::TypeVariant::Bool | schema::TypeVariant::S64 | schema::TypeVariant::U64 => {
                 write!(buffer, "payload.iter().fold(0_usize, |x, payload| x + ")?;
                 write_size_calculation(buffer, supers, &inner_type.variant, false)?;
-                write!(buffer, ")")
+                write!(buffer, ")")?;
             }
-            schema::TypeVariant::F64 => write!(buffer, "8_usize * payload.len()"),
+            schema::TypeVariant::F64 => {
+                write!(buffer, "8_usize * payload.len()")?;
+            }
             schema::TypeVariant::Unit => {
                 write!(buffer, "{{ let payload = &(payload.len() as u64); ")?;
                 write_size_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
-                write!(buffer, " }}")
+                write!(buffer, " }}")?;
             }
         },
         schema::TypeVariant::Bool => {
             if is_field {
-                write!(buffer, "if *payload {{ 1_usize }} else {{ 0_usize }}")
+                write!(buffer, "if *payload {{ 1_usize }} else {{ 0_usize }}")?;
             } else {
-                write!(buffer, "1_usize")
+                write!(buffer, "1_usize")?;
             }
         }
-        schema::TypeVariant::Bytes | schema::TypeVariant::String => write!(buffer, "payload.len()"),
-        schema::TypeVariant::Custom(_, _) => write!(buffer, "payload.size()"),
+        schema::TypeVariant::Bytes | schema::TypeVariant::String => {
+            write!(buffer, "payload.len()")?;
+        }
+        schema::TypeVariant::Custom(_, _) => {
+            write!(buffer, "payload.size()")?;
+        }
         schema::TypeVariant::F64 => {
             if is_field {
                 write!(
                     buffer,
                     "if payload.to_bits() == 0_u64 {{ 0_usize }} else {{ 8_usize }}",
-                )
+                )?;
             } else {
-                write!(buffer, "8_usize")
+                write!(buffer, "8_usize")?;
             }
         }
         schema::TypeVariant::S64 => {
@@ -1444,7 +1452,7 @@ fn write_size_calculation<T: Write>(
             write_supers(buffer, supers)?;
             write!(buffer, "zigzag_encode(*payload); let payload = &zigzag; ")?;
             write_size_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
-            write!(buffer, " }}")
+            write!(buffer, " }}")?;
         }
         schema::TypeVariant::U64 => {
             if is_field {
@@ -1458,20 +1466,23 @@ fn write_size_calculation<T: Write>(
                     buffer,
                     "varint_size_from_value(*payload) }}, 567_382_630_219_904_u64..=\
                         18_446_744_073_709_551_615_u64 => {{ 8_usize }} }}",
-                )
+                )?;
             } else {
                 write_supers(buffer, supers)?;
-                write!(buffer, "varint_size_from_value(*payload)")
+                write!(buffer, "varint_size_from_value(*payload)")?;
             }
         }
-        schema::TypeVariant::Unit => write!(buffer, "0_usize"),
+        schema::TypeVariant::Unit => {
+            write!(buffer, "0_usize")?;
+        }
     }
+
+    write!(buffer, ")")
 }
 
 // Write the logic to invoke the serialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `payload_size`
 // - `payload`
 // - `writer`
 #[allow(clippy::too_many_lines)]
@@ -1491,12 +1502,10 @@ fn write_serialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "for payload in payload {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "let payload_size = ")?;
-                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
-                writeln!(buffer, ";")?;
-                write_indentation(buffer, indentation + 1)?;
                 write_supers(buffer, supers)?;
-                write!(buffer, "serialize_varint(payload_size as u64, writer)?;")?;
+                write!(buffer, "serialize_varint(")?;
+                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
+                writeln!(buffer, " as u64, writer)?;")?;
                 write_serialization_invocation(
                     buffer,
                     indentation + 1,
@@ -1513,10 +1522,6 @@ fn write_serialization_invocation<T: Write>(
             | schema::TypeVariant::F64 => {
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "for payload in payload {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "let payload_size = ")?;
-                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
-                writeln!(buffer, ";")?;
                 write_serialization_invocation(
                     buffer,
                     indentation + 1,
@@ -1557,7 +1562,7 @@ fn write_serialization_invocation<T: Write>(
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "if payload_size != 0_usize {{")?;
+                writeln!(buffer, "if payload.to_bits() != 0_u64 {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "writer.write_all(&payload.to_le_bytes())?;")?;
                 write_indentation(buffer, indentation)?;
@@ -1631,9 +1636,13 @@ fn write_u64_serialization_invocation<T: Write>(
 // Write the logic to invoke the deserialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `payload_size`
+// - `payload_size` (not used if `is_field` is `false`)
 // - `payload` (introduced)
 // - `sub_reader`
+//
+// Additional notes:
+// - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String`, then `sub_reader` is consumed to
+//   the end.
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,

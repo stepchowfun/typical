@@ -1918,8 +1918,6 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "let newPayload;")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "const payloadSize: number = 0;")?;
-                write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
                 write_deserialization_invocation(
                     buffer,

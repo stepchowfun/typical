@@ -2,9 +2,9 @@ import { Comprehensive, Degenerate } from '../generated/types';
 import { checkOk, checkMatch } from './round-trip';
 
 checkOk(
-  Comprehensive.Bar.Bar.size,
-  Comprehensive.Bar.Bar.serialize,
-  Comprehensive.Bar.Bar.deserialize,
+  Comprehensive.Types.Bar.size,
+  Comprehensive.Types.Bar.serialize,
+  Comprehensive.Types.Bar.deserialize,
   { field: 'aRequired' },
 );
 
