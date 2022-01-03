@@ -1,17 +1,18 @@
 import { Comprehensive, Degenerate } from '../generated/types';
-import { checkOk, checkMatch } from './round-trip';
+import { assertMatch, assertRoundTrip } from './assertions';
 
-checkOk(
+assertMatch(
   Comprehensive.Types.Bar.size,
   Comprehensive.Types.Bar.serialize,
   Comprehensive.Types.Bar.deserialize,
+  { field: 'aRequired' },
   { field: 'aRequired' },
 );
 
 // eslint-disable-next-line no-console
 console.log();
 
-checkMatch(
+assertRoundTrip(
   Degenerate.Types.EmptyStruct.size,
   Degenerate.Types.EmptyStruct.serialize,
   Degenerate.Types.EmptyStruct.deserialize,
