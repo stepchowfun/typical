@@ -1,6 +1,6 @@
 use {
     crate::{
-        round_trip::check_match,
+        assertions::assert_round_trip,
         types::{
             comprehensive::types::{BarIn, BarOut, FooIn, FooOut, LocalStructOut},
             degenerate::types::EmptyStructOut,
@@ -66,7 +66,7 @@ const S64_TEST_VALUES: &[i64] = &[
 
 #[allow(clippy::too_many_lines)]
 pub fn run() -> io::Result<()> {
-    check_match::<FooOut, FooIn>(FooOut {
+    assert_round_trip::<FooOut, FooIn>(&FooOut {
         a_required: (),
         b_required: PI,
         c_required: u64::MAX,
@@ -252,7 +252,7 @@ pub fn run() -> io::Result<()> {
 
     println!();
 
-    check_match::<FooOut, FooIn>(FooOut {
+    assert_round_trip::<FooOut, FooIn>(&FooOut {
         a_required: (),
         b_required: PI,
         c_required: u64::MAX,
@@ -496,195 +496,198 @@ pub fn run() -> io::Result<()> {
 
     println!();
 
-    check_match::<BarOut, BarIn>(BarOut::ARequired)?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ARequired)?;
 
     for &value in F64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::BRequired(value))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::BRequired(value))?;
     }
 
     for &value in U64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::CRequired(value))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::CRequired(value))?;
     }
 
     for &value in S64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::DRequired(value))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::DRequired(value))?;
     }
 
-    check_match::<BarOut, BarIn>(BarOut::ERequired(false))?;
-    check_match::<BarOut, BarIn>(BarOut::ERequired(true))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ERequired(false))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ERequired(true))?;
 
-    check_match::<BarOut, BarIn>(BarOut::FRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::FRequired(vec![0]))?;
-    check_match::<BarOut, BarIn>(BarOut::FRequired(vec![0, 42]))?;
-    check_match::<BarOut, BarIn>(BarOut::FRequired(vec![0, 42, 255]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FRequired(vec![0]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FRequired(vec![0, 42]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FRequired(vec![0, 42, 255]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::GRequired("".to_owned()))?;
-    check_match::<BarOut, BarIn>(BarOut::GRequired("=8 bytes".to_owned()))?;
-    check_match::<BarOut, BarIn>(BarOut::GRequired("Hello, World!".to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("".to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("=8 bytes".to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("Hello, World!".to_owned()))?;
 
-    check_match::<BarOut, BarIn>(BarOut::HRequired(LocalStructOut {}))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::HRequired(LocalStructOut {}))?;
 
-    check_match::<BarOut, BarIn>(BarOut::IRequired(EmptyStructOut {}))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::IRequired(EmptyStructOut {}))?;
 
-    check_match::<BarOut, BarIn>(BarOut::JRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::JRequired(vec![()]))?;
-    check_match::<BarOut, BarIn>(BarOut::JRequired(vec![(), ()]))?;
-    check_match::<BarOut, BarIn>(BarOut::JRequired(vec![(), (), ()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JRequired(vec![()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JRequired(vec![(), ()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JRequired(vec![(), (), ()]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::KRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::KRequired(vec![0.0]))?;
-    check_match::<BarOut, BarIn>(BarOut::KRequired(vec![0.0, PI]))?;
-    check_match::<BarOut, BarIn>(BarOut::KRequired(vec![0.0, PI, f64::EPSILON]))?;
-    check_match::<BarOut, BarIn>(BarOut::KRequired(F64_TEST_VALUES.to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0, PI]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0, PI, f64::EPSILON]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(F64_TEST_VALUES.to_owned()))?;
 
-    check_match::<BarOut, BarIn>(BarOut::LRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::LRequired(vec![u64::MIN]))?;
-    check_match::<BarOut, BarIn>(BarOut::LRequired(vec![u64::MIN, 256]))?;
-    check_match::<BarOut, BarIn>(BarOut::LRequired(vec![u64::MIN, 256, u64::MAX]))?;
-    check_match::<BarOut, BarIn>(BarOut::LRequired(U64_TEST_VALUES.to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LRequired(vec![u64::MIN]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LRequired(vec![u64::MIN, 256]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LRequired(vec![u64::MIN, 256, u64::MAX]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LRequired(U64_TEST_VALUES.to_owned()))?;
 
-    check_match::<BarOut, BarIn>(BarOut::MRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::MRequired(vec![i64::MIN]))?;
-    check_match::<BarOut, BarIn>(BarOut::MRequired(vec![i64::MIN, 0]))?;
-    check_match::<BarOut, BarIn>(BarOut::MRequired(vec![i64::MIN, 0, i64::MAX]))?;
-    check_match::<BarOut, BarIn>(BarOut::MRequired(S64_TEST_VALUES.to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MRequired(vec![i64::MIN]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MRequired(vec![i64::MIN, 0]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MRequired(vec![i64::MIN, 0, i64::MAX]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MRequired(S64_TEST_VALUES.to_owned()))?;
 
-    check_match::<BarOut, BarIn>(BarOut::NRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::NRequired(vec![false]))?;
-    check_match::<BarOut, BarIn>(BarOut::NRequired(vec![false, true]))?;
-    check_match::<BarOut, BarIn>(BarOut::NRequired(vec![false, true, false]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NRequired(vec![false]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NRequired(vec![false, true]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NRequired(vec![false, true, false]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::ORequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec![0, 45, 255]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ORequired(vec![vec![0, 45, 255], vec![1, 43, 254]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ORequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![vec![0, 45, 255]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![
+        vec![0, 45, 255],
+        vec![1, 43, 254],
+    ]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![
         vec![0, 45, 255],
         vec![1, 43, 254],
         vec![2, 44, 253],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::PRequired(vec!["".to_owned()]))?;
-    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec!["".to_owned()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![
         "".to_owned(),
         "=8 bytes".to_owned(),
     ]))?;
-    check_match::<BarOut, BarIn>(BarOut::PRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![
         "".to_owned(),
         "=8 bytes".to_owned(),
         "Hello, World!".to_owned(),
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![LocalStructOut {}]))?;
-    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QRequired(vec![LocalStructOut {}]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QRequired(vec![
         LocalStructOut {},
         LocalStructOut {},
     ]))?;
-    check_match::<BarOut, BarIn>(BarOut::QRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QRequired(vec![
         LocalStructOut {},
         LocalStructOut {},
         LocalStructOut {},
-    ]))?;
-
-    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![EmptyStructOut {}]))?;
-    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![
-        EmptyStructOut {},
-        EmptyStructOut {},
-    ]))?;
-    check_match::<BarOut, BarIn>(BarOut::RRequired(vec![
-        EmptyStructOut {},
-        EmptyStructOut {},
-        EmptyStructOut {},
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![()]]))?;
-    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![vec![(), (), ()]]))?;
-    check_match::<BarOut, BarIn>(BarOut::SRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RRequired(vec![EmptyStructOut {}]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RRequired(vec![
+        EmptyStructOut {},
+        EmptyStructOut {},
+    ]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RRequired(vec![
+        EmptyStructOut {},
+        EmptyStructOut {},
+        EmptyStructOut {},
+    ]))?;
+
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SRequired(vec![vec![()]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SRequired(vec![vec![(), (), ()]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SRequired(vec![
         vec![],
         vec![()],
         vec![(), ()],
         vec![(), (), ()],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::TRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::TRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::TRequired(vec![vec![0.0]]))?;
-    check_match::<BarOut, BarIn>(BarOut::TRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::TRequired(vec![F64_TEST_VALUES.to_owned()]))?;
-    check_match::<BarOut, BarIn>(BarOut::TRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![0.0]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![F64_TEST_VALUES.to_owned()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![
         vec![],
         vec![0.0],
         vec![0.0, PI],
         vec![0.0, PI, f64::EPSILON],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::URequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::URequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::URequired(vec![vec![u64::MIN]]))?;
-    check_match::<BarOut, BarIn>(BarOut::URequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::URequired(vec![U64_TEST_VALUES.to_owned()]))?;
-    check_match::<BarOut, BarIn>(BarOut::URequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![vec![u64::MIN]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![U64_TEST_VALUES.to_owned()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![
         vec![],
         vec![u64::MIN],
         vec![u64::MIN, 256],
         vec![u64::MIN, 256, u64::MAX],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::VRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::VRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::VRequired(vec![vec![i64::MIN]]))?;
-    check_match::<BarOut, BarIn>(BarOut::VRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::VRequired(vec![S64_TEST_VALUES.to_owned()]))?;
-    check_match::<BarOut, BarIn>(BarOut::VRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VRequired(vec![vec![i64::MIN]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VRequired(vec![S64_TEST_VALUES.to_owned()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VRequired(vec![
         vec![],
         vec![i64::MIN],
         vec![i64::MIN, 0],
         vec![i64::MIN, 0, i64::MAX],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::WRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::WRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::WRequired(vec![vec![false]]))?;
-    check_match::<BarOut, BarIn>(BarOut::WRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::WRequired(vec![vec![false, true, false]]))?;
-    check_match::<BarOut, BarIn>(BarOut::WRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WRequired(vec![vec![false]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WRequired(vec![vec![false, true, false]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WRequired(vec![
         vec![],
         vec![false],
         vec![false, true],
         vec![false, true, false],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::XRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::XRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::XRequired(vec![vec![vec![0, 45, 255]]]))?;
-    check_match::<BarOut, BarIn>(BarOut::XRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::XRequired(vec![vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![vec![0, 45, 255]]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![
         vec![0, 45, 255],
         vec![1, 43, 254],
         vec![2, 44, 253],
     ]]))?;
-    check_match::<BarOut, BarIn>(BarOut::XRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![
         vec![],
         vec![vec![0, 45, 255]],
         vec![vec![0, 45, 255], vec![1, 43, 254]],
         vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::YRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::YRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::YRequired(vec![vec!["".to_owned()]]))?;
-    check_match::<BarOut, BarIn>(BarOut::YRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::YRequired(vec![vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec!["".to_owned()]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![
         "".to_owned(),
         "=8 bytes".to_owned(),
         "Hello, World!".to_owned(),
     ]]))?;
-    check_match::<BarOut, BarIn>(BarOut::YRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![
         vec![],
         vec!["".to_owned()],
         vec!["".to_owned(), "=8 bytes".to_owned()],
@@ -695,32 +698,32 @@ pub fn run() -> io::Result<()> {
         ],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::ZRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::ZRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ZRequired(vec![vec![LocalStructOut {}]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ZRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ZRequired(vec![vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZRequired(vec![vec![LocalStructOut {}]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZRequired(vec![vec![
         LocalStructOut {},
         LocalStructOut {},
         LocalStructOut {},
     ]]))?;
-    check_match::<BarOut, BarIn>(BarOut::ZRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZRequired(vec![
         vec![],
         vec![LocalStructOut {}],
         vec![LocalStructOut {}, LocalStructOut {}],
         vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
     ]))?;
 
-    check_match::<BarOut, BarIn>(BarOut::AaRequired(vec![]))?;
-    check_match::<BarOut, BarIn>(BarOut::AaRequired(vec![vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::AaRequired(vec![vec![EmptyStructOut {}]]))?;
-    check_match::<BarOut, BarIn>(BarOut::AaRequired(vec![vec![], vec![], vec![]]))?;
-    check_match::<BarOut, BarIn>(BarOut::AaRequired(vec![vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaRequired(vec![]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaRequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaRequired(vec![vec![EmptyStructOut {}]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaRequired(vec![vec![], vec![], vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaRequired(vec![vec![
         EmptyStructOut {},
         EmptyStructOut {},
         EmptyStructOut {},
     ]]))?;
-    check_match::<BarOut, BarIn>(BarOut::AaRequired(vec![
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaRequired(vec![
         vec![],
         vec![EmptyStructOut {}],
         vec![EmptyStructOut {}, EmptyStructOut {}],
@@ -729,151 +732,169 @@ pub fn run() -> io::Result<()> {
 
     let fallback = BarOut::ARequired;
 
-    check_match::<BarOut, BarIn>(BarOut::AAsymmetric(Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AAsymmetric(Box::new(fallback.clone())))?;
 
     for &value in F64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::BAsymmetric(value, Box::new(fallback.clone())))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::BAsymmetric(
+            value,
+            Box::new(fallback.clone()),
+        ))?;
     }
 
     for &value in U64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::CAsymmetric(value, Box::new(fallback.clone())))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::CAsymmetric(
+            value,
+            Box::new(fallback.clone()),
+        ))?;
     }
 
     for &value in S64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::DAsymmetric(value, Box::new(fallback.clone())))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::DAsymmetric(
+            value,
+            Box::new(fallback.clone()),
+        ))?;
     }
 
-    check_match::<BarOut, BarIn>(BarOut::EAsymmetric(false, Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::EAsymmetric(true, Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::EAsymmetric(false, Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::EAsymmetric(true, Box::new(fallback.clone())))?;
 
-    check_match::<BarOut, BarIn>(BarOut::FAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::FAsymmetric(vec![0], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::FAsymmetric(vec![0, 42], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::FAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FAsymmetric(vec![0], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FAsymmetric(
+        vec![0, 42],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FAsymmetric(
         vec![0, 42, 255],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::GAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GAsymmetric(
         "".to_owned(),
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::GAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GAsymmetric(
         "=8 bytes".to_owned(),
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::GAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GAsymmetric(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::HAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::HAsymmetric(
         LocalStructOut {},
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::IAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::IAsymmetric(
         EmptyStructOut {},
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::JAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::JAsymmetric(vec![()], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::JAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JAsymmetric(vec![()], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JAsymmetric(
         vec![(), ()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::JAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JAsymmetric(
         vec![(), (), ()],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::KAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::KAsymmetric(vec![0.0], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::KAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
+        vec![0.0],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
         vec![0.0, PI],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::KAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
         vec![0.0, PI, f64::EPSILON],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::KAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
         F64_TEST_VALUES.to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::LAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::LAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LAsymmetric(
         vec![u64::MIN],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::LAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LAsymmetric(
         vec![u64::MIN, 256],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::LAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LAsymmetric(
         vec![u64::MIN, 256, u64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::LAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LAsymmetric(
         U64_TEST_VALUES.to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::MAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::MAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MAsymmetric(
         vec![i64::MIN],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::MAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MAsymmetric(
         vec![i64::MIN, 0],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::MAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MAsymmetric(
         vec![i64::MIN, 0, i64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::MAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MAsymmetric(
         S64_TEST_VALUES.to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::NAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::NAsymmetric(vec![false], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::NAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NAsymmetric(
+        vec![false],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NAsymmetric(
         vec![false, true],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::NAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NAsymmetric(
         vec![false, true, false],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::OAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::OAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
         vec![vec![0, 45, 255]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::OAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
         vec![vec![0, 45, 255], vec![1, 43, 254]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::OAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
         vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::PAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::PAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(
         vec!["".to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::PAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(
         vec!["".to_owned(), "=8 bytes".to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::PAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(
         vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -882,74 +903,74 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::QAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::QAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QAsymmetric(
         vec![LocalStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::QAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QAsymmetric(
         vec![LocalStructOut {}, LocalStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::QAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QAsymmetric(
         vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::RAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::RAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RAsymmetric(
         vec![EmptyStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::RAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RAsymmetric(
         vec![EmptyStructOut {}, EmptyStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::RAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::RAsymmetric(
         vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SAsymmetric(
         vec![vec![()]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SAsymmetric(
         vec![vec![(), (), ()]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SAsymmetric(
         vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
         vec![vec![0.0]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
         vec![F64_TEST_VALUES.to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
         vec![
             vec![],
             vec![0.0],
@@ -959,24 +980,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UAsymmetric(
         vec![vec![u64::MIN]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UAsymmetric(
         vec![U64_TEST_VALUES.to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UAsymmetric(
         vec![
             vec![],
             vec![u64::MIN],
@@ -986,24 +1007,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VAsymmetric(
         vec![vec![i64::MIN]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VAsymmetric(
         vec![S64_TEST_VALUES.to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VAsymmetric(
         vec![
             vec![],
             vec![i64::MIN],
@@ -1013,24 +1034,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WAsymmetric(
         vec![vec![false]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WAsymmetric(
         vec![vec![false, true, false]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WAsymmetric(
         vec![
             vec![],
             vec![false],
@@ -1040,24 +1061,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![vec![vec![0, 45, 255]]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![
             vec![],
             vec![vec![0, 45, 255]],
@@ -1067,20 +1088,20 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![vec!["".to_owned()]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -1088,7 +1109,7 @@ pub fn run() -> io::Result<()> {
         ]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![
             vec![],
             vec!["".to_owned()],
@@ -1102,20 +1123,20 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZAsymmetric(
         vec![vec![LocalStructOut {}]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZAsymmetric(
         vec![vec![
             LocalStructOut {},
             LocalStructOut {},
@@ -1123,7 +1144,7 @@ pub fn run() -> io::Result<()> {
         ]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZAsymmetric(
         vec![
             vec![],
             vec![LocalStructOut {}],
@@ -1133,20 +1154,20 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::AaAsymmetric(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::AaAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaAsymmetric(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaAsymmetric(
         vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaAsymmetric(
         vec![vec![EmptyStructOut {}]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaAsymmetric(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaAsymmetric(
         vec![vec![
             EmptyStructOut {},
             EmptyStructOut {},
@@ -1154,7 +1175,7 @@ pub fn run() -> io::Result<()> {
         ]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaAsymmetric(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaAsymmetric(
         vec![
             vec![],
             vec![EmptyStructOut {}],
@@ -1164,142 +1185,157 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::AOptional(Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AOptional(Box::new(fallback.clone())))?;
 
     for &value in F64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::BOptional(value, Box::new(fallback.clone())))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::BOptional(value, Box::new(fallback.clone())))?;
     }
 
     for &value in U64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::COptional(value, Box::new(fallback.clone())))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::COptional(value, Box::new(fallback.clone())))?;
     }
 
     for &value in S64_TEST_VALUES {
-        check_match::<BarOut, BarIn>(BarOut::DOptional(value, Box::new(fallback.clone())))?;
+        assert_round_trip::<BarOut, BarIn>(&BarOut::DOptional(value, Box::new(fallback.clone())))?;
     }
 
-    check_match::<BarOut, BarIn>(BarOut::EOptional(false, Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::EOptional(true, Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::EOptional(false, Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::EOptional(true, Box::new(fallback.clone())))?;
 
-    check_match::<BarOut, BarIn>(BarOut::FOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::FOptional(vec![0], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::FOptional(vec![0, 42], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::FOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FOptional(vec![0], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FOptional(
+        vec![0, 42],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::FOptional(
         vec![0, 42, 255],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::GOptional("".to_owned(), Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::GOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GOptional(
+        "".to_owned(),
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GOptional(
         "=8 bytes".to_owned(),
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::GOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GOptional(
         "Hello, World!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::HOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::HOptional(
         LocalStructOut {},
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::IOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::IOptional(
         EmptyStructOut {},
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::JOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::JOptional(vec![()], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::JOptional(vec![(), ()], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::JOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JOptional(vec![()], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JOptional(
+        vec![(), ()],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::JOptional(
         vec![(), (), ()],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::KOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::KOptional(vec![0.0], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::KOptional(vec![0.0, PI], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::KOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(vec![0.0], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
+        vec![0.0, PI],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
         vec![0.0, PI, f64::EPSILON],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::KOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
         F64_TEST_VALUES.to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::LOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::LOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LOptional(
         vec![u64::MIN],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::LOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LOptional(
         vec![u64::MIN, 256],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::LOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LOptional(
         vec![u64::MIN, 256, u64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::LOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::LOptional(
         U64_TEST_VALUES.to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::MOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::MOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MOptional(
         vec![i64::MIN],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::MOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MOptional(
         vec![i64::MIN, 0],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::MOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MOptional(
         vec![i64::MIN, 0, i64::MAX],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::MOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::MOptional(
         S64_TEST_VALUES.to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::NOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::NOptional(vec![false], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::NOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NOptional(
+        vec![false],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NOptional(
         vec![false, true],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::NOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::NOptional(
         vec![false, true, false],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::OOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::OOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
         vec![vec![0, 45, 255]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::OOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
         vec![vec![0, 45, 255], vec![1, 43, 254]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::OOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
         vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::POptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::POptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(
         vec!["".to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::POptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(
         vec!["".to_owned(), "=8 bytes".to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::POptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(
         vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -1308,68 +1344,74 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::QOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::QOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QOptional(
         vec![LocalStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::QOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QOptional(
         vec![LocalStructOut {}, LocalStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::QOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::QOptional(
         vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::ROptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::ROptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ROptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ROptional(
         vec![EmptyStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ROptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ROptional(
         vec![EmptyStructOut {}, EmptyStructOut {}],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ROptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ROptional(
         vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::SOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::SOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::SOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SOptional(
         vec![vec![()]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SOptional(
         vec![vec![(), (), ()]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::SOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::SOptional(
         vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::TOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::TOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::TOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
         vec![vec![0.0]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
         vec![F64_TEST_VALUES.to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::TOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
         vec![
             vec![],
             vec![0.0],
@@ -1379,21 +1421,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::UOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::UOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::UOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UOptional(
         vec![vec![u64::MIN]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UOptional(
         vec![U64_TEST_VALUES.to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::UOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::UOptional(
         vec![
             vec![],
             vec![u64::MIN],
@@ -1403,21 +1448,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::VOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::VOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::VOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VOptional(
         vec![vec![i64::MIN]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VOptional(
         vec![S64_TEST_VALUES.to_owned()],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::VOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::VOptional(
         vec![
             vec![],
             vec![i64::MIN],
@@ -1427,21 +1475,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::WOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::WOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::WOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WOptional(
         vec![vec![false]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WOptional(
         vec![vec![false, true, false]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::WOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::WOptional(
         vec![
             vec![],
             vec![false],
@@ -1451,21 +1502,24 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::XOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::XOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::XOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
         vec![vec![vec![0, 45, 255]]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
         vec![vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::XOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
         vec![
             vec![],
             vec![vec![0, 45, 255]],
@@ -1475,17 +1529,20 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::YOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::YOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::YOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
         vec![vec!["".to_owned()]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
         vec![vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -1493,7 +1550,7 @@ pub fn run() -> io::Result<()> {
         ]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::YOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
         vec![
             vec![],
             vec!["".to_owned()],
@@ -1507,17 +1564,20 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::ZOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::ZOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::ZOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZOptional(
         vec![vec![LocalStructOut {}]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZOptional(
         vec![vec![
             LocalStructOut {},
             LocalStructOut {},
@@ -1525,7 +1585,7 @@ pub fn run() -> io::Result<()> {
         ]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::ZOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ZOptional(
         vec![
             vec![],
             vec![LocalStructOut {}],
@@ -1535,17 +1595,20 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
 
-    check_match::<BarOut, BarIn>(BarOut::AaOptional(vec![], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::AaOptional(vec![vec![]], Box::new(fallback.clone())))?;
-    check_match::<BarOut, BarIn>(BarOut::AaOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaOptional(vec![], Box::new(fallback.clone())))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaOptional(
+        vec![vec![]],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaOptional(
         vec![vec![EmptyStructOut {}]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaOptional(
         vec![vec![], vec![], vec![]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaOptional(
         vec![vec![
             EmptyStructOut {},
             EmptyStructOut {},
@@ -1553,7 +1616,7 @@ pub fn run() -> io::Result<()> {
         ]],
         Box::new(fallback.clone()),
     ))?;
-    check_match::<BarOut, BarIn>(BarOut::AaOptional(
+    assert_round_trip::<BarOut, BarIn>(&BarOut::AaOptional(
         vec![
             vec![],
             vec![EmptyStructOut {}],

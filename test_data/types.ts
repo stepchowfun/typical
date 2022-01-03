@@ -12408,13 +12408,11 @@ export namespace SchemaEvolution {
       asymmetricToRequired: string;
       asymmetricToAsymmetric: string;
       asymmetricToOptional?: string;
-      optionalNoneToAsymmetric: string;
-      optionalNoneToOptional?: string;
-      optionalSomeToRequired: string;
-      optionalSomeToAsymmetric: string;
-      optionalSomeToOptional?: string;
-      nonexistentToAsymmetric: string;
-      nonexistentToOptional?: string;
+      optionalToRequired: string;
+      optionalToAsymmetric: string;
+      optionalToOptional?: string;
+      nonexistentToAsymmetric: undefined;
+      nonexistentToOptional?: undefined;
     };
 
     export type ExampleStructIn = {
@@ -12424,13 +12422,11 @@ export namespace SchemaEvolution {
       asymmetricToRequired: string;
       asymmetricToAsymmetric?: string;
       asymmetricToOptional?: string;
-      optionalNoneToAsymmetric?: string;
-      optionalNoneToOptional?: string;
-      optionalSomeToRequired: string;
-      optionalSomeToAsymmetric?: string;
-      optionalSomeToOptional?: string;
-      nonexistentToAsymmetric?: string;
-      nonexistentToOptional?: string;
+      optionalToRequired: string;
+      optionalToAsymmetric?: string;
+      optionalToOptional?: string;
+      nonexistentToAsymmetric?: undefined;
+      nonexistentToOptional?: undefined;
     };
 
     export namespace ExampleStruct {
@@ -12483,13 +12479,19 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToAsymmetric;
+          const payload = value.optionalToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.optionalToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
           valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
 
         {
-          const payload = value.optionalNoneToOptional;
+          const payload = value.optionalToOptional;
           if (payload === undefined) {
             payloadSize = 0;
           } else {
@@ -12499,31 +12501,9 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalSomeToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.optionalSomeToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.optionalSomeToOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-          }
-          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
-        }
-
-        {
           const payload = value.nonexistentToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
+          payloadSize = 0;
+          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -12531,9 +12511,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadSize = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
+            payloadSize = 0;
           }
-          valueSize += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
         }
 
         return valueSize;
@@ -12629,7 +12609,20 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToAsymmetric;
+          const payload = value.optionalToRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.optionalToAsymmetric;
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
           {
@@ -12642,7 +12635,7 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToOptional;
+          const payload = value.optionalToOptional;
           if (payload !== undefined) {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
@@ -12657,71 +12650,16 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalSomeToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-          {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
-        }
-
-        {
-          const payload = value.optionalSomeToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-          {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
-        }
-
-        {
-          const payload = value.optionalSomeToOptional;
-          if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
           const payload = value.nonexistentToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
-          {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
+          payloadSize = 0;
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
         }
 
         {
           const payload = value.nonexistentToOptional;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
+            payloadSize = 0;
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
           }
         }
 
@@ -12732,7 +12670,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, optionalNoneToAsymmetricField, optionalNoneToOptionalField, optionalSomeToRequiredField, optionalSomeToAsymmetricField, optionalSomeToOptionalField, nonexistentToAsymmetricField, nonexistentToOptionalField;
+        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, optionalToRequiredField, optionalToAsymmetricField, optionalToOptionalField, nonexistentToAsymmetricField, nonexistentToOptionalField;
 
         while (true) {
           let index, payloadSize;
@@ -12812,6 +12750,17 @@ export namespace SchemaEvolution {
               asymmetricToOptionalField = payload;
               break;
             }
+            case 8n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              optionalToRequiredField = payload;
+              break;
+            }
             case 9n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
@@ -12820,7 +12769,7 @@ export namespace SchemaEvolution {
                 ),
               );
               offset += payloadSize;
-              optionalNoneToAsymmetricField = payload;
+              optionalToAsymmetricField = payload;
               break;
             }
             case 10n: {
@@ -12831,62 +12780,13 @@ export namespace SchemaEvolution {
                 ),
               );
               offset += payloadSize;
-              optionalNoneToOptionalField = payload;
-              break;
-            }
-            case 12n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToRequiredField = payload;
+              optionalToOptionalField = payload;
               break;
             }
             case 13n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToAsymmetricField = payload;
               break;
             }
             case 14n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToOptionalField = payload;
-              break;
-            }
-            case 17n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              nonexistentToAsymmetricField = payload;
-              break;
-            }
-            case 18n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              nonexistentToOptionalField = payload;
               break;
             }
             default:
@@ -12895,7 +12795,7 @@ export namespace SchemaEvolution {
           }
         }
 
-        if (requiredToRequiredField === undefined || asymmetricToRequiredField === undefined || optionalSomeToRequiredField === undefined) {
+        if (requiredToRequiredField === undefined || asymmetricToRequiredField === undefined || optionalToRequiredField === undefined) {
           throw new Error('Struct missing one or more field(s).');
         }
 
@@ -12908,11 +12808,9 @@ export namespace SchemaEvolution {
             asymmetricToRequired: asymmetricToRequiredField,
             asymmetricToAsymmetric: asymmetricToAsymmetricField,
             asymmetricToOptional: asymmetricToOptionalField,
-            optionalNoneToAsymmetric: optionalNoneToAsymmetricField,
-            optionalNoneToOptional: optionalNoneToOptionalField,
-            optionalSomeToRequired: optionalSomeToRequiredField,
-            optionalSomeToAsymmetric: optionalSomeToAsymmetricField,
-            optionalSomeToOptional: optionalSomeToOptionalField,
+            optionalToRequired: optionalToRequiredField,
+            optionalToAsymmetric: optionalToAsymmetricField,
+            optionalToOptional: optionalToOptionalField,
             nonexistentToAsymmetric: nonexistentToAsymmetricField,
             nonexistentToOptional: nonexistentToOptionalField,
           }
@@ -12929,32 +12827,26 @@ export namespace SchemaEvolution {
       | { field: 'requiredToAsymmetric'; value: string; fallback: ExampleChoiceOut }
       | { field: 'asymmetricToRequired'; value: string }
       | { field: 'asymmetricToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToOptionalHandled'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToOptionalFallback'; value: string; fallback: ExampleChoiceOut }
+      | { field: 'asymmetricToOptional'; value: string; fallback: ExampleChoiceOut }
       | { field: 'optionalToRequired'; value: string }
       | { field: 'optionalToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToOptionalHandled'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToOptionalFallback'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'nonexistentToRequired'; value: string }
-      | { field: 'nonexistentToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'nonexistentToOptionalHandled'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'nonexistentToOptionalFallback'; value: string; fallback: ExampleChoiceOut };
+      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceOut }
+      | { field: 'nonexistentToRequired' }
+      | { field: 'nonexistentToAsymmetric'; fallback: ExampleChoiceOut }
+      | { field: 'nonexistentToOptional'; fallback: ExampleChoiceOut };
 
     export type ExampleChoiceIn =
       | { field: 'requiredToRequired'; value: string }
       | { field: 'requiredToAsymmetric'; value: string }
       | { field: 'asymmetricToRequired'; value: string }
       | { field: 'asymmetricToAsymmetric'; value: string }
-      | { field: 'asymmetricToOptionalHandled'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'asymmetricToOptionalFallback'; value: string; fallback: ExampleChoiceIn }
+      | { field: 'asymmetricToOptional'; value: string; fallback: ExampleChoiceIn }
       | { field: 'optionalToRequired'; value: string }
       | { field: 'optionalToAsymmetric'; value: string }
-      | { field: 'optionalToOptionalHandled'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToOptionalFallback'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'nonexistentToRequired'; value: string }
-      | { field: 'nonexistentToAsymmetric'; value: string }
-      | { field: 'nonexistentToOptionalHandled'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'nonexistentToOptionalFallback'; value: string; fallback: ExampleChoiceIn };
+      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceIn }
+      | { field: 'nonexistentToRequired' }
+      | { field: 'nonexistentToAsymmetric' }
+      | { field: 'nonexistentToOptional'; fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
@@ -12974,62 +12866,41 @@ export namespace SchemaEvolution {
           case 'asymmetricToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(4n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'asymmetricToOptional': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'asymmetricToOptionalHandled': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'asymmetricToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
           case 'optionalToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'optionalToOptionalHandled': {
+          case 'optionalToOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(12n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'optionalToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'nonexistentToRequired': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(15n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(12n, payloadSize, false) + payloadSize;
           }
           case 'nonexistentToAsymmetric': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(16n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'nonexistentToOptionalHandled': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(17n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'nonexistentToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(18n, payloadSize, false) + payloadSize + size(value.fallback);
+          case 'nonexistentToOptional': {
+            return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           default:
             return unreachable(value);
@@ -13074,7 +12945,7 @@ export namespace SchemaEvolution {
           case 'asymmetricToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -13085,6 +12956,20 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'asymmetricToAsymmetric': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
@@ -13098,38 +12983,10 @@ export namespace SchemaEvolution {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'asymmetricToOptionalHandled': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'asymmetricToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
           case 'optionalToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -13142,7 +12999,7 @@ export namespace SchemaEvolution {
           case 'optionalToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -13153,24 +13010,10 @@ export namespace SchemaEvolution {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'optionalToOptionalHandled': {
+          case 'optionalToOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'optionalToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -13182,57 +13025,16 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'nonexistentToRequired': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
+            offset = serializeFieldHeader(dataView, offset, 12n, 0, false);
             return offset;
           }
           case 'nonexistentToAsymmetric': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
+            offset = serializeFieldHeader(dataView, offset, 13n, 0, false);
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'nonexistentToOptionalHandled': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'nonexistentToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
+          case 'nonexistentToOptional': {
+            offset = serializeFieldHeader(dataView, offset, 14n, 0, false);
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
@@ -13281,7 +13083,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 5n: {
+            case 4n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -13297,7 +13099,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 6n: {
+            case 5n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -13313,7 +13115,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 7n: {
+            case 6n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -13326,32 +13128,13 @@ export namespace SchemaEvolution {
               return [
                 offset,
                 {
-                  field: 'asymmetricToOptionalHandled',
+                  field: 'asymmetricToOptional',
                   value: payload,
                   fallback,
                 },
               ];
             }
             case 8n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'asymmetricToOptionalFallback',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 10n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -13367,7 +13150,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 11n: {
+            case 9n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -13383,110 +13166,48 @@ export namespace SchemaEvolution {
                 },
               ];
             }
+            case 10n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'optionalToOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
             case 12n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'optionalToOptionalHandled',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 13n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'optionalToOptionalFallback',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 15n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
               return [
                 offset,
                 {
                   field: 'nonexistentToRequired',
-                  value: payload,
                 },
               ];
             }
-            case 16n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
+            case 13n: {
               return [
                 offset,
                 {
                   field: 'nonexistentToAsymmetric',
-                  value: payload,
                 },
               ];
             }
-            case 17n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
+            case 14n: {
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
                 offset,
                 {
-                  field: 'nonexistentToOptionalHandled',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 18n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'nonexistentToOptionalFallback',
-                  value: payload,
+                  field: 'nonexistentToOptional',
                   fallback,
                 },
               ];
@@ -13514,13 +13235,10 @@ export namespace SchemaEvolution {
       asymmetricToAsymmetric: string;
       asymmetricToOptional: string;
       asymmetricToNonexistent: string;
-      optionalNoneToAsymmetric?: string;
-      optionalNoneToOptional?: string;
-      optionalNoneToNonexistent?: string;
-      optionalSomeToRequired?: string;
-      optionalSomeToAsymmetric?: string;
-      optionalSomeToOptional?: string;
-      optionalSomeToNonexistent?: string;
+      optionalToRequired?: string;
+      optionalToAsymmetric?: string;
+      optionalToOptional?: string;
+      optionalToNonexistent?: string;
     };
 
     export type ExampleStructIn = {
@@ -13532,13 +13250,10 @@ export namespace SchemaEvolution {
       asymmetricToAsymmetric?: string;
       asymmetricToOptional?: string;
       asymmetricToNonexistent?: string;
-      optionalNoneToAsymmetric?: string;
-      optionalNoneToOptional?: string;
-      optionalNoneToNonexistent?: string;
-      optionalSomeToRequired?: string;
-      optionalSomeToAsymmetric?: string;
-      optionalSomeToOptional?: string;
-      optionalSomeToNonexistent?: string;
+      optionalToRequired?: string;
+      optionalToAsymmetric?: string;
+      optionalToOptional?: string;
+      optionalToNonexistent?: string;
     };
 
     export namespace ExampleStruct {
@@ -13595,7 +13310,17 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToAsymmetric;
+          const payload = value.optionalToRequired;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = textEncoder.encode(payload).byteLength;
+          }
+          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.optionalToAsymmetric;
           if (payload === undefined) {
             payloadSize = 0;
           } else {
@@ -13605,7 +13330,7 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToOptional;
+          const payload = value.optionalToOptional;
           if (payload === undefined) {
             payloadSize = 0;
           } else {
@@ -13615,53 +13340,13 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToNonexistent;
+          const payload = value.optionalToNonexistent;
           if (payload === undefined) {
             payloadSize = 0;
           } else {
             payloadSize = textEncoder.encode(payload).byteLength;
           }
           valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.optionalSomeToRequired;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-          }
-          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.optionalSomeToAsymmetric;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-          }
-          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.optionalSomeToOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-          }
-          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.optionalSomeToNonexistent;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-          }
-          valueSize += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
         }
 
         return valueSize;
@@ -13779,7 +13464,22 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToAsymmetric;
+          const payload = value.optionalToRequired;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.optionalToAsymmetric;
           if (payload !== undefined) {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
@@ -13794,7 +13494,7 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToOptional;
+          const payload = value.optionalToOptional;
           if (payload !== undefined) {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
@@ -13809,70 +13509,10 @@ export namespace SchemaEvolution {
         }
 
         {
-          const payload = value.optionalNoneToNonexistent;
+          const payload = value.optionalToNonexistent;
           if (payload !== undefined) {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
-          const payload = value.optionalSomeToRequired;
-          if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
-          const payload = value.optionalSomeToAsymmetric;
-          if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
-          const payload = value.optionalSomeToOptional;
-          if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
-          const payload = value.optionalSomeToNonexistent;
-          if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -13890,7 +13530,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, requiredToNonexistentField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, asymmetricToNonexistentField, optionalNoneToAsymmetricField, optionalNoneToOptionalField, optionalNoneToNonexistentField, optionalSomeToRequiredField, optionalSomeToAsymmetricField, optionalSomeToOptionalField, optionalSomeToNonexistentField;
+        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, requiredToNonexistentField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, asymmetricToNonexistentField, optionalToRequiredField, optionalToAsymmetricField, optionalToOptionalField, optionalToNonexistentField;
 
         while (true) {
           let index, payloadSize;
@@ -13992,6 +13632,17 @@ export namespace SchemaEvolution {
               asymmetricToNonexistentField = payload;
               break;
             }
+            case 8n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              optionalToRequiredField = payload;
+              break;
+            }
             case 9n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
@@ -14000,7 +13651,7 @@ export namespace SchemaEvolution {
                 ),
               );
               offset += payloadSize;
-              optionalNoneToAsymmetricField = payload;
+              optionalToAsymmetricField = payload;
               break;
             }
             case 10n: {
@@ -14011,7 +13662,7 @@ export namespace SchemaEvolution {
                 ),
               );
               offset += payloadSize;
-              optionalNoneToOptionalField = payload;
+              optionalToOptionalField = payload;
               break;
             }
             case 11n: {
@@ -14022,51 +13673,7 @@ export namespace SchemaEvolution {
                 ),
               );
               offset += payloadSize;
-              optionalNoneToNonexistentField = payload;
-              break;
-            }
-            case 12n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToRequiredField = payload;
-              break;
-            }
-            case 13n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToAsymmetricField = payload;
-              break;
-            }
-            case 14n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToOptionalField = payload;
-              break;
-            }
-            case 15n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              optionalSomeToNonexistentField = payload;
+              optionalToNonexistentField = payload;
               break;
             }
             default:
@@ -14090,13 +13697,10 @@ export namespace SchemaEvolution {
             asymmetricToAsymmetric: asymmetricToAsymmetricField,
             asymmetricToOptional: asymmetricToOptionalField,
             asymmetricToNonexistent: asymmetricToNonexistentField,
-            optionalNoneToAsymmetric: optionalNoneToAsymmetricField,
-            optionalNoneToOptional: optionalNoneToOptionalField,
-            optionalNoneToNonexistent: optionalNoneToNonexistentField,
-            optionalSomeToRequired: optionalSomeToRequiredField,
-            optionalSomeToAsymmetric: optionalSomeToAsymmetricField,
-            optionalSomeToOptional: optionalSomeToOptionalField,
-            optionalSomeToNonexistent: optionalSomeToNonexistentField,
+            optionalToRequired: optionalToRequiredField,
+            optionalToAsymmetric: optionalToAsymmetricField,
+            optionalToOptional: optionalToOptionalField,
+            optionalToNonexistent: optionalToNonexistentField,
           }
         ];
       }
@@ -14111,13 +13715,11 @@ export namespace SchemaEvolution {
       | { field: 'requiredToAsymmetric'; value: string }
       | { field: 'asymmetricToRequired'; value: string; fallback: ExampleChoiceOut }
       | { field: 'asymmetricToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToOptionalHandled'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToOptionalFallback'; value: string; fallback: ExampleChoiceOut }
+      | { field: 'asymmetricToOptional'; value: string; fallback: ExampleChoiceOut }
       | { field: 'asymmetricToNonexistent'; value: string; fallback: ExampleChoiceOut }
       | { field: 'optionalToRequired'; value: string; fallback: ExampleChoiceOut }
       | { field: 'optionalToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToOptionalHandled'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToOptionalFallback'; value: string; fallback: ExampleChoiceOut }
+      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceOut }
       | { field: 'optionalToNonexistent'; value: string; fallback: ExampleChoiceOut };
 
     export type ExampleChoiceIn =
@@ -14125,13 +13727,11 @@ export namespace SchemaEvolution {
       | { field: 'requiredToAsymmetric'; value: string }
       | { field: 'asymmetricToRequired'; value: string }
       | { field: 'asymmetricToAsymmetric'; value: string }
-      | { field: 'asymmetricToOptionalHandled'; value: string }
-      | { field: 'asymmetricToOptionalFallback'; value: string }
+      | { field: 'asymmetricToOptional'; value: string }
       | { field: 'asymmetricToNonexistent'; value: string }
       | { field: 'optionalToRequired'; value: string; fallback: ExampleChoiceIn }
       | { field: 'optionalToAsymmetric'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToOptionalHandled'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToOptionalFallback'; value: string; fallback: ExampleChoiceIn }
+      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceIn }
       | { field: 'optionalToNonexistent'; value: string; fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
@@ -14152,52 +13752,42 @@ export namespace SchemaEvolution {
           case 'asymmetricToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(4n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'asymmetricToOptional': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'asymmetricToOptionalHandled': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'asymmetricToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'asymmetricToNonexistent': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'optionalToOptionalHandled': {
+          case 'optionalToOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(12n, payloadSize, false) + payloadSize + size(value.fallback);
-          }
-          case 'optionalToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'optionalToNonexistent': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           default:
             return unreachable(value);
@@ -14241,7 +13831,7 @@ export namespace SchemaEvolution {
           case 'asymmetricToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14255,35 +13845,21 @@ export namespace SchemaEvolution {
           case 'asymmetricToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'asymmetricToOptional': {
+            const payload = value.value;
+            payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'asymmetricToOptionalHandled': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'asymmetricToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14297,7 +13873,7 @@ export namespace SchemaEvolution {
           case 'asymmetricToNonexistent': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14311,7 +13887,7 @@ export namespace SchemaEvolution {
           case 'optionalToRequired': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14325,7 +13901,7 @@ export namespace SchemaEvolution {
           case 'optionalToAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14336,24 +13912,10 @@ export namespace SchemaEvolution {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'optionalToOptionalHandled': {
+          case 'optionalToOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'optionalToOptionalFallback': {
-            const payload = value.value;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14367,7 +13929,7 @@ export namespace SchemaEvolution {
           case 'optionalToNonexistent': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -14423,7 +13985,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 5n: {
+            case 4n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -14439,7 +14001,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 6n: {
+            case 5n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -14455,39 +14017,23 @@ export namespace SchemaEvolution {
                 },
               ];
             }
+            case 6n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              return [
+                offset,
+                {
+                  field: 'asymmetricToOptional',
+                  value: payload,
+                },
+              ];
+            }
             case 7n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              return [
-                offset,
-                {
-                  field: 'asymmetricToOptionalHandled',
-                  value: payload,
-                },
-              ];
-            }
-            case 8n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              return [
-                offset,
-                {
-                  field: 'asymmetricToOptionalFallback',
-                  value: payload,
-                },
-              ];
-            }
-            case 9n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -14503,7 +14049,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 10n: {
+            case 8n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -14522,7 +14068,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 11n: {
+            case 9n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -14541,7 +14087,7 @@ export namespace SchemaEvolution {
                 },
               ];
             }
-            case 12n: {
+            case 10n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -14554,32 +14100,13 @@ export namespace SchemaEvolution {
               return [
                 offset,
                 {
-                  field: 'optionalToOptionalHandled',
+                  field: 'optionalToOptional',
                   value: payload,
                   fallback,
                 },
               ];
             }
-            case 13n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'optionalToOptionalFallback',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 14n: {
+            case 11n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,

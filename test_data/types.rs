@@ -7327,13 +7327,11 @@ pub mod schema_evolution {
             pub asymmetric_to_required: String,
             pub asymmetric_to_asymmetric: String,
             pub asymmetric_to_optional: Option<String>,
-            pub optional_none_to_asymmetric: String,
-            pub optional_none_to_optional: Option<String>,
-            pub optional_some_to_required: String,
-            pub optional_some_to_asymmetric: String,
-            pub optional_some_to_optional: Option<String>,
-            pub nonexistent_to_asymmetric: String,
-            pub nonexistent_to_optional: Option<String>,
+            pub optional_to_required: String,
+            pub optional_to_asymmetric: String,
+            pub optional_to_optional: Option<String>,
+            pub nonexistent_to_asymmetric: (),
+            pub nonexistent_to_optional: Option<()>,
         }
 
         #[derive(Clone, Debug)]
@@ -7344,13 +7342,11 @@ pub mod schema_evolution {
             pub asymmetric_to_required: String,
             pub asymmetric_to_asymmetric: Option<String>,
             pub asymmetric_to_optional: Option<String>,
-            pub optional_none_to_asymmetric: Option<String>,
-            pub optional_none_to_optional: Option<String>,
-            pub optional_some_to_required: String,
-            pub optional_some_to_asymmetric: Option<String>,
-            pub optional_some_to_optional: Option<String>,
-            pub nonexistent_to_asymmetric: Option<String>,
-            pub nonexistent_to_optional: Option<String>,
+            pub optional_to_required: String,
+            pub optional_to_asymmetric: Option<String>,
+            pub optional_to_optional: Option<String>,
+            pub nonexistent_to_asymmetric: Option<()>,
+            pub nonexistent_to_optional: Option<()>,
         }
 
         impl super::super::Serialize for ExampleStructOut {
@@ -7378,30 +7374,23 @@ pub mod schema_evolution {
                     let payload_size = (payload.len());
                     super::super::field_header_size(6_u64, payload_size, false) + payload_size
                 }) + ({
-                    let payload = &self.optional_none_to_asymmetric;
+                    let payload = &self.optional_to_required;
+                    let payload_size = (payload.len());
+                    super::super::field_header_size(8_u64, payload_size, false) + payload_size
+                }) + ({
+                    let payload = &self.optional_to_asymmetric;
                     let payload_size = (payload.len());
                     super::super::field_header_size(9_u64, payload_size, false) + payload_size
-                }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
+                }) + self.optional_to_optional.as_ref().map_or(0, |payload| {
                     let payload_size = (payload.len());
                     super::super::field_header_size(10_u64, payload_size, false) + payload_size
                 }) + ({
-                    let payload = &self.optional_some_to_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(12_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.optional_some_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(13_u64, payload_size, false) + payload_size
-                }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(14_u64, payload_size, false) + payload_size
-                }) + ({
                     let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(17_u64, payload_size, false) + payload_size
+                    let payload_size = (0_usize);
+                    super::super::field_header_size(13_u64, payload_size, false) + payload_size
                 }) + self.nonexistent_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(18_u64, payload_size, false) + payload_size
+                    let payload_size = (0_usize);
+                    super::super::field_header_size(14_u64, payload_size, false) + payload_size
                 })
             }
 
@@ -7447,49 +7436,34 @@ pub mod schema_evolution {
                 }
 
                 {
-                    let payload = &self.optional_none_to_asymmetric;
+                    let payload = &self.optional_to_required;
+                    let payload_size = (payload.len());
+                    super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.optional_to_asymmetric;
                     let payload_size = (payload.len());
                     super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.optional_none_to_optional {
+                if let Some(payload) = &self.optional_to_optional {
                     let payload_size = (payload.len());
                     super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
                 {
-                    let payload = &self.optional_some_to_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.optional_some_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_some_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
                     let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 17_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
+                    let payload_size = (0_usize);
+                    super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
                 }
 
                 if let Some(payload) = &self.nonexistent_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 18_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
+                    let payload_size = (0_usize);
+                    super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
                 }
 
                 Ok(())
@@ -7508,13 +7482,11 @@ pub mod schema_evolution {
                 let mut asymmetric_to_required_field: Option<String> = None;
                 let mut asymmetric_to_asymmetric_field: Option<String> = None;
                 let mut asymmetric_to_optional_field: Option<String> = None;
-                let mut optional_none_to_asymmetric_field: Option<String> = None;
-                let mut optional_none_to_optional_field: Option<String> = None;
-                let mut optional_some_to_required_field: Option<String> = None;
-                let mut optional_some_to_asymmetric_field: Option<String> = None;
-                let mut optional_some_to_optional_field: Option<String> = None;
-                let mut nonexistent_to_asymmetric_field: Option<String> = None;
-                let mut nonexistent_to_optional_field: Option<String> = None;
+                let mut optional_to_required_field: Option<String> = None;
+                let mut optional_to_asymmetric_field: Option<String> = None;
+                let mut optional_to_optional_field: Option<String> = None;
+                let mut nonexistent_to_asymmetric_field: Option<()> = None;
+                let mut nonexistent_to_optional_field: Option<()> = None;
 
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
@@ -7585,6 +7557,15 @@ pub mod schema_evolution {
                             )?;
                             asymmetric_to_optional_field.get_or_insert(payload);
                         }
+                        8 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            optional_to_required_field.get_or_insert(payload);
+                        }
                         9 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
@@ -7592,7 +7573,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_none_to_asymmetric_field.get_or_insert(payload);
+                            optional_to_asymmetric_field.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -7601,51 +7582,14 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_none_to_optional_field.get_or_insert(payload);
-                        }
-                        12 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_required_field.get_or_insert(payload);
+                            optional_to_optional_field.get_or_insert(payload);
                         }
                         13 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_asymmetric_field.get_or_insert(payload);
-                        }
-                        14 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_optional_field.get_or_insert(payload);
-                        }
-                        17 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
+                            let payload = ();
                             nonexistent_to_asymmetric_field.get_or_insert(payload);
                         }
-                        18 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
+                        14 => {
+                            let payload = ();
                             nonexistent_to_optional_field.get_or_insert(payload);
                         }
                         _ => {
@@ -7654,7 +7598,7 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required_field.is_none() || asymmetric_to_required_field.is_none() || optional_some_to_required_field.is_none() {
+                if required_to_required_field.is_none() || asymmetric_to_required_field.is_none() || optional_to_required_field.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         "Struct missing one or more field(s).",
@@ -7668,11 +7612,9 @@ pub mod schema_evolution {
                     asymmetric_to_required: asymmetric_to_required_field.unwrap(),
                     asymmetric_to_asymmetric: asymmetric_to_asymmetric_field,
                     asymmetric_to_optional: asymmetric_to_optional_field,
-                    optional_none_to_asymmetric: optional_none_to_asymmetric_field,
-                    optional_none_to_optional: optional_none_to_optional_field,
-                    optional_some_to_required: optional_some_to_required_field.unwrap(),
-                    optional_some_to_asymmetric: optional_some_to_asymmetric_field,
-                    optional_some_to_optional: optional_some_to_optional_field,
+                    optional_to_required: optional_to_required_field.unwrap(),
+                    optional_to_asymmetric: optional_to_asymmetric_field,
+                    optional_to_optional: optional_to_optional_field,
                     nonexistent_to_asymmetric: nonexistent_to_asymmetric_field,
                     nonexistent_to_optional: nonexistent_to_optional_field,
                 })
@@ -7688,11 +7630,9 @@ pub mod schema_evolution {
                     asymmetric_to_required: message.asymmetric_to_required.into(),
                     asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
                     asymmetric_to_optional: message.asymmetric_to_optional.map(|payload| payload.into()),
-                    optional_none_to_asymmetric: Some(message.optional_none_to_asymmetric.into()),
-                    optional_none_to_optional: message.optional_none_to_optional.map(|payload| payload.into()),
-                    optional_some_to_required: message.optional_some_to_required.into(),
-                    optional_some_to_asymmetric: Some(message.optional_some_to_asymmetric.into()),
-                    optional_some_to_optional: message.optional_some_to_optional.map(|payload| payload.into()),
+                    optional_to_required: message.optional_to_required.into(),
+                    optional_to_asymmetric: Some(message.optional_to_asymmetric.into()),
+                    optional_to_optional: message.optional_to_optional.map(|payload| payload.into()),
                     nonexistent_to_asymmetric: Some(message.nonexistent_to_asymmetric.into()),
                     nonexistent_to_optional: message.nonexistent_to_optional.map(|payload| payload.into()),
                 }
@@ -7705,16 +7645,13 @@ pub mod schema_evolution {
             RequiredToAsymmetric(String, Box<ExampleChoiceOut>),
             AsymmetricToRequired(String),
             AsymmetricToAsymmetric(String, Box<ExampleChoiceOut>),
-            AsymmetricToOptionalHandled(String, Box<ExampleChoiceOut>),
-            AsymmetricToOptionalFallback(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptional(String, Box<ExampleChoiceOut>),
             OptionalToRequired(String),
             OptionalToAsymmetric(String, Box<ExampleChoiceOut>),
-            OptionalToOptionalHandled(String, Box<ExampleChoiceOut>),
-            OptionalToOptionalFallback(String, Box<ExampleChoiceOut>),
-            NonexistentToRequired(String),
-            NonexistentToAsymmetric(String, Box<ExampleChoiceOut>),
-            NonexistentToOptionalHandled(String, Box<ExampleChoiceOut>),
-            NonexistentToOptionalFallback(String, Box<ExampleChoiceOut>),
+            OptionalToOptional(String, Box<ExampleChoiceOut>),
+            NonexistentToRequired,
+            NonexistentToAsymmetric(Box<ExampleChoiceOut>),
+            NonexistentToOptional(Box<ExampleChoiceOut>),
         }
 
         #[derive(Clone, Debug)]
@@ -7723,16 +7660,13 @@ pub mod schema_evolution {
             RequiredToAsymmetric(String),
             AsymmetricToRequired(String),
             AsymmetricToAsymmetric(String),
-            AsymmetricToOptionalHandled(String, Box<ExampleChoiceIn>),
-            AsymmetricToOptionalFallback(String, Box<ExampleChoiceIn>),
+            AsymmetricToOptional(String, Box<ExampleChoiceIn>),
             OptionalToRequired(String),
             OptionalToAsymmetric(String),
-            OptionalToOptionalHandled(String, Box<ExampleChoiceIn>),
-            OptionalToOptionalFallback(String, Box<ExampleChoiceIn>),
-            NonexistentToRequired(String),
-            NonexistentToAsymmetric(String),
-            NonexistentToOptionalHandled(String, Box<ExampleChoiceIn>),
-            NonexistentToOptionalFallback(String, Box<ExampleChoiceIn>),
+            OptionalToOptional(String, Box<ExampleChoiceIn>),
+            NonexistentToRequired,
+            NonexistentToAsymmetric,
+            NonexistentToOptional(Box<ExampleChoiceIn>),
         }
 
         impl super::super::Serialize for ExampleChoiceOut {
@@ -7751,70 +7685,52 @@ pub mod schema_evolution {
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(5_u64, payload_size, false) +
+                        super::super::field_header_size(4_u64, payload_size, false) +
                             payload_size
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
+                        let payload_size = (payload.len());
+                        super::super::field_header_size(5_u64, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
                         super::super::field_header_size(6_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(7_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(8_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
                     ExampleChoiceOut::OptionalToRequired(ref payload) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(10_u64, payload_size, false) +
+                        super::super::field_header_size(8_u64, payload_size, false) +
                             payload_size
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(11_u64, payload_size, false) +
+                        super::super::field_header_size(9_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
+                        super::super::field_header_size(10_u64, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::NonexistentToRequired => {
+                        let payload_size = (0_usize);
                         super::super::field_header_size(12_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
+                            payload_size
                     }
-                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
+                    ExampleChoiceOut::NonexistentToAsymmetric(ref fallback) => {
+                        let payload_size = (0_usize);
                         super::super::field_header_size(13_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::NonexistentToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(15_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::NonexistentToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(16_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::NonexistentToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(17_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::NonexistentToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(18_u64, payload_size, false) +
+                    ExampleChoiceOut::NonexistentToOptional(ref fallback) => {
+                        let payload_size = (0_usize);
+                        super::super::field_header_size(14_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
@@ -7837,74 +7753,53 @@ pub mod schema_evolution {
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 4_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
+                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
+                        let payload_size = (payload.len());
                         super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
+                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::NonexistentToRequired => {
+                        let payload_size = (0_usize);
                         super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::NonexistentToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 15_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
                         Ok(())
                     }
-                    ExampleChoiceOut::NonexistentToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 16_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
+                    ExampleChoiceOut::NonexistentToAsymmetric(ref fallback) => {
+                        let payload_size = (0_usize);
+                        super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::NonexistentToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 17_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::NonexistentToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 18_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
+                    ExampleChoiceOut::NonexistentToOptional(ref fallback) => {
+                        let payload_size = (0_usize);
+                        super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
                         fallback.serialize(writer)
                     }
                 }
@@ -7943,7 +7838,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
                         }
-                        5 => {
+                        4 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -7953,7 +7848,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
                         }
-                        6 => {
+                        5 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -7963,7 +7858,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
                         }
-                        7 => {
+                        6 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -7972,20 +7867,9 @@ pub mod schema_evolution {
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
                             super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload, fallback));
+                            return Ok(ExampleChoiceIn::AsymmetricToOptional(payload, fallback));
                         }
                         8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload, fallback));
-                        }
-                        10 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -7995,7 +7879,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToRequired(payload));
                         }
-                        11 => {
+                        9 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8005,7 +7889,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload));
                         }
-                        12 => {
+                        10 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8014,60 +7898,23 @@ pub mod schema_evolution {
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
                             super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::OptionalToOptionalHandled(payload, fallback));
+                            return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
+                        }
+                        12 => {
+                            let payload = ();
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::NonexistentToRequired);
                         }
                         13 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
+                            let payload = ();
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::NonexistentToAsymmetric);
+                        }
+                        14 => {
+                            let payload = ();
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
                             super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::OptionalToOptionalFallback(payload, fallback));
-                        }
-                        15 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::NonexistentToRequired(payload));
-                        }
-                        16 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::NonexistentToAsymmetric(payload));
-                        }
-                        17 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::NonexistentToOptionalHandled(payload, fallback));
-                        }
-                        18 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::NonexistentToOptionalFallback(payload, fallback));
+                            return Ok(ExampleChoiceIn::NonexistentToOptional(fallback));
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -8084,16 +7931,13 @@ pub mod schema_evolution {
                     ExampleChoiceOut::RequiredToAsymmetric(payload, fallback) => ExampleChoiceIn::RequiredToAsymmetric(payload.into()),
                     ExampleChoiceOut::AsymmetricToRequired(payload) => ExampleChoiceIn::AsymmetricToRequired(payload.into()),
                     ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback) => ExampleChoiceIn::AsymmetricToAsymmetric(payload.into()),
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(payload, fallback) => ExampleChoiceIn::AsymmetricToOptionalHandled(payload.into(), Box::new((*fallback).into())),
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(payload, fallback) => ExampleChoiceIn::AsymmetricToOptionalFallback(payload.into(), Box::new((*fallback).into())),
+                    ExampleChoiceOut::AsymmetricToOptional(payload, fallback) => ExampleChoiceIn::AsymmetricToOptional(payload.into(), Box::new((*fallback).into())),
                     ExampleChoiceOut::OptionalToRequired(payload) => ExampleChoiceIn::OptionalToRequired(payload.into()),
                     ExampleChoiceOut::OptionalToAsymmetric(payload, fallback) => ExampleChoiceIn::OptionalToAsymmetric(payload.into()),
-                    ExampleChoiceOut::OptionalToOptionalHandled(payload, fallback) => ExampleChoiceIn::OptionalToOptionalHandled(payload.into(), Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToOptionalFallback(payload, fallback) => ExampleChoiceIn::OptionalToOptionalFallback(payload.into(), Box::new((*fallback).into())),
-                    ExampleChoiceOut::NonexistentToRequired(payload) => ExampleChoiceIn::NonexistentToRequired(payload.into()),
-                    ExampleChoiceOut::NonexistentToAsymmetric(payload, fallback) => ExampleChoiceIn::NonexistentToAsymmetric(payload.into()),
-                    ExampleChoiceOut::NonexistentToOptionalHandled(payload, fallback) => ExampleChoiceIn::NonexistentToOptionalHandled(payload.into(), Box::new((*fallback).into())),
-                    ExampleChoiceOut::NonexistentToOptionalFallback(payload, fallback) => ExampleChoiceIn::NonexistentToOptionalFallback(payload.into(), Box::new((*fallback).into())),
+                    ExampleChoiceOut::OptionalToOptional(payload, fallback) => ExampleChoiceIn::OptionalToOptional(payload.into(), Box::new((*fallback).into())),
+                    ExampleChoiceOut::NonexistentToRequired => ExampleChoiceIn::NonexistentToRequired,
+                    ExampleChoiceOut::NonexistentToAsymmetric(fallback) => ExampleChoiceIn::NonexistentToAsymmetric,
+                    ExampleChoiceOut::NonexistentToOptional(fallback) => ExampleChoiceIn::NonexistentToOptional(Box::new((*fallback).into())),
                 }
             }
         }
@@ -8110,13 +7954,10 @@ pub mod schema_evolution {
             pub asymmetric_to_asymmetric: String,
             pub asymmetric_to_optional: String,
             pub asymmetric_to_nonexistent: String,
-            pub optional_none_to_asymmetric: Option<String>,
-            pub optional_none_to_optional: Option<String>,
-            pub optional_none_to_nonexistent: Option<String>,
-            pub optional_some_to_required: Option<String>,
-            pub optional_some_to_asymmetric: Option<String>,
-            pub optional_some_to_optional: Option<String>,
-            pub optional_some_to_nonexistent: Option<String>,
+            pub optional_to_required: Option<String>,
+            pub optional_to_asymmetric: Option<String>,
+            pub optional_to_optional: Option<String>,
+            pub optional_to_nonexistent: Option<String>,
         }
 
         #[derive(Clone, Debug)]
@@ -8129,13 +7970,10 @@ pub mod schema_evolution {
             pub asymmetric_to_asymmetric: Option<String>,
             pub asymmetric_to_optional: Option<String>,
             pub asymmetric_to_nonexistent: Option<String>,
-            pub optional_none_to_asymmetric: Option<String>,
-            pub optional_none_to_optional: Option<String>,
-            pub optional_none_to_nonexistent: Option<String>,
-            pub optional_some_to_required: Option<String>,
-            pub optional_some_to_asymmetric: Option<String>,
-            pub optional_some_to_optional: Option<String>,
-            pub optional_some_to_nonexistent: Option<String>,
+            pub optional_to_required: Option<String>,
+            pub optional_to_asymmetric: Option<String>,
+            pub optional_to_optional: Option<String>,
+            pub optional_to_nonexistent: Option<String>,
         }
 
         impl super::super::Serialize for ExampleStructOut {
@@ -8172,27 +8010,18 @@ pub mod schema_evolution {
                     let payload = &self.asymmetric_to_nonexistent;
                     let payload_size = (payload.len());
                     super::super::field_header_size(7_u64, payload_size, false) + payload_size
-                }) + self.optional_none_to_asymmetric.as_ref().map_or(0, |payload| {
+                }) + self.optional_to_required.as_ref().map_or(0, |payload| {
+                    let payload_size = (payload.len());
+                    super::super::field_header_size(8_u64, payload_size, false) + payload_size
+                }) + self.optional_to_asymmetric.as_ref().map_or(0, |payload| {
                     let payload_size = (payload.len());
                     super::super::field_header_size(9_u64, payload_size, false) + payload_size
-                }) + self.optional_none_to_optional.as_ref().map_or(0, |payload| {
+                }) + self.optional_to_optional.as_ref().map_or(0, |payload| {
                     let payload_size = (payload.len());
                     super::super::field_header_size(10_u64, payload_size, false) + payload_size
-                }) + self.optional_none_to_nonexistent.as_ref().map_or(0, |payload| {
+                }) + self.optional_to_nonexistent.as_ref().map_or(0, |payload| {
                     let payload_size = (payload.len());
                     super::super::field_header_size(11_u64, payload_size, false) + payload_size
-                }) + self.optional_some_to_required.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(12_u64, payload_size, false) + payload_size
-                }) + self.optional_some_to_asymmetric.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(13_u64, payload_size, false) + payload_size
-                }) + self.optional_some_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(14_u64, payload_size, false) + payload_size
-                }) + self.optional_some_to_nonexistent.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(15_u64, payload_size, false) + payload_size
                 })
             }
 
@@ -8253,45 +8082,27 @@ pub mod schema_evolution {
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.optional_none_to_asymmetric {
+                if let Some(payload) = &self.optional_to_required {
+                    let payload_size = (payload.len());
+                    super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let Some(payload) = &self.optional_to_asymmetric {
                     let payload_size = (payload.len());
                     super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.optional_none_to_optional {
+                if let Some(payload) = &self.optional_to_optional {
                     let payload_size = (payload.len());
                     super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
-                if let Some(payload) = &self.optional_none_to_nonexistent {
+                if let Some(payload) = &self.optional_to_nonexistent {
                     let payload_size = (payload.len());
                     super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_some_to_required {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_some_to_asymmetric {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_some_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_some_to_nonexistent {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 15_u64, payload_size, false)?;
                     writer.write_all(payload.as_bytes())?;
                 }
 
@@ -8313,13 +8124,10 @@ pub mod schema_evolution {
                 let mut asymmetric_to_asymmetric_field: Option<String> = None;
                 let mut asymmetric_to_optional_field: Option<String> = None;
                 let mut asymmetric_to_nonexistent_field: Option<String> = None;
-                let mut optional_none_to_asymmetric_field: Option<String> = None;
-                let mut optional_none_to_optional_field: Option<String> = None;
-                let mut optional_none_to_nonexistent_field: Option<String> = None;
-                let mut optional_some_to_required_field: Option<String> = None;
-                let mut optional_some_to_asymmetric_field: Option<String> = None;
-                let mut optional_some_to_optional_field: Option<String> = None;
-                let mut optional_some_to_nonexistent_field: Option<String> = None;
+                let mut optional_to_required_field: Option<String> = None;
+                let mut optional_to_asymmetric_field: Option<String> = None;
+                let mut optional_to_optional_field: Option<String> = None;
+                let mut optional_to_nonexistent_field: Option<String> = None;
 
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
@@ -8408,6 +8216,15 @@ pub mod schema_evolution {
                             )?;
                             asymmetric_to_nonexistent_field.get_or_insert(payload);
                         }
+                        8 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            optional_to_required_field.get_or_insert(payload);
+                        }
                         9 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
@@ -8415,7 +8232,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_none_to_asymmetric_field.get_or_insert(payload);
+                            optional_to_asymmetric_field.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -8424,7 +8241,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_none_to_optional_field.get_or_insert(payload);
+                            optional_to_optional_field.get_or_insert(payload);
                         }
                         11 => {
                             let mut buffer = vec![];
@@ -8433,43 +8250,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_none_to_nonexistent_field.get_or_insert(payload);
-                        }
-                        12 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_required_field.get_or_insert(payload);
-                        }
-                        13 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_asymmetric_field.get_or_insert(payload);
-                        }
-                        14 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_optional_field.get_or_insert(payload);
-                        }
-                        15 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            optional_some_to_nonexistent_field.get_or_insert(payload);
+                            optional_to_nonexistent_field.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -8493,13 +8274,10 @@ pub mod schema_evolution {
                     asymmetric_to_asymmetric: asymmetric_to_asymmetric_field,
                     asymmetric_to_optional: asymmetric_to_optional_field,
                     asymmetric_to_nonexistent: asymmetric_to_nonexistent_field,
-                    optional_none_to_asymmetric: optional_none_to_asymmetric_field,
-                    optional_none_to_optional: optional_none_to_optional_field,
-                    optional_none_to_nonexistent: optional_none_to_nonexistent_field,
-                    optional_some_to_required: optional_some_to_required_field,
-                    optional_some_to_asymmetric: optional_some_to_asymmetric_field,
-                    optional_some_to_optional: optional_some_to_optional_field,
-                    optional_some_to_nonexistent: optional_some_to_nonexistent_field,
+                    optional_to_required: optional_to_required_field,
+                    optional_to_asymmetric: optional_to_asymmetric_field,
+                    optional_to_optional: optional_to_optional_field,
+                    optional_to_nonexistent: optional_to_nonexistent_field,
                 })
             }
         }
@@ -8515,13 +8293,10 @@ pub mod schema_evolution {
                     asymmetric_to_asymmetric: Some(message.asymmetric_to_asymmetric.into()),
                     asymmetric_to_optional: Some(message.asymmetric_to_optional.into()),
                     asymmetric_to_nonexistent: Some(message.asymmetric_to_nonexistent.into()),
-                    optional_none_to_asymmetric: message.optional_none_to_asymmetric.map(|payload| payload.into()),
-                    optional_none_to_optional: message.optional_none_to_optional.map(|payload| payload.into()),
-                    optional_none_to_nonexistent: message.optional_none_to_nonexistent.map(|payload| payload.into()),
-                    optional_some_to_required: message.optional_some_to_required.map(|payload| payload.into()),
-                    optional_some_to_asymmetric: message.optional_some_to_asymmetric.map(|payload| payload.into()),
-                    optional_some_to_optional: message.optional_some_to_optional.map(|payload| payload.into()),
-                    optional_some_to_nonexistent: message.optional_some_to_nonexistent.map(|payload| payload.into()),
+                    optional_to_required: message.optional_to_required.map(|payload| payload.into()),
+                    optional_to_asymmetric: message.optional_to_asymmetric.map(|payload| payload.into()),
+                    optional_to_optional: message.optional_to_optional.map(|payload| payload.into()),
+                    optional_to_nonexistent: message.optional_to_nonexistent.map(|payload| payload.into()),
                 }
             }
         }
@@ -8532,13 +8307,11 @@ pub mod schema_evolution {
             RequiredToAsymmetric(String),
             AsymmetricToRequired(String, Box<ExampleChoiceOut>),
             AsymmetricToAsymmetric(String, Box<ExampleChoiceOut>),
-            AsymmetricToOptionalHandled(String, Box<ExampleChoiceOut>),
-            AsymmetricToOptionalFallback(String, Box<ExampleChoiceOut>),
+            AsymmetricToOptional(String, Box<ExampleChoiceOut>),
             AsymmetricToNonexistent(String, Box<ExampleChoiceOut>),
             OptionalToRequired(String, Box<ExampleChoiceOut>),
             OptionalToAsymmetric(String, Box<ExampleChoiceOut>),
-            OptionalToOptionalHandled(String, Box<ExampleChoiceOut>),
-            OptionalToOptionalFallback(String, Box<ExampleChoiceOut>),
+            OptionalToOptional(String, Box<ExampleChoiceOut>),
             OptionalToNonexistent(String, Box<ExampleChoiceOut>),
         }
 
@@ -8548,13 +8321,11 @@ pub mod schema_evolution {
             RequiredToAsymmetric(String),
             AsymmetricToRequired(String),
             AsymmetricToAsymmetric(String),
-            AsymmetricToOptionalHandled(String),
-            AsymmetricToOptionalFallback(String),
+            AsymmetricToOptional(String),
             AsymmetricToNonexistent(String),
             OptionalToRequired(String, Box<ExampleChoiceIn>),
             OptionalToAsymmetric(String, Box<ExampleChoiceIn>),
-            OptionalToOptionalHandled(String, Box<ExampleChoiceIn>),
-            OptionalToOptionalFallback(String, Box<ExampleChoiceIn>),
+            OptionalToOptional(String, Box<ExampleChoiceIn>),
             OptionalToNonexistent(String, Box<ExampleChoiceIn>),
         }
 
@@ -8573,61 +8344,49 @@ pub mod schema_evolution {
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(5_u64, payload_size, false) +
+                        super::super::field_header_size(4_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
+                        super::super::field_header_size(5_u64, payload_size, false) +
+                            payload_size +
+                            fallback.size()
+                    }
+                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
+                        let payload_size = (payload.len());
                         super::super::field_header_size(6_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(7_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(8_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(9_u64, payload_size, false) +
+                        super::super::field_header_size(7_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(10_u64, payload_size, false) +
+                        super::super::field_header_size(8_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(11_u64, payload_size, false) +
+                        super::super::field_header_size(9_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
-                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(12_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(13_u64, payload_size, false) +
+                        super::super::field_header_size(10_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
                     ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::field_header_size(14_u64, payload_size, false) +
+                        super::super::field_header_size(11_u64, payload_size, false) +
                             payload_size +
                             fallback.size()
                     }
@@ -8650,61 +8409,49 @@ pub mod schema_evolution {
                     }
                     ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 4_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
+                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize(writer)
+                    }
+                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
+                        let payload_size = (payload.len());
                         super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
-                    ExampleChoiceOut::OptionalToOptionalHandled(ref payload, ref fallback) => {
+                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToOptionalFallback(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
                     ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
                         let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
+                        super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
                         writer.write_all(payload.as_bytes())?;
                         fallback.serialize(writer)
                     }
@@ -8744,7 +8491,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
                         }
-                        5 => {
+                        4 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8754,7 +8501,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
                         }
-                        6 => {
+                        5 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8764,27 +8511,17 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
                         }
+                        6 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToOptional(payload));
+                        }
                         7 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptionalHandled(payload));
-                        }
-                        8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptionalFallback(payload));
-                        }
-                        9 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8794,7 +8531,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
                         }
-                        10 => {
+                        8 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8805,7 +8542,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
                         }
-                        11 => {
+                        9 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8816,7 +8553,7 @@ pub mod schema_evolution {
                             super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
                         }
-                        12 => {
+                        10 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8825,20 +8562,9 @@ pub mod schema_evolution {
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
                             super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::OptionalToOptionalHandled(payload, fallback));
+                            return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
                         }
-                        13 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::OptionalToOptionalFallback(payload, fallback));
-                        }
-                        14 => {
+                        11 => {
                             let mut buffer = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
                             let payload = std::str::from_utf8(&buffer).map_or_else(
@@ -8864,13 +8590,11 @@ pub mod schema_evolution {
                     ExampleChoiceOut::RequiredToAsymmetric(payload) => ExampleChoiceIn::RequiredToAsymmetric(payload.into()),
                     ExampleChoiceOut::AsymmetricToRequired(payload, fallback) => ExampleChoiceIn::AsymmetricToRequired(payload.into()),
                     ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback) => ExampleChoiceIn::AsymmetricToAsymmetric(payload.into()),
-                    ExampleChoiceOut::AsymmetricToOptionalHandled(payload, fallback) => ExampleChoiceIn::AsymmetricToOptionalHandled(payload.into()),
-                    ExampleChoiceOut::AsymmetricToOptionalFallback(payload, fallback) => ExampleChoiceIn::AsymmetricToOptionalFallback(payload.into()),
+                    ExampleChoiceOut::AsymmetricToOptional(payload, fallback) => ExampleChoiceIn::AsymmetricToOptional(payload.into()),
                     ExampleChoiceOut::AsymmetricToNonexistent(payload, fallback) => ExampleChoiceIn::AsymmetricToNonexistent(payload.into()),
                     ExampleChoiceOut::OptionalToRequired(payload, fallback) => ExampleChoiceIn::OptionalToRequired(payload.into(), Box::new((*fallback).into())),
                     ExampleChoiceOut::OptionalToAsymmetric(payload, fallback) => ExampleChoiceIn::OptionalToAsymmetric(payload.into(), Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToOptionalHandled(payload, fallback) => ExampleChoiceIn::OptionalToOptionalHandled(payload.into(), Box::new((*fallback).into())),
-                    ExampleChoiceOut::OptionalToOptionalFallback(payload, fallback) => ExampleChoiceIn::OptionalToOptionalFallback(payload.into(), Box::new((*fallback).into())),
+                    ExampleChoiceOut::OptionalToOptional(payload, fallback) => ExampleChoiceIn::OptionalToOptional(payload.into(), Box::new((*fallback).into())),
                     ExampleChoiceOut::OptionalToNonexistent(payload, fallback) => ExampleChoiceIn::OptionalToNonexistent(payload.into(), Box::new((*fallback).into())),
                 }
             }

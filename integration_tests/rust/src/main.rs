@@ -1,9 +1,9 @@
 #![deny(clippy::all, clippy::pedantic, warnings)]
 
+mod assertions;
 mod circular_dependency;
 mod comprehensive;
 mod degenerate;
-mod round_trip;
 mod schema_evolution;
 mod types;
 
