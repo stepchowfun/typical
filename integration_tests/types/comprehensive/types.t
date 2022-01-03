@@ -1,12 +1,176 @@
-import 'bar.t'
-import 'foo.t'
+import '../degenerate/types.t'
 
-struct FooAndBar {
-    x: foo.Foo = 0
-    y: bar.Bar = 1
+struct LocalStruct {
 }
 
-choice FooOrBar {
-    x: foo.Foo = 0
-    y: bar.Bar = 1
+struct Foo {
+    a_required = 0
+    b_required: F64 = 1
+    c_required: U64 = 2
+    d_required: S64 = 3
+    e_required: Bool = 4
+    f_required: Bytes = 5
+    g_required: String = 6
+    h_required: LocalStruct = 7
+    i_required: types.EmptyStruct = 8
+    j_required: [Unit] = 9
+    k_required: [F64] = 10
+    l_required: [U64] = 11
+    m_required: [S64] = 12
+    n_required: [Bool] = 13
+    o_required: [Bytes] = 14
+    p_required: [String] = 15
+    q_required: [LocalStruct] = 16
+    r_required: [types.EmptyStruct] = 17
+    s_required: [[Unit]] = 18
+    t_required: [[F64]] = 19
+    u_required: [[U64]] = 20
+    v_required: [[S64]] = 21
+    w_required: [[Bool]] = 22
+    x_required: [[Bytes]] = 23
+    y_required: [[String]] = 24
+    z_required: [[LocalStruct]] = 25
+    aa_required: [[types.EmptyStruct]] = 26
+    asymmetric a_asymmetric = 28
+    asymmetric b_asymmetric: F64 = 29
+    asymmetric c_asymmetric: U64 = 30
+    asymmetric d_asymmetric: S64 = 31
+    asymmetric e_asymmetric: Bool = 32
+    asymmetric f_asymmetric: Bytes = 33
+    asymmetric g_asymmetric: String = 34
+    asymmetric h_asymmetric: LocalStruct = 35
+    asymmetric i_asymmetric: types.EmptyStruct = 36
+    asymmetric j_asymmetric: [Unit] = 37
+    asymmetric k_asymmetric: [F64] = 38
+    asymmetric l_asymmetric: [U64] = 39
+    asymmetric m_asymmetric: [S64] = 40
+    asymmetric n_asymmetric: [Bool] = 41
+    asymmetric o_asymmetric: [Bytes] = 42
+    asymmetric p_asymmetric: [String] = 43
+    asymmetric q_asymmetric: [LocalStruct] = 44
+    asymmetric r_asymmetric: [types.EmptyStruct] = 45
+    asymmetric s_asymmetric: [[Unit]] = 46
+    asymmetric t_asymmetric: [[F64]] = 47
+    asymmetric u_asymmetric: [[U64]] = 48
+    asymmetric v_asymmetric: [[S64]] = 49
+    asymmetric w_asymmetric: [[Bool]] = 50
+    asymmetric x_asymmetric: [[Bytes]] = 51
+    asymmetric y_asymmetric: [[String]] = 52
+    asymmetric z_asymmetric: [[LocalStruct]] = 53
+    asymmetric aa_asymmetric: [[types.EmptyStruct]] = 54
+    optional a_optional = 56
+    optional b_optional: F64 = 57
+    optional c_optional: U64 = 58
+    optional d_optional: S64 = 59
+    optional e_optional: Bool = 60
+    optional f_optional: Bytes = 61
+    optional g_optional: String = 62
+    optional h_optional: LocalStruct = 63
+    optional i_optional: types.EmptyStruct = 64
+    optional j_optional: [Unit] = 65
+    optional k_optional: [F64] = 66
+    optional l_optional: [U64] = 67
+    optional m_optional: [S64] = 68
+    optional n_optional: [Bool] = 69
+    optional o_optional: [Bytes] = 70
+    optional p_optional: [String] = 71
+    optional q_optional: [LocalStruct] = 72
+    optional r_optional: [types.EmptyStruct] = 73
+    optional s_optional: [[Unit]] = 74
+    optional t_optional: [[F64]] = 75
+    optional u_optional: [[U64]] = 76
+    optional v_optional: [[S64]] = 77
+    optional w_optional: [[Bool]] = 78
+    optional x_optional: [[Bytes]] = 79
+    optional y_optional: [[String]] = 80
+    optional z_optional: [[LocalStruct]] = 81
+    optional aa_optional: [[types.EmptyStruct]] = 82
+
+    deleted 27 55 83
+}
+
+choice Bar {
+    a_required = 0
+    b_required: F64 = 1
+    c_required: U64 = 2
+    d_required: S64 = 3
+    e_required: Bool = 4
+    f_required: Bytes = 5
+    g_required: String = 6
+    h_required: LocalStruct = 7
+    i_required: types.EmptyStruct = 8
+    j_required: [Unit] = 9
+    k_required: [F64] = 10
+    l_required: [U64] = 11
+    m_required: [S64] = 12
+    n_required: [Bool] = 13
+    o_required: [Bytes] = 14
+    p_required: [String] = 15
+    q_required: [LocalStruct] = 16
+    r_required: [types.EmptyStruct] = 17
+    s_required: [[Unit]] = 18
+    t_required: [[F64]] = 19
+    u_required: [[U64]] = 20
+    v_required: [[S64]] = 21
+    w_required: [[Bool]] = 22
+    x_required: [[Bytes]] = 23
+    y_required: [[String]] = 24
+    z_required: [[LocalStruct]] = 25
+    aa_required: [[types.EmptyStruct]] = 26
+    asymmetric a_asymmetric = 28
+    asymmetric b_asymmetric: F64 = 29
+    asymmetric c_asymmetric: U64 = 30
+    asymmetric d_asymmetric: S64 = 31
+    asymmetric e_asymmetric: Bool = 32
+    asymmetric f_asymmetric: Bytes = 33
+    asymmetric g_asymmetric: String = 34
+    asymmetric h_asymmetric: LocalStruct = 35
+    asymmetric i_asymmetric: types.EmptyStruct = 36
+    asymmetric j_asymmetric: [Unit] = 37
+    asymmetric k_asymmetric: [F64] = 38
+    asymmetric l_asymmetric: [U64] = 39
+    asymmetric m_asymmetric: [S64] = 40
+    asymmetric n_asymmetric: [Bool] = 41
+    asymmetric o_asymmetric: [Bytes] = 42
+    asymmetric p_asymmetric: [String] = 43
+    asymmetric q_asymmetric: [LocalStruct] = 44
+    asymmetric r_asymmetric: [types.EmptyStruct] = 45
+    asymmetric s_asymmetric: [[Unit]] = 46
+    asymmetric t_asymmetric: [[F64]] = 47
+    asymmetric u_asymmetric: [[U64]] = 48
+    asymmetric v_asymmetric: [[S64]] = 49
+    asymmetric w_asymmetric: [[Bool]] = 50
+    asymmetric x_asymmetric: [[Bytes]] = 51
+    asymmetric y_asymmetric: [[String]] = 52
+    asymmetric z_asymmetric: [[LocalStruct]] = 53
+    asymmetric aa_asymmetric: [[types.EmptyStruct]] = 54
+    optional a_optional = 56
+    optional b_optional: F64 = 57
+    optional c_optional: U64 = 58
+    optional d_optional: S64 = 59
+    optional e_optional: Bool = 60
+    optional f_optional: Bytes = 61
+    optional g_optional: String = 62
+    optional h_optional: LocalStruct = 63
+    optional i_optional: types.EmptyStruct = 64
+    optional j_optional: [Unit] = 65
+    optional k_optional: [F64] = 66
+    optional l_optional: [U64] = 67
+    optional m_optional: [S64] = 68
+    optional n_optional: [Bool] = 69
+    optional o_optional: [Bytes] = 70
+    optional p_optional: [String] = 71
+    optional q_optional: [LocalStruct] = 72
+    optional r_optional: [types.EmptyStruct] = 73
+    optional s_optional: [[Unit]] = 74
+    optional t_optional: [[F64]] = 75
+    optional u_optional: [[U64]] = 76
+    optional v_optional: [[S64]] = 77
+    optional w_optional: [[Bool]] = 78
+    optional x_optional: [[Bytes]] = 79
+    optional y_optional: [[String]] = 80
+    optional z_optional: [[LocalStruct]] = 81
+    optional aa_optional: [[types.EmptyStruct]] = 82
+
+    deleted 27 55 83
 }

@@ -398,7 +398,5892 @@ export namespace CircularDependency {
 }
 
 export namespace Comprehensive {
-  export namespace Bar {
+  export namespace Types {
+    export type LocalStructOut = {
+    };
+
+    export type LocalStructIn = {
+    };
+
+    export namespace LocalStruct {
+      export function size(value: LocalStructOut): number {
+        let valueSize = 0;
+        let payloadSize = 0;
+
+        return valueSize;
+      }
+
+      export function serialize(
+        dataView: DataView,
+        offset: number,
+        value: LocalStructOut,
+      ): number {
+        let payloadSize = 0;
+
+        return offset;
+      }
+
+      export function deserialize(
+        dataView: DataView,
+        offset: number,
+      ): [number, LocalStructIn] {
+        return [
+          offset,
+          {
+          }
+        ];
+      }
+
+      export function outToIn(value: LocalStructOut): LocalStructIn {
+        return value;
+      }
+    }
+
+    export type FooOut = {
+      aRequired: undefined;
+      bRequired: number;
+      cRequired: bigint;
+      dRequired: bigint;
+      eRequired: boolean;
+      fRequired: ArrayBuffer;
+      gRequired: string;
+      hRequired: Comprehensive.Types.LocalStructOut;
+      iRequired: Degenerate.Types.EmptyStructOut;
+      jRequired: undefined[];
+      kRequired: number[];
+      lRequired: bigint[];
+      mRequired: bigint[];
+      nRequired: boolean[];
+      oRequired: ArrayBuffer[];
+      pRequired: string[];
+      qRequired: Comprehensive.Types.LocalStructOut[];
+      rRequired: Degenerate.Types.EmptyStructOut[];
+      sRequired: undefined[][];
+      tRequired: number[][];
+      uRequired: bigint[][];
+      vRequired: bigint[][];
+      wRequired: boolean[][];
+      xRequired: ArrayBuffer[][];
+      yRequired: string[][];
+      zRequired: Comprehensive.Types.LocalStructOut[][];
+      aaRequired: Degenerate.Types.EmptyStructOut[][];
+      aAsymmetric: undefined;
+      bAsymmetric: number;
+      cAsymmetric: bigint;
+      dAsymmetric: bigint;
+      eAsymmetric: boolean;
+      fAsymmetric: ArrayBuffer;
+      gAsymmetric: string;
+      hAsymmetric: Comprehensive.Types.LocalStructOut;
+      iAsymmetric: Degenerate.Types.EmptyStructOut;
+      jAsymmetric: undefined[];
+      kAsymmetric: number[];
+      lAsymmetric: bigint[];
+      mAsymmetric: bigint[];
+      nAsymmetric: boolean[];
+      oAsymmetric: ArrayBuffer[];
+      pAsymmetric: string[];
+      qAsymmetric: Comprehensive.Types.LocalStructOut[];
+      rAsymmetric: Degenerate.Types.EmptyStructOut[];
+      sAsymmetric: undefined[][];
+      tAsymmetric: number[][];
+      uAsymmetric: bigint[][];
+      vAsymmetric: bigint[][];
+      wAsymmetric: boolean[][];
+      xAsymmetric: ArrayBuffer[][];
+      yAsymmetric: string[][];
+      zAsymmetric: Comprehensive.Types.LocalStructOut[][];
+      aaAsymmetric: Degenerate.Types.EmptyStructOut[][];
+      aOptional?: undefined;
+      bOptional?: number;
+      cOptional?: bigint;
+      dOptional?: bigint;
+      eOptional?: boolean;
+      fOptional?: ArrayBuffer;
+      gOptional?: string;
+      hOptional?: Comprehensive.Types.LocalStructOut;
+      iOptional?: Degenerate.Types.EmptyStructOut;
+      jOptional?: undefined[];
+      kOptional?: number[];
+      lOptional?: bigint[];
+      mOptional?: bigint[];
+      nOptional?: boolean[];
+      oOptional?: ArrayBuffer[];
+      pOptional?: string[];
+      qOptional?: Comprehensive.Types.LocalStructOut[];
+      rOptional?: Degenerate.Types.EmptyStructOut[];
+      sOptional?: undefined[][];
+      tOptional?: number[][];
+      uOptional?: bigint[][];
+      vOptional?: bigint[][];
+      wOptional?: boolean[][];
+      xOptional?: ArrayBuffer[][];
+      yOptional?: string[][];
+      zOptional?: Comprehensive.Types.LocalStructOut[][];
+      aaOptional?: Degenerate.Types.EmptyStructOut[][];
+    };
+
+    export type FooIn = {
+      aRequired: undefined;
+      bRequired: number;
+      cRequired: bigint;
+      dRequired: bigint;
+      eRequired: boolean;
+      fRequired: ArrayBuffer;
+      gRequired: string;
+      hRequired: Comprehensive.Types.LocalStructIn;
+      iRequired: Degenerate.Types.EmptyStructIn;
+      jRequired: undefined[];
+      kRequired: number[];
+      lRequired: bigint[];
+      mRequired: bigint[];
+      nRequired: boolean[];
+      oRequired: ArrayBuffer[];
+      pRequired: string[];
+      qRequired: Comprehensive.Types.LocalStructIn[];
+      rRequired: Degenerate.Types.EmptyStructIn[];
+      sRequired: undefined[][];
+      tRequired: number[][];
+      uRequired: bigint[][];
+      vRequired: bigint[][];
+      wRequired: boolean[][];
+      xRequired: ArrayBuffer[][];
+      yRequired: string[][];
+      zRequired: Comprehensive.Types.LocalStructIn[][];
+      aaRequired: Degenerate.Types.EmptyStructIn[][];
+      aAsymmetric?: undefined;
+      bAsymmetric?: number;
+      cAsymmetric?: bigint;
+      dAsymmetric?: bigint;
+      eAsymmetric?: boolean;
+      fAsymmetric?: ArrayBuffer;
+      gAsymmetric?: string;
+      hAsymmetric?: Comprehensive.Types.LocalStructIn;
+      iAsymmetric?: Degenerate.Types.EmptyStructIn;
+      jAsymmetric?: undefined[];
+      kAsymmetric?: number[];
+      lAsymmetric?: bigint[];
+      mAsymmetric?: bigint[];
+      nAsymmetric?: boolean[];
+      oAsymmetric?: ArrayBuffer[];
+      pAsymmetric?: string[];
+      qAsymmetric?: Comprehensive.Types.LocalStructIn[];
+      rAsymmetric?: Degenerate.Types.EmptyStructIn[];
+      sAsymmetric?: undefined[][];
+      tAsymmetric?: number[][];
+      uAsymmetric?: bigint[][];
+      vAsymmetric?: bigint[][];
+      wAsymmetric?: boolean[][];
+      xAsymmetric?: ArrayBuffer[][];
+      yAsymmetric?: string[][];
+      zAsymmetric?: Comprehensive.Types.LocalStructIn[][];
+      aaAsymmetric?: Degenerate.Types.EmptyStructIn[][];
+      aOptional?: undefined;
+      bOptional?: number;
+      cOptional?: bigint;
+      dOptional?: bigint;
+      eOptional?: boolean;
+      fOptional?: ArrayBuffer;
+      gOptional?: string;
+      hOptional?: Comprehensive.Types.LocalStructIn;
+      iOptional?: Degenerate.Types.EmptyStructIn;
+      jOptional?: undefined[];
+      kOptional?: number[];
+      lOptional?: bigint[];
+      mOptional?: bigint[];
+      nOptional?: boolean[];
+      oOptional?: ArrayBuffer[];
+      pOptional?: string[];
+      qOptional?: Comprehensive.Types.LocalStructIn[];
+      rOptional?: Degenerate.Types.EmptyStructIn[];
+      sOptional?: undefined[][];
+      tOptional?: number[][];
+      uOptional?: bigint[][];
+      vOptional?: bigint[][];
+      wOptional?: boolean[][];
+      xOptional?: ArrayBuffer[][];
+      yOptional?: string[][];
+      zOptional?: Comprehensive.Types.LocalStructIn[][];
+      aaOptional?: Degenerate.Types.EmptyStructIn[][];
+    };
+
+    export namespace Foo {
+      export function size(value: FooOut): number {
+        let valueSize = 0;
+        let payloadSize = 0;
+
+        {
+          const payload = value.aRequired;
+          payloadSize = 0;
+          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.bRequired;
+          dataView64.setFloat64(0, payload, true);
+          if (dataView64.getBigUint64(0, true) === 0n) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8;
+          }
+          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.cRequired;
+          if (payload === 0n) {
+            payloadSize = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
+          } else {
+            payloadSize = 8;
+          }
+          valueSize += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.dRequired;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          valueSize += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.eRequired;
+          if (payload) {
+            payloadSize = 1;
+          } else {
+            payloadSize = 0;
+          }
+          valueSize += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.fRequired;
+          payloadSize = payload.byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.gRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.hRequired;
+          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+          valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.iRequired;
+          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.jRequired;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.kRequired;
+          payloadSize = 8 * payload.length;
+          valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.lRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.mRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.nRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.oRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.pRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.qRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.rRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.sRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadSize = varintSizeFromValue(payload);
+                }
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.tRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(19n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.uRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(payload);
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(20n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.vRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.wRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = 1;
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.xRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.yRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.zRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.aaRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.aAsymmetric;
+          payloadSize = 0;
+          valueSize += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.bAsymmetric;
+          dataView64.setFloat64(0, payload, true);
+          if (dataView64.getBigUint64(0, true) === 0n) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8;
+          }
+          valueSize += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.cAsymmetric;
+          if (payload === 0n) {
+            payloadSize = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
+          } else {
+            payloadSize = 8;
+          }
+          valueSize += fieldHeaderSize(30n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.dAsymmetric;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          valueSize += fieldHeaderSize(31n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.eAsymmetric;
+          if (payload) {
+            payloadSize = 1;
+          } else {
+            payloadSize = 0;
+          }
+          valueSize += fieldHeaderSize(32n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.fAsymmetric;
+          payloadSize = payload.byteLength;
+          valueSize += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.gAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(34n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.hAsymmetric;
+          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+          valueSize += fieldHeaderSize(35n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.iAsymmetric;
+          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+          valueSize += fieldHeaderSize(36n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.jAsymmetric;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          valueSize += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.kAsymmetric;
+          payloadSize = 8 * payload.length;
+          valueSize += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.lAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.mAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.nAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.oAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.pAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.qAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.rAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.sAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadSize = varintSizeFromValue(payload);
+                }
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.tAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(47n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.uAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(payload);
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(48n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.vAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(49n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.wAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = 1;
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(50n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.xAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(51n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.yAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(52n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.zAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(53n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.aaAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          valueSize += fieldHeaderSize(54n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.aOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 0;
+          }
+          valueSize += fieldHeaderSize(56n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.bOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            dataView64.setFloat64(0, payload, true);
+            if (dataView64.getBigUint64(0, true) === 0n) {
+              payloadSize = 0;
+            } else {
+              payloadSize = 8;
+            }
+          }
+          valueSize += fieldHeaderSize(57n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.cOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            if (payload === 0n) {
+              payloadSize = 0;
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          valueSize += fieldHeaderSize(58n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.dOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              const zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          valueSize += fieldHeaderSize(59n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.eOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            if (payload) {
+              payloadSize = 1;
+            } else {
+              payloadSize = 0;
+            }
+          }
+          valueSize += fieldHeaderSize(60n, payloadSize, true) + payloadSize;
+        }
+
+        {
+          const payload = value.fOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = payload.byteLength;
+          }
+          valueSize += fieldHeaderSize(61n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.gOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = textEncoder.encode(payload).byteLength;
+          }
+          valueSize += fieldHeaderSize(62n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.hOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+          }
+          valueSize += fieldHeaderSize(63n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.iOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+          }
+          valueSize += fieldHeaderSize(64n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.jOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+              }
+            }
+          }
+          valueSize += fieldHeaderSize(65n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.kOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8 * payload.length;
+          }
+          valueSize += fieldHeaderSize(66n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.lOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(67n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.mOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(68n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.nOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(69n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.oOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(70n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.pOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(71n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.qOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(72n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.rOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(73n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.sOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(74n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.tOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(75n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.uOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(76n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.vOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(77n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.wOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(78n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.xOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(79n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.yOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(80n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.zOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(81n, payloadSize, false) + payloadSize;
+        }
+
+        {
+          const payload = value.aaOptional;
+          if (payload === undefined) {
+            payloadSize = 0;
+          } else {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+          }
+          valueSize += fieldHeaderSize(82n, payloadSize, false) + payloadSize;
+        }
+
+        return valueSize;
+      }
+
+      export function serialize(
+        dataView: DataView,
+        offset: number,
+        value: FooOut,
+      ): number {
+        let payloadSize = 0;
+
+        {
+          const payload = value.aRequired;
+          payloadSize = 0;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+        }
+
+        {
+          const payload = value.bRequired;
+          dataView64.setFloat64(0, payload, true);
+          if (dataView64.getBigUint64(0, true) === 0n) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          if (payloadSize !== 0) {
+            dataView.setFloat64(offset, payload, true);
+          }
+        }
+
+        {
+          const payload = value.cRequired;
+          if (payload === 0n) {
+            payloadSize = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.dRequired;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.eRequired;
+          if (payload) {
+            payloadSize = 1;
+          } else {
+            payloadSize = 0;
+          }
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.fRequired;
+          payloadSize = payload.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const buffer = new Uint8Array(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.gRequired;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.hRequired;
+          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+        }
+
+        {
+          const payload = value.iRequired;
+          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+        }
+
+        {
+          const payload = value.jRequired;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          {
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.kRequired;
+          payloadSize = 8 * payload.length;
+          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 8;
+              dataView.setFloat64(offset, payload, true);
+            }
+          }
+        }
+
+        {
+          const payload = value.lRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(payload);
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.mRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.nRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 1;
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.oRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = payload.byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = new Uint8Array(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.pRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = textEncoder.encode(payload).byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = textEncoder.encode(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.qRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+            }
+          }
+        }
+
+        {
+          const payload = value.rRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+            }
+          }
+        }
+
+        {
+          const payload = value.sRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadSize = varintSizeFromValue(payload);
+                }
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadSize = varintSizeFromValue(payload);
+                }
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const varint = BigInt(payload.length);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.tRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 8 * payload.length;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = 8;
+                  dataView.setFloat64(offset, payload, true);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.uRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(payload);
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(payload);
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = varintSizeFromValue(payload);
+                  {
+                    const varint = payload;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.vRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  {
+                    const varint = zigzagEncode(payload);
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.wRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = 1;
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = 1;
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = 1;
+                  {
+                    const varint = payload ? 1n : 0n;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.xRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = payload.byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  {
+                    const buffer = new Uint8Array(payload);
+                    for (let i = 0; i < buffer.byteLength; ++i) {
+                      dataView.setUint8(offset + i, buffer[i]);
+                    }
+                    offset += buffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.yRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  {
+                    const buffer = textEncoder.encode(payload);
+                    for (let i = 0; i < buffer.byteLength; ++i) {
+                      dataView.setUint8(offset + i, buffer[i]);
+                    }
+                    offset += buffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.zRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aaRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aAsymmetric;
+          payloadSize = 0;
+          offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+        }
+
+        {
+          const payload = value.bAsymmetric;
+          dataView64.setFloat64(0, payload, true);
+          if (dataView64.getBigUint64(0, true) === 0n) {
+            payloadSize = 0;
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
+          if (payloadSize !== 0) {
+            dataView.setFloat64(offset, payload, true);
+          }
+        }
+
+        {
+          const payload = value.cAsymmetric;
+          if (payload === 0n) {
+            payloadSize = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadSize = varintSizeFromValue(payload);
+          } else {
+            payloadSize = 8;
+          }
+          offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.dAsymmetric;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadSize = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(zigzag);
+            } else {
+              payloadSize = 8;
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.eAsymmetric;
+          if (payload) {
+            payloadSize = 1;
+          } else {
+            payloadSize = 0;
+          }
+          offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.fAsymmetric;
+          payloadSize = payload.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+          {
+            const buffer = new Uint8Array(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.gAsymmetric;
+          payloadSize = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
+          {
+            const buffer = textEncoder.encode(payload);
+            for (let i = 0; i < buffer.byteLength; ++i) {
+              dataView.setUint8(offset + i, buffer[i]);
+            }
+            offset += buffer.byteLength;
+          }
+        }
+
+        {
+          const payload = value.hAsymmetric;
+          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
+          offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+        }
+
+        {
+          const payload = value.iAsymmetric;
+          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
+          offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+        }
+
+        {
+          const payload = value.jAsymmetric;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadSize = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(payload);
+              } else {
+                payloadSize = 8;
+              }
+            }
+          }
+          offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+          {
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+        }
+
+        {
+          const payload = value.kAsymmetric;
+          payloadSize = 8 * payload.length;
+          offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 8;
+              dataView.setFloat64(offset, payload, true);
+            }
+          }
+        }
+
+        {
+          const payload = value.lAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(payload);
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(payload);
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.mAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.nAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 1;
+              arraySize += payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 1;
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.oAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = payload.byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = new Uint8Array(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.pAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = textEncoder.encode(payload).byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const buffer = textEncoder.encode(payload);
+                for (let i = 0; i < buffer.byteLength; ++i) {
+                  dataView.setUint8(offset + i, buffer[i]);
+                }
+                offset += buffer.byteLength;
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.qAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+            }
+          }
+        }
+
+        {
+          const payload = value.rAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+            }
+          }
+        }
+
+        {
+          const payload = value.sAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadSize = varintSizeFromValue(payload);
+                }
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadSize = varintSizeFromValue(payload);
+                }
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const varint = BigInt(payload.length);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.tAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              payloadSize = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              payloadSize = 8 * payload.length;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = 8;
+                  dataView.setFloat64(offset, payload, true);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.uAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(payload);
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(payload);
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = varintSizeFromValue(payload);
+                  {
+                    const varint = payload;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.vAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  {
+                    const varint = zigzagEncode(payload);
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.wAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = 1;
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = 1;
+                  arraySize += payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = 1;
+                  {
+                    const varint = payload ? 1n : 0n;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.xAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = payload.byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  {
+                    const buffer = new Uint8Array(payload);
+                    for (let i = 0; i < buffer.byteLength; ++i) {
+                      dataView.setUint8(offset + i, buffer[i]);
+                    }
+                    offset += buffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.yAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = textEncoder.encode(payload).byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  {
+                    const buffer = textEncoder.encode(payload);
+                    for (let i = 0; i < buffer.byteLength; ++i) {
+                      dataView.setUint8(offset + i, buffer[i]);
+                    }
+                    offset += buffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.zAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aaAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; ++i) {
+              const payload = oldPayload[i];
+              let payloadSize = 0;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadSize = arraySize;
+          }
+          offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (const payload of oldPayload) {
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; ++i) {
+                  const payload = oldPayload[i];
+                  let payloadSize = 0;
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadSize = arraySize;
+              }
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              {
+                const oldPayload = payload;
+                for (const payload of oldPayload) {
+                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aOptional;
+          if (payload !== undefined) {
+            payloadSize = 0;
+            offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
+          }
+        }
+
+        {
+          const payload = value.bOptional;
+          if (payload !== undefined) {
+            dataView64.setFloat64(0, payload, true);
+            if (dataView64.getBigUint64(0, true) === 0n) {
+              payloadSize = 0;
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
+            if (payloadSize !== 0) {
+              dataView.setFloat64(offset, payload, true);
+            }
+          }
+        }
+
+        {
+          const payload = value.cOptional;
+          if (payload !== undefined) {
+            if (payload === 0n) {
+              payloadSize = 0;
+            } else if (payload < 567_382_630_219_904n) {
+              payloadSize = varintSizeFromValue(payload);
+            } else {
+              payloadSize = 8;
+            }
+            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
+            {
+              const varint = payload;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.dOptional;
+          if (payload !== undefined) {
+            {
+              const zigzag = zigzagEncode(payload);
+              if (zigzag === 0n) {
+                payloadSize = 0;
+              } else if (zigzag < 567_382_630_219_904n) {
+                payloadSize = varintSizeFromValue(zigzag);
+              } else {
+                payloadSize = 8;
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
+            {
+              const varint = zigzagEncode(payload);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.eOptional;
+          if (payload !== undefined) {
+            if (payload) {
+              payloadSize = 1;
+            } else {
+              payloadSize = 0;
+            }
+            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
+            {
+              const varint = payload ? 1n : 0n;
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.fOptional;
+          if (payload !== undefined) {
+            payloadSize = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
+            {
+              const buffer = new Uint8Array(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.gOptional;
+          if (payload !== undefined) {
+            payloadSize = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
+            {
+              const buffer = textEncoder.encode(payload);
+              for (let i = 0; i < buffer.byteLength; ++i) {
+                dataView.setUint8(offset + i, buffer[i]);
+              }
+              offset += buffer.byteLength;
+            }
+          }
+        }
+
+        {
+          const payload = value.hOptional;
+          if (payload !== undefined) {
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
+            offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+          }
+        }
+
+        {
+          const payload = value.iOptional;
+          if (payload !== undefined) {
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
+            offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+          }
+        }
+
+        {
+          const payload = value.jOptional;
+          if (payload !== undefined) {
+            {
+              const oldPayload = payload;
+              {
+                const payload = BigInt(oldPayload.length);
+                if (payload === 0n) {
+                  payloadSize = 0;
+                } else if (payload < 567_382_630_219_904n) {
+                  payloadSize = varintSizeFromValue(payload);
+                } else {
+                  payloadSize = 8;
+                }
+              }
+            }
+            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
+            {
+              const varint = BigInt(payload.length);
+              if (varint > 567_382_630_219_903n) {
+                dataView.setBigUint64(offset, varint, true);
+                offset += 8;
+              } else if (varint !== 0n) {
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.kOptional;
+          if (payload !== undefined) {
+            payloadSize = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8;
+                dataView.setFloat64(offset, payload, true);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.lOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(payload);
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(payload);
+                {
+                  const varint = payload;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.mOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.nOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.oOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = payload.byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = new Uint8Array(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.pOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = textEncoder.encode(payload).byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const buffer = textEncoder.encode(payload);
+                  for (let i = 0; i < buffer.byteLength; ++i) {
+                    dataView.setUint8(offset + i, buffer[i]);
+                  }
+                  offset += buffer.byteLength;
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.qOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.rOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.sOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const varint = BigInt(payload.length);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.tOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 8;
+                    dataView.setFloat64(offset, payload, true);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.uOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(payload);
+                    {
+                      const varint = payload;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.vOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    {
+                      const varint = zigzagEncode(payload);
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.wOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 1;
+                    {
+                      const varint = payload ? 1n : 0n;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.xOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = new Uint8Array(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.yOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.zOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        {
+          const payload = value.aaOptional;
+          if (payload !== undefined) {
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        return offset;
+      }
+
+      export function deserialize(
+        dataView: DataView,
+        offset: number,
+      ): [number, FooIn] {
+        let aRequiredField, bRequiredField, cRequiredField, dRequiredField, eRequiredField, fRequiredField, gRequiredField, hRequiredField, iRequiredField, jRequiredField, kRequiredField, lRequiredField, mRequiredField, nRequiredField, oRequiredField, pRequiredField, qRequiredField, rRequiredField, sRequiredField, tRequiredField, uRequiredField, vRequiredField, wRequiredField, xRequiredField, yRequiredField, zRequiredField, aaRequiredField, aAsymmetricField, bAsymmetricField, cAsymmetricField, dAsymmetricField, eAsymmetricField, fAsymmetricField, gAsymmetricField, hAsymmetricField, iAsymmetricField, jAsymmetricField, kAsymmetricField, lAsymmetricField, mAsymmetricField, nAsymmetricField, oAsymmetricField, pAsymmetricField, qAsymmetricField, rAsymmetricField, sAsymmetricField, tAsymmetricField, uAsymmetricField, vAsymmetricField, wAsymmetricField, xAsymmetricField, yAsymmetricField, zAsymmetricField, aaAsymmetricField, aOptionalField, bOptionalField, cOptionalField, dOptionalField, eOptionalField, fOptionalField, gOptionalField, hOptionalField, iOptionalField, jOptionalField, kOptionalField, lOptionalField, mOptionalField, nOptionalField, oOptionalField, pOptionalField, qOptionalField, rOptionalField, sOptionalField, tOptionalField, uOptionalField, vOptionalField, wOptionalField, xOptionalField, yOptionalField, zOptionalField, aaOptionalField;
+
+        while (true) {
+          let index, payloadSize;
+          try {
+            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
+          } catch (e) {
+            if (e instanceof RangeError) {
+              break;
+            } else {
+              throw e;
+            }
+          }
+          switch (index) {
+            case 0n: {
+              break;
+            }
+            case 1n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
+              bRequiredField = payload;
+              break;
+            }
+            case 2n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              cRequiredField = payload;
+              break;
+            }
+            case 3n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
+              dRequiredField = payload;
+              break;
+            }
+            case 4n: {
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
+              eRequiredField = payload;
+              break;
+            }
+            case 5n: {
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
+              offset += payloadSize;
+              fRequiredField = payload;
+              break;
+            }
+            case 6n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              gRequiredField = payload;
+              break;
+            }
+            case 7n: {
+              let payload;
+              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              hRequiredField = payload;
+              break;
+            }
+            case 8n: {
+              let payload;
+              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              iRequiredField = payload;
+              break;
+            }
+            case 9n: {
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
+              jRequiredField = payload;
+              break;
+            }
+            case 10n: {
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              kRequiredField = payload;
+              break;
+            }
+            case 11n: {
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              lRequiredField = payload;
+              break;
+            }
+            case 12n: {
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              mRequiredField = payload;
+              break;
+            }
+            case 13n: {
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              nRequiredField = payload;
+              break;
+            }
+            case 14n: {
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              oRequiredField = payload;
+              break;
+            }
+            case 15n: {
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              pRequiredField = payload;
+              break;
+            }
+            case 16n: {
+              let payload: Comprehensive.Types.LocalStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              qRequiredField = payload;
+              break;
+            }
+            case 17n: {
+              let payload: Degenerate.Types.EmptyStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              rRequiredField = payload;
+              break;
+            }
+            case 18n: {
+              let payload: undefined[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = Array(Number(payload)).fill(undefined);
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              sRequiredField = payload;
+              break;
+            }
+            case 19n: {
+              let payload: number[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: number[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload = dataView.getFloat64(offset, true);
+                          offset += 8;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              tRequiredField = payload;
+              break;
+            }
+            case 20n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              uRequiredField = payload;
+              break;
+            }
+            case 21n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payload = zigzagDecode(payload);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              vRequiredField = payload;
+              break;
+            }
+            case 22n: {
+              let payload: boolean[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: boolean[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          {
+                            let newPayload;
+                            {
+                              let payload;
+                              [offset, payload] = deserializeVarint(dataView, offset);
+                              newPayload = payload !== 0n;
+                            }
+                            payload = newPayload;
+                          }
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              wRequiredField = payload;
+              break;
+            }
+            case 23n: {
+              let payload: ArrayBuffer[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: ArrayBuffer[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = dataView.buffer.slice(
+                            dataView.byteOffset + offset,
+                            dataView.byteOffset + offset + payloadSize,
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              xRequiredField = payload;
+              break;
+            }
+            case 24n: {
+              let payload: string[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: string[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = textDecoder.decode(
+                            dataView.buffer.slice(
+                              dataView.byteOffset + offset,
+                              dataView.byteOffset + offset + payloadSize,
+                            ),
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              yRequiredField = payload;
+              break;
+            }
+            case 25n: {
+              let payload: Comprehensive.Types.LocalStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Types.LocalStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              zRequiredField = payload;
+              break;
+            }
+            case 26n: {
+              let payload: Degenerate.Types.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Degenerate.Types.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              aaRequiredField = payload;
+              break;
+            }
+            case 28n: {
+              break;
+            }
+            case 29n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
+              bAsymmetricField = payload;
+              break;
+            }
+            case 30n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              cAsymmetricField = payload;
+              break;
+            }
+            case 31n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
+              dAsymmetricField = payload;
+              break;
+            }
+            case 32n: {
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
+              eAsymmetricField = payload;
+              break;
+            }
+            case 33n: {
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
+              offset += payloadSize;
+              fAsymmetricField = payload;
+              break;
+            }
+            case 34n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              gAsymmetricField = payload;
+              break;
+            }
+            case 35n: {
+              let payload;
+              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              hAsymmetricField = payload;
+              break;
+            }
+            case 36n: {
+              let payload;
+              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              iAsymmetricField = payload;
+              break;
+            }
+            case 37n: {
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
+              jAsymmetricField = payload;
+              break;
+            }
+            case 38n: {
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              kAsymmetricField = payload;
+              break;
+            }
+            case 39n: {
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              lAsymmetricField = payload;
+              break;
+            }
+            case 40n: {
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              mAsymmetricField = payload;
+              break;
+            }
+            case 41n: {
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              nAsymmetricField = payload;
+              break;
+            }
+            case 42n: {
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              oAsymmetricField = payload;
+              break;
+            }
+            case 43n: {
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              pAsymmetricField = payload;
+              break;
+            }
+            case 44n: {
+              let payload: Comprehensive.Types.LocalStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              qAsymmetricField = payload;
+              break;
+            }
+            case 45n: {
+              let payload: Degenerate.Types.EmptyStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              rAsymmetricField = payload;
+              break;
+            }
+            case 46n: {
+              let payload: undefined[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = Array(Number(payload)).fill(undefined);
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              sAsymmetricField = payload;
+              break;
+            }
+            case 47n: {
+              let payload: number[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: number[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload = dataView.getFloat64(offset, true);
+                          offset += 8;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              tAsymmetricField = payload;
+              break;
+            }
+            case 48n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              uAsymmetricField = payload;
+              break;
+            }
+            case 49n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payload = zigzagDecode(payload);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              vAsymmetricField = payload;
+              break;
+            }
+            case 50n: {
+              let payload: boolean[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: boolean[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          {
+                            let newPayload;
+                            {
+                              let payload;
+                              [offset, payload] = deserializeVarint(dataView, offset);
+                              newPayload = payload !== 0n;
+                            }
+                            payload = newPayload;
+                          }
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              wAsymmetricField = payload;
+              break;
+            }
+            case 51n: {
+              let payload: ArrayBuffer[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: ArrayBuffer[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = dataView.buffer.slice(
+                            dataView.byteOffset + offset,
+                            dataView.byteOffset + offset + payloadSize,
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              xAsymmetricField = payload;
+              break;
+            }
+            case 52n: {
+              let payload: string[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: string[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = textDecoder.decode(
+                            dataView.buffer.slice(
+                              dataView.byteOffset + offset,
+                              dataView.byteOffset + offset + payloadSize,
+                            ),
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              yAsymmetricField = payload;
+              break;
+            }
+            case 53n: {
+              let payload: Comprehensive.Types.LocalStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Types.LocalStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              zAsymmetricField = payload;
+              break;
+            }
+            case 54n: {
+              let payload: Degenerate.Types.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Degenerate.Types.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              aaAsymmetricField = payload;
+              break;
+            }
+            case 56n: {
+              break;
+            }
+            case 57n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0;
+                    break;
+                  default:
+                    payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    break;
+                }
+              }
+              bOptionalField = payload;
+              break;
+            }
+            case 58n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              cOptionalField = payload;
+              break;
+            }
+            case 59n: {
+              let payload;
+              {
+                switch (payloadSize) {
+                  case 0:
+                    payload = 0n;
+                    break;
+                  case 8:
+                    payload = dataView.getBigUint64(offset, true);
+                    offset += 8;
+                    break;
+                  default:
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    break;
+                }
+              }
+              payload = zigzagDecode(payload);
+              dOptionalField = payload;
+              break;
+            }
+            case 60n: {
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = payload !== 0n;
+                }
+                payload = newPayload;
+              }
+              eOptionalField = payload;
+              break;
+            }
+            case 61n: {
+              let payload = dataView.buffer.slice(
+                dataView.byteOffset + offset,
+                dataView.byteOffset + offset + payloadSize,
+              );
+              offset += payloadSize;
+              fOptionalField = payload;
+              break;
+            }
+            case 62n: {
+              let payload = textDecoder.decode(
+                dataView.buffer.slice(
+                  dataView.byteOffset + offset,
+                  dataView.byteOffset + offset + payloadSize,
+                ),
+              );
+              offset += payloadSize;
+              gOptionalField = payload;
+              break;
+            }
+            case 63n: {
+              let payload;
+              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              hOptionalField = payload;
+              break;
+            }
+            case 64n: {
+              let payload;
+              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              iOptionalField = payload;
+              break;
+            }
+            case 65n: {
+              let payload;
+              {
+                let newPayload;
+                {
+                  let payload;
+                  {
+                    switch (payloadSize) {
+                      case 0:
+                        payload = 0n;
+                        break;
+                      case 8:
+                        payload = dataView.getBigUint64(offset, true);
+                        offset += 8;
+                        break;
+                      default:
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        break;
+                    }
+                  }
+                  newPayload = Array(Number(payload)).fill(undefined);
+                }
+                payload = newPayload;
+              }
+              jOptionalField = payload;
+              break;
+            }
+            case 66n: {
+              let payload: number[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload = dataView.getFloat64(offset, true);
+                    offset += 8;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              kOptionalField = payload;
+              break;
+            }
+            case 67n: {
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              lOptionalField = payload;
+              break;
+            }
+            case 68n: {
+              let payload: bigint[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              mOptionalField = payload;
+              break;
+            }
+            case 69n: {
+              let payload: boolean[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              nOptionalField = payload;
+              break;
+            }
+            case 70n: {
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              oOptionalField = payload;
+              break;
+            }
+            case 71n: {
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              pOptionalField = payload;
+              break;
+            }
+            case 72n: {
+              let payload: Comprehensive.Types.LocalStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              qOptionalField = payload;
+              break;
+            }
+            case 73n: {
+              let payload: Degenerate.Types.EmptyStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              rOptionalField = payload;
+              break;
+            }
+            case 74n: {
+              let payload: undefined[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = Array(Number(payload)).fill(undefined);
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              sOptionalField = payload;
+              break;
+            }
+            case 75n: {
+              let payload: number[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: number[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload = dataView.getFloat64(offset, true);
+                          offset += 8;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              tOptionalField = payload;
+              break;
+            }
+            case 76n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              uOptionalField = payload;
+              break;
+            }
+            case 77n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payload = zigzagDecode(payload);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              vOptionalField = payload;
+              break;
+            }
+            case 78n: {
+              let payload: boolean[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: boolean[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          {
+                            let newPayload;
+                            {
+                              let payload;
+                              [offset, payload] = deserializeVarint(dataView, offset);
+                              newPayload = payload !== 0n;
+                            }
+                            payload = newPayload;
+                          }
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              wOptionalField = payload;
+              break;
+            }
+            case 79n: {
+              let payload: ArrayBuffer[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: ArrayBuffer[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = dataView.buffer.slice(
+                            dataView.byteOffset + offset,
+                            dataView.byteOffset + offset + payloadSize,
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              xOptionalField = payload;
+              break;
+            }
+            case 80n: {
+              let payload: string[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: string[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = textDecoder.decode(
+                            dataView.buffer.slice(
+                              dataView.byteOffset + offset,
+                              dataView.byteOffset + offset + payloadSize,
+                            ),
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              yOptionalField = payload;
+              break;
+            }
+            case 81n: {
+              let payload: Comprehensive.Types.LocalStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Types.LocalStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              zOptionalField = payload;
+              break;
+            }
+            case 82n: {
+              let payload: Degenerate.Types.EmptyStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Degenerate.Types.EmptyStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              aaOptionalField = payload;
+              break;
+            }
+            default:
+              offset += payloadSize;
+              break;
+          }
+        }
+
+        if (bRequiredField === undefined || cRequiredField === undefined || dRequiredField === undefined || eRequiredField === undefined || fRequiredField === undefined || gRequiredField === undefined || hRequiredField === undefined || iRequiredField === undefined || jRequiredField === undefined || kRequiredField === undefined || lRequiredField === undefined || mRequiredField === undefined || nRequiredField === undefined || oRequiredField === undefined || pRequiredField === undefined || qRequiredField === undefined || rRequiredField === undefined || sRequiredField === undefined || tRequiredField === undefined || uRequiredField === undefined || vRequiredField === undefined || wRequiredField === undefined || xRequiredField === undefined || yRequiredField === undefined || zRequiredField === undefined || aaRequiredField === undefined) {
+          throw new Error('Struct missing one or more field(s).');
+        }
+
+        return [
+          offset,
+          {
+            aRequired: aRequiredField,
+            bRequired: bRequiredField,
+            cRequired: cRequiredField,
+            dRequired: dRequiredField,
+            eRequired: eRequiredField,
+            fRequired: fRequiredField,
+            gRequired: gRequiredField,
+            hRequired: hRequiredField,
+            iRequired: iRequiredField,
+            jRequired: jRequiredField,
+            kRequired: kRequiredField,
+            lRequired: lRequiredField,
+            mRequired: mRequiredField,
+            nRequired: nRequiredField,
+            oRequired: oRequiredField,
+            pRequired: pRequiredField,
+            qRequired: qRequiredField,
+            rRequired: rRequiredField,
+            sRequired: sRequiredField,
+            tRequired: tRequiredField,
+            uRequired: uRequiredField,
+            vRequired: vRequiredField,
+            wRequired: wRequiredField,
+            xRequired: xRequiredField,
+            yRequired: yRequiredField,
+            zRequired: zRequiredField,
+            aaRequired: aaRequiredField,
+            aAsymmetric: aAsymmetricField,
+            bAsymmetric: bAsymmetricField,
+            cAsymmetric: cAsymmetricField,
+            dAsymmetric: dAsymmetricField,
+            eAsymmetric: eAsymmetricField,
+            fAsymmetric: fAsymmetricField,
+            gAsymmetric: gAsymmetricField,
+            hAsymmetric: hAsymmetricField,
+            iAsymmetric: iAsymmetricField,
+            jAsymmetric: jAsymmetricField,
+            kAsymmetric: kAsymmetricField,
+            lAsymmetric: lAsymmetricField,
+            mAsymmetric: mAsymmetricField,
+            nAsymmetric: nAsymmetricField,
+            oAsymmetric: oAsymmetricField,
+            pAsymmetric: pAsymmetricField,
+            qAsymmetric: qAsymmetricField,
+            rAsymmetric: rAsymmetricField,
+            sAsymmetric: sAsymmetricField,
+            tAsymmetric: tAsymmetricField,
+            uAsymmetric: uAsymmetricField,
+            vAsymmetric: vAsymmetricField,
+            wAsymmetric: wAsymmetricField,
+            xAsymmetric: xAsymmetricField,
+            yAsymmetric: yAsymmetricField,
+            zAsymmetric: zAsymmetricField,
+            aaAsymmetric: aaAsymmetricField,
+            aOptional: aOptionalField,
+            bOptional: bOptionalField,
+            cOptional: cOptionalField,
+            dOptional: dOptionalField,
+            eOptional: eOptionalField,
+            fOptional: fOptionalField,
+            gOptional: gOptionalField,
+            hOptional: hOptionalField,
+            iOptional: iOptionalField,
+            jOptional: jOptionalField,
+            kOptional: kOptionalField,
+            lOptional: lOptionalField,
+            mOptional: mOptionalField,
+            nOptional: nOptionalField,
+            oOptional: oOptionalField,
+            pOptional: pOptionalField,
+            qOptional: qOptionalField,
+            rOptional: rOptionalField,
+            sOptional: sOptionalField,
+            tOptional: tOptionalField,
+            uOptional: uOptionalField,
+            vOptional: vOptionalField,
+            wOptional: wOptionalField,
+            xOptional: xOptionalField,
+            yOptional: yOptionalField,
+            zOptional: zOptionalField,
+            aaOptional: aaOptionalField,
+          }
+        ];
+      }
+
+      export function outToIn(value: FooOut): FooIn {
+        return value;
+      }
+    }
+
     export type BarOut =
       | { field: 'aRequired' }
       | { field: 'bRequired'; value: number }
@@ -407,14 +6292,26 @@ export namespace Comprehensive {
       | { field: 'eRequired'; value: boolean }
       | { field: 'fRequired'; value: ArrayBuffer }
       | { field: 'gRequired'; value: string }
-      | { field: 'hRequired'; value: undefined[] }
-      | { field: 'iRequired'; value: number[] }
-      | { field: 'jRequired'; value: bigint[] }
-      | { field: 'kRequired'; value: bigint[] }
-      | { field: 'lRequired'; value: boolean[] }
-      | { field: 'mRequired'; value: ArrayBuffer[] }
-      | { field: 'nRequired'; value: string[] }
-      | { field: 'oRequired'; value: Degenerate.Types.EmptyStructOut[][] }
+      | { field: 'hRequired'; value: Comprehensive.Types.LocalStructOut }
+      | { field: 'iRequired'; value: Degenerate.Types.EmptyStructOut }
+      | { field: 'jRequired'; value: undefined[] }
+      | { field: 'kRequired'; value: number[] }
+      | { field: 'lRequired'; value: bigint[] }
+      | { field: 'mRequired'; value: bigint[] }
+      | { field: 'nRequired'; value: boolean[] }
+      | { field: 'oRequired'; value: ArrayBuffer[] }
+      | { field: 'pRequired'; value: string[] }
+      | { field: 'qRequired'; value: Comprehensive.Types.LocalStructOut[] }
+      | { field: 'rRequired'; value: Degenerate.Types.EmptyStructOut[] }
+      | { field: 'sRequired'; value: undefined[][] }
+      | { field: 'tRequired'; value: number[][] }
+      | { field: 'uRequired'; value: bigint[][] }
+      | { field: 'vRequired'; value: bigint[][] }
+      | { field: 'wRequired'; value: boolean[][] }
+      | { field: 'xRequired'; value: ArrayBuffer[][] }
+      | { field: 'yRequired'; value: string[][] }
+      | { field: 'zRequired'; value: Comprehensive.Types.LocalStructOut[][] }
+      | { field: 'aaRequired'; value: Degenerate.Types.EmptyStructOut[][] }
       | { field: 'aAsymmetric'; fallback: BarOut }
       | { field: 'bAsymmetric'; value: number; fallback: BarOut }
       | { field: 'cAsymmetric'; value: bigint; fallback: BarOut }
@@ -422,14 +6319,26 @@ export namespace Comprehensive {
       | { field: 'eAsymmetric'; value: boolean; fallback: BarOut }
       | { field: 'fAsymmetric'; value: ArrayBuffer; fallback: BarOut }
       | { field: 'gAsymmetric'; value: string; fallback: BarOut }
-      | { field: 'hAsymmetric'; value: undefined[]; fallback: BarOut }
-      | { field: 'iAsymmetric'; value: number[]; fallback: BarOut }
-      | { field: 'jAsymmetric'; value: bigint[]; fallback: BarOut }
-      | { field: 'kAsymmetric'; value: bigint[]; fallback: BarOut }
-      | { field: 'lAsymmetric'; value: boolean[]; fallback: BarOut }
-      | { field: 'mAsymmetric'; value: ArrayBuffer[]; fallback: BarOut }
-      | { field: 'nAsymmetric'; value: string[]; fallback: BarOut }
-      | { field: 'oAsymmetric'; value: Degenerate.Types.EmptyStructOut[][]; fallback: BarOut }
+      | { field: 'hAsymmetric'; value: Comprehensive.Types.LocalStructOut; fallback: BarOut }
+      | { field: 'iAsymmetric'; value: Degenerate.Types.EmptyStructOut; fallback: BarOut }
+      | { field: 'jAsymmetric'; value: undefined[]; fallback: BarOut }
+      | { field: 'kAsymmetric'; value: number[]; fallback: BarOut }
+      | { field: 'lAsymmetric'; value: bigint[]; fallback: BarOut }
+      | { field: 'mAsymmetric'; value: bigint[]; fallback: BarOut }
+      | { field: 'nAsymmetric'; value: boolean[]; fallback: BarOut }
+      | { field: 'oAsymmetric'; value: ArrayBuffer[]; fallback: BarOut }
+      | { field: 'pAsymmetric'; value: string[]; fallback: BarOut }
+      | { field: 'qAsymmetric'; value: Comprehensive.Types.LocalStructOut[]; fallback: BarOut }
+      | { field: 'rAsymmetric'; value: Degenerate.Types.EmptyStructOut[]; fallback: BarOut }
+      | { field: 'sAsymmetric'; value: undefined[][]; fallback: BarOut }
+      | { field: 'tAsymmetric'; value: number[][]; fallback: BarOut }
+      | { field: 'uAsymmetric'; value: bigint[][]; fallback: BarOut }
+      | { field: 'vAsymmetric'; value: bigint[][]; fallback: BarOut }
+      | { field: 'wAsymmetric'; value: boolean[][]; fallback: BarOut }
+      | { field: 'xAsymmetric'; value: ArrayBuffer[][]; fallback: BarOut }
+      | { field: 'yAsymmetric'; value: string[][]; fallback: BarOut }
+      | { field: 'zAsymmetric'; value: Comprehensive.Types.LocalStructOut[][]; fallback: BarOut }
+      | { field: 'aaAsymmetric'; value: Degenerate.Types.EmptyStructOut[][]; fallback: BarOut }
       | { field: 'aOptional'; fallback: BarOut }
       | { field: 'bOptional'; value: number; fallback: BarOut }
       | { field: 'cOptional'; value: bigint; fallback: BarOut }
@@ -437,14 +6346,26 @@ export namespace Comprehensive {
       | { field: 'eOptional'; value: boolean; fallback: BarOut }
       | { field: 'fOptional'; value: ArrayBuffer; fallback: BarOut }
       | { field: 'gOptional'; value: string; fallback: BarOut }
-      | { field: 'hOptional'; value: undefined[]; fallback: BarOut }
-      | { field: 'iOptional'; value: number[]; fallback: BarOut }
-      | { field: 'jOptional'; value: bigint[]; fallback: BarOut }
-      | { field: 'kOptional'; value: bigint[]; fallback: BarOut }
-      | { field: 'lOptional'; value: boolean[]; fallback: BarOut }
-      | { field: 'mOptional'; value: ArrayBuffer[]; fallback: BarOut }
-      | { field: 'nOptional'; value: string[]; fallback: BarOut }
-      | { field: 'oOptional'; value: Degenerate.Types.EmptyStructOut[][]; fallback: BarOut };
+      | { field: 'hOptional'; value: Comprehensive.Types.LocalStructOut; fallback: BarOut }
+      | { field: 'iOptional'; value: Degenerate.Types.EmptyStructOut; fallback: BarOut }
+      | { field: 'jOptional'; value: undefined[]; fallback: BarOut }
+      | { field: 'kOptional'; value: number[]; fallback: BarOut }
+      | { field: 'lOptional'; value: bigint[]; fallback: BarOut }
+      | { field: 'mOptional'; value: bigint[]; fallback: BarOut }
+      | { field: 'nOptional'; value: boolean[]; fallback: BarOut }
+      | { field: 'oOptional'; value: ArrayBuffer[]; fallback: BarOut }
+      | { field: 'pOptional'; value: string[]; fallback: BarOut }
+      | { field: 'qOptional'; value: Comprehensive.Types.LocalStructOut[]; fallback: BarOut }
+      | { field: 'rOptional'; value: Degenerate.Types.EmptyStructOut[]; fallback: BarOut }
+      | { field: 'sOptional'; value: undefined[][]; fallback: BarOut }
+      | { field: 'tOptional'; value: number[][]; fallback: BarOut }
+      | { field: 'uOptional'; value: bigint[][]; fallback: BarOut }
+      | { field: 'vOptional'; value: bigint[][]; fallback: BarOut }
+      | { field: 'wOptional'; value: boolean[][]; fallback: BarOut }
+      | { field: 'xOptional'; value: ArrayBuffer[][]; fallback: BarOut }
+      | { field: 'yOptional'; value: string[][]; fallback: BarOut }
+      | { field: 'zOptional'; value: Comprehensive.Types.LocalStructOut[][]; fallback: BarOut }
+      | { field: 'aaOptional'; value: Degenerate.Types.EmptyStructOut[][]; fallback: BarOut };
 
     export type BarIn =
       | { field: 'aRequired' }
@@ -454,14 +6375,26 @@ export namespace Comprehensive {
       | { field: 'eRequired'; value: boolean }
       | { field: 'fRequired'; value: ArrayBuffer }
       | { field: 'gRequired'; value: string }
-      | { field: 'hRequired'; value: undefined[] }
-      | { field: 'iRequired'; value: number[] }
-      | { field: 'jRequired'; value: bigint[] }
-      | { field: 'kRequired'; value: bigint[] }
-      | { field: 'lRequired'; value: boolean[] }
-      | { field: 'mRequired'; value: ArrayBuffer[] }
-      | { field: 'nRequired'; value: string[] }
-      | { field: 'oRequired'; value: Degenerate.Types.EmptyStructIn[][] }
+      | { field: 'hRequired'; value: Comprehensive.Types.LocalStructIn }
+      | { field: 'iRequired'; value: Degenerate.Types.EmptyStructIn }
+      | { field: 'jRequired'; value: undefined[] }
+      | { field: 'kRequired'; value: number[] }
+      | { field: 'lRequired'; value: bigint[] }
+      | { field: 'mRequired'; value: bigint[] }
+      | { field: 'nRequired'; value: boolean[] }
+      | { field: 'oRequired'; value: ArrayBuffer[] }
+      | { field: 'pRequired'; value: string[] }
+      | { field: 'qRequired'; value: Comprehensive.Types.LocalStructIn[] }
+      | { field: 'rRequired'; value: Degenerate.Types.EmptyStructIn[] }
+      | { field: 'sRequired'; value: undefined[][] }
+      | { field: 'tRequired'; value: number[][] }
+      | { field: 'uRequired'; value: bigint[][] }
+      | { field: 'vRequired'; value: bigint[][] }
+      | { field: 'wRequired'; value: boolean[][] }
+      | { field: 'xRequired'; value: ArrayBuffer[][] }
+      | { field: 'yRequired'; value: string[][] }
+      | { field: 'zRequired'; value: Comprehensive.Types.LocalStructIn[][] }
+      | { field: 'aaRequired'; value: Degenerate.Types.EmptyStructIn[][] }
       | { field: 'aAsymmetric' }
       | { field: 'bAsymmetric'; value: number }
       | { field: 'cAsymmetric'; value: bigint }
@@ -469,14 +6402,26 @@ export namespace Comprehensive {
       | { field: 'eAsymmetric'; value: boolean }
       | { field: 'fAsymmetric'; value: ArrayBuffer }
       | { field: 'gAsymmetric'; value: string }
-      | { field: 'hAsymmetric'; value: undefined[] }
-      | { field: 'iAsymmetric'; value: number[] }
-      | { field: 'jAsymmetric'; value: bigint[] }
-      | { field: 'kAsymmetric'; value: bigint[] }
-      | { field: 'lAsymmetric'; value: boolean[] }
-      | { field: 'mAsymmetric'; value: ArrayBuffer[] }
-      | { field: 'nAsymmetric'; value: string[] }
-      | { field: 'oAsymmetric'; value: Degenerate.Types.EmptyStructIn[][] }
+      | { field: 'hAsymmetric'; value: Comprehensive.Types.LocalStructIn }
+      | { field: 'iAsymmetric'; value: Degenerate.Types.EmptyStructIn }
+      | { field: 'jAsymmetric'; value: undefined[] }
+      | { field: 'kAsymmetric'; value: number[] }
+      | { field: 'lAsymmetric'; value: bigint[] }
+      | { field: 'mAsymmetric'; value: bigint[] }
+      | { field: 'nAsymmetric'; value: boolean[] }
+      | { field: 'oAsymmetric'; value: ArrayBuffer[] }
+      | { field: 'pAsymmetric'; value: string[] }
+      | { field: 'qAsymmetric'; value: Comprehensive.Types.LocalStructIn[] }
+      | { field: 'rAsymmetric'; value: Degenerate.Types.EmptyStructIn[] }
+      | { field: 'sAsymmetric'; value: undefined[][] }
+      | { field: 'tAsymmetric'; value: number[][] }
+      | { field: 'uAsymmetric'; value: bigint[][] }
+      | { field: 'vAsymmetric'; value: bigint[][] }
+      | { field: 'wAsymmetric'; value: boolean[][] }
+      | { field: 'xAsymmetric'; value: ArrayBuffer[][] }
+      | { field: 'yAsymmetric'; value: string[][] }
+      | { field: 'zAsymmetric'; value: Comprehensive.Types.LocalStructIn[][] }
+      | { field: 'aaAsymmetric'; value: Degenerate.Types.EmptyStructIn[][] }
       | { field: 'aOptional'; fallback: BarIn }
       | { field: 'bOptional'; value: number; fallback: BarIn }
       | { field: 'cOptional'; value: bigint; fallback: BarIn }
@@ -484,14 +6429,26 @@ export namespace Comprehensive {
       | { field: 'eOptional'; value: boolean; fallback: BarIn }
       | { field: 'fOptional'; value: ArrayBuffer; fallback: BarIn }
       | { field: 'gOptional'; value: string; fallback: BarIn }
-      | { field: 'hOptional'; value: undefined[]; fallback: BarIn }
-      | { field: 'iOptional'; value: number[]; fallback: BarIn }
-      | { field: 'jOptional'; value: bigint[]; fallback: BarIn }
-      | { field: 'kOptional'; value: bigint[]; fallback: BarIn }
-      | { field: 'lOptional'; value: boolean[]; fallback: BarIn }
-      | { field: 'mOptional'; value: ArrayBuffer[]; fallback: BarIn }
-      | { field: 'nOptional'; value: string[]; fallback: BarIn }
-      | { field: 'oOptional'; value: Degenerate.Types.EmptyStructIn[][]; fallback: BarIn };
+      | { field: 'hOptional'; value: Comprehensive.Types.LocalStructIn; fallback: BarIn }
+      | { field: 'iOptional'; value: Degenerate.Types.EmptyStructIn; fallback: BarIn }
+      | { field: 'jOptional'; value: undefined[]; fallback: BarIn }
+      | { field: 'kOptional'; value: number[]; fallback: BarIn }
+      | { field: 'lOptional'; value: bigint[]; fallback: BarIn }
+      | { field: 'mOptional'; value: bigint[]; fallback: BarIn }
+      | { field: 'nOptional'; value: boolean[]; fallback: BarIn }
+      | { field: 'oOptional'; value: ArrayBuffer[]; fallback: BarIn }
+      | { field: 'pOptional'; value: string[]; fallback: BarIn }
+      | { field: 'qOptional'; value: Comprehensive.Types.LocalStructIn[]; fallback: BarIn }
+      | { field: 'rOptional'; value: Degenerate.Types.EmptyStructIn[]; fallback: BarIn }
+      | { field: 'sOptional'; value: undefined[][]; fallback: BarIn }
+      | { field: 'tOptional'; value: number[][]; fallback: BarIn }
+      | { field: 'uOptional'; value: bigint[][]; fallback: BarIn }
+      | { field: 'vOptional'; value: bigint[][]; fallback: BarIn }
+      | { field: 'wOptional'; value: boolean[][]; fallback: BarIn }
+      | { field: 'xOptional'; value: ArrayBuffer[][]; fallback: BarIn }
+      | { field: 'yOptional'; value: string[][]; fallback: BarIn }
+      | { field: 'zOptional'; value: Comprehensive.Types.LocalStructIn[][]; fallback: BarIn }
+      | { field: 'aaOptional'; value: Degenerate.Types.EmptyStructIn[][]; fallback: BarIn };
 
     export namespace Bar {
       export function size(value: BarOut): number {
@@ -557,6 +6514,16 @@ export namespace Comprehensive {
           }
           case 'hRequired': {
             const payload = value.value;
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            return fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+          }
+          case 'iRequired': {
+            const payload = value.value;
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+          }
+          case 'jRequired': {
+            const payload = value.value;
             {
               const oldPayload = payload;
               {
@@ -570,41 +6537,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            return fieldHeaderSize(7n, payloadSize, false) + payloadSize;
-          }
-          case 'iRequired': {
-            const payload = value.value;
-            payloadSize = 8 * payload.length;
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
-          }
-          case 'jRequired': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
             return fieldHeaderSize(9n, payloadSize, false) + payloadSize;
           }
           case 'kRequired': {
             const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
+            payloadSize = 8 * payload.length;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
           case 'lRequired': {
@@ -615,7 +6552,7 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 arraySize += payloadSize;
               }
               payloadSize = arraySize;
@@ -630,8 +6567,8 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
               }
               payloadSize = arraySize;
             }
@@ -645,8 +6582,8 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                payloadSize = 1;
+                arraySize += payloadSize;
               }
               payloadSize = arraySize;
             }
@@ -660,6 +6597,252 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
+                payloadSize = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+          }
+          case 'pRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(15n, payloadSize, false) + payloadSize;
+          }
+          case 'qRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(16n, payloadSize, false) + payloadSize;
+          }
+          case 'rRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(17n, payloadSize, false) + payloadSize;
+          }
+          case 'sRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(18n, payloadSize, false) + payloadSize;
+          }
+          case 'tRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(19n, payloadSize, false) + payloadSize;
+          }
+          case 'uRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(20n, payloadSize, false) + payloadSize;
+          }
+          case 'vRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(21n, payloadSize, false) + payloadSize;
+          }
+          case 'wRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(22n, payloadSize, false) + payloadSize;
+          }
+          case 'xRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(23n, payloadSize, false) + payloadSize;
+          }
+          case 'yRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(24n, payloadSize, false) + payloadSize;
+          }
+          case 'zRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(25n, payloadSize, false) + payloadSize;
+          }
+          case 'aaRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -675,10 +6858,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(26n, payloadSize, false) + payloadSize;
           }
           case 'aAsymmetric': {
-            return fieldHeaderSize(16n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'bAsymmetric': {
             const payload = value.value;
@@ -688,7 +6871,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(17n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'cAsymmetric': {
             const payload = value.value;
@@ -699,7 +6882,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(18n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(30n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'dAsymmetric': {
             const payload = value.value;
@@ -713,7 +6896,7 @@ export namespace Comprehensive {
                 payloadSize = 8;
               }
             }
-            return fieldHeaderSize(19n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(31n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'eAsymmetric': {
             const payload = value.value;
@@ -722,19 +6905,29 @@ export namespace Comprehensive {
             } else {
               payloadSize = 0;
             }
-            return fieldHeaderSize(20n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(32n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'fAsymmetric': {
             const payload = value.value;
             payloadSize = payload.byteLength;
-            return fieldHeaderSize(21n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(33n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'gAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(22n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(34n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'hAsymmetric': {
+            const payload = value.value;
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            return fieldHeaderSize(35n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'iAsymmetric': {
+            const payload = value.value;
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            return fieldHeaderSize(36n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'jAsymmetric': {
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -749,14 +6942,14 @@ export namespace Comprehensive {
                 }
               }
             }
-            return fieldHeaderSize(23n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'iAsymmetric': {
+          case 'kAsymmetric': {
             const payload = value.value;
             payloadSize = 8 * payload.length;
-            return fieldHeaderSize(24n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'jAsymmetric': {
+          case 'lAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -769,9 +6962,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(25n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'kAsymmetric': {
+          case 'mAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -784,9 +6977,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(26n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'lAsymmetric': {
+          case 'nAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -799,9 +6992,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(27n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'mAsymmetric': {
+          case 'oAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -814,9 +7007,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'nAsymmetric': {
+          case 'pAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -829,9 +7022,225 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'oAsymmetric': {
+          case 'qAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'rAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'sAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'tAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(47n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'uAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(48n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'vAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(49n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'wAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(50n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'xAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(51n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'yAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(52n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'zAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(53n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'aaAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -854,10 +7263,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(30n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(54n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'aOptional': {
-            return fieldHeaderSize(32n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(56n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'bOptional': {
             const payload = value.value;
@@ -867,7 +7276,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(33n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(57n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'cOptional': {
             const payload = value.value;
@@ -878,7 +7287,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(34n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(58n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'dOptional': {
             const payload = value.value;
@@ -892,7 +7301,7 @@ export namespace Comprehensive {
                 payloadSize = 8;
               }
             }
-            return fieldHeaderSize(35n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(59n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'eOptional': {
             const payload = value.value;
@@ -901,19 +7310,29 @@ export namespace Comprehensive {
             } else {
               payloadSize = 0;
             }
-            return fieldHeaderSize(36n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(60n, payloadSize, true) + payloadSize + size(value.fallback);
           }
           case 'fOptional': {
             const payload = value.value;
             payloadSize = payload.byteLength;
-            return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(61n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'gOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(62n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           case 'hOptional': {
+            const payload = value.value;
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            return fieldHeaderSize(63n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'iOptional': {
+            const payload = value.value;
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            return fieldHeaderSize(64n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'jOptional': {
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -928,14 +7347,14 @@ export namespace Comprehensive {
                 }
               }
             }
-            return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(65n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'iOptional': {
+          case 'kOptional': {
             const payload = value.value;
             payloadSize = 8 * payload.length;
-            return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(66n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'jOptional': {
+          case 'lOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -948,9 +7367,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(67n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'kOptional': {
+          case 'mOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -963,9 +7382,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(68n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'lOptional': {
+          case 'nOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -978,9 +7397,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(69n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'mOptional': {
+          case 'oOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -993,9 +7412,9 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(70n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'nOptional': {
+          case 'pOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1008,9 +7427,225 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(71n, payloadSize, false) + payloadSize + size(value.fallback);
           }
-          case 'oOptional': {
+          case 'qOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(72n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'rOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(73n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'sOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(74n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'tOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(75n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'uOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(76n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'vOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(77n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'wOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(78n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'xOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(79n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'yOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(80n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'zOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            return fieldHeaderSize(81n, payloadSize, false) + payloadSize + size(value.fallback);
+          }
+          case 'aaOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1033,7 +7668,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(82n, payloadSize, false) + payloadSize + size(value.fallback);
           }
           default:
             return unreachable(value);
@@ -1158,6 +7793,20 @@ export namespace Comprehensive {
           }
           case 'hRequired': {
             const payload = value.value;
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+            return offset;
+          }
+          case 'iRequired': {
+            const payload = value.value;
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+            return offset;
+          }
+          case 'jRequired': {
+            const payload = value.value;
             {
               const oldPayload = payload;
               {
@@ -1171,7 +7820,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -1183,67 +7832,15 @@ export namespace Comprehensive {
             }
             return offset;
           }
-          case 'iRequired': {
+          case 'kRequired': {
             const payload = value.value;
             payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
-              }
-            }
-            return offset;
-          }
-          case 'jRequired': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(payload);
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            return offset;
-          }
-          case 'kRequired': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
               }
             }
             return offset;
@@ -1256,7 +7853,7 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 arraySize += payloadSize;
               }
               payloadSize = arraySize;
@@ -1265,9 +7862,9 @@ export namespace Comprehensive {
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 {
-                  const varint = payload ? 1n : 0n;
+                  const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
                 }
               }
@@ -1282,12 +7879,64 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            return offset;
+          }
+          case 'nRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            return offset;
+          }
+          case 'oRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
                 payloadSize = payload.byteLength;
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -1304,7 +7953,7 @@ export namespace Comprehensive {
             }
             return offset;
           }
-          case 'nRequired': {
+          case 'pRequired': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1317,7 +7966,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -1334,7 +7983,448 @@ export namespace Comprehensive {
             }
             return offset;
           }
-          case 'oRequired': {
+          case 'qRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+              }
+            }
+            return offset;
+          }
+          case 'rRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+              }
+            }
+            return offset;
+          }
+          case 'sRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const varint = BigInt(payload.length);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            return offset;
+          }
+          case 'tRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 8;
+                    dataView.setFloat64(offset, payload, true);
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'uRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(payload);
+                    {
+                      const varint = payload;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'vRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    {
+                      const varint = zigzagEncode(payload);
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'wRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 1;
+                    {
+                      const varint = payload ? 1n : 0n;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'xRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = new Uint8Array(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'yRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'zRequired': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+                  }
+                }
+              }
+            }
+            return offset;
+          }
+          case 'aaRequired': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1357,7 +8447,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -1386,7 +8476,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'aAsymmetric': {
-            offset = serializeFieldHeader(dataView, offset, 16n, 0, false);
+            offset = serializeFieldHeader(dataView, offset, 28n, 0, false);
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
@@ -1398,7 +8488,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
             if (payloadSize !== 0) {
               dataView.setFloat64(offset, payload, true);
             }
@@ -1414,7 +8504,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
             {
               const varint = payload;
               if (varint > 567_382_630_219_903n) {
@@ -1439,7 +8529,7 @@ export namespace Comprehensive {
                 payloadSize = 8;
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
             {
               const varint = zigzagEncode(payload);
               if (varint > 567_382_630_219_903n) {
@@ -1459,7 +8549,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 0;
             }
-            offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
             {
               const varint = payload ? 1n : 0n;
               if (varint > 567_382_630_219_903n) {
@@ -1475,7 +8565,7 @@ export namespace Comprehensive {
           case 'fAsymmetric': {
             const payload = value.value;
             payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
             {
               const buffer = new Uint8Array(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -1489,7 +8579,7 @@ export namespace Comprehensive {
           case 'gAsymmetric': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -1501,6 +8591,22 @@ export namespace Comprehensive {
             return offset;
           }
           case 'hAsymmetric': {
+            const payload = value.value;
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
+            offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'iAsymmetric': {
+            const payload = value.value;
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
+            offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'jAsymmetric': {
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -1515,7 +8621,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -1528,69 +8634,15 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'iAsymmetric': {
+          case 'kAsymmetric': {
             const payload = value.value;
             payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
-              }
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'jAsymmetric': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(payload);
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'kAsymmetric': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -1604,18 +8656,18 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 arraySize += payloadSize;
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 27n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 {
-                  const varint = payload ? 1n : 0n;
+                  const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
                 }
               }
@@ -1631,12 +8683,66 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'oAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
                 payloadSize = payload.byteLength;
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -1654,7 +8760,7 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'nAsymmetric': {
+          case 'pAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1667,7 +8773,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -1685,7 +8791,458 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'oAsymmetric': {
+          case 'qAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'rAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'sAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const varint = BigInt(payload.length);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'tAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 8;
+                    dataView.setFloat64(offset, payload, true);
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'uAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(payload);
+                    {
+                      const varint = payload;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'vAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    {
+                      const varint = zigzagEncode(payload);
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'wAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 1;
+                    {
+                      const varint = payload ? 1n : 0n;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'xAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = new Uint8Array(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'yAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'zAsymmetric': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'aaAsymmetric': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -1708,7 +9265,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -1738,7 +9295,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'aOptional': {
-            offset = serializeFieldHeader(dataView, offset, 32n, 0, false);
+            offset = serializeFieldHeader(dataView, offset, 56n, 0, false);
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
@@ -1750,7 +9307,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
             if (payloadSize !== 0) {
               dataView.setFloat64(offset, payload, true);
             }
@@ -1766,7 +9323,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
             {
               const varint = payload;
               if (varint > 567_382_630_219_903n) {
@@ -1791,7 +9348,7 @@ export namespace Comprehensive {
                 payloadSize = 8;
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
             {
               const varint = zigzagEncode(payload);
               if (varint > 567_382_630_219_903n) {
@@ -1811,7 +9368,7 @@ export namespace Comprehensive {
             } else {
               payloadSize = 0;
             }
-            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
             {
               const varint = payload ? 1n : 0n;
               if (varint > 567_382_630_219_903n) {
@@ -1827,7 +9384,7 @@ export namespace Comprehensive {
           case 'fOptional': {
             const payload = value.value;
             payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
               const buffer = new Uint8Array(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -1841,7 +9398,7 @@ export namespace Comprehensive {
           case 'gOptional': {
             const payload = value.value;
             payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
               for (let i = 0; i < buffer.byteLength; ++i) {
@@ -1853,6 +9410,22 @@ export namespace Comprehensive {
             return offset;
           }
           case 'hOptional': {
+            const payload = value.value;
+            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
+            offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'iOptional': {
+            const payload = value.value;
+            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
+            offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'jOptional': {
             const payload = value.value;
             {
               const oldPayload = payload;
@@ -1867,7 +9440,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -1880,69 +9453,15 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'iOptional': {
+          case 'kOptional': {
             const payload = value.value;
             payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
-              }
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'jOptional': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(payload);
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serialize(dataView, offset, value.fallback);
-            return offset;
-          }
-          case 'kOptional': {
-            const payload = value.value;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -1956,18 +9475,18 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 arraySize += payloadSize;
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
-                payloadSize = 1;
+                payloadSize = varintSizeFromValue(payload);
                 {
-                  const varint = payload ? 1n : 0n;
+                  const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
                 }
               }
@@ -1983,12 +9502,66 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; ++i) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                {
+                  const varint = zigzagEncode(payload);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'nOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 1;
+                arraySize += payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 1;
+                {
+                  const varint = payload ? 1n : 0n;
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'oOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
                 payloadSize = payload.byteLength;
                 arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -2006,7 +9579,7 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'nOptional': {
+          case 'pOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2019,7 +9592,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -2037,7 +9610,458 @@ export namespace Comprehensive {
             offset = serialize(dataView, offset, value.fallback);
             return offset;
           }
-          case 'oOptional': {
+          case 'qOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'rOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'sOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  const oldPayload = payload;
+                  {
+                    const payload = BigInt(oldPayload.length);
+                    payloadSize = varintSizeFromValue(payload);
+                  }
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const varint = BigInt(payload.length);
+                  offset = serializeVarint(dataView, offset, varint);
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'tOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                payloadSize = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                payloadSize = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 8;
+                    dataView.setFloat64(offset, payload, true);
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'uOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(payload);
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(payload);
+                    {
+                      const varint = payload;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'vOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    {
+                      const varint = zigzagEncode(payload);
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'wOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = 1;
+                    arraySize += payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = 1;
+                    {
+                      const varint = payload ? 1n : 0n;
+                      offset = serializeVarint(dataView, offset, varint);
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'xOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = new Uint8Array(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'yOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    {
+                      const buffer = textEncoder.encode(payload);
+                      for (let i = 0; i < buffer.byteLength; ++i) {
+                        dataView.setUint8(offset + i, buffer[i]);
+                      }
+                      offset += buffer.byteLength;
+                    }
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'zOptional': {
+            const payload = value.value;
+            {
+              let arraySize = 0;
+              const oldPayload = payload;
+              for (let i = 0; i < oldPayload.length; ++i) {
+                const payload = oldPayload[i];
+                let payloadSize = 0;
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              }
+              payloadSize = arraySize;
+            }
+            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
+            {
+              const oldPayload = payload;
+              for (const payload of oldPayload) {
+                {
+                  let arraySize = 0;
+                  const oldPayload = payload;
+                  for (let i = 0; i < oldPayload.length; ++i) {
+                    const payload = oldPayload[i];
+                    let payloadSize = 0;
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  }
+                  payloadSize = arraySize;
+                }
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                {
+                  const oldPayload = payload;
+                  for (const payload of oldPayload) {
+                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
+                  }
+                }
+              }
+            }
+            offset = serialize(dataView, offset, value.fallback);
+            return offset;
+          }
+          case 'aaOptional': {
             const payload = value.value;
             {
               let arraySize = 0;
@@ -2060,7 +10084,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
             {
               const oldPayload = payload;
               for (const payload of oldPayload) {
@@ -2244,9 +10268,30 @@ export namespace Comprehensive {
             }
             case 7n: {
               let payload;
+              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              return [
+                offset,
+                {
+                  field: 'hRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 8n: {
+              let payload;
+              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              return [
+                offset,
+                {
+                  field: 'iRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 9n: {
+              let payload;
               {
                 let newPayload;
-                const payloadSize: number = 0;
                 {
                   let payload;
                   {
@@ -2270,12 +10315,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'hRequired',
+                  field: 'jRequired',
                   value: payload,
                 },
               ];
             }
-            case 8n: {
+            case 10n: {
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -2290,12 +10335,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'iRequired',
+                  field: 'kRequired',
                   value: payload,
                 },
               ];
             }
-            case 9n: {
+            case 11n: {
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -2310,12 +10355,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'jRequired',
+                  field: 'lRequired',
                   value: payload,
                 },
               ];
             }
-            case 10n: {
+            case 12n: {
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -2331,12 +10376,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'kRequired',
+                  field: 'mRequired',
                   value: payload,
                 },
               ];
             }
-            case 11n: {
+            case 13n: {
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -2359,12 +10404,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'lRequired',
+                  field: 'nRequired',
                   value: payload,
                 },
               ];
             }
-            case 12n: {
+            case 14n: {
               let payload: ArrayBuffer[] = [];
               {
                 let payloadAlias = payload;
@@ -2385,12 +10430,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'mRequired',
+                  field: 'oRequired',
                   value: payload,
                 },
               ];
             }
-            case 13n: {
+            case 15n: {
               let payload: string[] = [];
               {
                 let payloadAlias = payload;
@@ -2413,12 +10458,339 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'nRequired',
+                  field: 'pRequired',
                   value: payload,
                 },
               ];
             }
-            case 14n: {
+            case 16n: {
+              let payload: Comprehensive.Types.LocalStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'qRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 17n: {
+              let payload: Degenerate.Types.EmptyStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'rRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 18n: {
+              let payload: undefined[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = Array(Number(payload)).fill(undefined);
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'sRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 19n: {
+              let payload: number[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: number[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload = dataView.getFloat64(offset, true);
+                          offset += 8;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'tRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 20n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'uRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 21n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payload = zigzagDecode(payload);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'vRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 22n: {
+              let payload: boolean[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: boolean[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          {
+                            let newPayload;
+                            {
+                              let payload;
+                              [offset, payload] = deserializeVarint(dataView, offset);
+                              newPayload = payload !== 0n;
+                            }
+                            payload = newPayload;
+                          }
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'wRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 23n: {
+              let payload: ArrayBuffer[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: ArrayBuffer[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = dataView.buffer.slice(
+                            dataView.byteOffset + offset,
+                            dataView.byteOffset + offset + payloadSize,
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'xRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 24n: {
+              let payload: string[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: string[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = textDecoder.decode(
+                            dataView.buffer.slice(
+                              dataView.byteOffset + offset,
+                              dataView.byteOffset + offset + payloadSize,
+                            ),
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'yRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 25n: {
+              let payload: Comprehensive.Types.LocalStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Types.LocalStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'zRequired',
+                  value: payload,
+                },
+              ];
+            }
+            case 26n: {
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
                 let payloadAlias = payload;
@@ -2448,12 +10820,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'oRequired',
+                  field: 'aaRequired',
                   value: payload,
                 },
               ];
             }
-            case 16n: {
+            case 28n: {
               return [
                 offset,
                 {
@@ -2461,7 +10833,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 17n: {
+            case 29n: {
               let payload;
               {
                 switch (payloadSize) {
@@ -2482,7 +10854,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 18n: {
+            case 30n: {
               let payload;
               {
                 switch (payloadSize) {
@@ -2506,7 +10878,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 19n: {
+            case 31n: {
               let payload;
               {
                 switch (payloadSize) {
@@ -2531,7 +10903,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 20n: {
+            case 32n: {
               let payload;
               {
                 let newPayload;
@@ -2563,7 +10935,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 21n: {
+            case 33n: {
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + offset + payloadSize,
@@ -2577,7 +10949,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 22n: {
+            case 34n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -2593,11 +10965,32 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 23n: {
+            case 35n: {
+              let payload;
+              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              return [
+                offset,
+                {
+                  field: 'hAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 36n: {
+              let payload;
+              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              return [
+                offset,
+                {
+                  field: 'iAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 37n: {
               let payload;
               {
                 let newPayload;
-                const payloadSize: number = 0;
                 {
                   let payload;
                   {
@@ -2621,12 +11014,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'hAsymmetric',
+                  field: 'jAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 24n: {
+            case 38n: {
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -2641,12 +11034,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'iAsymmetric',
+                  field: 'kAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 25n: {
+            case 39n: {
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -2661,12 +11054,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'jAsymmetric',
+                  field: 'lAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 26n: {
+            case 40n: {
               let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
@@ -2682,12 +11075,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'kAsymmetric',
+                  field: 'mAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 27n: {
+            case 41n: {
               let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
@@ -2710,12 +11103,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'lAsymmetric',
+                  field: 'nAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 28n: {
+            case 42n: {
               let payload: ArrayBuffer[] = [];
               {
                 let payloadAlias = payload;
@@ -2736,12 +11129,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'mAsymmetric',
+                  field: 'oAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 29n: {
+            case 43n: {
               let payload: string[] = [];
               {
                 let payloadAlias = payload;
@@ -2764,12 +11157,339 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'nAsymmetric',
+                  field: 'pAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 30n: {
+            case 44n: {
+              let payload: Comprehensive.Types.LocalStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'qAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 45n: {
+              let payload: Degenerate.Types.EmptyStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'rAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 46n: {
+              let payload: undefined[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = Array(Number(payload)).fill(undefined);
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'sAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 47n: {
+              let payload: number[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: number[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload = dataView.getFloat64(offset, true);
+                          offset += 8;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'tAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 48n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'uAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 49n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payload = zigzagDecode(payload);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'vAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 50n: {
+              let payload: boolean[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: boolean[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          {
+                            let newPayload;
+                            {
+                              let payload;
+                              [offset, payload] = deserializeVarint(dataView, offset);
+                              newPayload = payload !== 0n;
+                            }
+                            payload = newPayload;
+                          }
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'wAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 51n: {
+              let payload: ArrayBuffer[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: ArrayBuffer[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = dataView.buffer.slice(
+                            dataView.byteOffset + offset,
+                            dataView.byteOffset + offset + payloadSize,
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'xAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 52n: {
+              let payload: string[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: string[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = textDecoder.decode(
+                            dataView.buffer.slice(
+                              dataView.byteOffset + offset,
+                              dataView.byteOffset + offset + payloadSize,
+                            ),
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'yAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 53n: {
+              let payload: Comprehensive.Types.LocalStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Types.LocalStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              return [
+                offset,
+                {
+                  field: 'zAsymmetric',
+                  value: payload,
+                },
+              ];
+            }
+            case 54n: {
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
                 let payloadAlias = payload;
@@ -2799,12 +11519,12 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'oAsymmetric',
+                  field: 'aaAsymmetric',
                   value: payload,
                 },
               ];
             }
-            case 32n: {
+            case 56n: {
               const [newNewOffset, fallback] = deserialize(dataView, offset);
               offset = newNewOffset;
               return [
@@ -2815,7 +11535,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 33n: {
+            case 57n: {
               let payload;
               {
                 switch (payloadSize) {
@@ -2839,7 +11559,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 34n: {
+            case 58n: {
               let payload;
               {
                 switch (payloadSize) {
@@ -2866,7 +11586,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 35n: {
+            case 59n: {
               let payload;
               {
                 switch (payloadSize) {
@@ -2894,7 +11614,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 36n: {
+            case 60n: {
               let payload;
               {
                 let newPayload;
@@ -2929,7 +11649,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 37n: {
+            case 61n: {
               let payload = dataView.buffer.slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + offset + payloadSize,
@@ -2946,7 +11666,7 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 38n: {
+            case 62n: {
               let payload = textDecoder.decode(
                 dataView.buffer.slice(
                   dataView.byteOffset + offset,
@@ -2965,11 +11685,38 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 39n: {
+            case 63n: {
+              let payload;
+              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'hOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 64n: {
+              let payload;
+              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'iOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 65n: {
               let payload;
               {
                 let newPayload;
-                const payloadSize: number = 0;
                 {
                   let payload;
                   {
@@ -2995,13 +11742,13 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'hOptional',
+                  field: 'jOptional',
                   value: payload,
                   fallback,
                 },
               ];
             }
-            case 40n: {
+            case 66n: {
               let payload: number[] = [];
               {
                 let payloadAlias = payload;
@@ -3009,53 +11756,6 @@ export namespace Comprehensive {
                   while (true) {
                     let payload = dataView.getFloat64(offset, true);
                     offset += 8;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'iOptional',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 41n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              const [newNewOffset, fallback] = deserialize(dataView, offset);
-              offset = newNewOffset;
-              return [
-                offset,
-                {
-                  field: 'jOptional',
-                  value: payload,
-                  fallback,
-                },
-              ];
-            }
-            case 42n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
                     payloadAlias.push(payload);
                   }
                 }
@@ -3071,22 +11771,14 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 43n: {
-              let payload: boolean[] = [];
+            case 67n: {
+              let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
                 {
                   while (true) {
                     let payload;
-                    {
-                      let newPayload;
-                      {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
-                      }
-                      payload = newPayload;
-                    }
+                    [offset, payload] = deserializeVarint(dataView, offset);
                     payloadAlias.push(payload);
                   }
                 }
@@ -3102,20 +11794,15 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 44n: {
-              let payload: ArrayBuffer[] = [];
+            case 68n: {
+              let payload: bigint[] = [];
               {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(
-                      dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
-                    );
-                    offset += payloadSize;
+                    let payload;
+                    [offset, payload] = deserializeVarint(dataView, offset);
+                    payload = zigzagDecode(payload);
                     payloadAlias.push(payload);
                   }
                 }
@@ -3131,22 +11818,22 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 45n: {
-              let payload: string[] = [];
+            case 69n: {
+              let payload: boolean[] = [];
               {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(
-                      dataView.buffer.slice(
-                        dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
-                      ),
-                    );
-                    offset += payloadSize;
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = payload !== 0n;
+                      }
+                      payload = newPayload;
+                    }
                     payloadAlias.push(payload);
                   }
                 }
@@ -3162,7 +11849,424 @@ export namespace Comprehensive {
                 },
               ];
             }
-            case 46n: {
+            case 70n: {
+              let payload: ArrayBuffer[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = dataView.buffer.slice(
+                      dataView.byteOffset + offset,
+                      dataView.byteOffset + offset + payloadSize,
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'oOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 71n: {
+              let payload: string[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload = textDecoder.decode(
+                      dataView.buffer.slice(
+                        dataView.byteOffset + offset,
+                        dataView.byteOffset + offset + payloadSize,
+                      ),
+                    );
+                    offset += payloadSize;
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'pOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 72n: {
+              let payload: Comprehensive.Types.LocalStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'qOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 73n: {
+              let payload: Degenerate.Types.EmptyStructIn[] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'rOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 74n: {
+              let payload: undefined[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload;
+                    {
+                      let newPayload;
+                      {
+                        let payload;
+                        [offset, payload] = deserializeVarint(dataView, offset);
+                        newPayload = Array(Number(payload)).fill(undefined);
+                      }
+                      payload = newPayload;
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'sOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 75n: {
+              let payload: number[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: number[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload = dataView.getFloat64(offset, true);
+                          offset += 8;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'tOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 76n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'uOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 77n: {
+              let payload: bigint[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: bigint[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          payload = zigzagDecode(payload);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'vOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 78n: {
+              let payload: boolean[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: boolean[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payload;
+                          {
+                            let newPayload;
+                            {
+                              let payload;
+                              [offset, payload] = deserializeVarint(dataView, offset);
+                              newPayload = payload !== 0n;
+                            }
+                            payload = newPayload;
+                          }
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'wOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 79n: {
+              let payload: ArrayBuffer[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: ArrayBuffer[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = dataView.buffer.slice(
+                            dataView.byteOffset + offset,
+                            dataView.byteOffset + offset + payloadSize,
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'xOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 80n: {
+              let payload: string[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: string[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload = textDecoder.decode(
+                            dataView.buffer.slice(
+                              dataView.byteOffset + offset,
+                              dataView.byteOffset + offset + payloadSize,
+                            ),
+                          );
+                          offset += payloadSize;
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'yOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 81n: {
+              let payload: Comprehensive.Types.LocalStructIn[][] = [];
+              {
+                let payloadAlias = payload;
+                {
+                  while (true) {
+                    let payloadSizeBig;
+                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                    const payloadSize = Number(payloadSizeBig);
+                    let payload: Comprehensive.Types.LocalStructIn[] = [];
+                    {
+                      let payloadAlias = payload;
+                      {
+                        while (true) {
+                          let payloadSizeBig;
+                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
+                          const payloadSize = Number(payloadSizeBig);
+                          let payload;
+                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          payloadAlias.push(payload);
+                        }
+                      }
+                    }
+                    payloadAlias.push(payload);
+                  }
+                }
+              }
+              const [newNewOffset, fallback] = deserialize(dataView, offset);
+              offset = newNewOffset;
+              return [
+                offset,
+                {
+                  field: 'zOptional',
+                  value: payload,
+                  fallback,
+                },
+              ];
+            }
+            case 82n: {
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
                 let payloadAlias = payload;
@@ -3194,7 +12298,7 @@ export namespace Comprehensive {
               return [
                 offset,
                 {
-                  field: 'oOptional',
+                  field: 'aaOptional',
                   value: payload,
                   fallback,
                 },
@@ -3208,2937 +12312,6 @@ export namespace Comprehensive {
       }
 
       export function outToIn(value: BarOut): BarIn {
-        return value;
-      }
-    }
-  }
-
-  export namespace Foo {
-    export type FooOut = {
-      aRequired: undefined;
-      bRequired: number;
-      cRequired: bigint;
-      dRequired: bigint;
-      eRequired: boolean;
-      fRequired: ArrayBuffer;
-      gRequired: string;
-      hRequired: undefined[];
-      iRequired: number[];
-      jRequired: bigint[];
-      kRequired: bigint[];
-      lRequired: boolean[];
-      mRequired: ArrayBuffer[];
-      nRequired: string[];
-      oRequired: Degenerate.Types.EmptyStructOut[][];
-      aAsymmetric: undefined;
-      bAsymmetric: number;
-      cAsymmetric: bigint;
-      dAsymmetric: bigint;
-      eAsymmetric: boolean;
-      fAsymmetric: ArrayBuffer;
-      gAsymmetric: string;
-      hAsymmetric: undefined[];
-      iAsymmetric: number[];
-      jAsymmetric: bigint[];
-      kAsymmetric: bigint[];
-      lAsymmetric: boolean[];
-      mAsymmetric: ArrayBuffer[];
-      nAsymmetric: string[];
-      oAsymmetric: Degenerate.Types.EmptyStructOut[][];
-      aOptional?: undefined;
-      bOptional?: number;
-      cOptional?: bigint;
-      dOptional?: bigint;
-      eOptional?: boolean;
-      fOptional?: ArrayBuffer;
-      gOptional?: string;
-      hOptional?: undefined[];
-      iOptional?: number[];
-      jOptional?: bigint[];
-      kOptional?: bigint[];
-      lOptional?: boolean[];
-      mOptional?: ArrayBuffer[];
-      nOptional?: string[];
-      oOptional?: Degenerate.Types.EmptyStructOut[][];
-    };
-
-    export type FooIn = {
-      aRequired: undefined;
-      bRequired: number;
-      cRequired: bigint;
-      dRequired: bigint;
-      eRequired: boolean;
-      fRequired: ArrayBuffer;
-      gRequired: string;
-      hRequired: undefined[];
-      iRequired: number[];
-      jRequired: bigint[];
-      kRequired: bigint[];
-      lRequired: boolean[];
-      mRequired: ArrayBuffer[];
-      nRequired: string[];
-      oRequired: Degenerate.Types.EmptyStructIn[][];
-      aAsymmetric?: undefined;
-      bAsymmetric?: number;
-      cAsymmetric?: bigint;
-      dAsymmetric?: bigint;
-      eAsymmetric?: boolean;
-      fAsymmetric?: ArrayBuffer;
-      gAsymmetric?: string;
-      hAsymmetric?: undefined[];
-      iAsymmetric?: number[];
-      jAsymmetric?: bigint[];
-      kAsymmetric?: bigint[];
-      lAsymmetric?: boolean[];
-      mAsymmetric?: ArrayBuffer[];
-      nAsymmetric?: string[];
-      oAsymmetric?: Degenerate.Types.EmptyStructIn[][];
-      aOptional?: undefined;
-      bOptional?: number;
-      cOptional?: bigint;
-      dOptional?: bigint;
-      eOptional?: boolean;
-      fOptional?: ArrayBuffer;
-      gOptional?: string;
-      hOptional?: undefined[];
-      iOptional?: number[];
-      jOptional?: bigint[];
-      kOptional?: bigint[];
-      lOptional?: boolean[];
-      mOptional?: ArrayBuffer[];
-      nOptional?: string[];
-      oOptional?: Degenerate.Types.EmptyStructIn[][];
-    };
-
-    export namespace Foo {
-      export function size(value: FooOut): number {
-        let valueSize = 0;
-        let payloadSize = 0;
-
-        {
-          const payload = value.aRequired;
-          payloadSize = 0;
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.bRequired;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
-            payloadSize = 0;
-          } else {
-            payloadSize = 8;
-          }
-          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.cRequired;
-          if (payload === 0n) {
-            payloadSize = 0;
-          } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
-          } else {
-            payloadSize = 8;
-          }
-          valueSize += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.dRequired;
-          {
-            const zigzag = zigzagEncode(payload);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
-            }
-          }
-          valueSize += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.eRequired;
-          if (payload) {
-            payloadSize = 1;
-          } else {
-            payloadSize = 0;
-          }
-          valueSize += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.fRequired;
-          payloadSize = payload.byteLength;
-          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.gRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.hRequired;
-          {
-            const oldPayload = payload;
-            {
-              const payload = BigInt(oldPayload.length);
-              if (payload === 0n) {
-                payloadSize = 0;
-              } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
-              } else {
-                payloadSize = 8;
-              }
-            }
-          }
-          valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.iRequired;
-          payloadSize = 8 * payload.length;
-          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.jRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.kRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.lRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.mRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.nRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.oRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              {
-                let arraySize = 0;
-                const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
-                  const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                }
-                payloadSize = arraySize;
-              }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.aAsymmetric;
-          payloadSize = 0;
-          valueSize += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.bAsymmetric;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
-            payloadSize = 0;
-          } else {
-            payloadSize = 8;
-          }
-          valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.cAsymmetric;
-          if (payload === 0n) {
-            payloadSize = 0;
-          } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
-          } else {
-            payloadSize = 8;
-          }
-          valueSize += fieldHeaderSize(18n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.dAsymmetric;
-          {
-            const zigzag = zigzagEncode(payload);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
-            }
-          }
-          valueSize += fieldHeaderSize(19n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.eAsymmetric;
-          if (payload) {
-            payloadSize = 1;
-          } else {
-            payloadSize = 0;
-          }
-          valueSize += fieldHeaderSize(20n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.fAsymmetric;
-          payloadSize = payload.byteLength;
-          valueSize += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.gAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.hAsymmetric;
-          {
-            const oldPayload = payload;
-            {
-              const payload = BigInt(oldPayload.length);
-              if (payload === 0n) {
-                payloadSize = 0;
-              } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
-              } else {
-                payloadSize = 8;
-              }
-            }
-          }
-          valueSize += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.iAsymmetric;
-          payloadSize = 8 * payload.length;
-          valueSize += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.jAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.kAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.lAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(27n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.mAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.nAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.oAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              {
-                let arraySize = 0;
-                const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
-                  const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                }
-                payloadSize = arraySize;
-              }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          valueSize += fieldHeaderSize(30n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.aOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = 0;
-          }
-          valueSize += fieldHeaderSize(32n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.bOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
-              payloadSize = 0;
-            } else {
-              payloadSize = 8;
-            }
-          }
-          valueSize += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.cOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            if (payload === 0n) {
-              payloadSize = 0;
-            } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
-            } else {
-              payloadSize = 8;
-            }
-          }
-          valueSize += fieldHeaderSize(34n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.dOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              const zigzag = zigzagEncode(payload);
-              if (zigzag === 0n) {
-                payloadSize = 0;
-              } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
-              } else {
-                payloadSize = 8;
-              }
-            }
-          }
-          valueSize += fieldHeaderSize(35n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.eOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            if (payload) {
-              payloadSize = 1;
-            } else {
-              payloadSize = 0;
-            }
-          }
-          valueSize += fieldHeaderSize(36n, payloadSize, true) + payloadSize;
-        }
-
-        {
-          const payload = value.fOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = payload.byteLength;
-          }
-          valueSize += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.gOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-          }
-          valueSize += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.hOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadSize = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
-                } else {
-                  payloadSize = 8;
-                }
-              }
-            }
-          }
-          valueSize += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.iOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            payloadSize = 8 * payload.length;
-          }
-          valueSize += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.jOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-          }
-          valueSize += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.kOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-          }
-          valueSize += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.lOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-          }
-          valueSize += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.mOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-          }
-          valueSize += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.nOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-          }
-          valueSize += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.oOptional;
-          if (payload === undefined) {
-            payloadSize = 0;
-          } else {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
-                    const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadSize = arraySize;
-                }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-          }
-          valueSize += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
-        }
-
-        return valueSize;
-      }
-
-      export function serialize(
-        dataView: DataView,
-        offset: number,
-        value: FooOut,
-      ): number {
-        let payloadSize = 0;
-
-        {
-          const payload = value.aRequired;
-          payloadSize = 0;
-          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-        }
-
-        {
-          const payload = value.bRequired;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
-            payloadSize = 0;
-          } else {
-            payloadSize = 8;
-          }
-          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-          if (payloadSize !== 0) {
-            dataView.setFloat64(offset, payload, true);
-          }
-        }
-
-        {
-          const payload = value.cRequired;
-          if (payload === 0n) {
-            payloadSize = 0;
-          } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
-          } else {
-            payloadSize = 8;
-          }
-          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
-          {
-            const varint = payload;
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.dRequired;
-          {
-            const zigzag = zigzagEncode(payload);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
-            }
-          }
-          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
-          {
-            const varint = zigzagEncode(payload);
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.eRequired;
-          if (payload) {
-            payloadSize = 1;
-          } else {
-            payloadSize = 0;
-          }
-          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
-          {
-            const varint = payload ? 1n : 0n;
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.fRequired;
-          payloadSize = payload.byteLength;
-          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
-          {
-            const buffer = new Uint8Array(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
-        }
-
-        {
-          const payload = value.gRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
-          {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
-        }
-
-        {
-          const payload = value.hRequired;
-          {
-            const oldPayload = payload;
-            {
-              const payload = BigInt(oldPayload.length);
-              if (payload === 0n) {
-                payloadSize = 0;
-              } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
-              } else {
-                payloadSize = 8;
-              }
-            }
-          }
-          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-          {
-            const varint = BigInt(payload.length);
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.iRequired;
-          payloadSize = 8 * payload.length;
-          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = 8;
-              dataView.setFloat64(offset, payload, true);
-            }
-          }
-        }
-
-        {
-          const payload = value.jRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = varintSizeFromValue(payload);
-              {
-                const varint = payload;
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.kRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              {
-                const varint = zigzagEncode(payload);
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.lRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = 1;
-              {
-                const varint = payload ? 1n : 0n;
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.mRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = payload.byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-              {
-                const buffer = new Uint8Array(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.nRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = textEncoder.encode(payload).byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-              {
-                const buffer = textEncoder.encode(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.oRequired;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              {
-                let arraySize = 0;
-                const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
-                  const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                }
-                payloadSize = arraySize;
-              }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              {
-                let arraySize = 0;
-                const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
-                  const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                }
-                payloadSize = arraySize;
-              }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-              {
-                const oldPayload = payload;
-                for (const payload of oldPayload) {
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                  offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.aAsymmetric;
-          payloadSize = 0;
-          offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
-        }
-
-        {
-          const payload = value.bAsymmetric;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
-            payloadSize = 0;
-          } else {
-            payloadSize = 8;
-          }
-          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
-          if (payloadSize !== 0) {
-            dataView.setFloat64(offset, payload, true);
-          }
-        }
-
-        {
-          const payload = value.cAsymmetric;
-          if (payload === 0n) {
-            payloadSize = 0;
-          } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
-          } else {
-            payloadSize = 8;
-          }
-          offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, true);
-          {
-            const varint = payload;
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.dAsymmetric;
-          {
-            const zigzag = zigzagEncode(payload);
-            if (zigzag === 0n) {
-              payloadSize = 0;
-            } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
-            } else {
-              payloadSize = 8;
-            }
-          }
-          offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, true);
-          {
-            const varint = zigzagEncode(payload);
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.eAsymmetric;
-          if (payload) {
-            payloadSize = 1;
-          } else {
-            payloadSize = 0;
-          }
-          offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, true);
-          {
-            const varint = payload ? 1n : 0n;
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.fAsymmetric;
-          payloadSize = payload.byteLength;
-          offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
-          {
-            const buffer = new Uint8Array(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
-        }
-
-        {
-          const payload = value.gAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
-          {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
-          }
-        }
-
-        {
-          const payload = value.hAsymmetric;
-          {
-            const oldPayload = payload;
-            {
-              const payload = BigInt(oldPayload.length);
-              if (payload === 0n) {
-                payloadSize = 0;
-              } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
-              } else {
-                payloadSize = 8;
-              }
-            }
-          }
-          offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
-          {
-            const varint = BigInt(payload.length);
-            if (varint > 567_382_630_219_903n) {
-              dataView.setBigUint64(offset, varint, true);
-              offset += 8;
-            } else if (varint !== 0n) {
-              offset = serializeVarint(dataView, offset, varint);
-            }
-          }
-        }
-
-        {
-          const payload = value.iAsymmetric;
-          payloadSize = 8 * payload.length;
-          offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = 8;
-              dataView.setFloat64(offset, payload, true);
-            }
-          }
-        }
-
-        {
-          const payload = value.jAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = varintSizeFromValue(payload);
-              {
-                const varint = payload;
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.kAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              {
-                const varint = zigzagEncode(payload);
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.lAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 27n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = 1;
-              {
-                const varint = payload ? 1n : 0n;
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.mAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = payload.byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-              {
-                const buffer = new Uint8Array(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.nAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              payloadSize = textEncoder.encode(payload).byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-              {
-                const buffer = textEncoder.encode(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.oAsymmetric;
-          {
-            let arraySize = 0;
-            const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
-              const payload = oldPayload[i];
-              let payloadSize = 0;
-              {
-                let arraySize = 0;
-                const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
-                  const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                }
-                payloadSize = arraySize;
-              }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-            }
-            payloadSize = arraySize;
-          }
-          offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, false);
-          {
-            const oldPayload = payload;
-            for (const payload of oldPayload) {
-              {
-                let arraySize = 0;
-                const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
-                  const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                }
-                payloadSize = arraySize;
-              }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-              {
-                const oldPayload = payload;
-                for (const payload of oldPayload) {
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                  offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.aOptional;
-          if (payload !== undefined) {
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, false);
-          }
-        }
-
-        {
-          const payload = value.bOptional;
-          if (payload !== undefined) {
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
-              payloadSize = 0;
-            } else {
-              payloadSize = 8;
-            }
-            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
-            if (payloadSize !== 0) {
-              dataView.setFloat64(offset, payload, true);
-            }
-          }
-        }
-
-        {
-          const payload = value.cOptional;
-          if (payload !== undefined) {
-            if (payload === 0n) {
-              payloadSize = 0;
-            } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
-            } else {
-              payloadSize = 8;
-            }
-            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, true);
-            {
-              const varint = payload;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.dOptional;
-          if (payload !== undefined) {
-            {
-              const zigzag = zigzagEncode(payload);
-              if (zigzag === 0n) {
-                payloadSize = 0;
-              } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
-              } else {
-                payloadSize = 8;
-              }
-            }
-            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, true);
-            {
-              const varint = zigzagEncode(payload);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.eOptional;
-          if (payload !== undefined) {
-            if (payload) {
-              payloadSize = 1;
-            } else {
-              payloadSize = 0;
-            }
-            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, true);
-            {
-              const varint = payload ? 1n : 0n;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.fOptional;
-          if (payload !== undefined) {
-            payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
-            {
-              const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
-          const payload = value.gOptional;
-          if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
-            {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
-            }
-          }
-        }
-
-        {
-          const payload = value.hOptional;
-          if (payload !== undefined) {
-            {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadSize = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
-                } else {
-                  payloadSize = 8;
-                }
-              }
-            }
-            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
-            {
-              const varint = BigInt(payload.length);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.iOptional;
-          if (payload !== undefined) {
-            payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = 8;
-                dataView.setFloat64(offset, payload, true);
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.jOptional;
-          if (payload !== undefined) {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(payload);
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.kOptional;
-          if (payload !== undefined) {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.lOptional;
-          if (payload !== undefined) {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = 1;
-                {
-                  const varint = payload ? 1n : 0n;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.mOptional;
-          if (payload !== undefined) {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = payload.byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                {
-                  const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.nOptional;
-          if (payload !== undefined) {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                payloadSize = textEncoder.encode(payload).byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                {
-                  const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
-                }
-              }
-            }
-          }
-        }
-
-        {
-          const payload = value.oOptional;
-          if (payload !== undefined) {
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
-                const payload = oldPayload[i];
-                let payloadSize = 0;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
-                    const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadSize = arraySize;
-                }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadSize = arraySize;
-            }
-            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (const payload of oldPayload) {
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
-                    const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadSize = arraySize;
-                }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                {
-                  const oldPayload = payload;
-                  for (const payload of oldPayload) {
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
-                    offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        return offset;
-      }
-
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, FooIn] {
-        let aRequiredField, bRequiredField, cRequiredField, dRequiredField, eRequiredField, fRequiredField, gRequiredField, hRequiredField, iRequiredField, jRequiredField, kRequiredField, lRequiredField, mRequiredField, nRequiredField, oRequiredField, aAsymmetricField, bAsymmetricField, cAsymmetricField, dAsymmetricField, eAsymmetricField, fAsymmetricField, gAsymmetricField, hAsymmetricField, iAsymmetricField, jAsymmetricField, kAsymmetricField, lAsymmetricField, mAsymmetricField, nAsymmetricField, oAsymmetricField, aOptionalField, bOptionalField, cOptionalField, dOptionalField, eOptionalField, fOptionalField, gOptionalField, hOptionalField, iOptionalField, jOptionalField, kOptionalField, lOptionalField, mOptionalField, nOptionalField, oOptionalField;
-
-        while (true) {
-          let index, payloadSize;
-          try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
-          } catch (e) {
-            if (e instanceof RangeError) {
-              break;
-            } else {
-              throw e;
-            }
-          }
-          switch (index) {
-            case 0n: {
-              break;
-            }
-            case 1n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0;
-                    break;
-                  default:
-                    payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    break;
-                }
-              }
-              bRequiredField = payload;
-              break;
-            }
-            case 2n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0n;
-                    break;
-                  case 8:
-                    payload = dataView.getBigUint64(offset, true);
-                    offset += 8;
-                    break;
-                  default:
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    break;
-                }
-              }
-              cRequiredField = payload;
-              break;
-            }
-            case 3n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0n;
-                    break;
-                  case 8:
-                    payload = dataView.getBigUint64(offset, true);
-                    offset += 8;
-                    break;
-                  default:
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    break;
-                }
-              }
-              payload = zigzagDecode(payload);
-              dRequiredField = payload;
-              break;
-            }
-            case 4n: {
-              let payload;
-              {
-                let newPayload;
-                {
-                  let payload;
-                  {
-                    switch (payloadSize) {
-                      case 0:
-                        payload = 0n;
-                        break;
-                      case 8:
-                        payload = dataView.getBigUint64(offset, true);
-                        offset += 8;
-                        break;
-                      default:
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        break;
-                    }
-                  }
-                  newPayload = payload !== 0n;
-                }
-                payload = newPayload;
-              }
-              eRequiredField = payload;
-              break;
-            }
-            case 5n: {
-              let payload = dataView.buffer.slice(
-                dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
-              );
-              offset += payloadSize;
-              fRequiredField = payload;
-              break;
-            }
-            case 6n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              gRequiredField = payload;
-              break;
-            }
-            case 7n: {
-              let payload;
-              {
-                let newPayload;
-                const payloadSize: number = 0;
-                {
-                  let payload;
-                  {
-                    switch (payloadSize) {
-                      case 0:
-                        payload = 0n;
-                        break;
-                      case 8:
-                        payload = dataView.getBigUint64(offset, true);
-                        offset += 8;
-                        break;
-                      default:
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        break;
-                    }
-                  }
-                  newPayload = Array(Number(payload)).fill(undefined);
-                }
-                payload = newPayload;
-              }
-              hRequiredField = payload;
-              break;
-            }
-            case 8n: {
-              let payload: number[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              iRequiredField = payload;
-              break;
-            }
-            case 9n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              jRequiredField = payload;
-              break;
-            }
-            case 10n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              kRequiredField = payload;
-              break;
-            }
-            case 11n: {
-              let payload: boolean[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    {
-                      let newPayload;
-                      {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
-                      }
-                      payload = newPayload;
-                    }
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              lRequiredField = payload;
-              break;
-            }
-            case 12n: {
-              let payload: ArrayBuffer[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(
-                      dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
-                    );
-                    offset += payloadSize;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              mRequiredField = payload;
-              break;
-            }
-            case 13n: {
-              let payload: string[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(
-                      dataView.buffer.slice(
-                        dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
-                      ),
-                    );
-                    offset += payloadSize;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              nRequiredField = payload;
-              break;
-            }
-            case 14n: {
-              let payload: Degenerate.Types.EmptyStructIn[][] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload: Degenerate.Types.EmptyStructIn[] = [];
-                    {
-                      let payloadAlias = payload;
-                      {
-                        while (true) {
-                          let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
-                          payloadAlias.push(payload);
-                        }
-                      }
-                    }
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              oRequiredField = payload;
-              break;
-            }
-            case 16n: {
-              break;
-            }
-            case 17n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0;
-                    break;
-                  default:
-                    payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    break;
-                }
-              }
-              bAsymmetricField = payload;
-              break;
-            }
-            case 18n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0n;
-                    break;
-                  case 8:
-                    payload = dataView.getBigUint64(offset, true);
-                    offset += 8;
-                    break;
-                  default:
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    break;
-                }
-              }
-              cAsymmetricField = payload;
-              break;
-            }
-            case 19n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0n;
-                    break;
-                  case 8:
-                    payload = dataView.getBigUint64(offset, true);
-                    offset += 8;
-                    break;
-                  default:
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    break;
-                }
-              }
-              payload = zigzagDecode(payload);
-              dAsymmetricField = payload;
-              break;
-            }
-            case 20n: {
-              let payload;
-              {
-                let newPayload;
-                {
-                  let payload;
-                  {
-                    switch (payloadSize) {
-                      case 0:
-                        payload = 0n;
-                        break;
-                      case 8:
-                        payload = dataView.getBigUint64(offset, true);
-                        offset += 8;
-                        break;
-                      default:
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        break;
-                    }
-                  }
-                  newPayload = payload !== 0n;
-                }
-                payload = newPayload;
-              }
-              eAsymmetricField = payload;
-              break;
-            }
-            case 21n: {
-              let payload = dataView.buffer.slice(
-                dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
-              );
-              offset += payloadSize;
-              fAsymmetricField = payload;
-              break;
-            }
-            case 22n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              gAsymmetricField = payload;
-              break;
-            }
-            case 23n: {
-              let payload;
-              {
-                let newPayload;
-                const payloadSize: number = 0;
-                {
-                  let payload;
-                  {
-                    switch (payloadSize) {
-                      case 0:
-                        payload = 0n;
-                        break;
-                      case 8:
-                        payload = dataView.getBigUint64(offset, true);
-                        offset += 8;
-                        break;
-                      default:
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        break;
-                    }
-                  }
-                  newPayload = Array(Number(payload)).fill(undefined);
-                }
-                payload = newPayload;
-              }
-              hAsymmetricField = payload;
-              break;
-            }
-            case 24n: {
-              let payload: number[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              iAsymmetricField = payload;
-              break;
-            }
-            case 25n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              jAsymmetricField = payload;
-              break;
-            }
-            case 26n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              kAsymmetricField = payload;
-              break;
-            }
-            case 27n: {
-              let payload: boolean[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    {
-                      let newPayload;
-                      {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
-                      }
-                      payload = newPayload;
-                    }
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              lAsymmetricField = payload;
-              break;
-            }
-            case 28n: {
-              let payload: ArrayBuffer[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(
-                      dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
-                    );
-                    offset += payloadSize;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              mAsymmetricField = payload;
-              break;
-            }
-            case 29n: {
-              let payload: string[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(
-                      dataView.buffer.slice(
-                        dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
-                      ),
-                    );
-                    offset += payloadSize;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              nAsymmetricField = payload;
-              break;
-            }
-            case 30n: {
-              let payload: Degenerate.Types.EmptyStructIn[][] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload: Degenerate.Types.EmptyStructIn[] = [];
-                    {
-                      let payloadAlias = payload;
-                      {
-                        while (true) {
-                          let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
-                          payloadAlias.push(payload);
-                        }
-                      }
-                    }
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              oAsymmetricField = payload;
-              break;
-            }
-            case 32n: {
-              break;
-            }
-            case 33n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0;
-                    break;
-                  default:
-                    payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    break;
-                }
-              }
-              bOptionalField = payload;
-              break;
-            }
-            case 34n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0n;
-                    break;
-                  case 8:
-                    payload = dataView.getBigUint64(offset, true);
-                    offset += 8;
-                    break;
-                  default:
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    break;
-                }
-              }
-              cOptionalField = payload;
-              break;
-            }
-            case 35n: {
-              let payload;
-              {
-                switch (payloadSize) {
-                  case 0:
-                    payload = 0n;
-                    break;
-                  case 8:
-                    payload = dataView.getBigUint64(offset, true);
-                    offset += 8;
-                    break;
-                  default:
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    break;
-                }
-              }
-              payload = zigzagDecode(payload);
-              dOptionalField = payload;
-              break;
-            }
-            case 36n: {
-              let payload;
-              {
-                let newPayload;
-                {
-                  let payload;
-                  {
-                    switch (payloadSize) {
-                      case 0:
-                        payload = 0n;
-                        break;
-                      case 8:
-                        payload = dataView.getBigUint64(offset, true);
-                        offset += 8;
-                        break;
-                      default:
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        break;
-                    }
-                  }
-                  newPayload = payload !== 0n;
-                }
-                payload = newPayload;
-              }
-              eOptionalField = payload;
-              break;
-            }
-            case 37n: {
-              let payload = dataView.buffer.slice(
-                dataView.byteOffset + offset,
-                dataView.byteOffset + offset + payloadSize,
-              );
-              offset += payloadSize;
-              fOptionalField = payload;
-              break;
-            }
-            case 38n: {
-              let payload = textDecoder.decode(
-                dataView.buffer.slice(
-                  dataView.byteOffset + offset,
-                  dataView.byteOffset + offset + payloadSize,
-                ),
-              );
-              offset += payloadSize;
-              gOptionalField = payload;
-              break;
-            }
-            case 39n: {
-              let payload;
-              {
-                let newPayload;
-                const payloadSize: number = 0;
-                {
-                  let payload;
-                  {
-                    switch (payloadSize) {
-                      case 0:
-                        payload = 0n;
-                        break;
-                      case 8:
-                        payload = dataView.getBigUint64(offset, true);
-                        offset += 8;
-                        break;
-                      default:
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        break;
-                    }
-                  }
-                  newPayload = Array(Number(payload)).fill(undefined);
-                }
-                payload = newPayload;
-              }
-              hOptionalField = payload;
-              break;
-            }
-            case 40n: {
-              let payload: number[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              iOptionalField = payload;
-              break;
-            }
-            case 41n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              jOptionalField = payload;
-              break;
-            }
-            case 42n: {
-              let payload: bigint[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              kOptionalField = payload;
-              break;
-            }
-            case 43n: {
-              let payload: boolean[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payload;
-                    {
-                      let newPayload;
-                      {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
-                      }
-                      payload = newPayload;
-                    }
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              lOptionalField = payload;
-              break;
-            }
-            case 44n: {
-              let payload: ArrayBuffer[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = dataView.buffer.slice(
-                      dataView.byteOffset + offset,
-                      dataView.byteOffset + offset + payloadSize,
-                    );
-                    offset += payloadSize;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              mOptionalField = payload;
-              break;
-            }
-            case 45n: {
-              let payload: string[] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload = textDecoder.decode(
-                      dataView.buffer.slice(
-                        dataView.byteOffset + offset,
-                        dataView.byteOffset + offset + payloadSize,
-                      ),
-                    );
-                    offset += payloadSize;
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              nOptionalField = payload;
-              break;
-            }
-            case 46n: {
-              let payload: Degenerate.Types.EmptyStructIn[][] = [];
-              {
-                let payloadAlias = payload;
-                {
-                  while (true) {
-                    let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                    const payloadSize = Number(payloadSizeBig);
-                    let payload: Degenerate.Types.EmptyStructIn[] = [];
-                    {
-                      let payloadAlias = payload;
-                      {
-                        while (true) {
-                          let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataView, offset);
-                          const payloadSize = Number(payloadSizeBig);
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
-                          payloadAlias.push(payload);
-                        }
-                      }
-                    }
-                    payloadAlias.push(payload);
-                  }
-                }
-              }
-              oOptionalField = payload;
-              break;
-            }
-            default:
-              offset += payloadSize;
-              break;
-          }
-        }
-
-        if (bRequiredField === undefined || cRequiredField === undefined || dRequiredField === undefined || eRequiredField === undefined || fRequiredField === undefined || gRequiredField === undefined || hRequiredField === undefined || iRequiredField === undefined || jRequiredField === undefined || kRequiredField === undefined || lRequiredField === undefined || mRequiredField === undefined || nRequiredField === undefined || oRequiredField === undefined) {
-          throw new Error('Struct missing one or more field(s).');
-        }
-
-        return [
-          offset,
-          {
-            aRequired: aRequiredField,
-            bRequired: bRequiredField,
-            cRequired: cRequiredField,
-            dRequired: dRequiredField,
-            eRequired: eRequiredField,
-            fRequired: fRequiredField,
-            gRequired: gRequiredField,
-            hRequired: hRequiredField,
-            iRequired: iRequiredField,
-            jRequired: jRequiredField,
-            kRequired: kRequiredField,
-            lRequired: lRequiredField,
-            mRequired: mRequiredField,
-            nRequired: nRequiredField,
-            oRequired: oRequiredField,
-            aAsymmetric: aAsymmetricField,
-            bAsymmetric: bAsymmetricField,
-            cAsymmetric: cAsymmetricField,
-            dAsymmetric: dAsymmetricField,
-            eAsymmetric: eAsymmetricField,
-            fAsymmetric: fAsymmetricField,
-            gAsymmetric: gAsymmetricField,
-            hAsymmetric: hAsymmetricField,
-            iAsymmetric: iAsymmetricField,
-            jAsymmetric: jAsymmetricField,
-            kAsymmetric: kAsymmetricField,
-            lAsymmetric: lAsymmetricField,
-            mAsymmetric: mAsymmetricField,
-            nAsymmetric: nAsymmetricField,
-            oAsymmetric: oAsymmetricField,
-            aOptional: aOptionalField,
-            bOptional: bOptionalField,
-            cOptional: cOptionalField,
-            dOptional: dOptionalField,
-            eOptional: eOptionalField,
-            fOptional: fOptionalField,
-            gOptional: gOptionalField,
-            hOptional: hOptionalField,
-            iOptional: iOptionalField,
-            jOptional: jOptionalField,
-            kOptional: kOptionalField,
-            lOptional: lOptionalField,
-            mOptional: mOptionalField,
-            nOptional: nOptionalField,
-            oOptional: oOptionalField,
-          }
-        ];
-      }
-
-      export function outToIn(value: FooOut): FooIn {
-        return value;
-      }
-    }
-  }
-
-  export namespace Types {
-    export type FooAndBarOut = {
-      x: Comprehensive.Foo.FooOut;
-      y: Comprehensive.Bar.BarOut;
-    };
-
-    export type FooAndBarIn = {
-      x: Comprehensive.Foo.FooIn;
-      y: Comprehensive.Bar.BarIn;
-    };
-
-    export namespace FooAndBar {
-      export function size(value: FooAndBarOut): number {
-        let valueSize = 0;
-        let payloadSize = 0;
-
-        {
-          const payload = value.x;
-          payloadSize = Comprehensive.Foo.Foo.size(payload);
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
-        }
-
-        {
-          const payload = value.y;
-          payloadSize = Comprehensive.Bar.Bar.size(payload);
-          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
-        }
-
-        return valueSize;
-      }
-
-      export function serialize(
-        dataView: DataView,
-        offset: number,
-        value: FooAndBarOut,
-      ): number {
-        let payloadSize = 0;
-
-        {
-          const payload = value.x;
-          payloadSize = Comprehensive.Foo.Foo.size(payload);
-          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-          offset = Comprehensive.Foo.Foo.serialize(dataView, offset, payload);
-        }
-
-        {
-          const payload = value.y;
-          payloadSize = Comprehensive.Bar.Bar.size(payload);
-          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-          offset = Comprehensive.Bar.Bar.serialize(dataView, offset, payload);
-        }
-
-        return offset;
-      }
-
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, FooAndBarIn] {
-        let xField, yField;
-
-        while (true) {
-          let index, payloadSize;
-          try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
-          } catch (e) {
-            if (e instanceof RangeError) {
-              break;
-            } else {
-              throw e;
-            }
-          }
-          switch (index) {
-            case 0n: {
-              let payload;
-              [offset, payload] = Comprehensive.Foo.Foo.deserialize(dataView, offset);
-              xField = payload;
-              break;
-            }
-            case 1n: {
-              let payload;
-              [offset, payload] = Comprehensive.Bar.Bar.deserialize(dataView, offset);
-              yField = payload;
-              break;
-            }
-            default:
-              offset += payloadSize;
-              break;
-          }
-        }
-
-        if (xField === undefined || yField === undefined) {
-          throw new Error('Struct missing one or more field(s).');
-        }
-
-        return [
-          offset,
-          {
-            x: xField,
-            y: yField,
-          }
-        ];
-      }
-
-      export function outToIn(value: FooAndBarOut): FooAndBarIn {
-        return value;
-      }
-    }
-
-    export type FooOrBarOut =
-      | { field: 'x'; value: Comprehensive.Foo.FooOut }
-      | { field: 'y'; value: Comprehensive.Bar.BarOut };
-
-    export type FooOrBarIn =
-      | { field: 'x'; value: Comprehensive.Foo.FooIn }
-      | { field: 'y'; value: Comprehensive.Bar.BarIn };
-
-    export namespace FooOrBar {
-      export function size(value: FooOrBarOut): number {
-        let payloadSize = 0;
-
-        switch (value.field) {
-          case 'x': {
-            const payload = value.value;
-            payloadSize = Comprehensive.Foo.Foo.size(payload);
-            return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
-          }
-          case 'y': {
-            const payload = value.value;
-            payloadSize = Comprehensive.Bar.Bar.size(payload);
-            return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
-          }
-          default:
-            return unreachable(value);
-        }
-      }
-
-      export function serialize(
-        dataView: DataView,
-        offset: number,
-        value: FooOrBarOut,
-      ): number {
-        let payloadSize = 0;
-
-        switch (value.field) {
-          case 'x': {
-            const payload = value.value;
-            payloadSize = Comprehensive.Foo.Foo.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-            offset = Comprehensive.Foo.Foo.serialize(dataView, offset, payload);
-            return offset;
-          }
-          case 'y': {
-            const payload = value.value;
-            payloadSize = Comprehensive.Bar.Bar.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-            offset = Comprehensive.Bar.Bar.serialize(dataView, offset, payload);
-            return offset;
-          }
-          default:
-            return unreachable(value);
-        }
-      }
-
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, FooOrBarIn] {
-        while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataView, offset);
-          offset = newOffset;
-          switch (index) {
-            case 0n: {
-              let payload;
-              [offset, payload] = Comprehensive.Foo.Foo.deserialize(dataView, offset);
-              return [
-                offset,
-                {
-                  field: 'x',
-                  value: payload,
-                },
-              ];
-            }
-            case 1n: {
-              let payload;
-              [offset, payload] = Comprehensive.Bar.Bar.deserialize(dataView, offset);
-              return [
-                offset,
-                {
-                  field: 'y',
-                  value: payload,
-                },
-              ];
-            }
-            default:
-              offset += payloadSize;
-              break;
-          }
-        }
-      }
-
-      export function outToIn(value: FooOrBarOut): FooOrBarIn {
         return value;
       }
     }
