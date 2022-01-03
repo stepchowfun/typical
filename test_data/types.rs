@@ -147,9 +147,9 @@ fn field_header_size(index: u64, payload_size: usize, integer_encoded: bool) -> 
         8 => varint_size_from_value((index << 2) | 0b01),
         size => {
             if integer_encoded {
-                varint_size_from_value((index << 2) | 0b11)
+                varint_size_from_value((index << 2) | 0b10)
             } else {
-                varint_size_from_value((index << 2) | 0b10) + varint_size_from_value(size as u64)
+                varint_size_from_value((index << 2) | 0b11) + varint_size_from_value(size as u64)
             }
         }
     }
@@ -166,9 +166,9 @@ fn serialize_field_header<T: Write>(
         8 => serialize_varint((index << 2) | 0b01, writer),
         size => {
             if integer_encoded {
-                serialize_varint((index << 2) | 0b11, writer)
+                serialize_varint((index << 2) | 0b10, writer)
             } else {
-                serialize_varint((index << 2) | 0b10, writer)?;
+                serialize_varint((index << 2) | 0b11, writer)?;
                 serialize_varint(size as u64, writer)
             }
         }
@@ -183,8 +183,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, usiz
     let size = match tag & 0b11 {
         0b00 => 0,
         0b01 => 8,
-        0b10 => deserialize_varint(&mut *reader)? as usize,
-        _ => {
+        0b10 => {
             let buffer = (&mut *reader).fill_buf()?;
 
             if buffer.is_empty() {
@@ -196,6 +195,7 @@ fn deserialize_field_header<T: BufRead>(reader: &mut T) -> io::Result<(u64, usiz
 
             varint_size_from_first_byte(buffer[0]) as usize
         }
+        _ => deserialize_varint(&mut *reader)? as usize,
     };
 
     Ok((index, size))
