@@ -1,20 +1,20 @@
-import { Comprehensive, Degenerate } from '../generated/types';
-import { assertMatch, assertRoundTrip } from './assertions';
-
-assertMatch(
-  Comprehensive.Types.Bar.size,
-  Comprehensive.Types.Bar.serialize,
-  Comprehensive.Types.Bar.deserialize,
-  { field: 'aRequired' },
-  { field: 'aRequired' },
-);
+import runCircularDependency from './circular-dependency';
+import runComprehensive from './comprehensive';
+import runDegenerate from './degenerate';
+import runSchemaEvolution from './schema-evolution';
 
 // eslint-disable-next-line no-console
-console.log();
+console.log('Running circular dependency integration test\u2026\n');
+runCircularDependency();
 
-assertRoundTrip(
-  Degenerate.Types.EmptyStruct.size,
-  Degenerate.Types.EmptyStruct.serialize,
-  Degenerate.Types.EmptyStruct.deserialize,
-  {},
-);
+// eslint-disable-next-line no-console
+console.log('\nRunning comprehensive integration test\u2026\n');
+runComprehensive();
+
+// eslint-disable-next-line no-console
+console.log('\nRunning degenerate integration test\u2026\n');
+runDegenerate();
+
+// eslint-disable-next-line no-console
+console.log('\nRunning schema evolution integration test\u2026\n');
+runSchemaEvolution();

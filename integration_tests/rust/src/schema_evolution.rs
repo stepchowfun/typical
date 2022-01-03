@@ -71,6 +71,8 @@ pub fn run() -> io::Result<()> {
         },
     )?;
 
+    println!();
+
     let fallback_before =
         before::ExampleChoiceOut::RequiredToRequired("RequiredToRequired".to_owned());
     let fallback_after =
