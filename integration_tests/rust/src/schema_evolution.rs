@@ -1,6 +1,6 @@
 use {
     crate::{
-        round_trip::check_ok,
+        assertions::assert_match,
         types::schema_evolution::{
             after, before,
             types::{SingletonChoiceIn, SingletonChoiceOut, SingletonStructIn, SingletonStructOut},
@@ -9,110 +9,166 @@ use {
     std::io,
 };
 
+#[allow(clippy::too_many_lines)]
 pub fn run() -> io::Result<()> {
-    check_ok::<before::ExampleStructOut, after::ExampleStructIn>(&before::ExampleStructOut {
-        required_to_required: "required_to_required".to_owned(),
-        required_to_asymmetric: "required_to_asymmetric".to_owned(),
-        required_to_optional: "required_to_optional".to_owned(),
-        required_to_nonexistent: "required_to_nonexistent".to_owned(),
-        asymmetric_to_required: "asymmetric_to_required".to_owned(),
-        asymmetric_to_asymmetric: "asymmetric_to_asymmetric".to_owned(),
-        asymmetric_to_optional: "asymmetric_to_optional".to_owned(),
-        asymmetric_to_nonexistent: "asymmetric_to_nonexistent".to_owned(),
-        optional_none_to_asymmetric: None,
-        optional_none_to_optional: None,
-        optional_none_to_nonexistent: None,
-        optional_some_to_required: Some("optional_some_to_required".to_owned()),
-        optional_some_to_asymmetric: Some("optional_some_to_asymmetric".to_owned()),
-        optional_some_to_optional: Some("optional_some_to_optional".to_owned()),
-        optional_some_to_nonexistent: Some("optional_some_to_nonexistent".to_owned()),
-    })?;
+    assert_match::<before::ExampleStructOut, after::ExampleStructIn>(
+        &before::ExampleStructOut {
+            required_to_required: "required_to_required".to_owned(),
+            required_to_asymmetric: "required_to_asymmetric".to_owned(),
+            required_to_optional: "required_to_optional".to_owned(),
+            required_to_nonexistent: "required_to_nonexistent".to_owned(),
+            asymmetric_to_required: "asymmetric_to_required".to_owned(),
+            asymmetric_to_asymmetric: "asymmetric_to_asymmetric".to_owned(),
+            asymmetric_to_optional: "asymmetric_to_optional".to_owned(),
+            asymmetric_to_nonexistent: "asymmetric_to_nonexistent".to_owned(),
+            optional_to_required: Some("optional_to_required".to_owned()),
+            optional_to_asymmetric: None,
+            optional_to_optional: None,
+            optional_to_nonexistent: None,
+        },
+        &after::ExampleStructIn {
+            required_to_required: "required_to_required".to_owned(),
+            required_to_asymmetric: Some("required_to_asymmetric".to_owned()),
+            required_to_optional: Some("required_to_optional".to_owned()),
+            asymmetric_to_required: "asymmetric_to_required".to_owned(),
+            asymmetric_to_asymmetric: Some("asymmetric_to_asymmetric".to_owned()),
+            asymmetric_to_optional: Some("asymmetric_to_optional".to_owned()),
+            optional_to_required: "optional_to_required".to_owned(),
+            optional_to_asymmetric: None,
+            optional_to_optional: None,
+            nonexistent_to_asymmetric: None,
+            nonexistent_to_optional: None,
+        },
+    )?;
 
-    let fallback = before::ExampleChoiceOut::RequiredToRequired("RequiredToRequired".to_owned());
+    assert_match::<before::ExampleStructOut, after::ExampleStructIn>(
+        &before::ExampleStructOut {
+            required_to_required: "required_to_required".to_owned(),
+            required_to_asymmetric: "required_to_asymmetric".to_owned(),
+            required_to_optional: "required_to_optional".to_owned(),
+            required_to_nonexistent: "required_to_nonexistent".to_owned(),
+            asymmetric_to_required: "asymmetric_to_required".to_owned(),
+            asymmetric_to_asymmetric: "asymmetric_to_asymmetric".to_owned(),
+            asymmetric_to_optional: "asymmetric_to_optional".to_owned(),
+            asymmetric_to_nonexistent: "asymmetric_to_nonexistent".to_owned(),
+            optional_to_required: Some("optional_to_required".to_owned()),
+            optional_to_asymmetric: Some("optional_to_asymmetric".to_owned()),
+            optional_to_optional: Some("optional_to_optional".to_owned()),
+            optional_to_nonexistent: Some("optional_to_nonexistent".to_owned()),
+        },
+        &after::ExampleStructIn {
+            required_to_required: "required_to_required".to_owned(),
+            required_to_asymmetric: Some("required_to_asymmetric".to_owned()),
+            required_to_optional: Some("required_to_optional".to_owned()),
+            asymmetric_to_required: "asymmetric_to_required".to_owned(),
+            asymmetric_to_asymmetric: Some("asymmetric_to_asymmetric".to_owned()),
+            asymmetric_to_optional: Some("asymmetric_to_optional".to_owned()),
+            optional_to_required: "optional_to_required".to_owned(),
+            optional_to_asymmetric: Some("optional_to_asymmetric".to_owned()),
+            optional_to_optional: Some("optional_to_optional".to_owned()),
+            nonexistent_to_asymmetric: None,
+            nonexistent_to_optional: None,
+        },
+    )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    let fallback_before =
+        before::ExampleChoiceOut::RequiredToRequired("RequiredToRequired".to_owned());
+    let fallback_after =
+        after::ExampleChoiceIn::RequiredToRequired("RequiredToRequired".to_owned());
+
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::RequiredToRequired("RequiredToRequired".to_owned()),
+        &after::ExampleChoiceIn::RequiredToRequired("RequiredToRequired".to_owned()),
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::RequiredToAsymmetric("RequiredToAsymmetric".to_owned()),
+        &after::ExampleChoiceIn::RequiredToAsymmetric("RequiredToAsymmetric".to_owned()),
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::AsymmetricToRequired(
             "AsymmetricToRequired".to_owned(),
-            Box::new(fallback.clone()),
+            Box::new(fallback_before.clone()),
         ),
+        &after::ExampleChoiceIn::AsymmetricToRequired("AsymmetricToRequired".to_owned()),
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::AsymmetricToAsymmetric(
             "AsymmetricToAsymmetric".to_owned(),
-            Box::new(fallback.clone()),
+            Box::new(fallback_before.clone()),
+        ),
+        &after::ExampleChoiceIn::AsymmetricToAsymmetric("AsymmetricToAsymmetric".to_owned()),
+    )?;
+
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+        &before::ExampleChoiceOut::AsymmetricToOptional(
+            "AsymmetricToOptional".to_owned(),
+            Box::new(fallback_before.clone()),
+        ),
+        &after::ExampleChoiceIn::AsymmetricToOptional(
+            "AsymmetricToOptional".to_owned(),
+            Box::new(fallback_after.clone()),
         ),
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::AsymmetricToOptionalHandled(
-            "AsymmetricToOptionalHandled".to_owned(),
-            Box::new(fallback.clone()),
-        ),
-    )?;
-
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::AsymmetricToOptionalFallback(
-            "AsymmetricToOptionalFallback".to_owned(),
-            Box::new(fallback.clone()),
-        ),
-    )?;
-
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::AsymmetricToNonexistent(
             "AsymmetricToNonexistent".to_owned(),
-            Box::new(fallback.clone()),
+            Box::new(fallback_before.clone()),
         ),
+        &fallback_after,
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::OptionalToRequired(
             "OptionalToRequired".to_owned(),
-            Box::new(fallback.clone()),
+            Box::new(fallback_before.clone()),
         ),
+        &after::ExampleChoiceIn::OptionalToRequired("OptionalToRequired".to_owned()),
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::OptionalToAsymmetric(
             "OptionalToAsymmetric".to_owned(),
-            Box::new(fallback.clone()),
+            Box::new(fallback_before.clone()),
+        ),
+        &after::ExampleChoiceIn::OptionalToAsymmetric("OptionalToAsymmetric".to_owned()),
+    )?;
+
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+        &before::ExampleChoiceOut::OptionalToOptional(
+            "OptionalToOptional".to_owned(),
+            Box::new(fallback_before.clone()),
+        ),
+        &after::ExampleChoiceIn::OptionalToOptional(
+            "OptionalToOptional".to_owned(),
+            Box::new(fallback_after.clone()),
         ),
     )?;
 
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::OptionalToOptionalHandled(
-            "OptionalToOptionalHandled".to_owned(),
-            Box::new(fallback.clone()),
-        ),
-    )?;
-
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
-        &before::ExampleChoiceOut::OptionalToOptionalFallback(
-            "OptionalToOptionalFallback".to_owned(),
-            Box::new(fallback.clone()),
-        ),
-    )?;
-
-    check_ok::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
+    assert_match::<before::ExampleChoiceOut, after::ExampleChoiceIn>(
         &before::ExampleChoiceOut::OptionalToNonexistent(
             "OptionalToNonexistent".to_owned(),
-            Box::new(fallback),
+            Box::new(fallback_before),
         ),
+        &fallback_after,
     )?;
 
-    check_ok::<SingletonStructOut, SingletonChoiceIn>(&SingletonStructOut {
-        x: "foo".to_owned(),
-    })?;
+    assert_match::<SingletonStructOut, SingletonChoiceIn>(
+        &SingletonStructOut {
+            x: "foo".to_owned(),
+        },
+        &SingletonChoiceIn::X("foo".to_owned()),
+    )?;
 
-    check_ok::<SingletonChoiceOut, SingletonStructIn>(&SingletonChoiceOut::X("foo".to_owned()))?;
+    assert_match::<SingletonChoiceOut, SingletonStructIn>(
+        &SingletonChoiceOut::X("foo".to_owned()),
+        &SingletonStructIn {
+            x: "foo".to_owned(),
+        },
+    )?;
 
     Ok(())
 }

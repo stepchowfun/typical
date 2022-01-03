@@ -1,6 +1,6 @@
 use {
     crate::{
-        round_trip::check_match,
+        assertions::assert_round_trip,
         types::circular_dependency::{
             dependency::types::{StructFromBelowIn, StructFromBelowOut},
             types::{StructFromAboveIn, StructFromAboveOut},
@@ -10,9 +10,9 @@ use {
 };
 
 pub fn run() -> io::Result<()> {
-    check_match::<StructFromAboveOut, StructFromAboveIn>(StructFromAboveOut {})?;
+    assert_round_trip::<StructFromAboveOut, StructFromAboveIn>(&StructFromAboveOut {})?;
 
-    check_match::<StructFromBelowOut, StructFromBelowIn>(StructFromBelowOut {
+    assert_round_trip::<StructFromBelowOut, StructFromBelowIn>(&StructFromBelowOut {
         x: StructFromAboveOut {},
     })?;
 

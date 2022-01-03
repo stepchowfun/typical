@@ -1,6 +1,6 @@
 use {
     crate::{
-        round_trip::check_match,
+        assertions::assert_round_trip,
         types::degenerate::types::{EmptyChoiceIn, EmptyChoiceOut, EmptyStructIn, EmptyStructOut},
     },
     std::io,
@@ -25,7 +25,7 @@ fn _terminal_out<T>(_: T) -> EmptyStructOut {
 }
 
 pub fn run() -> io::Result<()> {
-    check_match::<EmptyStructOut, EmptyStructIn>(EmptyStructOut {})?;
+    assert_round_trip::<EmptyStructOut, EmptyStructIn>(&EmptyStructOut {})?;
 
     Ok(())
 }
