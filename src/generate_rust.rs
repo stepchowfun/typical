@@ -520,7 +520,7 @@ fn write_schema<T: Write>(
                     write_supers(buffer, indentation)?;
                     writeln!(
                         buffer,
-                        "field_header_size({}, payload_size, {}) + payload_size",
+                        "field_header_size({}_u64, payload_size, {}) + payload_size",
                         field.index,
                         integer_encoded(&field.r#type),
                     )?;
@@ -566,7 +566,7 @@ fn write_schema<T: Write>(
                     write_supers(buffer, indentation)?;
                     writeln!(
                         buffer,
-                        "serialize_field_header(writer, {}, payload_size, {})?;",
+                        "serialize_field_header(writer, {}_u64, payload_size, {})?;",
                         field.index,
                         integer_encoded(&field.r#type),
                     )?;
@@ -668,7 +668,6 @@ fn write_schema<T: Write>(
                         &field.r#type.variant,
                         true,
                     )?;
-                    writeln!(buffer)?;
                     write_indentation(buffer, indentation + 5)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
                     writeln!(buffer, "_field.get_or_insert(payload);")?;
@@ -866,7 +865,7 @@ fn write_schema<T: Write>(
                     write_supers(buffer, indentation)?;
                     writeln!(
                         buffer,
-                        "field_header_size({}, payload_size, {}) +",
+                        "field_header_size({}_u64, payload_size, {}) +",
                         field.index,
                         integer_encoded(&field.r#type),
                     )?;
@@ -927,7 +926,7 @@ fn write_schema<T: Write>(
                     write_supers(buffer, indentation)?;
                     writeln!(
                         buffer,
-                        "serialize_field_header(writer, {}, payload_size, {})?;",
+                        "serialize_field_header(writer, {}_u64, payload_size, {})?;",
                         field.index,
                         integer_encoded(&field.r#type),
                     )?;
@@ -1680,7 +1679,6 @@ fn write_deserialization_invocation<T: Write>(
             | schema::TypeVariant::String => {
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "let mut payload = Vec::new();")?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1700,14 +1698,12 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(buffer, "break;")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "return Err(err);")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}};")?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(
                     buffer,
@@ -1753,15 +1749,12 @@ fn write_deserialization_invocation<T: Write>(
                     &inner_type.variant,
                     false,
                 )?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "Ok(payload)")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "let mut payload = Vec::new();")?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1782,7 +1775,6 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(buffer, "break;")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "return Err(err);")?;
                 write_indentation(buffer, indentation + 2)?;
