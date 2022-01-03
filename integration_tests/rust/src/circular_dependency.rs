@@ -12,6 +12,8 @@ use {
 pub fn run() -> io::Result<()> {
     assert_round_trip::<StructFromAboveOut, StructFromAboveIn>(&StructFromAboveOut {})?;
 
+    println!();
+
     assert_round_trip::<StructFromBelowOut, StructFromBelowIn>(&StructFromBelowOut {
         x: StructFromAboveOut {},
     })?;
