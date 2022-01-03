@@ -1,6 +1,6 @@
-import '../main.t'
+import '../types.t'
 
 # This struct is imported from above.
 struct StructFromBelow {
-    x: main.StructFromAbove = 0
+    x: types.StructFromAbove = 0
 }

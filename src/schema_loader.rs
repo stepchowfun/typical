@@ -316,6 +316,6 @@ mod tests {
     // This test doesn't work on Windows, for some reason.
     #[test]
     fn load_schemas_example() {
-        load_schemas(Path::new("integration_tests/types/main.t")).unwrap();
+        load_schemas(Path::new("integration_tests/types/types.t")).unwrap();
     }
 }

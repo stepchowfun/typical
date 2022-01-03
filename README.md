@@ -317,7 +317,7 @@ You only need to run Typical on `email_api.t`. The generated code will include t
 
 Import paths are considered relative to the directory containing the schema doing the importing. Typical has no notion of a "top-level" directory on which all paths are based.
 
-A useful convention is to create a `main.t` schema that simply imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. However, these are merely conventions, and Typical has no intrinsic notion of "project".
+A useful convention is to create a `types.t` schema that simply imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. However, these are merely conventions, and Typical has no intrinsic notion of "project".
 
 If you import two schemas with the same name from different directories, you'll need to disambiguate usages of those schemas. Suppose, for example, you attempted the following:
 
@@ -564,10 +564,10 @@ Notice that several types can take advantage of a more compact representation wh
 
 ## Usage
 
-Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `main.t` with the following:
+Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `types.t` with the following:
 
 ```sh
-typical generate main.t --rust types.rs --typescript types.ts
+typical generate types.t --rust types.rs --typescript types.ts
 ```
 
 Here are the supported command-line options:

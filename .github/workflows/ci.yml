@@ -45,6 +45,13 @@ jobs:
     name: Build for Windows
     runs-on: windows-latest
     steps:
+    - run: |
+        # Make Bash not silently ignore errors.
+        set -euo pipefail
+
+        # The unit tests do not expect the files in `test_data` to have carriage returns added.
+        git config --global core.autocrlf false
+        git config --global core.eol lf
     - uses: actions/checkout@v2
     - run: |
         # Make Bash not silently ignore errors.

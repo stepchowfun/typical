@@ -2,8 +2,8 @@ use {
     crate::{
         round_trip::check_match,
         types::circular_dependency::{
-            dependency::main::{StructFromBelowIn, StructFromBelowOut},
-            main::StructFromAboveOut,
+            dependency::types::{StructFromBelowIn, StructFromBelowOut},
+            types::StructFromAboveOut,
         },
     },
     std::io,

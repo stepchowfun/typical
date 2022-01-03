@@ -1,4 +1,4 @@
-import { Comprehensive } from '../generated/types';
+import { Comprehensive, Degenerate } from '../generated/types';
 import { checkOk, checkMatch } from './round-trip';
 
 checkOk(
@@ -12,8 +12,8 @@ checkOk(
 console.log();
 
 checkMatch(
-  Comprehensive.Main.EmptyStruct.size,
-  Comprehensive.Main.EmptyStruct.serialize,
-  Comprehensive.Main.EmptyStruct.deserialize,
+  Degenerate.Types.EmptyStruct.size,
+  Degenerate.Types.EmptyStruct.serialize,
+  Degenerate.Types.EmptyStruct.deserialize,
   {},
 );

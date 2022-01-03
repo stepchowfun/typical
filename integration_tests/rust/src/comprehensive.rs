@@ -1,12 +1,13 @@
 use {
     crate::{
         round_trip::check_match,
-        types::comprehensive::{
-            bar::{BarIn, BarOut},
-            foo::{FooIn, FooOut},
-            main::{
-                EmptyStructIn, EmptyStructOut, FooAndBarIn, FooAndBarOut, FooOrBarIn, FooOrBarOut,
+        types::{
+            comprehensive::{
+                bar::{BarIn, BarOut},
+                foo::{FooIn, FooOut},
+                types::{FooAndBarIn, FooAndBarOut, FooOrBarIn, FooOrBarOut},
             },
+            degenerate::types::{EmptyStructIn, EmptyStructOut},
         },
     },
     std::{f64::consts::PI, io},

@@ -1,0 +1,5 @@
+struct EmptyStruct {
+}
+
+choice EmptyChoice {
+}
