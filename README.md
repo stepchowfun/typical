@@ -169,7 +169,7 @@ However, this advice ignores the reality that some things really are *semantical
 
 ### Asymmetric fields can safely be promoted to required and vice versa
 
-To help you safely add and remove required fields, Typical offers an intermediate state between optional and required: *asymmetric*. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
+To help you safely add and remove required fields, Typical offers an intermediate state between optional and required: *asymmetric*. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can safely be promoted to required and vice versa.
 
 Let's make that more concrete with our email API example. Instead of directly introducing the `from` field as required, we first introduce it as asymmetric:
 
@@ -242,7 +242,7 @@ An optional field of a choice must be paired with a fallback field, which is use
 
 **Note:** An optional field in a choice is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field).
 
-An asymmetric field of a choice must also be paired with a fallback, but the fallback is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can be safely promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
+An asymmetric field of a choice must also be paired with a fallback, but the fallback is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can safely be promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
 
 Consider a more elaborate version of our API response type:
 
@@ -297,7 +297,7 @@ Typical has no notion of a "default" value for each type. This means, for exampl
 
 ## Summary of what kinds of schema changes are safe
 
-Any user-defined type can be safely migrated to any other user-defined type through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
+Any user-defined type can safely be migrated to any other user-defined type through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove optional and asymmetric fields.
@@ -394,7 +394,7 @@ A field consists of an optional rule, a human-readable name, an optional type, a
 
 The rule, if present, is either `optional` or `asymmetric`. The absence of a rule indicates that the field is required.
 
-The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can be safely renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
+The name is a human-readable identifier for the field. It's used to refer to the field in code, but it's never encoded on the wire and can safely be renamed at will. The size of the name doesn't affect the size of the encoded messages, so be as descriptive as you want.
 
 The type, if present, is either a built-in type (e.g., `String`), the name of a user-defined type in the same schema (e.g., `DeviceIpAddress`), or the name of an import and the name of a type from the schema corresponding to that import (e.g., `email.Address`). If the type is missing, it defaults to `Unit`. This can be used to create traditional [enumerated types](https://en.wikipedia.org/wiki/Enumerated_type):
 
@@ -540,8 +540,8 @@ A struct is encoded as the contiguous arrangement of (*header*, *value*) pairs, 
     - The two least significant bits of the tag (not its variable-width encoding) are called the *size mode* and indicate how to compute the size of the value:
       - `0`: The size of the value is 0 bytes.
       - `1`: The size of the value is 8 bytes.
-      - `2`: The value is encoded as a variable-width integer, so its size can be determined from its first byte.
-      - `3`: The size of the value is given by the second part of the header (below).
+      - `2`: The value is encoded as a variable-width integer, so its size can be determined from its first byte. The size of the value is neither 0 nor 8 bytes, since otherwise the size mode would be `0` or `1`, respectively.
+      - `3`: The size of the value is given by the second part of the header (below). It's neither 0 nor 8 bytes, since otherwise the size mode would be `0` or `1`, respectively.
     - The remaining bits of the tag (not its variable-width encoding) represent the index of the field as an unsigned integer.
   - The second part of the header is the size of the value encoded as a variable-width integer. It's only present if the size mode is `3`.
 
