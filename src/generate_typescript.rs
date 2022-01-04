@@ -1275,27 +1275,24 @@ fn write_choice<T: Write>(
         write!(buffer, "| {{ field: '")?;
         write_identifier(buffer, &field.name, Camel, None)?;
         write!(buffer, "'")?;
-        let fallback = match field.rule {
+
+        if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+            write!(buffer, "; value: ")?;
+            write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
+        }
+
+        if match field.rule {
             schema::Rule::Asymmetric => match direction {
                 Direction::In => false,
                 Direction::Out => true,
             },
             schema::Rule::Optional => true,
             schema::Rule::Required => false,
-        };
-        if fallback {
-            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-            } else {
-                write!(buffer, "; value: ")?;
-                write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
-            }
+        } {
             write!(buffer, "; fallback: ")?;
             write_identifier(buffer, name, Pascal, Some(direction))?;
-        } else if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-        } else {
-            write!(buffer, "; value: ")?;
-            write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         }
+
         write!(buffer, " }}")?;
     }
 
