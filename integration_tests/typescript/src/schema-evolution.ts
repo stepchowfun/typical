@@ -49,9 +49,9 @@ export default function run(): void {
       asymmetricToOptional: 'asymmetric_to_optional',
       asymmetricToNonexistent: 'asymmetric_to_nonexistent',
       optionalToRequired: 'optional_to_required',
-      optionalToAsymmetric: 'optionalToAsymmetric',
-      optionalToOptional: 'optionalToOptional',
-      optionalToNonexistent: 'optionalToNonexistent',
+      optionalToAsymmetric: 'optional_to_asymmetric',
+      optionalToOptional: 'optional_to_optional',
+      optionalToNonexistent: 'optional_to_nonexistent',
     },
     {
       requiredToRequired: 'required_to_required',
@@ -61,8 +61,8 @@ export default function run(): void {
       asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
       asymmetricToOptional: 'asymmetric_to_optional',
       optionalToRequired: 'optional_to_required',
-      optionalToAsymmetric: 'optionalToAsymmetric',
-      optionalToOptional: 'optionalToOptional',
+      optionalToAsymmetric: 'optional_to_asymmetric',
+      optionalToOptional: 'optional_to_optional',
       nonexistentToAsymmetric: undefined,
       nonexistentToOptional: undefined,
     },
@@ -73,7 +73,7 @@ export default function run(): void {
 
   const fallback: { field: 'requiredToRequired'; value: string } = {
     field: 'requiredToRequired',
-    value: 'requiredToRequired',
+    value: 'required_to_required',
   };
 
   assertMatch(
@@ -82,11 +82,11 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'requiredToRequired',
-      value: 'requiredToRequired',
+      value: 'required_to_required',
     },
     {
       field: 'requiredToRequired',
-      value: 'requiredToRequired',
+      value: 'required_to_required',
     },
   );
 
@@ -96,11 +96,11 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'requiredToAsymmetric',
-      value: 'requiredToAsymmetric',
+      value: 'required_to_asymmetric',
     },
     {
       field: 'requiredToAsymmetric',
-      value: 'requiredToAsymmetric',
+      value: 'required_to_asymmetric',
     },
   );
 
@@ -110,12 +110,12 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'asymmetricToRequired',
-      value: 'asymmetricToRequired',
+      value: 'asymmetric_to_required',
       fallback,
     },
     {
       field: 'asymmetricToRequired',
-      value: 'asymmetricToRequired',
+      value: 'asymmetric_to_required',
     },
   );
 
@@ -125,12 +125,12 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'asymmetricToAsymmetric',
-      value: 'asymmetricToAsymmetric',
+      value: 'asymmetric_to_asymmetric',
       fallback,
     },
     {
       field: 'asymmetricToAsymmetric',
-      value: 'asymmetricToAsymmetric',
+      value: 'asymmetric_to_asymmetric',
     },
   );
 
@@ -140,12 +140,12 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'asymmetricToOptional',
-      value: 'asymmetricToOptional',
+      value: 'asymmetric_to_optional',
       fallback,
     },
     {
       field: 'asymmetricToOptional',
-      value: 'asymmetricToOptional',
+      value: 'asymmetric_to_optional',
       fallback,
     },
   );
@@ -156,7 +156,7 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'asymmetricToNonexistent',
-      value: 'asymmetricToNonexistent',
+      value: 'asymmetric_to_nonexistent',
       fallback,
     },
     fallback,
@@ -168,12 +168,12 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'optionalToRequired',
-      value: 'optionalToRequired',
+      value: 'optional_to_required',
       fallback,
     },
     {
       field: 'optionalToRequired',
-      value: 'optionalToRequired',
+      value: 'optional_to_required',
     },
   );
 
@@ -183,12 +183,12 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'optionalToAsymmetric',
-      value: 'optionalToAsymmetric',
+      value: 'optional_to_asymmetric',
       fallback,
     },
     {
       field: 'optionalToAsymmetric',
-      value: 'optionalToAsymmetric',
+      value: 'optional_to_asymmetric',
     },
   );
 
@@ -198,12 +198,12 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'optionalToOptional',
-      value: 'optionalToOptional',
+      value: 'optional_to_optional',
       fallback,
     },
     {
       field: 'optionalToOptional',
-      value: 'optionalToOptional',
+      value: 'optional_to_optional',
       fallback,
     },
   );
@@ -214,7 +214,7 @@ export default function run(): void {
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
       field: 'optionalToNonexistent',
-      value: 'optionalToNonexistent',
+      value: 'optional_to_nonexistent',
       fallback,
     },
     fallback,

@@ -10,6 +10,8 @@ mod types;
 use std::io;
 
 fn main() -> io::Result<()> {
+    assertions::start();
+
     println!("Running circular dependency integration test\u{2026}\n");
     circular_dependency::run()?;
 

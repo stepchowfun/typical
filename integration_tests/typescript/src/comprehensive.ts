@@ -13,7 +13,8 @@ const f64TestValues: number[] = [
   Number.POSITIVE_INFINITY,
   Number.MAX_VALUE,
   -Number.MAX_VALUE,
-  Number.MIN_VALUE,
+  Number.MIN_VALUE, // Smallest possible (subnormal) value
+  2.2250738585072014e-308, // Smallest positive normal value
   Number.NaN,
   Number.NEGATIVE_INFINITY,
 ];
@@ -1331,6 +1332,7 @@ export default function run(): void {
     {
       field: 'xRequired',
       value: [
+        [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
           new Uint8Array([0, 42, 255]).buffer,
@@ -2899,6 +2901,7 @@ export default function run(): void {
     {
       field: 'xAsymmetric',
       value: [
+        [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
           new Uint8Array([0, 42, 255]).buffer,
@@ -2915,6 +2918,7 @@ export default function run(): void {
     {
       field: 'xAsymmetric',
       value: [
+        [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
           new Uint8Array([0, 42, 255]).buffer,
@@ -4203,6 +4207,7 @@ export default function run(): void {
     {
       field: 'xOptional',
       value: [
+        [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
           new Uint8Array([0, 42, 255]).buffer,
