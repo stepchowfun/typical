@@ -11,7 +11,7 @@ In short, Typical offers two important features that are conventionally thought 
 1. Uncompromising type safety
 2. Binary compatibility between schema versions
 
-Typical's design was informed by experience using Protocol Buffers at Google and Apache Thrift at Airbnb. This is not an officially supported product of either company. If you want to support Typical, [you can do so here](https://github.com/sponsors/stepchowfun).
+Typical's design was informed by experience using Protocol Buffers at Google and Apache Thrift at Airbnb. This is not an officially supported product of either company. If you want to support Typical, you can do so [here](https://github.com/sponsors/stepchowfun).
 
 ## Supported programming languages
 
@@ -232,11 +232,9 @@ fn handle_response(response: SendEmailResponseIn) {
 }
 ```
 
-If we add a new field to the `SendEmailResponse` choice, then the Rust compiler will force us to acknowledge that case too. That's a good thing!
+If we add a new field to the `SendEmailResponse` choice, then the Rust compiler will force us to acknowledge the new case here. That's a good thing! But when serializing and deserializing data, the rigor of exhaustive pattern matching can be a double-edged sword: readers will fail to deserialize a choice if they don't recognize the field that was set.
 
-When serializing and deserializing data, the rigor of exhaustive pattern matching can be a double-edged sword: readers will fail to deserialize a choice if they don't recognize the field that was set.
-
-That means it's unsafe, in general, to add or remove _required_ fields to a choice—just like with structs. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
+That means it's unsafe, in general, to add or remove _required_ fields in a choice—just like with structs. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
 
 Not to worry—choices can have optional and asymmetric fields, just like structs!
 
@@ -244,9 +242,7 @@ An optional field of a choice must be paired with a fallback field, which is use
 
 **Note:** An optional field in a choice is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field). This important insight about duality comes from category theory.
 
-An asymmetric field of a choice must also be paired with a fallback, but the fallback chain is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again!
-
-As with structs, asymmetric fields in choices can be safely promoted to required and vice versa. To be clear, that's the sole purpose of asymmetric fields.
+An asymmetric field of a choice must also be paired with a fallback, but the fallback is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can be safely promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
 
 Consider a more elaborate version of our API response type:
 
