@@ -1,4 +1,16 @@
 import { deepStrictEqual } from 'assert';
+import { unlinkSync, writeFileSync } from 'fs';
+
+// The "omnifile" records the bytes of every value serialized by the exported functions below. It's
+// used to validate that the TypeScript code generator encodes data identically to other code
+// generators.
+const omnifilePath = '/tmp/omnifile-typescript';
+
+try {
+  unlinkSync(omnifilePath);
+} catch (_) {
+  // Attempting to delete the file will fail if the file doesn't exist. This is harmless.
+}
 
 export function assertMatch<T, U>(
   size: (value: T) => number,
@@ -23,6 +35,8 @@ export function assertMatch<T, U>(
 
   // eslint-disable-next-line no-console
   console.log('Bytes from serialization:', arrayBuffer);
+
+  writeFileSync(omnifilePath, new Uint8Array(arrayBuffer), { flag: 'as' });
 
   // eslint-disable-next-line no-console
   console.log('Size of the serialized value:', arrayBuffer.byteLength);

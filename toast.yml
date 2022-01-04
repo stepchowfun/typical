@@ -181,6 +181,23 @@ tasks:
         (cd "$SCENARIO" && npm ci && npm run run)
       done
 
+  omnifile:
+    description: Compare the binary data from the integration tests for each supported language.
+    dependencies:
+      - test_rust_integration
+      - test_typescript_integration
+    input_paths:
+      - test_data/omnifile
+    command: |
+      # Add Typical to `$PATH`.
+      export PATH="$PWD/target/debug:$PATH"
+
+      # Validate the Rust data.
+      cmp test_data/omnifile /tmp/omnifile-rust
+
+      # Validate the Typescript data.
+      cmp test_data/omnifile /tmp/omnifile-typescript
+
   lint:
     description: Run the linters.
     dependencies:

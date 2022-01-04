@@ -16,7 +16,8 @@ const F64_TEST_VALUES: &[f64] = &[
     f64::INFINITY,
     f64::MAX,
     f64::MIN,
-    f64::MIN_POSITIVE,
+    5e-324_f64,        // Smallest positive (subnormal) value
+    f64::MIN_POSITIVE, // Smallest possible normal value
     f64::NAN,
     f64::NEG_INFINITY,
 ];
@@ -555,13 +556,13 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::NRequired(vec![false, true, false]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![vec![0, 45, 255]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![vec![0, 42, 255]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![
-        vec![0, 45, 255],
+        vec![0, 42, 255],
         vec![1, 43, 254],
     ]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![
-        vec![0, 45, 255],
+        vec![0, 42, 255],
         vec![1, 43, 254],
         vec![2, 44, 253],
     ]))?;
@@ -664,18 +665,18 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![]]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![vec![0, 45, 255]]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![vec![0, 42, 255]]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![], vec![], vec![]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![
-        vec![0, 45, 255],
+        vec![0, 42, 255],
         vec![1, 43, 254],
         vec![2, 44, 253],
     ]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![
         vec![],
-        vec![vec![0, 45, 255]],
-        vec![vec![0, 45, 255], vec![1, 43, 254]],
-        vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        vec![vec![0, 42, 255]],
+        vec![vec![0, 42, 255], vec![1, 43, 254]],
+        vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
     ]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![]))?;
@@ -873,15 +874,15 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
-        vec![vec![0, 45, 255]],
+        vec![vec![0, 42, 255]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
-        vec![vec![0, 45, 255], vec![1, 43, 254]],
+        vec![vec![0, 42, 255], vec![1, 43, 254]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
-        vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
         Box::new(fallback.clone()),
     ))?;
 
@@ -1067,7 +1068,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
-        vec![vec![vec![0, 45, 255]]],
+        vec![vec![vec![0, 42, 255]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
@@ -1075,15 +1076,15 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
-        vec![vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]]],
+        vec![vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![
             vec![],
-            vec![vec![0, 45, 255]],
-            vec![vec![0, 45, 255], vec![1, 43, 254]],
-            vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![0, 42, 255]],
+            vec![vec![0, 42, 255], vec![1, 43, 254]],
+            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
         ],
         Box::new(fallback.clone()),
     ))?;
@@ -1314,15 +1315,15 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
-        vec![vec![0, 45, 255]],
+        vec![vec![0, 42, 255]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
-        vec![vec![0, 45, 255], vec![1, 43, 254]],
+        vec![vec![0, 42, 255], vec![1, 43, 254]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
-        vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
         Box::new(fallback.clone()),
     ))?;
 
@@ -1508,7 +1509,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
-        vec![vec![vec![0, 45, 255]]],
+        vec![vec![vec![0, 42, 255]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
@@ -1516,15 +1517,15 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
-        vec![vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]]],
+        vec![vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
         vec![
             vec![],
-            vec![vec![0, 45, 255]],
-            vec![vec![0, 45, 255], vec![1, 43, 254]],
-            vec![vec![0, 45, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![0, 42, 255]],
+            vec![vec![0, 42, 255], vec![1, 43, 254]],
+            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
         ],
         Box::new(fallback.clone()),
     ))?;

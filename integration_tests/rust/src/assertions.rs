@@ -2,9 +2,17 @@ use {
     crate::types::{Deserialize, Serialize},
     std::{
         fmt::Debug,
-        io::{self, Error, ErrorKind},
+        fs::{remove_file, OpenOptions},
+        io::{self, Error, ErrorKind, Write},
+        mem::drop,
     },
 };
+
+const OMNIFILE_PATH: &str = "/tmp/omnifile-rust";
+
+pub fn start() {
+    drop(remove_file(OMNIFILE_PATH));
+}
 
 pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     actual: &T,
@@ -23,6 +31,13 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     if buffer.len() != size {
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));
     }
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(OMNIFILE_PATH)
+        .unwrap();
+    file.write_all(&buffer).unwrap();
 
     let mut slice = buffer.as_slice();
     let replica = U::deserialize(&mut slice)?;
