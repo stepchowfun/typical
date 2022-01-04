@@ -114,8 +114,8 @@ use CaseConvention::{Camel, Pascal};
 // This enum is used to distinguish between the ingress and egress versions of a type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Direction {
-    Out,
     In,
+    Out,
 }
 
 use Direction::{In, Out};
@@ -281,12 +281,14 @@ function deserializeVarint(
 ): [number, bigint] {{
   const firstByte = dataView.getUint8(offset);
   const sizeMinusOne = varintSizeFromFirstByte(firstByte) - 1;
+
   const offsetPlusOne = offset + 1;
   dataView64.setBigUint64(0, 0n, true);
   for (let i = 0; i < sizeMinusOne; ++i) {{
     dataView64.setUint8(i, dataView.getUint8(offsetPlusOne + i));
   }}
   const remainingBytesValue = dataView64.getBigUint64(0, true);
+
   switch (sizeMinusOne) {{
     case 0:
       return [offset + 1, BigInt(firstByte >> 1)];
@@ -376,6 +378,7 @@ function serializeFieldHeader(
           offset,
           (index << 2n) | BigInt(0b11),
         );
+
         return serializeVarint(dataView, offset, BigInt(payloadSize));
       }}
   }}
@@ -1230,10 +1233,10 @@ fn write_struct<T: Write>(
         write_identifier(buffer, &field.name, Camel, None)?;
         match field.rule {
             schema::Rule::Asymmetric => match direction {
-                Direction::Out => {}
                 Direction::In => {
                     write!(buffer, "?")?;
                 }
+                Direction::Out => {}
             },
             schema::Rule::Optional => {
                 write!(buffer, "?")?;
@@ -1274,8 +1277,8 @@ fn write_choice<T: Write>(
         write!(buffer, "'")?;
         let fallback = match field.rule {
             schema::Rule::Asymmetric => match direction {
-                Direction::Out => true,
                 Direction::In => false,
+                Direction::Out => true,
             },
             schema::Rule::Optional => true,
             schema::Rule::Required => false,

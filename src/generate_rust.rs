@@ -44,8 +44,8 @@ use CaseConvention::{Pascal, Snake};
 // This enum is used to distinguish between the ingress and egress versions of a type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Direction {
-    Out,
     In,
+    Out,
 }
 
 use Direction::{In, Out};
@@ -212,9 +212,11 @@ fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {{
     reader.read_exact(&mut first_byte_buffer[..])?;
     let first_byte = first_byte_buffer[0];
     let size_minus_one = first_byte.trailing_zeros();
+
     let mut remaining_bytes_buffer = [0; 8];
     reader.read_exact(&mut remaining_bytes_buffer[0..size_minus_one as usize])?;
     let remaining_bytes_value = u64::from_le_bytes(remaining_bytes_buffer);
+
     match size_minus_one {{
         0 => Ok(u64::from(first_byte >> 1)),
         1 => Ok(128_u64 + u64::from(first_byte >> 2) + (remaining_bytes_value << 6)),
@@ -1163,10 +1165,10 @@ fn write_struct<T: Write>(
         write!(buffer, ": ")?;
         match field.rule {
             schema::Rule::Asymmetric => match direction {
-                Direction::Out => {}
                 Direction::In => {
                     write!(buffer, "Option<")?;
                 }
+                Direction::Out => {}
             },
             schema::Rule::Optional => {
                 write!(buffer, "Option<")?;
@@ -1176,10 +1178,10 @@ fn write_struct<T: Write>(
         write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         match field.rule {
             schema::Rule::Asymmetric => match direction {
-                Direction::Out => {}
                 Direction::In => {
                     write!(buffer, ">")?;
                 }
+                Direction::Out => {}
             },
             schema::Rule::Optional => {
                 write!(buffer, ">")?;
@@ -1217,8 +1219,8 @@ fn write_choice<T: Write>(
         write_identifier(buffer, &field.name, Pascal, None)?;
         let fallback = match field.rule {
             schema::Rule::Asymmetric => match direction {
-                Direction::Out => true,
                 Direction::In => false,
+                Direction::Out => true,
             },
             schema::Rule::Optional => true,
             schema::Rule::Required => false,

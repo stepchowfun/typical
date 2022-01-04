@@ -125,9 +125,11 @@ fn deserialize_varint<T: BufRead>(reader: &mut T) -> io::Result<u64> {
     reader.read_exact(&mut first_byte_buffer[..])?;
     let first_byte = first_byte_buffer[0];
     let size_minus_one = first_byte.trailing_zeros();
+
     let mut remaining_bytes_buffer = [0; 8];
     reader.read_exact(&mut remaining_bytes_buffer[0..size_minus_one as usize])?;
     let remaining_bytes_value = u64::from_le_bytes(remaining_bytes_buffer);
+
     match size_minus_one {
         0 => Ok(u64::from(first_byte >> 1)),
         1 => Ok(128_u64 + u64::from(first_byte >> 2) + (remaining_bytes_value << 6)),
