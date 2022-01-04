@@ -169,6 +169,7 @@ tasks:
 
       # Validate and run the example project and the integration test.
       for SCENARIO in benchmarks/rust examples/rust integration_tests/rust; do
+        echo "Validating $SCENARIO..."
         (
           cd "$SCENARIO" && \
           cargo-offline check && \
@@ -196,6 +197,7 @@ tasks:
         integration_tests/typescript-node \
         integration_tests/typescript-web
       do
+        echo "Validating $SCENARIO..."
         (cd "$SCENARIO" && npm ci && npm run main && npm run lint)
       done
 

@@ -12,22 +12,23 @@ try {
   // Attempting to delete the file will fail if the file doesn't exist. This is harmless.
 }
 
-export function assertMatch<T, U>(
-  size: (value: T) => number,
-  serialize: (dataView: DataView, offset: number, value: T) => number,
+export function assertMatch<T, U, V extends { $size: number }>(
+  atlas: (value: T) => V,
+  serialize: (dataView: DataView, offset: number, value: T, atlas: V) => number,
   deserialize: (dataView: DataView) => U,
   actual: T,
   expected: U,
 ): void {
   console.log('Value to be serialized:', actual);
 
-  const actualSize = size(actual);
+  const actualAtlas = atlas(actual);
+  const actualSize = actualAtlas.$size;
   console.log('Expected size of the serialized value:', actualSize);
 
   const arrayBuffer = new ArrayBuffer(actualSize);
   const dataView = new DataView(arrayBuffer);
 
-  const numBytesWritten = serialize(dataView, 0, actual);
+  const numBytesWritten = serialize(dataView, 0, actual, actualAtlas);
   deepStrictEqual(numBytesWritten, actualSize);
   deepStrictEqual(arrayBuffer.byteLength, numBytesWritten);
 
@@ -43,11 +44,11 @@ export function assertMatch<T, U>(
   deepStrictEqual(replica, expected);
 }
 
-export function assertRoundTrip<U, T extends U>(
-  size: (value: T) => number,
-  serialize: (dataView: DataView, offset: number, value: T) => number,
+export function assertRoundTrip<U, T extends U, V extends { $size: number }>(
+  atlas: (value: T) => V,
+  serialize: (dataView: DataView, offset: number, value: T, atlas: V) => number,
   deserialize: (dataView: DataView) => U,
   value: T,
 ): void {
-  assertMatch(size, serialize, deserialize, value, value);
+  assertMatch(atlas, serialize, deserialize, value, value);
 }

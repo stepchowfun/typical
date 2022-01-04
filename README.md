@@ -620,19 +620,19 @@ Notice that several types can take advantage of a more compact representation wh
 
 We have coarse-grained benchmarks for each code generator [here](https://github.com/stepchowfun/typical/tree/main/benchmarks).
 
-One benchmark serializes and deserializes a large message containing several hundred megabytes of text. The following data were collected on 2022-01-08 and are averaged over 3 runs on a 2.6 GHz 6-Core Intel Core i7:
+One benchmark serializes and deserializes a large message containing several hundred megabytes of text. The following data were collected on 2022-01-09 and are averaged over 3 runs on a 2.6 GHz 6-Core Intel Core i7:
 
-|                      | Rust        | TypeScript  |
-| -------------------- | ----------- | ----------- |
-| Serialization rate   | 2.3 GiB/s   | 471.3 MiB/s |
-| Deserialization rate | 890.8 MiB/s | 357.4 MiB/s |
+|                                     | Rust        | TypeScript  |
+| ----------------------------------- | ----------- | ----------- |
+| **Per-thread serialization rate**   | 2.3 GiB/s   | 692.4 MiB/s |
+| **Per-thread deserialization rate** | 890.8 MiB/s | 337.9 MiB/s |
 
-Another benchmark repeatedly serializes and deserializes a pathological message. The message contains many small and nested values which exercise practically all of the code paths. The following data were collected on 2022-01-08 and are averaged over 3 runs on a 2.6 GHz 6-Core Intel Core i7:
+Another benchmark repeatedly serializes and deserializes a pathological message. The message contains many small and nested values which exercise practically all of the code paths. The following data were collected on 2022-01-09 and are averaged over 3 runs on a 2.6 GHz 6-Core Intel Core i7:
 
-|                      | Rust        | TypeScript |
-| -------------------- | ----------- | ---------- |
-| Serialization rate   | 605.4 MiB/s | 8.5 MiB/s  |
-| Deserialization rate | 100.1 MiB/s | 1.4 MiB/s  |
+|                                     | Rust        | TypeScript |
+| ----------------------------------- | ----------- | ---------- |
+| **Per-thread serialization rate**   | 605.4 MiB/s | 17.5 MiB/s |
+| **Per-thread deserialization rate** | 100.1 MiB/s | 1.2 MiB/s  |
 
 These benchmarks represent two extremes. In practice, performance will be somewhere in between.
 
