@@ -19,6 +19,7 @@ export function assertMatch<T, U>(
 
   const numBytesWritten = serialize(dataView, 0, actual);
   deepStrictEqual(numBytesWritten, actualSize);
+  deepStrictEqual(arrayBuffer.byteLength, numBytesWritten);
 
   // eslint-disable-next-line no-console
   console.log('Bytes from serialization:', arrayBuffer);
@@ -35,7 +36,7 @@ export function assertMatch<T, U>(
   deepStrictEqual(replica, expected);
 }
 
-export function assertRoundTrip<T, U extends T>(
+export function assertRoundTrip<U, T extends U>(
   size: (value: T) => number,
   serialize: (dataView: DataView, offset: number, value: T) => number,
   deserialize: (dataView: DataView, offset: number) => [number, U],

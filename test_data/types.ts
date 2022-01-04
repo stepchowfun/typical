@@ -214,7 +214,7 @@ function serializeFieldHeader(
   switch (payloadSize) {
     case 0:
       return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b00));
-    case 1:
+    case 8:
       return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b01));
     default:
       if (integerEncoded) {
@@ -2059,6 +2059,7 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           if (payloadSize !== 0) {
             dataView.setFloat64(offset, payload, true);
+            offset += 8;
           }
         }
 
@@ -2202,6 +2203,7 @@ export namespace Comprehensive {
             for (const payload of oldPayload) {
               payloadSize = 8;
               dataView.setFloat64(offset, payload, true);
+              offset += 8;
             }
           }
         }
@@ -2455,6 +2457,7 @@ export namespace Comprehensive {
                 for (const payload of oldPayload) {
                   payloadSize = 8;
                   dataView.setFloat64(offset, payload, true);
+                  offset += 8;
                 }
               }
             }
@@ -2853,6 +2856,7 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
           if (payloadSize !== 0) {
             dataView.setFloat64(offset, payload, true);
+            offset += 8;
           }
         }
 
@@ -2996,6 +3000,7 @@ export namespace Comprehensive {
             for (const payload of oldPayload) {
               payloadSize = 8;
               dataView.setFloat64(offset, payload, true);
+              offset += 8;
             }
           }
         }
@@ -3249,6 +3254,7 @@ export namespace Comprehensive {
                 for (const payload of oldPayload) {
                   payloadSize = 8;
                   dataView.setFloat64(offset, payload, true);
+                  offset += 8;
                 }
               }
             }
@@ -3650,6 +3656,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
             if (payloadSize !== 0) {
               dataView.setFloat64(offset, payload, true);
+              offset += 8;
             }
           }
         }
@@ -3811,6 +3818,7 @@ export namespace Comprehensive {
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
+                offset += 8;
               }
             }
           }
@@ -4082,6 +4090,7 @@ export namespace Comprehensive {
                   for (const payload of oldPayload) {
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
+                    offset += 8;
                   }
                 }
               }
@@ -4741,9 +4750,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
+                    try {
+                      let payload = dataView.getFloat64(offset, true);
+                      offset += 8;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -4764,9 +4781,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -4787,10 +4812,18 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payload = zigzagDecode(payload);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -4811,17 +4844,25 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    {
-                      let newPayload;
+                    try {
+                      let payload;
                       {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
+                        let newPayload;
+                        {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          newPayload = payload !== 0n;
+                        }
+                        payload = newPayload;
                       }
-                      payload = newPayload;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
                     }
-                    payloadAlias.push(payload);
                   }
                 }
               }
@@ -4844,7 +4885,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -4881,7 +4930,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -4921,7 +4978,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -4955,7 +5020,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -4989,7 +5062,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5031,7 +5112,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5044,9 +5133,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload = dataView.getFloat64(offset, true);
-                          offset += 8;
-                          payloadAlias.push(payload);
+                          try {
+                            let payload = dataView.getFloat64(offset, true);
+                            offset += 8;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -5074,7 +5171,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5087,9 +5192,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -5117,7 +5230,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5130,10 +5251,18 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payload = zigzagDecode(payload);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payload = zigzagDecode(payload);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -5161,7 +5290,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5174,17 +5311,25 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          {
-                            let newPayload;
+                          try {
+                            let payload;
                             {
-                              let payload;
-                              [offset, payload] = deserializeVarint(dataView, offset);
-                              newPayload = payload !== 0n;
+                              let newPayload;
+                              {
+                                let payload;
+                                [offset, payload] = deserializeVarint(dataView, offset);
+                                newPayload = payload !== 0n;
+                              }
+                              payload = newPayload;
                             }
-                            payload = newPayload;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
                           }
-                          payloadAlias.push(payload);
                         }
                       }
                     }
@@ -5212,7 +5357,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5227,7 +5380,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -5269,7 +5430,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5284,7 +5453,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -5329,7 +5506,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5344,7 +5529,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -5383,7 +5576,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5398,7 +5599,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -5662,9 +5871,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
+                    try {
+                      let payload = dataView.getFloat64(offset, true);
+                      offset += 8;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -5685,9 +5902,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -5708,10 +5933,18 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payload = zigzagDecode(payload);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -5732,17 +5965,25 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    {
-                      let newPayload;
+                    try {
+                      let payload;
                       {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
+                        let newPayload;
+                        {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          newPayload = payload !== 0n;
+                        }
+                        payload = newPayload;
                       }
-                      payload = newPayload;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
                     }
-                    payloadAlias.push(payload);
                   }
                 }
               }
@@ -5765,7 +6006,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5802,7 +6051,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5842,7 +6099,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5876,7 +6141,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5910,7 +6183,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5952,7 +6233,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -5965,9 +6254,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload = dataView.getFloat64(offset, true);
-                          offset += 8;
-                          payloadAlias.push(payload);
+                          try {
+                            let payload = dataView.getFloat64(offset, true);
+                            offset += 8;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -5995,7 +6292,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6008,9 +6313,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -6038,7 +6351,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6051,10 +6372,18 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payload = zigzagDecode(payload);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payload = zigzagDecode(payload);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -6082,7 +6411,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6095,17 +6432,25 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          {
-                            let newPayload;
+                          try {
+                            let payload;
                             {
-                              let payload;
-                              [offset, payload] = deserializeVarint(dataView, offset);
-                              newPayload = payload !== 0n;
+                              let newPayload;
+                              {
+                                let payload;
+                                [offset, payload] = deserializeVarint(dataView, offset);
+                                newPayload = payload !== 0n;
+                              }
+                              payload = newPayload;
                             }
-                            payload = newPayload;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
                           }
-                          payloadAlias.push(payload);
                         }
                       }
                     }
@@ -6133,7 +6478,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6148,7 +6501,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -6190,7 +6551,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6205,7 +6574,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -6250,7 +6627,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6265,7 +6650,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -6304,7 +6697,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6319,7 +6720,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -6583,9 +6992,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
+                    try {
+                      let payload = dataView.getFloat64(offset, true);
+                      offset += 8;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -6606,9 +7023,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -6629,10 +7054,18 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payload = zigzagDecode(payload);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -6653,17 +7086,25 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    {
-                      let newPayload;
+                    try {
+                      let payload;
                       {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
+                        let newPayload;
+                        {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          newPayload = payload !== 0n;
+                        }
+                        payload = newPayload;
                       }
-                      payload = newPayload;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
                     }
-                    payloadAlias.push(payload);
                   }
                 }
               }
@@ -6686,7 +7127,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6723,7 +7172,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6763,7 +7220,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6797,7 +7262,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6831,7 +7304,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6873,7 +7354,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6886,9 +7375,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload = dataView.getFloat64(offset, true);
-                          offset += 8;
-                          payloadAlias.push(payload);
+                          try {
+                            let payload = dataView.getFloat64(offset, true);
+                            offset += 8;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -6916,7 +7413,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6929,9 +7434,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -6959,7 +7472,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -6972,10 +7493,18 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payload = zigzagDecode(payload);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payload = zigzagDecode(payload);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -7003,7 +7532,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -7016,17 +7553,25 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          {
-                            let newPayload;
+                          try {
+                            let payload;
                             {
-                              let payload;
-                              [offset, payload] = deserializeVarint(dataView, offset);
-                              newPayload = payload !== 0n;
+                              let newPayload;
+                              {
+                                let payload;
+                                [offset, payload] = deserializeVarint(dataView, offset);
+                                newPayload = payload !== 0n;
+                              }
+                              payload = newPayload;
                             }
-                            payload = newPayload;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
                           }
-                          payloadAlias.push(payload);
                         }
                       }
                     }
@@ -7054,7 +7599,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -7069,7 +7622,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -7111,7 +7672,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -7126,7 +7695,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -7171,7 +7748,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -7186,7 +7771,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -7225,7 +7818,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -7240,7 +7841,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -8789,6 +9398,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             if (payloadSize !== 0) {
               dataView.setFloat64(offset, payload, true);
+              offset += 8;
             }
             return offset;
           }
@@ -8932,6 +9542,7 @@ export namespace Comprehensive {
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
+                offset += 8;
               }
             }
             return offset;
@@ -9185,6 +9796,7 @@ export namespace Comprehensive {
                   for (const payload of oldPayload) {
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
+                    offset += 8;
                   }
                 }
               }
@@ -9584,6 +10196,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
             if (payloadSize !== 0) {
               dataView.setFloat64(offset, payload, true);
+              offset += 8;
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -9736,6 +10349,7 @@ export namespace Comprehensive {
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
+                offset += 8;
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -9998,6 +10612,7 @@ export namespace Comprehensive {
                   for (const payload of oldPayload) {
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
+                    offset += 8;
                   }
                 }
               }
@@ -10405,6 +11020,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
             if (payloadSize !== 0) {
               dataView.setFloat64(offset, payload, true);
+              offset += 8;
             }
             offset = serialize(dataView, offset, value.fallback);
             return offset;
@@ -10557,6 +11173,7 @@ export namespace Comprehensive {
               for (const payload of oldPayload) {
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
+                offset += 8;
               }
             }
             offset = serialize(dataView, offset, value.fallback);
@@ -10819,6 +11436,7 @@ export namespace Comprehensive {
                   for (const payload of oldPayload) {
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
+                    offset += 8;
                   }
                 }
               }
@@ -11512,9 +12130,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
+                    try {
+                      let payload = dataView.getFloat64(offset, true);
+                      offset += 8;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -11540,9 +12166,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -11568,10 +12202,18 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payload = zigzagDecode(payload);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -11597,17 +12239,25 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    {
-                      let newPayload;
+                    try {
+                      let payload;
                       {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
+                        let newPayload;
+                        {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          newPayload = payload !== 0n;
+                        }
+                        payload = newPayload;
                       }
-                      payload = newPayload;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
                     }
-                    payloadAlias.push(payload);
                   }
                 }
               }
@@ -11635,7 +12285,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11677,7 +12335,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11722,7 +12388,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11761,7 +12435,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11800,7 +12482,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11847,7 +12537,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11860,9 +12558,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload = dataView.getFloat64(offset, true);
-                          offset += 8;
-                          payloadAlias.push(payload);
+                          try {
+                            let payload = dataView.getFloat64(offset, true);
+                            offset += 8;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -11895,7 +12601,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11908,9 +12622,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -11943,7 +12665,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -11956,10 +12686,18 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payload = zigzagDecode(payload);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payload = zigzagDecode(payload);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -11992,7 +12730,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12005,17 +12751,25 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          {
-                            let newPayload;
+                          try {
+                            let payload;
                             {
-                              let payload;
-                              [offset, payload] = deserializeVarint(dataView, offset);
-                              newPayload = payload !== 0n;
+                              let newPayload;
+                              {
+                                let payload;
+                                [offset, payload] = deserializeVarint(dataView, offset);
+                                newPayload = payload !== 0n;
+                              }
+                              payload = newPayload;
                             }
-                            payload = newPayload;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
                           }
-                          payloadAlias.push(payload);
                         }
                       }
                     }
@@ -12048,7 +12802,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12063,7 +12825,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -12110,7 +12880,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12125,7 +12903,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -12175,7 +12961,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12190,7 +12984,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -12234,7 +13036,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12249,7 +13059,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -12567,9 +13385,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
+                    try {
+                      let payload = dataView.getFloat64(offset, true);
+                      offset += 8;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -12595,9 +13421,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -12623,10 +13457,18 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payload = zigzagDecode(payload);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -12652,17 +13494,25 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    {
-                      let newPayload;
+                    try {
+                      let payload;
                       {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
+                        let newPayload;
+                        {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          newPayload = payload !== 0n;
+                        }
+                        payload = newPayload;
                       }
-                      payload = newPayload;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
                     }
-                    payloadAlias.push(payload);
                   }
                 }
               }
@@ -12690,7 +13540,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12732,7 +13590,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12777,7 +13643,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12816,7 +13690,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12855,7 +13737,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12902,7 +13792,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12915,9 +13813,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload = dataView.getFloat64(offset, true);
-                          offset += 8;
-                          payloadAlias.push(payload);
+                          try {
+                            let payload = dataView.getFloat64(offset, true);
+                            offset += 8;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -12950,7 +13856,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -12963,9 +13877,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -12998,7 +13920,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13011,10 +13941,18 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payload = zigzagDecode(payload);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payload = zigzagDecode(payload);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -13047,7 +13985,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13060,17 +14006,25 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          {
-                            let newPayload;
+                          try {
+                            let payload;
                             {
-                              let payload;
-                              [offset, payload] = deserializeVarint(dataView, offset);
-                              newPayload = payload !== 0n;
+                              let newPayload;
+                              {
+                                let payload;
+                                [offset, payload] = deserializeVarint(dataView, offset);
+                                newPayload = payload !== 0n;
+                              }
+                              payload = newPayload;
                             }
-                            payload = newPayload;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
                           }
-                          payloadAlias.push(payload);
                         }
                       }
                     }
@@ -13103,7 +14057,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13118,7 +14080,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -13165,7 +14135,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13180,7 +14158,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -13230,7 +14216,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13245,7 +14239,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -13289,7 +14291,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13304,7 +14314,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -13652,9 +14670,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload = dataView.getFloat64(offset, true);
-                    offset += 8;
-                    payloadAlias.push(payload);
+                    try {
+                      let payload = dataView.getFloat64(offset, true);
+                      offset += 8;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -13683,9 +14709,17 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -13714,10 +14748,18 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    [offset, payload] = deserializeVarint(dataView, offset);
-                    payload = zigzagDecode(payload);
-                    payloadAlias.push(payload);
+                    try {
+                      let payload;
+                      [offset, payload] = deserializeVarint(dataView, offset);
+                      payload = zigzagDecode(payload);
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                   }
                 }
               }
@@ -13746,17 +14788,25 @@ export namespace Comprehensive {
                 let payloadAlias = payload;
                 {
                   while (true) {
-                    let payload;
-                    {
-                      let newPayload;
+                    try {
+                      let payload;
                       {
-                        let payload;
-                        [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = payload !== 0n;
+                        let newPayload;
+                        {
+                          let payload;
+                          [offset, payload] = deserializeVarint(dataView, offset);
+                          newPayload = payload !== 0n;
+                        }
+                        payload = newPayload;
                       }
-                      payload = newPayload;
+                      payloadAlias.push(payload);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
                     }
-                    payloadAlias.push(payload);
                   }
                 }
               }
@@ -13787,7 +14837,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13832,7 +14890,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13880,7 +14946,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13922,7 +14996,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -13964,7 +15046,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14014,7 +15104,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14027,9 +15125,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload = dataView.getFloat64(offset, true);
-                          offset += 8;
-                          payloadAlias.push(payload);
+                          try {
+                            let payload = dataView.getFloat64(offset, true);
+                            offset += 8;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -14065,7 +15171,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14078,9 +15192,17 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -14116,7 +15238,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14129,10 +15259,18 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          [offset, payload] = deserializeVarint(dataView, offset);
-                          payload = zigzagDecode(payload);
-                          payloadAlias.push(payload);
+                          try {
+                            let payload;
+                            [offset, payload] = deserializeVarint(dataView, offset);
+                            payload = zigzagDecode(payload);
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                         }
                       }
                     }
@@ -14168,7 +15306,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14181,17 +15327,25 @@ export namespace Comprehensive {
                       let payloadAlias = payload;
                       {
                         while (true) {
-                          let payload;
-                          {
-                            let newPayload;
+                          try {
+                            let payload;
                             {
-                              let payload;
-                              [offset, payload] = deserializeVarint(dataView, offset);
-                              newPayload = payload !== 0n;
+                              let newPayload;
+                              {
+                                let payload;
+                                [offset, payload] = deserializeVarint(dataView, offset);
+                                newPayload = payload !== 0n;
+                              }
+                              payload = newPayload;
                             }
-                            payload = newPayload;
+                            payloadAlias.push(payload);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
                           }
-                          payloadAlias.push(payload);
                         }
                       }
                     }
@@ -14227,7 +15381,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14242,7 +15404,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -14292,7 +15462,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14307,7 +15485,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -14360,7 +15546,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14375,7 +15569,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
@@ -14422,7 +15624,15 @@ export namespace Comprehensive {
                 {
                   while (true) {
                     let payloadSizeBig;
-                    [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    try {
+                      [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                    } catch (e) {
+                      if (e instanceof RangeError) {
+                        break;
+                      } else {
+                        throw e;
+                      }
+                    }
                     const dataView = new DataView(
                       dataViewAlias.buffer,
                       dataViewAlias.byteOffset + offset,
@@ -14437,7 +15647,15 @@ export namespace Comprehensive {
                       {
                         while (true) {
                           let payloadSizeBig;
-                          [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          try {
+                            [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
+                          } catch (e) {
+                            if (e instanceof RangeError) {
+                              break;
+                            } else {
+                              throw e;
+                            }
+                          }
                           const dataView = new DataView(
                             dataViewAlias.buffer,
                             dataViewAlias.byteOffset + offset,
