@@ -139,6 +139,7 @@ tasks:
       - examples/rust
       - integration_tests/rust
       - integration_tests/types
+      - test_data/omnifile
     excluded_input_paths:
       - examples/rust/target
       - integration_tests/rust/target
@@ -157,6 +158,9 @@ tasks:
         )
       done
 
+      # Validate the data from the integration test.
+      cmp test_data/omnifile /tmp/omnifile-rust
+
   test_typescript_integration:
     description: Run integration tests for the TypeScript code generator.
     dependencies:
@@ -165,6 +169,7 @@ tasks:
       - examples/typescript
       - integration_tests/types
       - integration_tests/typescript
+      - test_data/omnifile
     excluded_input_paths:
       - examples/typescript/dist
       - examples/typescript/generated
@@ -181,21 +186,7 @@ tasks:
         (cd "$SCENARIO" && npm ci && npm run run)
       done
 
-  omnifile:
-    description: Compare the binary data from the integration tests for each supported language.
-    dependencies:
-      - test_rust_integration
-      - test_typescript_integration
-    input_paths:
-      - test_data/omnifile
-    command: |
-      # Add Typical to `$PATH`.
-      export PATH="$PWD/target/debug:$PATH"
-
-      # Validate the Rust data.
-      cmp test_data/omnifile /tmp/omnifile-rust
-
-      # Validate the Typescript data.
+      # Validate the data from the integration test.
       cmp test_data/omnifile /tmp/omnifile-typescript
 
   lint:
