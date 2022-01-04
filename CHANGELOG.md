@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2022-01-04
+
+### Fixed
+- Fixed several bugs in the TypeScript code generator. A comprehensive integration test suite has been added which features the same tests as the Rust suite. The binary data produced by both suites are validated to be bit-for-bit identical.
+
 ## [0.5.0] - 2022-01-03
 
 ### Changed
