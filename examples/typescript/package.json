@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "run": "typical generate types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check . && node dist/src/main.js",
+    "demo": "typical generate types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
+    "check": "eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
+    "validate": "npm run demo && npm run check",
     "format": "prettier --config .prettierrc.js --ignore-path .ignore --write ."
   },
   "devDependencies": {
