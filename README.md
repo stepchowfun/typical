@@ -4,17 +4,24 @@
 
 *Typical* helps you [serialize](https://en.wikipedia.org/wiki/Serialization) data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact [binary encoding](#binary-encoding) which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference between Typical and those other toolchains is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove required fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)). Satisfyingly, the same solution also addresses the dual problem of how to safely add and remove cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
+Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference between Typical and those other toolchains is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add and remove fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)) without breaking compatibility. Conveniently, the same solution also addresses the dual problem of how to safely add and remove cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
 
 In short, Typical offers two important features that are conventionally thought to be at odds:
 
 1. Uncompromising type safety
 2. Binary compatibility between schema versions
 
-**Supported programming languages:**
+Typical's design was informed by my experience using Protocol Buffers at Google and Apache Thrift at Airbnb. This is not an officially supported product of either company. If you want to support Typical, [you can do so directly](https://github.com/sponsors/stepchowfun).
+
+## Supported programming languages
+
+Typical currently supports the following programming languages:
 
 - Rust
-- TypeScript (and thereby JavaScript)
+- TypeScript
+- JavaScript (via TypeScript)
+
+Comprehensive integration tests validate that messages are encoded identically in each language, bit-for-bit.
 
 ## Tutorial
 
@@ -24,7 +31,7 @@ Although our example scenario involves a client talking to a server, Typical has
 
 ### Step 1: Write a schema
 
-You can start by creating a schema file called `email_api.t` (or any other name you prefer) with the relevant types for your email API:
+You can start by creating a schema file called `types.t` (or any other name you prefer) with some types for your API:
 
 ```perl
 struct SendEmailRequest {
@@ -41,31 +48,36 @@ choice SendEmailResponse {
 
 This schema defines two types: `SendEmailRequest` and `SendEmailResponse`. The first type is a *struct*, which means it describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). The second type is a *choice*, which means it describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* due to their correspondence to ideas from category theory called *products* and *sums*, respectively, but you don't need to know anything about that to use Typical.
 
-Each field of a struct or a choice has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility, as long as you don't change the indices.
+Each field has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility, as long as you don't change the indices.
 
 Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`. The `Unit` type holds no information and takes zero bytes to encode.
 
-Once you've written your schema, Typical can automatically format it to ensure consistent orthography such as indentation, letter case, etc. The following command will do it, though it won't have any effect on our example since it's already formatted properly:
+**Note:** You've probably seen structs before, but choices might be less familiar. The concept goes by many names: _sum type_, _variant_, _coproduct_, _disjoint union_, _tagged union_, _discriminated union_, etc. They are especially common in [functional programming](https://en.wikipedia.org/wiki/Functional_programming). Some object-oriented languages have good support for them in the form of "sealed classes", and other languages can emulate them with the [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern) or the [Mogensen–Scott encoding](https://en.wikipedia.org/wiki/Mogensen%E2%80%93Scott_encoding). Rust has good support for them and confusingly refers to them as "enums", but that term refers to a different, weaker construct in most other programming languages. We use the term "choice" not just because it seems intuitive, but also since it has the same number of letters as "struct", resulting in nice visual alignment in schema files. [Obligatory.](https://xkcd.com/927/)
+
+Once you've written your schema, Typical can format it to ensure consistent orthography such as indentation, letter case, etc. The following command will do it, though it won't have any effect on our example since it's already formatted properly:
 
 ```sh
-typical format email_api.t
+typical format types.t
 ```
 
 ### Step 2: Generate code for serialization and deserialization
 
-Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust code with the following:
+Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust and TypeScript code with the following:
 
 ```sh
-typical generate email_api.t --rust email_api.rs
+typical generate types.t --rust types.rs --typescript types.ts
 ```
 
-Refer to the [example Rust project](https://github.com/stepchowfun/typical/tree/main/examples/rust) for how to automate this with a [Cargo build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
+Refer to the [example projects](https://github.com/stepchowfun/typical/tree/main/examples) for how to automate this. In summary:
 
-The client and server can then use the generated code to serialize and deserialize messages for mutual communication. The client and server can even be written in different languages, as long as Typical knows how to generate code for each language.
+- For Rust, you can use a Cargo build script that is executed when you invoke `cargo build`.
+- For TypeScript, you can use the `scripts` property of your `package.json`.
+
+It's not necessary to set up an automated build system to use Typical, but we recommend doing so for your own convenience.
 
 ### Step 3: Serialize and deserialize messages
 
-With the code generated in the previous section, a program could construct a message and serialize it to a file (for example) as follows:
+With the code generated in the previous section, let's write a simple program to construct a message and serialize it to a file. We'll use Rust for this example:
 
 ```rust
 let request = SendEmailRequestOut {
@@ -78,7 +90,7 @@ let mut file = BufWriter::new(File::create("/tmp/request")?);
 request.serialize(&mut file)?;
 ```
 
-Another program, possibly written in a different language, could read the file (for example) and deserialize the message as follows:
+Another program could read the file and deserialize the message as follows:
 
 ```rust
 let mut file = BufReader::new(File::open("/tmp/request")?);
@@ -89,7 +101,7 @@ println!("subject: {}", request.subject);
 println!("body: {}", request.body);
 ```
 
-The full code for this example can be found [here](https://github.com/stepchowfun/typical/tree/main/examples/rust/src/main.rs).
+The full code for this example can be found [here](https://github.com/stepchowfun/typical/tree/main/examples/rust/src/main.rs). The TypeScript version is [here](https://github.com/stepchowfun/typical/blob/main/examples/typescript/src/main.ts).
 
 We'll see in the next section why our `SendEmailRequest` type turned into `SendEmailRequestOut` and `SendEmailRequestIn`.
 
@@ -173,7 +185,7 @@ struct SendEmailRequest {
 }
 ```
 
-Let's take a look at the generated code for this schema; we'll choose Rust for this example. The generated code has two flavors of our `SendEmailRequest` type, one for serialization and another for deserialization:
+Let's take a look at the generated code for this schema; we'll use Rust for this example. The generated code has two flavors of our `SendEmailRequest` type, one for serialization and another for deserialization:
 
 ```rust
 pub struct SendEmailRequestOut {
@@ -207,11 +219,24 @@ In some situations, a field might stay in the asymmetric state for months, say, 
 
 ### What about choices?
 
-Our discussion so far has been framed around structs, since they are more familiar to most programmers. However, the same kind of consideration must be given to choices.
+Our discussion so far has been framed around structs, since they are familiar to most programmers. Now we turn our attention to the other side of the coin: choices.
 
-The code generated for choices supports case analysis, so clients can take different actions depending on which field was set. Happily, this is done in a way that ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. But that extra rigor can be a double-edged sword: readers will fail to deserialize a choice if they don't recognize the field that was set.
+The code generated for choices supports case analysis, so clients can take different actions depending on which field was set. Happily, this is done in a way that ensures you've handled all the cases. This is called *exhaustive pattern matching*, and it's a great feature to help you write correct code. For example, in Rust we might pattern match on a response from our email API as follows:
 
-That means it's unsafe, in general, to add or remove required fields to a choice—just like with structs. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
+```rust
+fn handle_response(response: SendEmailResponseIn) {
+    match response {
+        Success => println!("The email was sent!"),
+        Error(message) => println!("An error occurred: {}", message),
+    }
+}
+```
+
+If we add a new field to the `SendEmailResponse` choice, then the Rust compiler will force us to acknowledge that case too. That's a good thing!
+
+When serializing and deserializing data, the rigor of exhaustive pattern matching can be a double-edged sword: readers will fail to deserialize a choice if they don't recognize the field that was set.
+
+That means it's unsafe, in general, to add or remove _required_ fields to a choice—just like with structs. If you add a required field, updated writers may start setting it before non-updated readers know how to handle it. Conversely, if you remove a required field, updated readers will no longer be able to handle it even though non-updated writers may still be setting it.
 
 Not to worry—choices can have optional and asymmetric fields, just like structs!
 
@@ -301,7 +326,7 @@ struct Address {
 }
 ```
 
-Then you can import it from another file, say `email_api.t`:
+Then you can import it from another file, such as our `types.t` file:
 
 ```perl
 import 'email_util.t'
@@ -313,11 +338,11 @@ struct SendEmailRequest {
 }
 ```
 
-You only need to run Typical on `email_api.t`. The generated code will include types from both `email_api.t` and `email_util.t`, since the former imports the latter.
+You only need to run Typical on `types.t`. The generated code will include types from both `types.t` and `email_util.t`, since the former imports the latter.
 
 Import paths are considered relative to the directory containing the schema doing the importing. Typical has no notion of a "top-level" directory on which all paths are based.
 
-A useful convention is to create a `types.t` schema that simply imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. However, these are merely conventions, and Typical has no intrinsic notion of "project".
+A useful convention is to create a `types.t` schema that imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical for code generation. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. These are merely conventions, and Typical has no intrinsic notion of "project".
 
 If you import two schemas with the same name from different directories, you'll need to disambiguate usages of those schemas. Suppose, for example, you attempted the following:
 
@@ -387,7 +412,7 @@ choice Weekday {
 }
 ```
 
-The index is a non-negative integer which is required to be unique within the type. The indices aren't required to be consecutive or in any particular order, but starting with consecutive indices is a good convention.
+The index is a non-negative integer which is required to be unique within the type. The largest possible index is `4,611,686,018,427,387,903` (i.e., `2^62 - 1`). The indices aren't required to be consecutive or in any particular order, but starting with consecutive indices is a good convention.
 
 #### Deleted fields
 
@@ -492,7 +517,7 @@ Let `n` be the integer to be encoded. The encoding scheme described below is [li
 - If `72,624,976,668,147,840 <= n < 18,446,744,073,709,551,616`
   - Embed the 64 bits of `n - 72,624,976,668,147,840` in 9 bytes as follows: `00000000 xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`.
 
-The number of trailing zeros in the first byte indicates how many subsequent bytes there are. This allows the number of bytes in an encoded integer to be efficiently determined with a single instruction (e.g., `BSF` or `TZCNT`) on most modern processors.
+The number of trailing zero bits in the first byte indicates how many subsequent bytes there are. This allows the number of bytes in an encoded integer to be efficiently determined with a single instruction (e.g., `BSF` or `TZCNT`) on most modern processors.
 
 This variable-width integer encoding is similar to the "base 128 varints" used by [Protocol Buffers](https://developers.google.com/protocol-buffers/docs/encoding#varints) and [Thrift's *compact protocol*](https://github.com/apache/thrift/blob/master/doc/specs/thrift-compact-protocol.md). However, Typical's encoding differs in two ways:
 
