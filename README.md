@@ -4,7 +4,7 @@
 
 *Typical* helps you [serialize](https://en.wikipedia.org/wiki/Serialization) data in a language-independent fashion. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact [binary encoding](#binary-encoding) which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference between Typical and those toolchains is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#introducing-asymmetric-fields)) to the classic problem of how to safely add or remove fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)) without breaking compatibility. The concept of asymmetric fields also solves the dual problem of how to preserve compatibility when adding or removing cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
+Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference between Typical and those toolchains is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and pattern matching. You'll feel at home if you have experience with languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#asymmetric-fields-can-safely-be-promoted-to-required-and-vice-versa)) to the classic problem of how to safely add or remove fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)) without breaking compatibility. The concept of asymmetric fields also solves the dual problem of how to preserve compatibility when adding or removing cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union) which support exhaustive pattern matching.
 
 In short, Typical offers two important features that are conventionally thought to be at odds:
 
@@ -109,7 +109,7 @@ We'll see in the next section why our `SendEmailRequest` type turned into `SendE
 
 Fields are required by default. This is an unusual design decision, since required fields are often thought to cause trouble for backward and forward compatibility between schema versions. Let's explore this topic in detail and see how Typical deals with it.
 
-### Trouble: adding and removing required fields directly
+### Adding or removing required fields is risky
 
 Experience has taught us that it can be difficult to introduce a required field to a type that is already being used. For example, suppose your email API is up and running, and you want to add a new `from` field to the request type:
 
@@ -131,7 +131,7 @@ That kind of attentive rollout may not be feasible. You may not be in control of
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
-### Trouble: promoting optional fields to required and vice versa
+### Promoting optional fields to required or vice versa is risky
 
 A somewhat safer way to introduce a required field is to first introduce it as optional, and later promote it to required. For example, you can safely introduce this change:
 
@@ -153,7 +153,7 @@ The trouble is that, as long as the field is optional, you can't rely on the typ
 
 You can run into similar trouble when demoting a required field to optional. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated first.
 
-### Trouble: making every field optional
+### Making every field optional is not ergonomic
 
 Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared optional. For example:
 
@@ -167,7 +167,7 @@ struct SendEmailRequest {
 
 However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared optional places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the fields, and readers must address the case of the fields being missing to satisfy the type checker even though those fields are always supposed to be set.
 
-### Avoiding trouble: asymmetric fields
+### Asymmetric fields can safely be promoted to required and vice versa
 
 To help you safely add and remove required fields, Typical offers an intermediate state between optional and required: *asymmetric*. An asymmetric field in a struct is considered required for the writer, but optional for the reader. Unlike optional fields, an asymmetric field can be safely promoted to required and vice versa.
 
@@ -217,7 +217,7 @@ It works in reverse too. Suppose we now want to remove a required field. It may 
 
 In some situations, a field might stay in the asymmetric state for months, say, if you're waiting for a sufficient fraction of your users to update your mobile app. Typical can help immensely in those situations by preventing new code which uses the field inappropriately from being introduced during that period.
 
-### What about choices?
+### Choices can have optional and asymmetric fields too
 
 Our discussion so far has been framed around structs, since they are familiar to most programmers. Now we turn our attention to the other side of the coin: choices.
 
@@ -434,7 +434,7 @@ The following built-in types are supported:
 - `S64` is the type of integers in the range [`-2^63`, `2^63`).
 - `Bool` is the type of Booleans.
   - You could define your own Boolean type as a choice with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
-- `Bytes` is the type of binary blobs with no further structure.
+- `Bytes` is the type of binary blobs.
 - `String` is the type of Unicode strings.
 - Arrays (e.g., `[U64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[String]]`).
 
@@ -581,7 +581,7 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
   - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
   - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded as a variable-width integer. The *element* is encoded according to its type. The number of elements is not explicitly encoded.
 
-Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer normally takes 1-9 bytes to encode, but `U64` and `S64` fields only take 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode of the field header.
+Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer takes 1-9 bytes to encode, but `U64` and `S64` fields only take 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode of the field header.
 
 ## Usage
 
