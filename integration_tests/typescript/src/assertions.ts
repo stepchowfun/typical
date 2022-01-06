@@ -19,11 +19,9 @@ export function assertMatch<T, U>(
   actual: T,
   expected: U,
 ): void {
-  // eslint-disable-next-line no-console
   console.log('Value to be serialized:', actual);
 
   const actualSize = size(actual);
-  // eslint-disable-next-line no-console
   console.log('Expected size of the serialized value:', actualSize);
 
   const arrayBuffer = new ArrayBuffer(actualSize);
@@ -33,17 +31,14 @@ export function assertMatch<T, U>(
   deepStrictEqual(numBytesWritten, actualSize);
   deepStrictEqual(arrayBuffer.byteLength, numBytesWritten);
 
-  // eslint-disable-next-line no-console
   console.log('Bytes from serialization:', arrayBuffer);
 
   writeFileSync(omnifilePath, new Uint8Array(arrayBuffer), { flag: 'as' });
 
-  // eslint-disable-next-line no-console
   console.log('Size of the serialized value:', arrayBuffer.byteLength);
 
   const [numBytesRead, replica] = deserialize(dataView, 0);
 
-  // eslint-disable-next-line no-console
   console.log('Value deserialized from those bytes:', replica);
 
   deepStrictEqual(numBytesRead, numBytesWritten);

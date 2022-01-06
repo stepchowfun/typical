@@ -68,7 +68,6 @@ export default function run(): void {
     },
   );
 
-  // eslint-disable-next-line no-console
   console.log();
 
   const fallback: { field: 'requiredToRequired'; value: string } = {
