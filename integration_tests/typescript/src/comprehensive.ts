@@ -8,6 +8,7 @@ const s64Max = 9_223_372_036_854_775_807n;
 
 const f64TestValues: number[] = [
   0.0,
+  -0.0,
   Math.PI,
   Number.EPSILON,
   Number.POSITIVE_INFINITY,
