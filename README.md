@@ -236,11 +236,11 @@ That means it's unsafe, in general, to add or remove _required_ fields in a choi
 
 Not to worry—choices can have optional and asymmetric fields, just like structs!
 
-An optional field of a choice must be paired with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. So readers aren't required to handle optional fields; hence, *optional*. Note that the fallback itself might be optional, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
+Optional and asymmetric fields in choices must be constructed with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. Readers aren't required to handle optional fields; hence, *optional*. Note that the fallback itself might be optional or asymmetric, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
 **Note:** An optional field in a choice is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field).
 
-An asymmetric field of a choice must also be paired with a fallback, but the fallback is not made available to readers; they must be able to handle the asymmetric field directly. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can safely be promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
+Although asymmetric fields in choices must be constructed with a fallback, the fallback is not exposed to readers; they must be able to handle the asymmetric field itself. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can safely be promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
 
 Consider a more elaborate version of our API response type:
 
@@ -491,7 +491,7 @@ Every language has its own patterns and idiosyncrasies. The sections below conta
 
 - The generated code is self-contained in that it only depends on JavaScript's standard built-in objects. It can run in the browser or with Node.js.
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
-- Typical's integer types map to `bigint`, rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
+- Typical's integer types map to `bigint` rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
 - Structs map straightforwardly to objects, as one would expect. Empty choices map to TypeScript's `never` type. Non-empty choices map to objects with a `$field` property indicating which field was set, a property for the field itself (unless the type of the field is `Unit`, in which case the property is omitted), and, for optional or asymmetric fields, a `$fallback` property for the fallback object.
 - The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
 
