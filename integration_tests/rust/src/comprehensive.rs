@@ -83,7 +83,7 @@ pub fn run() -> io::Result<()> {
         l_required: U64_TEST_VALUES.to_owned(),
         m_required: S64_TEST_VALUES.to_owned(),
         n_required: vec![false, true, false],
-        o_required: vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        o_required: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_required: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -121,9 +121,9 @@ pub fn run() -> io::Result<()> {
         ],
         x_required: vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_required: vec![
             vec!["".to_owned()],
@@ -160,7 +160,7 @@ pub fn run() -> io::Result<()> {
         l_asymmetric: U64_TEST_VALUES.to_owned(),
         m_asymmetric: S64_TEST_VALUES.to_owned(),
         n_asymmetric: vec![false, true, false],
-        o_asymmetric: vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        o_asymmetric: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_asymmetric: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -198,9 +198,9 @@ pub fn run() -> io::Result<()> {
         ],
         x_asymmetric: vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_asymmetric: vec![
             vec!["".to_owned()],
@@ -269,7 +269,7 @@ pub fn run() -> io::Result<()> {
         l_required: U64_TEST_VALUES.to_owned(),
         m_required: S64_TEST_VALUES.to_owned(),
         n_required: vec![false, true, false],
-        o_required: vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        o_required: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_required: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -307,9 +307,9 @@ pub fn run() -> io::Result<()> {
         ],
         x_required: vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_required: vec![
             vec!["".to_owned()],
@@ -346,7 +346,7 @@ pub fn run() -> io::Result<()> {
         l_asymmetric: U64_TEST_VALUES.to_owned(),
         m_asymmetric: S64_TEST_VALUES.to_owned(),
         n_asymmetric: vec![false, true, false],
-        o_asymmetric: vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        o_asymmetric: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_asymmetric: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -384,9 +384,9 @@ pub fn run() -> io::Result<()> {
         ],
         x_asymmetric: vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_asymmetric: vec![
             vec!["".to_owned()],
@@ -423,7 +423,7 @@ pub fn run() -> io::Result<()> {
         l_optional: Some(U64_TEST_VALUES.to_owned()),
         m_optional: Some(S64_TEST_VALUES.to_owned()),
         n_optional: Some(vec![false, true, false]),
-        o_optional: Some(vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]]),
+        o_optional: Some(vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]]),
         p_optional: Some(vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
@@ -469,9 +469,9 @@ pub fn run() -> io::Result<()> {
         ]),
         x_optional: Some(vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ]),
         y_optional: Some(vec![
             vec!["".to_owned()],
@@ -557,15 +557,12 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::NRequired(vec![false, true, false]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![vec![0, 42, 255]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![vec![]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![vec![], vec![0, 42, 255]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![
+        vec![],
         vec![0, 42, 255],
-        vec![1, 43, 254],
-    ]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::ORequired(vec![
-        vec![0, 42, 255],
-        vec![1, 43, 254],
-        vec![2, 44, 253],
+        vec![7, 6, 5, 4, 3, 2, 1, 0],
     ]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![]))?;
@@ -666,18 +663,18 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![]]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![vec![0, 42, 255]]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![vec![]]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![], vec![], vec![]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![vec![
+        vec![],
         vec![0, 42, 255],
-        vec![1, 43, 254],
-        vec![2, 44, 253],
+        vec![7, 6, 5, 4, 3, 2, 1, 0],
     ]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XRequired(vec![
         vec![],
-        vec![vec![0, 42, 255]],
-        vec![vec![0, 42, 255], vec![1, 43, 254]],
-        vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        vec![vec![]],
+        vec![vec![], vec![0, 42, 255]],
+        vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
     ]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![]))?;
@@ -875,15 +872,15 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
-        vec![vec![0, 42, 255]],
+        vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
-        vec![vec![0, 42, 255], vec![1, 43, 254]],
+        vec![vec![], vec![0, 42, 255]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OAsymmetric(
-        vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         Box::new(fallback.clone()),
     ))?;
 
@@ -1069,7 +1066,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
-        vec![vec![vec![0, 42, 255]]],
+        vec![vec![vec![]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
@@ -1077,15 +1074,15 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
-        vec![vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]]],
+        vec![vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XAsymmetric(
         vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         Box::new(fallback.clone()),
     ))?;
@@ -1316,15 +1313,15 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
-        vec![vec![0, 42, 255]],
+        vec![vec![]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
-        vec![vec![0, 42, 255], vec![1, 43, 254]],
+        vec![vec![], vec![0, 42, 255]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::OOptional(
-        vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+        vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         Box::new(fallback.clone()),
     ))?;
 
@@ -1510,7 +1507,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
-        vec![vec![vec![0, 42, 255]]],
+        vec![vec![vec![]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
@@ -1518,15 +1515,15 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
-        vec![vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]]],
+        vec![vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::XOptional(
         vec![
             vec![],
-            vec![vec![0, 42, 255]],
-            vec![vec![0, 42, 255], vec![1, 43, 254]],
-            vec![vec![0, 42, 255], vec![1, 43, 254], vec![2, 44, 253]],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         Box::new(fallback.clone()),
     ))?;
