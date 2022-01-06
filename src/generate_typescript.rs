@@ -171,23 +171,37 @@ function zigzagDecode(value: bigint): bigint {{
 function varintSizeFromValue(value: bigint): number {{
   if (value < 128n) {{
     return 1;
-  }} else if (value < 16_512n) {{
-    return 2;
-  }} else if (value < 2_113_664n) {{
-    return 3;
-  }} else if (value < 270_549_120n) {{
-    return 4;
-  }} else if (value < 34_630_287_488n) {{
-    return 5;
-  }} else if (value < 4_432_676_798_592n) {{
-    return 6;
-  }} else if (value < 567_382_630_219_904n) {{
-    return 7;
-  }} else if (value < 72_624_976_668_147_840n) {{
-    return 8;
-  }} else {{
-    return 9;
   }}
+
+  if (value < 16_512n) {{
+    return 2;
+  }}
+
+  if (value < 2_113_664n) {{
+    return 3;
+  }}
+
+  if (value < 270_549_120n) {{
+    return 4;
+  }}
+
+  if (value < 34_630_287_488n) {{
+    return 5;
+  }}
+
+  if (value < 4_432_676_798_592n) {{
+    return 6;
+  }}
+
+  if (value < 567_382_630_219_904n) {{
+    return 7;
+  }}
+
+  if (value < 72_624_976_668_147_840n) {{
+    return 8;
+  }}
+
+  return 9;
 }}
 
 function varintSizeFromFirstByte(firstByte: number): number {{
@@ -211,23 +225,31 @@ function serializeVarint(
   if (value < 128n) {{
     dataView.setUint8(offset, Number(value << 1n) | 0b0000_0001);
     return offset + 1;
-  }} else if (value < 16_512n) {{
+  }}
+
+  if (value < 16_512n) {{
     value -= 128n;
     dataView.setUint8(offset, Number((value << 2n) % 256n) | 0b0000_0010);
     dataView.setUint8(offset + 1, Number(value >> 6n));
     return offset + 2;
-  }} else if (value < 2_113_664n) {{
+  }}
+
+  if (value < 2_113_664n) {{
     value -= 16_512n;
     dataView.setUint8(offset, Number((value << 3n) % 256n) | 0b0000_0100);
     dataView.setUint16(offset + 1, Number((value >> 5n) % 65_536n), true);
     return offset + 3;
-  }} else if (value < 270_549_120n) {{
+  }}
+
+  if (value < 270_549_120n) {{
     value -= 2_113_664n;
     dataView.setUint8(offset, Number((value << 4n) % 256n) | 0b0000_1000);
     dataView.setUint8(offset + 1, Number((value >> 4n) % 256n));
     dataView.setUint16(offset + 2, Number((value >> 12n) % 65_536n), true);
     return offset + 4;
-  }} else if (value < 34_630_287_488n) {{
+  }}
+
+  if (value < 34_630_287_488n) {{
     value -= 270_549_120n;
     dataView.setUint8(offset, Number((value << 5n) % 256n) | 0b0001_0000);
     dataView.setUint32(
@@ -236,7 +258,9 @@ function serializeVarint(
       true,
     );
     return offset + 5;
-  }} else if (value < 4_432_676_798_592n) {{
+  }}
+
+  if (value < 4_432_676_798_592n) {{
     value -= 34_630_287_488n;
     dataView.setUint8(offset, Number((value << 6n) % 256n) | 0b0010_0000);
     dataView.setUint8(offset + 1, Number((value >> 2n) % 256n));
@@ -246,7 +270,9 @@ function serializeVarint(
       true,
     );
     return offset + 6;
-  }} else if (value < 567_382_630_219_904n) {{
+  }}
+
+  if (value < 567_382_630_219_904n) {{
     value -= 4_432_676_798_592n;
     dataView.setUint8(offset, Number((value << 7n) % 256n) | 0b0100_0000);
     dataView.setUint16(offset + 1, Number((value >> 1n) % 65_536n), true);
@@ -256,7 +282,9 @@ function serializeVarint(
       true,
     );
     return offset + 7;
-  }} else if (value < 72_624_976_668_147_840n) {{
+  }}
+
+  if (value < 72_624_976_668_147_840n) {{
     value -= 567_382_630_219_904n;
     dataView.setUint8(offset, 0b1000_0000);
     dataView.setUint8(offset + 1, Number(value % 256n));
@@ -267,12 +295,12 @@ function serializeVarint(
       true,
     );
     return offset + 8;
-  }} else {{
-    value -= 72_624_976_668_147_840n;
-    dataView.setUint8(offset, 0b0000_0000);
-    dataView.setBigUint64(offset + 1, value, true);
-    return offset + 9;
   }}
+
+  value -= 72_624_976_668_147_840n;
+  dataView.setUint8(offset, 0b0000_0000);
+  dataView.setBigUint64(offset + 1, value, true);
+  return offset + 9;
 }}
 
 function deserializeVarint(
@@ -348,12 +376,12 @@ function fieldHeaderSize(
     default:
       if (integerEncoded) {{
         return varintSizeFromValue((index << 2n) | BigInt(0b10));
-      }} else {{
-        return (
-          varintSizeFromValue((index << 2n) | BigInt(0b11)) +
-          varintSizeFromValue(BigInt(payloadSize))
-        );
       }}
+
+      return (
+        varintSizeFromValue((index << 2n) | BigInt(0b11)) +
+        varintSizeFromValue(BigInt(payloadSize))
+      );
   }}
 }}
 
@@ -372,15 +400,15 @@ function serializeFieldHeader(
     default:
       if (integerEncoded) {{
         return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b10));
-      }} else {{
-        offset = serializeVarint(
-          dataView,
-          offset,
-          (index << 2n) | BigInt(0b11),
-        );
-
-        return serializeVarint(dataView, offset, BigInt(payloadSize));
       }}
+
+      offset = serializeVarint(
+        dataView,
+        offset,
+        (index << 2n) | BigInt(0b11),
+      );
+
+      return serializeVarint(dataView, offset, BigInt(payloadSize));
   }}
 }}
 
@@ -404,11 +432,12 @@ function deserializeFieldHeader(
     case 2n:
       size = varintSizeFromFirstByte(dataView.getUint8(offset));
       break;
-    default:
+    default: {{
       const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
       offset = newNewOffset;
       size = Number(sizeValue);
       break;
+    }}
   }}
 
   return [offset, index, size];
@@ -751,7 +780,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "] {{")?;
                 if !declaration.fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "let dataViewAlias = dataView;")?;
+                    writeln!(buffer, "const dataViewAlias = dataView;")?;
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "let ")?;
@@ -1099,7 +1128,7 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, "] {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "let dataViewAlias = dataView;")?;
+                writeln!(buffer, "const dataViewAlias = dataView;")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "while (true) {{")?;
@@ -1674,7 +1703,9 @@ fn write_serialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "for (const payload of oldPayload) {{")?;
+                writeln!(buffer, "for (let i = 0; i < oldPayload.length; i += 1) {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_size_calculation(
                     buffer,
                     indentation + 2,
@@ -1710,7 +1741,9 @@ fn write_serialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "for (const payload of oldPayload) {{")?;
+                writeln!(buffer, "for (let i = 0; i < oldPayload.length; i += 1) {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_size_calculation(
                     buffer,
                     indentation + 2,
@@ -1897,9 +1930,9 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "let dataViewAlias = dataView;")?;
+                writeln!(buffer, "const dataViewAlias = dataView;")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "let payloadAlias = payload;")?;
+                writeln!(buffer, "const payloadAlias = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1971,7 +2004,7 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "let payloadAlias = payload;")?;
+                writeln!(buffer, "const payloadAlias = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -2027,7 +2060,10 @@ fn write_deserialization_invocation<T: Write>(
                     is_field,
                 )?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "newPayload = Array(Number(payload)).fill(null);")?;
+                writeln!(
+                    buffer,
+                    "newPayload = Array(Number(payload)).fill(null) as null[];",
+                )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
