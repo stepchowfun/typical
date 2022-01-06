@@ -762,8 +762,8 @@ fn write_schema<T: Write>(
                         } else {
                             write!(buffer, ", ")?;
                         }
+                        write!(buffer, "$")?;
                         write_identifier(buffer, &field.name, Camel, None)?;
-                        write!(buffer, "Field")?;
                     }
                     writeln!(buffer, ";")?;
                     writeln!(buffer)?;
@@ -823,8 +823,9 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 5)?;
                         writeln!(buffer, "offset += oldOffset;")?;
                         write_indentation(buffer, indentation + 5)?;
+                        write!(buffer, "$")?;
                         write_identifier(buffer, &field.name, Camel, None)?;
-                        writeln!(buffer, "Field = payload;")?;
+                        writeln!(buffer, " = payload;")?;
                         write_indentation(buffer, indentation + 5)?;
                         writeln!(buffer, "break;")?;
                         write_indentation(buffer, indentation + 4)?;
@@ -857,8 +858,9 @@ fn write_schema<T: Write>(
                                     } else {
                                         write!(buffer, " || ")?;
                                     }
+                                    write!(buffer, "$")?;
                                     write_identifier(buffer, &field.name, Camel, None)?;
-                                    write!(buffer, "Field === undefined")?;
+                                    write!(buffer, " === undefined")?;
                                 }
                             }
                         }
@@ -882,9 +884,9 @@ fn write_schema<T: Write>(
                 for field in &declaration.fields {
                     write_indentation(buffer, indentation + 4)?;
                     write_identifier(buffer, &field.name, Camel, None)?;
-                    write!(buffer, ": ")?;
+                    write!(buffer, ": $")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
-                    writeln!(buffer, "Field,")?;
+                    writeln!(buffer, ",")?;
                 }
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "}}")?;
@@ -950,7 +952,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "let payloadSize = 0;")?;
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "switch (value.field) {{")?;
+                    writeln!(buffer, "switch (value.$field) {{")?;
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "case '")?;
@@ -960,7 +962,9 @@ fn write_schema<T: Write>(
                         if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                             writeln!(buffer, "const payload = null;")?;
                         } else {
-                            writeln!(buffer, "const payload = value.value;")?;
+                            write!(buffer, "const payload = value.")?;
+                            write_identifier(buffer, &field.name, Camel, None)?;
+                            writeln!(buffer, ";")?;
                         }
                         write_size_calculation(
                             buffer,
@@ -979,7 +983,7 @@ fn write_schema<T: Write>(
                         )?;
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {
-                                writeln!(buffer, " + size(value.fallback);")?;
+                                writeln!(buffer, " + size(value.$fallback);")?;
                             }
                             schema::Rule::Required => {
                                 writeln!(buffer, ";")?;
@@ -1019,7 +1023,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "let payloadSize = 0;")?;
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "switch (value.field) {{")?;
+                    writeln!(buffer, "switch (value.$field) {{")?;
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "case '")?;
@@ -1029,7 +1033,9 @@ fn write_schema<T: Write>(
                         if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                             writeln!(buffer, "const payload = null;")?;
                         } else {
-                            writeln!(buffer, "const payload = value.value;")?;
+                            write!(buffer, "const payload = value.")?;
+                            write_identifier(buffer, &field.name, Camel, None)?;
+                            writeln!(buffer, ";")?;
                         }
                         write_size_calculation(
                             buffer,
@@ -1060,7 +1066,7 @@ fn write_schema<T: Write>(
                                 write_indentation(buffer, indentation + 4)?;
                                 writeln!(
                                     buffer,
-                                    "offset = serialize(dataView, offset, value.fallback);",
+                                    "offset = serialize(dataView, offset, value.$fallback);",
                                 )?;
                             }
                             schema::Rule::Required => {}
@@ -1140,7 +1146,7 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(
                                 buffer,
-                                "const [newNewOffset, fallback] = \
+                                "const [newNewOffset, $fallback] = \
                                     deserialize(dataViewAlias, offset);",
                             )?;
                             write_indentation(buffer, indentation + 5)?;
@@ -1154,18 +1160,19 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 6)?;
                     writeln!(buffer, "{{")?;
                     write_indentation(buffer, indentation + 7)?;
-                    write!(buffer, "field: '")?;
+                    write!(buffer, "$field: '")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     writeln!(buffer, "',")?;
                     if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                         write_indentation(buffer, indentation + 7)?;
-                        writeln!(buffer, "value: payload,")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, ": payload,")?;
                     }
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {}
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 7)?;
-                            writeln!(buffer, "fallback,")?;
+                            writeln!(buffer, "$fallback,")?;
                         }
                     }
                     write_indentation(buffer, indentation + 6)?;
@@ -1272,12 +1279,14 @@ fn write_choice<T: Write>(
     for field in fields {
         writeln!(buffer)?;
         write_indentation(buffer, indentation + 1)?;
-        write!(buffer, "| {{ field: '")?;
+        write!(buffer, "| {{ $field: '")?;
         write_identifier(buffer, &field.name, Camel, None)?;
         write!(buffer, "'")?;
 
         if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-            write!(buffer, "; value: ")?;
+            write!(buffer, "; ")?;
+            write_identifier(buffer, &field.name, Camel, None)?;
+            write!(buffer, ": ")?;
             write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         }
 
@@ -1289,7 +1298,7 @@ fn write_choice<T: Write>(
             schema::Rule::Optional => true,
             schema::Rule::Required => false,
         } {
-            write!(buffer, "; fallback: ")?;
+            write!(buffer, "; $fallback: ")?;
             write_identifier(buffer, name, Pascal, Some(direction))?;
         }
 
@@ -1301,7 +1310,7 @@ fn write_choice<T: Write>(
     if fields.len() == 1 {
         writeln!(buffer)?;
         write_indentation(buffer, indentation + 1)?;
-        write!(buffer, "| {{ field: never }}")?;
+        write!(buffer, "| {{ $field: never }}")?;
     }
 
     if fields.is_empty() {

@@ -420,42 +420,42 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aRequired',
+      $field: 'aRequired',
     },
   );
 
-  f64TestValues.forEach((value) => {
+  f64TestValues.forEach((bRequired) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'bRequired',
-        value,
+        $field: 'bRequired',
+        bRequired,
       },
     );
   });
 
-  u64TestValues.forEach((value) => {
+  u64TestValues.forEach((cRequired) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'cRequired',
-        value,
+        $field: 'cRequired',
+        cRequired,
       },
     );
   });
 
-  s64TestValues.forEach((value) => {
+  s64TestValues.forEach((dRequired) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'dRequired',
-        value,
+        $field: 'dRequired',
+        dRequired,
       },
     );
   });
@@ -465,8 +465,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'eRequired',
-      value: false,
+      $field: 'eRequired',
+      eRequired: false,
     },
   );
 
@@ -475,8 +475,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'eRequired',
-      value: true,
+      $field: 'eRequired',
+      eRequired: true,
     },
   );
 
@@ -485,8 +485,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fRequired',
-      value: new Uint8Array([]).buffer,
+      $field: 'fRequired',
+      fRequired: new Uint8Array([]).buffer,
     },
   );
 
@@ -495,8 +495,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fRequired',
-      value: new Uint8Array([0]).buffer,
+      $field: 'fRequired',
+      fRequired: new Uint8Array([0]).buffer,
     },
   );
 
@@ -505,8 +505,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fRequired',
-      value: new Uint8Array([0, 42]).buffer,
+      $field: 'fRequired',
+      fRequired: new Uint8Array([0, 42]).buffer,
     },
   );
 
@@ -515,8 +515,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fRequired',
-      value: new Uint8Array([0, 42, 255]).buffer,
+      $field: 'fRequired',
+      fRequired: new Uint8Array([0, 42, 255]).buffer,
     },
   );
 
@@ -525,8 +525,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gRequired',
-      value: '',
+      $field: 'gRequired',
+      gRequired: '',
     },
   );
 
@@ -535,8 +535,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gRequired',
-      value: '=8 bytes',
+      $field: 'gRequired',
+      gRequired: '=8 bytes',
     },
   );
 
@@ -545,8 +545,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gRequired',
-      value: 'Hello, World!',
+      $field: 'gRequired',
+      gRequired: 'Hello, World!',
     },
   );
 
@@ -555,8 +555,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'hRequired',
-      value: {},
+      $field: 'hRequired',
+      hRequired: {},
     },
   );
 
@@ -565,8 +565,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'iRequired',
-      value: {},
+      $field: 'iRequired',
+      iRequired: {},
     },
   );
 
@@ -575,8 +575,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jRequired',
-      value: [],
+      $field: 'jRequired',
+      jRequired: [],
     },
   );
 
@@ -585,8 +585,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jRequired',
-      value: [null],
+      $field: 'jRequired',
+      jRequired: [null],
     },
   );
 
@@ -595,8 +595,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jRequired',
-      value: [null, null],
+      $field: 'jRequired',
+      jRequired: [null, null],
     },
   );
 
@@ -605,8 +605,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jRequired',
-      value: [null, null, null],
+      $field: 'jRequired',
+      jRequired: [null, null, null],
     },
   );
 
@@ -615,8 +615,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kRequired',
-      value: [],
+      $field: 'kRequired',
+      kRequired: [],
     },
   );
 
@@ -625,8 +625,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kRequired',
-      value: [0.0],
+      $field: 'kRequired',
+      kRequired: [0.0],
     },
   );
 
@@ -635,8 +635,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kRequired',
-      value: [0.0, Math.PI],
+      $field: 'kRequired',
+      kRequired: [0.0, Math.PI],
     },
   );
 
@@ -645,8 +645,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kRequired',
-      value: [0.0, Math.PI, Number.EPSILON],
+      $field: 'kRequired',
+      kRequired: [0.0, Math.PI, Number.EPSILON],
     },
   );
 
@@ -655,8 +655,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kRequired',
-      value: f64TestValues,
+      $field: 'kRequired',
+      kRequired: f64TestValues,
     },
   );
 
@@ -665,8 +665,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lRequired',
-      value: [],
+      $field: 'lRequired',
+      lRequired: [],
     },
   );
 
@@ -675,8 +675,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lRequired',
-      value: [u64Min],
+      $field: 'lRequired',
+      lRequired: [u64Min],
     },
   );
 
@@ -685,8 +685,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lRequired',
-      value: [u64Min, 256n],
+      $field: 'lRequired',
+      lRequired: [u64Min, 256n],
     },
   );
 
@@ -695,8 +695,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lRequired',
-      value: [u64Min, 256n, u64Max],
+      $field: 'lRequired',
+      lRequired: [u64Min, 256n, u64Max],
     },
   );
 
@@ -705,8 +705,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lRequired',
-      value: u64TestValues,
+      $field: 'lRequired',
+      lRequired: u64TestValues,
     },
   );
 
@@ -715,8 +715,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mRequired',
-      value: [],
+      $field: 'mRequired',
+      mRequired: [],
     },
   );
 
@@ -725,8 +725,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mRequired',
-      value: [s64Min],
+      $field: 'mRequired',
+      mRequired: [s64Min],
     },
   );
 
@@ -735,8 +735,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mRequired',
-      value: [s64Min, 0n],
+      $field: 'mRequired',
+      mRequired: [s64Min, 0n],
     },
   );
 
@@ -745,8 +745,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mRequired',
-      value: [s64Min, 0n, s64Max],
+      $field: 'mRequired',
+      mRequired: [s64Min, 0n, s64Max],
     },
   );
 
@@ -755,8 +755,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mRequired',
-      value: s64TestValues,
+      $field: 'mRequired',
+      mRequired: s64TestValues,
     },
   );
 
@@ -765,8 +765,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nRequired',
-      value: [],
+      $field: 'nRequired',
+      nRequired: [],
     },
   );
 
@@ -775,8 +775,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nRequired',
-      value: [false],
+      $field: 'nRequired',
+      nRequired: [false],
     },
   );
 
@@ -785,8 +785,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nRequired',
-      value: [false, true],
+      $field: 'nRequired',
+      nRequired: [false, true],
     },
   );
 
@@ -795,8 +795,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nRequired',
-      value: [false, true, false],
+      $field: 'nRequired',
+      nRequired: [false, true, false],
     },
   );
 
@@ -805,8 +805,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oRequired',
-      value: [],
+      $field: 'oRequired',
+      oRequired: [],
     },
   );
 
@@ -815,8 +815,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oRequired',
-      value: [new Uint8Array([0, 42, 255]).buffer],
+      $field: 'oRequired',
+      oRequired: [new Uint8Array([0, 42, 255]).buffer],
     },
   );
 
@@ -825,8 +825,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oRequired',
-      value: [
+      $field: 'oRequired',
+      oRequired: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
       ],
@@ -838,8 +838,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oRequired',
-      value: [
+      $field: 'oRequired',
+      oRequired: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
         new Uint8Array([2, 44, 253]).buffer,
@@ -852,8 +852,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pRequired',
-      value: [],
+      $field: 'pRequired',
+      pRequired: [],
     },
   );
 
@@ -862,8 +862,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pRequired',
-      value: [''],
+      $field: 'pRequired',
+      pRequired: [''],
     },
   );
 
@@ -872,8 +872,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pRequired',
-      value: ['', '=8 bytes'],
+      $field: 'pRequired',
+      pRequired: ['', '=8 bytes'],
     },
   );
 
@@ -882,8 +882,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pRequired',
-      value: ['', '=8 bytes', 'Hello, World!'],
+      $field: 'pRequired',
+      pRequired: ['', '=8 bytes', 'Hello, World!'],
     },
   );
 
@@ -892,8 +892,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qRequired',
-      value: [],
+      $field: 'qRequired',
+      qRequired: [],
     },
   );
 
@@ -902,8 +902,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qRequired',
-      value: [{}],
+      $field: 'qRequired',
+      qRequired: [{}],
     },
   );
 
@@ -912,8 +912,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qRequired',
-      value: [{}, {}],
+      $field: 'qRequired',
+      qRequired: [{}, {}],
     },
   );
 
@@ -922,8 +922,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qRequired',
-      value: [{}, {}, {}],
+      $field: 'qRequired',
+      qRequired: [{}, {}, {}],
     },
   );
 
@@ -932,8 +932,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rRequired',
-      value: [],
+      $field: 'rRequired',
+      rRequired: [],
     },
   );
 
@@ -942,8 +942,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rRequired',
-      value: [{}],
+      $field: 'rRequired',
+      rRequired: [{}],
     },
   );
 
@@ -952,8 +952,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rRequired',
-      value: [{}, {}],
+      $field: 'rRequired',
+      rRequired: [{}, {}],
     },
   );
 
@@ -962,8 +962,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rRequired',
-      value: [{}, {}, {}],
+      $field: 'rRequired',
+      rRequired: [{}, {}, {}],
     },
   );
 
@@ -972,8 +972,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sRequired',
-      value: [],
+      $field: 'sRequired',
+      sRequired: [],
     },
   );
 
@@ -982,8 +982,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sRequired',
-      value: [[]],
+      $field: 'sRequired',
+      sRequired: [[]],
     },
   );
 
@@ -992,8 +992,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sRequired',
-      value: [[null]],
+      $field: 'sRequired',
+      sRequired: [[null]],
     },
   );
 
@@ -1002,8 +1002,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sRequired',
-      value: [[], [], []],
+      $field: 'sRequired',
+      sRequired: [[], [], []],
     },
   );
 
@@ -1012,8 +1012,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sRequired',
-      value: [[null, null, null]],
+      $field: 'sRequired',
+      sRequired: [[null, null, null]],
     },
   );
 
@@ -1022,8 +1022,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sRequired',
-      value: [[], [null], [null, null], [null, null, null]],
+      $field: 'sRequired',
+      sRequired: [[], [null], [null, null], [null, null, null]],
     },
   );
 
@@ -1032,8 +1032,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tRequired',
-      value: [],
+      $field: 'tRequired',
+      tRequired: [],
     },
   );
 
@@ -1042,8 +1042,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tRequired',
-      value: [[]],
+      $field: 'tRequired',
+      tRequired: [[]],
     },
   );
 
@@ -1052,8 +1052,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tRequired',
-      value: [[0.0]],
+      $field: 'tRequired',
+      tRequired: [[0.0]],
     },
   );
 
@@ -1062,8 +1062,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tRequired',
-      value: [[], [], []],
+      $field: 'tRequired',
+      tRequired: [[], [], []],
     },
   );
 
@@ -1072,8 +1072,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tRequired',
-      value: [f64TestValues],
+      $field: 'tRequired',
+      tRequired: [f64TestValues],
     },
   );
 
@@ -1082,8 +1082,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tRequired',
-      value: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
+      $field: 'tRequired',
+      tRequired: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
     },
   );
 
@@ -1092,8 +1092,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uRequired',
-      value: [],
+      $field: 'uRequired',
+      uRequired: [],
     },
   );
 
@@ -1102,8 +1102,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uRequired',
-      value: [[]],
+      $field: 'uRequired',
+      uRequired: [[]],
     },
   );
 
@@ -1112,8 +1112,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uRequired',
-      value: [[u64Min]],
+      $field: 'uRequired',
+      uRequired: [[u64Min]],
     },
   );
 
@@ -1122,8 +1122,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uRequired',
-      value: [[], [], []],
+      $field: 'uRequired',
+      uRequired: [[], [], []],
     },
   );
 
@@ -1132,8 +1132,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uRequired',
-      value: [u64TestValues],
+      $field: 'uRequired',
+      uRequired: [u64TestValues],
     },
   );
 
@@ -1142,8 +1142,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uRequired',
-      value: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
+      $field: 'uRequired',
+      uRequired: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
     },
   );
 
@@ -1152,8 +1152,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vRequired',
-      value: [],
+      $field: 'vRequired',
+      vRequired: [],
     },
   );
 
@@ -1162,8 +1162,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vRequired',
-      value: [[]],
+      $field: 'vRequired',
+      vRequired: [[]],
     },
   );
 
@@ -1172,8 +1172,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vRequired',
-      value: [[s64Min]],
+      $field: 'vRequired',
+      vRequired: [[s64Min]],
     },
   );
 
@@ -1182,8 +1182,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vRequired',
-      value: [[], [], []],
+      $field: 'vRequired',
+      vRequired: [[], [], []],
     },
   );
 
@@ -1192,8 +1192,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vRequired',
-      value: [s64TestValues],
+      $field: 'vRequired',
+      vRequired: [s64TestValues],
     },
   );
 
@@ -1202,8 +1202,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vRequired',
-      value: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
+      $field: 'vRequired',
+      vRequired: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
     },
   );
 
@@ -1212,8 +1212,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wRequired',
-      value: [],
+      $field: 'wRequired',
+      wRequired: [],
     },
   );
 
@@ -1222,8 +1222,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wRequired',
-      value: [[]],
+      $field: 'wRequired',
+      wRequired: [[]],
     },
   );
 
@@ -1232,8 +1232,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wRequired',
-      value: [[false]],
+      $field: 'wRequired',
+      wRequired: [[false]],
     },
   );
 
@@ -1242,8 +1242,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wRequired',
-      value: [[], [], []],
+      $field: 'wRequired',
+      wRequired: [[], [], []],
     },
   );
 
@@ -1252,8 +1252,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wRequired',
-      value: [[false, true, false]],
+      $field: 'wRequired',
+      wRequired: [[false, true, false]],
     },
   );
 
@@ -1262,8 +1262,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wRequired',
-      value: [[], [false], [false, true], [false, true, false]],
+      $field: 'wRequired',
+      wRequired: [[], [false], [false, true], [false, true, false]],
     },
   );
 
@@ -1272,8 +1272,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xRequired',
-      value: [],
+      $field: 'xRequired',
+      xRequired: [],
     },
   );
 
@@ -1282,8 +1282,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xRequired',
-      value: [[]],
+      $field: 'xRequired',
+      xRequired: [[]],
     },
   );
 
@@ -1292,8 +1292,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xRequired',
-      value: [[new Uint8Array([0, 42, 255]).buffer]],
+      $field: 'xRequired',
+      xRequired: [[new Uint8Array([0, 42, 255]).buffer]],
     },
   );
 
@@ -1302,8 +1302,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xRequired',
-      value: [[], [], []],
+      $field: 'xRequired',
+      xRequired: [[], [], []],
     },
   );
 
@@ -1312,8 +1312,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xRequired',
-      value: [
+      $field: 'xRequired',
+      xRequired: [
         [
           new Uint8Array([0, 42, 255]).buffer,
           new Uint8Array([1, 43, 254]).buffer,
@@ -1328,8 +1328,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xRequired',
-      value: [
+      $field: 'xRequired',
+      xRequired: [
         [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
@@ -1350,8 +1350,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yRequired',
-      value: [],
+      $field: 'yRequired',
+      yRequired: [],
     },
   );
 
@@ -1360,8 +1360,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yRequired',
-      value: [[]],
+      $field: 'yRequired',
+      yRequired: [[]],
     },
   );
 
@@ -1370,8 +1370,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yRequired',
-      value: [['']],
+      $field: 'yRequired',
+      yRequired: [['']],
     },
   );
 
@@ -1380,8 +1380,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yRequired',
-      value: [[], [], []],
+      $field: 'yRequired',
+      yRequired: [[], [], []],
     },
   );
 
@@ -1390,8 +1390,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yRequired',
-      value: [['', '=8 bytes', 'Hello, World!']],
+      $field: 'yRequired',
+      yRequired: [['', '=8 bytes', 'Hello, World!']],
     },
   );
 
@@ -1400,8 +1400,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yRequired',
-      value: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      $field: 'yRequired',
+      yRequired: [
+        [],
+        [''],
+        ['', '=8 bytes'],
+        ['', '=8 bytes', 'Hello, World!'],
+      ],
     },
   );
 
@@ -1410,8 +1415,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zRequired',
-      value: [],
+      $field: 'zRequired',
+      zRequired: [],
     },
   );
 
@@ -1420,8 +1425,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zRequired',
-      value: [[]],
+      $field: 'zRequired',
+      zRequired: [[]],
     },
   );
 
@@ -1430,8 +1435,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zRequired',
-      value: [[{}]],
+      $field: 'zRequired',
+      zRequired: [[{}]],
     },
   );
 
@@ -1440,8 +1445,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zRequired',
-      value: [[], [], []],
+      $field: 'zRequired',
+      zRequired: [[], [], []],
     },
   );
 
@@ -1450,8 +1455,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zRequired',
-      value: [[{}, {}, {}]],
+      $field: 'zRequired',
+      zRequired: [[{}, {}, {}]],
     },
   );
 
@@ -1460,8 +1465,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zRequired',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $field: 'zRequired',
+      zRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
     },
   );
 
@@ -1470,8 +1475,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaRequired',
-      value: [],
+      $field: 'aaRequired',
+      aaRequired: [],
     },
   );
 
@@ -1480,8 +1485,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaRequired',
-      value: [[]],
+      $field: 'aaRequired',
+      aaRequired: [[]],
     },
   );
 
@@ -1490,8 +1495,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaRequired',
-      value: [[{}]],
+      $field: 'aaRequired',
+      aaRequired: [[{}]],
     },
   );
 
@@ -1500,8 +1505,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaRequired',
-      value: [[], [], []],
+      $field: 'aaRequired',
+      aaRequired: [[], [], []],
     },
   );
 
@@ -1510,8 +1515,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaRequired',
-      value: [[{}, {}, {}]],
+      $field: 'aaRequired',
+      aaRequired: [[{}, {}, {}]],
     },
   );
 
@@ -1520,73 +1525,73 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaRequired',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $field: 'aaRequired',
+      aaRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
     },
   );
 
-  const fallback: { field: 'aRequired' } = { field: 'aRequired' };
+  const $fallback: { $field: 'aRequired' } = { $field: 'aRequired' };
 
   assertMatch(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aAsymmetric',
-      fallback,
+      $field: 'aAsymmetric',
+      $fallback,
     },
     {
-      field: 'aAsymmetric',
+      $field: 'aAsymmetric',
     },
   );
 
-  f64TestValues.forEach((value) => {
+  f64TestValues.forEach((bAsymmetric) => {
     assertMatch(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'bAsymmetric',
-        value,
-        fallback,
+        $field: 'bAsymmetric',
+        bAsymmetric,
+        $fallback,
       },
       {
-        field: 'bAsymmetric',
-        value,
+        $field: 'bAsymmetric',
+        bAsymmetric,
       },
     );
   });
 
-  u64TestValues.forEach((value) => {
+  u64TestValues.forEach((cAsymmetric) => {
     assertMatch(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'cAsymmetric',
-        value,
-        fallback,
+        $field: 'cAsymmetric',
+        cAsymmetric,
+        $fallback,
       },
       {
-        field: 'cAsymmetric',
-        value,
+        $field: 'cAsymmetric',
+        cAsymmetric,
       },
     );
   });
 
-  s64TestValues.forEach((value) => {
+  s64TestValues.forEach((dAsymmetric) => {
     assertMatch(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'dAsymmetric',
-        value,
-        fallback,
+        $field: 'dAsymmetric',
+        dAsymmetric,
+        $fallback,
       },
       {
-        field: 'dAsymmetric',
-        value,
+        $field: 'dAsymmetric',
+        dAsymmetric,
       },
     );
   });
@@ -1596,28 +1601,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'eAsymmetric',
-      value: false,
-      fallback,
+      $field: 'eAsymmetric',
+      eAsymmetric: false,
+      $fallback,
     },
     {
-      field: 'eAsymmetric',
-      value: false,
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'eAsymmetric',
-      value: true,
-      fallback,
-    },
-    {
-      field: 'eAsymmetric',
-      value: true,
+      $field: 'eAsymmetric',
+      eAsymmetric: false,
     },
   );
 
@@ -1626,28 +1616,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fAsymmetric',
-      value: new Uint8Array([]).buffer,
-      fallback,
+      $field: 'eAsymmetric',
+      eAsymmetric: true,
+      $fallback,
     },
     {
-      field: 'fAsymmetric',
-      value: new Uint8Array([]).buffer,
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'fAsymmetric',
-      value: new Uint8Array([0]).buffer,
-      fallback,
-    },
-    {
-      field: 'fAsymmetric',
-      value: new Uint8Array([0]).buffer,
+      $field: 'eAsymmetric',
+      eAsymmetric: true,
     },
   );
 
@@ -1656,28 +1631,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fAsymmetric',
-      value: new Uint8Array([0, 42]).buffer,
-      fallback,
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([]).buffer,
+      $fallback,
     },
     {
-      field: 'fAsymmetric',
-      value: new Uint8Array([0, 42]).buffer,
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'fAsymmetric',
-      value: new Uint8Array([0, 42, 255]).buffer,
-      fallback,
-    },
-    {
-      field: 'fAsymmetric',
-      value: new Uint8Array([0, 42, 255]).buffer,
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([]).buffer,
     },
   );
 
@@ -1686,28 +1646,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gAsymmetric',
-      value: '',
-      fallback,
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([0]).buffer,
+      $fallback,
     },
     {
-      field: 'gAsymmetric',
-      value: '',
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'gAsymmetric',
-      value: '=8 bytes',
-      fallback,
-    },
-    {
-      field: 'gAsymmetric',
-      value: '=8 bytes',
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([0]).buffer,
     },
   );
 
@@ -1716,28 +1661,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gAsymmetric',
-      value: 'Hello, World!',
-      fallback,
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([0, 42]).buffer,
+      $fallback,
     },
     {
-      field: 'gAsymmetric',
-      value: 'Hello, World!',
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'hAsymmetric',
-      value: {},
-      fallback,
-    },
-    {
-      field: 'hAsymmetric',
-      value: {},
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([0, 42]).buffer,
     },
   );
 
@@ -1746,28 +1676,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'iAsymmetric',
-      value: {},
-      fallback,
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([0, 42, 255]).buffer,
+      $fallback,
     },
     {
-      field: 'iAsymmetric',
-      value: {},
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'jAsymmetric',
-      value: [],
-      fallback,
-    },
-    {
-      field: 'jAsymmetric',
-      value: [],
+      $field: 'fAsymmetric',
+      fAsymmetric: new Uint8Array([0, 42, 255]).buffer,
     },
   );
 
@@ -1776,28 +1691,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jAsymmetric',
-      value: [null],
-      fallback,
+      $field: 'gAsymmetric',
+      gAsymmetric: '',
+      $fallback,
     },
     {
-      field: 'jAsymmetric',
-      value: [null],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'jAsymmetric',
-      value: [null, null],
-      fallback,
-    },
-    {
-      field: 'jAsymmetric',
-      value: [null, null],
+      $field: 'gAsymmetric',
+      gAsymmetric: '',
     },
   );
 
@@ -1806,28 +1706,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jAsymmetric',
-      value: [null, null, null],
-      fallback,
+      $field: 'gAsymmetric',
+      gAsymmetric: '=8 bytes',
+      $fallback,
     },
     {
-      field: 'jAsymmetric',
-      value: [null, null, null],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'kAsymmetric',
-      value: [],
-      fallback,
-    },
-    {
-      field: 'kAsymmetric',
-      value: [],
+      $field: 'gAsymmetric',
+      gAsymmetric: '=8 bytes',
     },
   );
 
@@ -1836,28 +1721,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kAsymmetric',
-      value: [0.0],
-      fallback,
+      $field: 'gAsymmetric',
+      gAsymmetric: 'Hello, World!',
+      $fallback,
     },
     {
-      field: 'kAsymmetric',
-      value: [0.0],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'kAsymmetric',
-      value: [0.0, Math.PI],
-      fallback,
-    },
-    {
-      field: 'kAsymmetric',
-      value: [0.0, Math.PI],
+      $field: 'gAsymmetric',
+      gAsymmetric: 'Hello, World!',
     },
   );
 
@@ -1866,28 +1736,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kAsymmetric',
-      value: [0.0, Math.PI, Number.EPSILON],
-      fallback,
+      $field: 'hAsymmetric',
+      hAsymmetric: {},
+      $fallback,
     },
     {
-      field: 'kAsymmetric',
-      value: [0.0, Math.PI, Number.EPSILON],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'kAsymmetric',
-      value: f64TestValues,
-      fallback,
-    },
-    {
-      field: 'kAsymmetric',
-      value: f64TestValues,
+      $field: 'hAsymmetric',
+      hAsymmetric: {},
     },
   );
 
@@ -1896,28 +1751,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lAsymmetric',
-      value: [],
-      fallback,
+      $field: 'iAsymmetric',
+      iAsymmetric: {},
+      $fallback,
     },
     {
-      field: 'lAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'lAsymmetric',
-      value: [u64Min],
-      fallback,
-    },
-    {
-      field: 'lAsymmetric',
-      value: [u64Min],
+      $field: 'iAsymmetric',
+      iAsymmetric: {},
     },
   );
 
@@ -1926,28 +1766,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lAsymmetric',
-      value: [u64Min, 256n],
-      fallback,
+      $field: 'jAsymmetric',
+      jAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'lAsymmetric',
-      value: [u64Min, 256n],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'lAsymmetric',
-      value: [u64Min, 256n, u64Max],
-      fallback,
-    },
-    {
-      field: 'lAsymmetric',
-      value: [u64Min, 256n, u64Max],
+      $field: 'jAsymmetric',
+      jAsymmetric: [],
     },
   );
 
@@ -1956,28 +1781,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lAsymmetric',
-      value: u64TestValues,
-      fallback,
+      $field: 'jAsymmetric',
+      jAsymmetric: [null],
+      $fallback,
     },
     {
-      field: 'lAsymmetric',
-      value: u64TestValues,
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'mAsymmetric',
-      value: [],
-      fallback,
-    },
-    {
-      field: 'mAsymmetric',
-      value: [],
+      $field: 'jAsymmetric',
+      jAsymmetric: [null],
     },
   );
 
@@ -1986,28 +1796,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mAsymmetric',
-      value: [s64Min],
-      fallback,
+      $field: 'jAsymmetric',
+      jAsymmetric: [null, null],
+      $fallback,
     },
     {
-      field: 'mAsymmetric',
-      value: [s64Min],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'mAsymmetric',
-      value: [s64Min, 0n],
-      fallback,
-    },
-    {
-      field: 'mAsymmetric',
-      value: [s64Min, 0n],
+      $field: 'jAsymmetric',
+      jAsymmetric: [null, null],
     },
   );
 
@@ -2016,28 +1811,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mAsymmetric',
-      value: [s64Min, 0n, s64Max],
-      fallback,
+      $field: 'jAsymmetric',
+      jAsymmetric: [null, null, null],
+      $fallback,
     },
     {
-      field: 'mAsymmetric',
-      value: [s64Min, 0n, s64Max],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'mAsymmetric',
-      value: s64TestValues,
-      fallback,
-    },
-    {
-      field: 'mAsymmetric',
-      value: s64TestValues,
+      $field: 'jAsymmetric',
+      jAsymmetric: [null, null, null],
     },
   );
 
@@ -2046,28 +1826,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nAsymmetric',
-      value: [],
-      fallback,
+      $field: 'kAsymmetric',
+      kAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'nAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'nAsymmetric',
-      value: [false],
-      fallback,
-    },
-    {
-      field: 'nAsymmetric',
-      value: [false],
+      $field: 'kAsymmetric',
+      kAsymmetric: [],
     },
   );
 
@@ -2076,28 +1841,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nAsymmetric',
-      value: [false, true],
-      fallback,
+      $field: 'kAsymmetric',
+      kAsymmetric: [0.0],
+      $fallback,
     },
     {
-      field: 'nAsymmetric',
-      value: [false, true],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'nAsymmetric',
-      value: [false, true, false],
-      fallback,
-    },
-    {
-      field: 'nAsymmetric',
-      value: [false, true, false],
+      $field: 'kAsymmetric',
+      kAsymmetric: [0.0],
     },
   );
 
@@ -2106,28 +1856,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oAsymmetric',
-      value: [],
-      fallback,
+      $field: 'kAsymmetric',
+      kAsymmetric: [0.0, Math.PI],
+      $fallback,
     },
     {
-      field: 'oAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'oAsymmetric',
-      value: [new Uint8Array([0, 42, 255]).buffer],
-      fallback,
-    },
-    {
-      field: 'oAsymmetric',
-      value: [new Uint8Array([0, 42, 255]).buffer],
+      $field: 'kAsymmetric',
+      kAsymmetric: [0.0, Math.PI],
     },
   );
 
@@ -2136,16 +1871,286 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oAsymmetric',
-      value: [
+      $field: 'kAsymmetric',
+      kAsymmetric: [0.0, Math.PI, Number.EPSILON],
+      $fallback,
+    },
+    {
+      $field: 'kAsymmetric',
+      kAsymmetric: [0.0, Math.PI, Number.EPSILON],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'kAsymmetric',
+      kAsymmetric: f64TestValues,
+      $fallback,
+    },
+    {
+      $field: 'kAsymmetric',
+      kAsymmetric: f64TestValues,
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [u64Min],
+      $fallback,
+    },
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [u64Min],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [u64Min, 256n],
+      $fallback,
+    },
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [u64Min, 256n],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [u64Min, 256n, u64Max],
+      $fallback,
+    },
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: [u64Min, 256n, u64Max],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: u64TestValues,
+      $fallback,
+    },
+    {
+      $field: 'lAsymmetric',
+      lAsymmetric: u64TestValues,
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [s64Min],
+      $fallback,
+    },
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [s64Min],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [s64Min, 0n],
+      $fallback,
+    },
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [s64Min, 0n],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [s64Min, 0n, s64Max],
+      $fallback,
+    },
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: [s64Min, 0n, s64Max],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: s64TestValues,
+      $fallback,
+    },
+    {
+      $field: 'mAsymmetric',
+      mAsymmetric: s64TestValues,
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [false],
+      $fallback,
+    },
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [false],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [false, true],
+      $fallback,
+    },
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [false, true],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [false, true, false],
+      $fallback,
+    },
+    {
+      $field: 'nAsymmetric',
+      nAsymmetric: [false, true, false],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'oAsymmetric',
+      oAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'oAsymmetric',
+      oAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'oAsymmetric',
+      oAsymmetric: [new Uint8Array([0, 42, 255]).buffer],
+      $fallback,
+    },
+    {
+      $field: 'oAsymmetric',
+      oAsymmetric: [new Uint8Array([0, 42, 255]).buffer],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'oAsymmetric',
+      oAsymmetric: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
       ],
-      fallback,
+      $fallback,
     },
     {
-      field: 'oAsymmetric',
-      value: [
+      $field: 'oAsymmetric',
+      oAsymmetric: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
       ],
@@ -2157,21 +2162,21 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oAsymmetric',
-      value: [
-        new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
-      ],
-      fallback,
-    },
-    {
-      field: 'oAsymmetric',
-      value: [
+      $field: 'oAsymmetric',
+      oAsymmetric: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
         new Uint8Array([2, 44, 253]).buffer,
       ],
+      $fallback,
+    },
+    {
+      $field: 'oAsymmetric',
+      oAsymmetric: [
+        new Uint8Array([0, 42, 255]).buffer,
+        new Uint8Array([1, 43, 254]).buffer,
+        new Uint8Array([2, 44, 253]).buffer,
+      ],
     },
   );
 
@@ -2180,28 +2185,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pAsymmetric',
-      value: [],
-      fallback,
+      $field: 'pAsymmetric',
+      pAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'pAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'pAsymmetric',
-      value: [''],
-      fallback,
-    },
-    {
-      field: 'pAsymmetric',
-      value: [''],
+      $field: 'pAsymmetric',
+      pAsymmetric: [],
     },
   );
 
@@ -2210,28 +2200,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pAsymmetric',
-      value: ['', '=8 bytes'],
-      fallback,
+      $field: 'pAsymmetric',
+      pAsymmetric: [''],
+      $fallback,
     },
     {
-      field: 'pAsymmetric',
-      value: ['', '=8 bytes'],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'pAsymmetric',
-      value: ['', '=8 bytes', 'Hello, World!'],
-      fallback,
-    },
-    {
-      field: 'pAsymmetric',
-      value: ['', '=8 bytes', 'Hello, World!'],
+      $field: 'pAsymmetric',
+      pAsymmetric: [''],
     },
   );
 
@@ -2240,28 +2215,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qAsymmetric',
-      value: [],
-      fallback,
+      $field: 'pAsymmetric',
+      pAsymmetric: ['', '=8 bytes'],
+      $fallback,
     },
     {
-      field: 'qAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'qAsymmetric',
-      value: [{}],
-      fallback,
-    },
-    {
-      field: 'qAsymmetric',
-      value: [{}],
+      $field: 'pAsymmetric',
+      pAsymmetric: ['', '=8 bytes'],
     },
   );
 
@@ -2270,28 +2230,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qAsymmetric',
-      value: [{}, {}],
-      fallback,
+      $field: 'pAsymmetric',
+      pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
+      $fallback,
     },
     {
-      field: 'qAsymmetric',
-      value: [{}, {}],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'qAsymmetric',
-      value: [{}, {}, {}],
-      fallback,
-    },
-    {
-      field: 'qAsymmetric',
-      value: [{}, {}, {}],
+      $field: 'pAsymmetric',
+      pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
     },
   );
 
@@ -2300,28 +2245,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rAsymmetric',
-      value: [],
-      fallback,
+      $field: 'qAsymmetric',
+      qAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'rAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'rAsymmetric',
-      value: [{}],
-      fallback,
-    },
-    {
-      field: 'rAsymmetric',
-      value: [{}],
+      $field: 'qAsymmetric',
+      qAsymmetric: [],
     },
   );
 
@@ -2330,28 +2260,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rAsymmetric',
-      value: [{}, {}],
-      fallback,
+      $field: 'qAsymmetric',
+      qAsymmetric: [{}],
+      $fallback,
     },
     {
-      field: 'rAsymmetric',
-      value: [{}, {}],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'rAsymmetric',
-      value: [{}, {}, {}],
-      fallback,
-    },
-    {
-      field: 'rAsymmetric',
-      value: [{}, {}, {}],
+      $field: 'qAsymmetric',
+      qAsymmetric: [{}],
     },
   );
 
@@ -2360,28 +2275,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sAsymmetric',
-      value: [],
-      fallback,
+      $field: 'qAsymmetric',
+      qAsymmetric: [{}, {}],
+      $fallback,
     },
     {
-      field: 'sAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'sAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'sAsymmetric',
-      value: [[]],
+      $field: 'qAsymmetric',
+      qAsymmetric: [{}, {}],
     },
   );
 
@@ -2390,28 +2290,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sAsymmetric',
-      value: [[null]],
-      fallback,
+      $field: 'qAsymmetric',
+      qAsymmetric: [{}, {}, {}],
+      $fallback,
     },
     {
-      field: 'sAsymmetric',
-      value: [[null]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'sAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'sAsymmetric',
-      value: [[], [], []],
+      $field: 'qAsymmetric',
+      qAsymmetric: [{}, {}, {}],
     },
   );
 
@@ -2420,28 +2305,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sAsymmetric',
-      value: [[null, null, null]],
-      fallback,
+      $field: 'rAsymmetric',
+      rAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'sAsymmetric',
-      value: [[null, null, null]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'sAsymmetric',
-      value: [[], [null], [null, null], [null, null, null]],
-      fallback,
-    },
-    {
-      field: 'sAsymmetric',
-      value: [[], [null], [null, null], [null, null, null]],
+      $field: 'rAsymmetric',
+      rAsymmetric: [],
     },
   );
 
@@ -2450,28 +2320,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tAsymmetric',
-      value: [],
-      fallback,
+      $field: 'rAsymmetric',
+      rAsymmetric: [{}],
+      $fallback,
     },
     {
-      field: 'tAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'tAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'tAsymmetric',
-      value: [[]],
+      $field: 'rAsymmetric',
+      rAsymmetric: [{}],
     },
   );
 
@@ -2480,28 +2335,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tAsymmetric',
-      value: [[0.0]],
-      fallback,
+      $field: 'rAsymmetric',
+      rAsymmetric: [{}, {}],
+      $fallback,
     },
     {
-      field: 'tAsymmetric',
-      value: [[0.0]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'tAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'tAsymmetric',
-      value: [[], [], []],
+      $field: 'rAsymmetric',
+      rAsymmetric: [{}, {}],
     },
   );
 
@@ -2510,28 +2350,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tAsymmetric',
-      value: [f64TestValues],
-      fallback,
+      $field: 'rAsymmetric',
+      rAsymmetric: [{}, {}, {}],
+      $fallback,
     },
     {
-      field: 'tAsymmetric',
-      value: [f64TestValues],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'tAsymmetric',
-      value: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
-      fallback,
-    },
-    {
-      field: 'tAsymmetric',
-      value: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
+      $field: 'rAsymmetric',
+      rAsymmetric: [{}, {}, {}],
     },
   );
 
@@ -2540,28 +2365,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uAsymmetric',
-      value: [],
-      fallback,
+      $field: 'sAsymmetric',
+      sAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'uAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'uAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'uAsymmetric',
-      value: [[]],
+      $field: 'sAsymmetric',
+      sAsymmetric: [],
     },
   );
 
@@ -2570,28 +2380,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uAsymmetric',
-      value: [[u64Min]],
-      fallback,
+      $field: 'sAsymmetric',
+      sAsymmetric: [[]],
+      $fallback,
     },
     {
-      field: 'uAsymmetric',
-      value: [[u64Min]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'uAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'uAsymmetric',
-      value: [[], [], []],
+      $field: 'sAsymmetric',
+      sAsymmetric: [[]],
     },
   );
 
@@ -2600,28 +2395,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uAsymmetric',
-      value: [u64TestValues],
-      fallback,
+      $field: 'sAsymmetric',
+      sAsymmetric: [[null]],
+      $fallback,
     },
     {
-      field: 'uAsymmetric',
-      value: [u64TestValues],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'uAsymmetric',
-      value: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
-      fallback,
-    },
-    {
-      field: 'uAsymmetric',
-      value: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
+      $field: 'sAsymmetric',
+      sAsymmetric: [[null]],
     },
   );
 
@@ -2630,28 +2410,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vAsymmetric',
-      value: [],
-      fallback,
+      $field: 'sAsymmetric',
+      sAsymmetric: [[], [], []],
+      $fallback,
     },
     {
-      field: 'vAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'vAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'vAsymmetric',
-      value: [[]],
+      $field: 'sAsymmetric',
+      sAsymmetric: [[], [], []],
     },
   );
 
@@ -2660,28 +2425,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vAsymmetric',
-      value: [[s64Min]],
-      fallback,
+      $field: 'sAsymmetric',
+      sAsymmetric: [[null, null, null]],
+      $fallback,
     },
     {
-      field: 'vAsymmetric',
-      value: [[s64Min]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'vAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'vAsymmetric',
-      value: [[], [], []],
+      $field: 'sAsymmetric',
+      sAsymmetric: [[null, null, null]],
     },
   );
 
@@ -2690,28 +2440,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vAsymmetric',
-      value: [s64TestValues],
-      fallback,
+      $field: 'sAsymmetric',
+      sAsymmetric: [[], [null], [null, null], [null, null, null]],
+      $fallback,
     },
     {
-      field: 'vAsymmetric',
-      value: [s64TestValues],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'vAsymmetric',
-      value: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
-      fallback,
-    },
-    {
-      field: 'vAsymmetric',
-      value: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
+      $field: 'sAsymmetric',
+      sAsymmetric: [[], [null], [null, null], [null, null, null]],
     },
   );
 
@@ -2720,28 +2455,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wAsymmetric',
-      value: [],
-      fallback,
+      $field: 'tAsymmetric',
+      tAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'wAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'wAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'wAsymmetric',
-      value: [[]],
+      $field: 'tAsymmetric',
+      tAsymmetric: [],
     },
   );
 
@@ -2750,28 +2470,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wAsymmetric',
-      value: [[false]],
-      fallback,
+      $field: 'tAsymmetric',
+      tAsymmetric: [[]],
+      $fallback,
     },
     {
-      field: 'wAsymmetric',
-      value: [[false]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'wAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'wAsymmetric',
-      value: [[], [], []],
+      $field: 'tAsymmetric',
+      tAsymmetric: [[]],
     },
   );
 
@@ -2780,28 +2485,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wAsymmetric',
-      value: [[false, true, false]],
-      fallback,
+      $field: 'tAsymmetric',
+      tAsymmetric: [[0.0]],
+      $fallback,
     },
     {
-      field: 'wAsymmetric',
-      value: [[false, true, false]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'wAsymmetric',
-      value: [[], [false], [false, true], [false, true, false]],
-      fallback,
-    },
-    {
-      field: 'wAsymmetric',
-      value: [[], [false], [false, true], [false, true, false]],
+      $field: 'tAsymmetric',
+      tAsymmetric: [[0.0]],
     },
   );
 
@@ -2810,28 +2500,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xAsymmetric',
-      value: [],
-      fallback,
+      $field: 'tAsymmetric',
+      tAsymmetric: [[], [], []],
+      $fallback,
     },
     {
-      field: 'xAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'xAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'xAsymmetric',
-      value: [[]],
+      $field: 'tAsymmetric',
+      tAsymmetric: [[], [], []],
     },
   );
 
@@ -2840,28 +2515,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xAsymmetric',
-      value: [[new Uint8Array([0, 42, 255]).buffer]],
-      fallback,
+      $field: 'tAsymmetric',
+      tAsymmetric: [f64TestValues],
+      $fallback,
     },
     {
-      field: 'xAsymmetric',
-      value: [[new Uint8Array([0, 42, 255]).buffer]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'xAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'xAsymmetric',
-      value: [[], [], []],
+      $field: 'tAsymmetric',
+      tAsymmetric: [f64TestValues],
     },
   );
 
@@ -2870,19 +2530,364 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xAsymmetric',
-      value: [
+      $field: 'tAsymmetric',
+      tAsymmetric: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
+      $fallback,
+    },
+    {
+      $field: 'tAsymmetric',
+      tAsymmetric: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[]],
+      $fallback,
+    },
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[u64Min]],
+      $fallback,
+    },
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[u64Min]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[], [], []],
+      $fallback,
+    },
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[], [], []],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [u64TestValues],
+      $fallback,
+    },
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [u64TestValues],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
+      $fallback,
+    },
+    {
+      $field: 'uAsymmetric',
+      uAsymmetric: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[]],
+      $fallback,
+    },
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[s64Min]],
+      $fallback,
+    },
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[s64Min]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[], [], []],
+      $fallback,
+    },
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[], [], []],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [s64TestValues],
+      $fallback,
+    },
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [s64TestValues],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
+      $fallback,
+    },
+    {
+      $field: 'vAsymmetric',
+      vAsymmetric: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[]],
+      $fallback,
+    },
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[false]],
+      $fallback,
+    },
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[false]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[], [], []],
+      $fallback,
+    },
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[], [], []],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[false, true, false]],
+      $fallback,
+    },
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[false, true, false]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[], [false], [false, true], [false, true, false]],
+      $fallback,
+    },
+    {
+      $field: 'wAsymmetric',
+      wAsymmetric: [[], [false], [false, true], [false, true, false]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [[]],
+      $fallback,
+    },
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [[]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [[new Uint8Array([0, 42, 255]).buffer]],
+      $fallback,
+    },
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [[new Uint8Array([0, 42, 255]).buffer]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [[], [], []],
+      $fallback,
+    },
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [[], [], []],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'xAsymmetric',
+      xAsymmetric: [
         [
           new Uint8Array([0, 42, 255]).buffer,
           new Uint8Array([1, 43, 254]).buffer,
           new Uint8Array([2, 44, 253]).buffer,
         ],
       ],
-      fallback,
+      $fallback,
     },
     {
-      field: 'xAsymmetric',
-      value: [
+      $field: 'xAsymmetric',
+      xAsymmetric: [
         [
           new Uint8Array([0, 42, 255]).buffer,
           new Uint8Array([1, 43, 254]).buffer,
@@ -2897,8 +2902,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xAsymmetric',
-      value: [
+      $field: 'xAsymmetric',
+      xAsymmetric: [
         [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
@@ -2911,11 +2916,11 @@ export default function run(): void {
           new Uint8Array([2, 44, 253]).buffer,
         ],
       ],
-      fallback,
+      $fallback,
     },
     {
-      field: 'xAsymmetric',
-      value: [
+      $field: 'xAsymmetric',
+      xAsymmetric: [
         [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
@@ -2936,28 +2941,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yAsymmetric',
-      value: [],
-      fallback,
+      $field: 'yAsymmetric',
+      yAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'yAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'yAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'yAsymmetric',
-      value: [[]],
+      $field: 'yAsymmetric',
+      yAsymmetric: [],
     },
   );
 
@@ -2966,28 +2956,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yAsymmetric',
-      value: [['']],
-      fallback,
+      $field: 'yAsymmetric',
+      yAsymmetric: [[]],
+      $fallback,
     },
     {
-      field: 'yAsymmetric',
-      value: [['']],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'yAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'yAsymmetric',
-      value: [[], [], []],
+      $field: 'yAsymmetric',
+      yAsymmetric: [[]],
     },
   );
 
@@ -2996,28 +2971,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yAsymmetric',
-      value: [['', '=8 bytes', 'Hello, World!']],
-      fallback,
+      $field: 'yAsymmetric',
+      yAsymmetric: [['']],
+      $fallback,
     },
     {
-      field: 'yAsymmetric',
-      value: [['', '=8 bytes', 'Hello, World!']],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'yAsymmetric',
-      value: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
-      fallback,
-    },
-    {
-      field: 'yAsymmetric',
-      value: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      $field: 'yAsymmetric',
+      yAsymmetric: [['']],
     },
   );
 
@@ -3026,28 +2986,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zAsymmetric',
-      value: [],
-      fallback,
+      $field: 'yAsymmetric',
+      yAsymmetric: [[], [], []],
+      $fallback,
     },
     {
-      field: 'zAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'zAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'zAsymmetric',
-      value: [[]],
+      $field: 'yAsymmetric',
+      yAsymmetric: [[], [], []],
     },
   );
 
@@ -3056,28 +3001,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zAsymmetric',
-      value: [[{}]],
-      fallback,
+      $field: 'yAsymmetric',
+      yAsymmetric: [['', '=8 bytes', 'Hello, World!']],
+      $fallback,
     },
     {
-      field: 'zAsymmetric',
-      value: [[{}]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'zAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'zAsymmetric',
-      value: [[], [], []],
+      $field: 'yAsymmetric',
+      yAsymmetric: [['', '=8 bytes', 'Hello, World!']],
     },
   );
 
@@ -3086,28 +3016,23 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zAsymmetric',
-      value: [[{}, {}, {}]],
-      fallback,
+      $field: 'yAsymmetric',
+      yAsymmetric: [
+        [],
+        [''],
+        ['', '=8 bytes'],
+        ['', '=8 bytes', 'Hello, World!'],
+      ],
+      $fallback,
     },
     {
-      field: 'zAsymmetric',
-      value: [[{}, {}, {}]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'zAsymmetric',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
-      fallback,
-    },
-    {
-      field: 'zAsymmetric',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $field: 'yAsymmetric',
+      yAsymmetric: [
+        [],
+        [''],
+        ['', '=8 bytes'],
+        ['', '=8 bytes', 'Hello, World!'],
+      ],
     },
   );
 
@@ -3116,28 +3041,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaAsymmetric',
-      value: [],
-      fallback,
+      $field: 'zAsymmetric',
+      zAsymmetric: [],
+      $fallback,
     },
     {
-      field: 'aaAsymmetric',
-      value: [],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'aaAsymmetric',
-      value: [[]],
-      fallback,
-    },
-    {
-      field: 'aaAsymmetric',
-      value: [[]],
+      $field: 'zAsymmetric',
+      zAsymmetric: [],
     },
   );
 
@@ -3146,28 +3056,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaAsymmetric',
-      value: [[{}]],
-      fallback,
+      $field: 'zAsymmetric',
+      zAsymmetric: [[]],
+      $fallback,
     },
     {
-      field: 'aaAsymmetric',
-      value: [[{}]],
-    },
-  );
-
-  assertMatch(
-    Comprehensive.Types.Bar.size,
-    Comprehensive.Types.Bar.serialize,
-    Comprehensive.Types.Bar.deserialize,
-    {
-      field: 'aaAsymmetric',
-      value: [[], [], []],
-      fallback,
-    },
-    {
-      field: 'aaAsymmetric',
-      value: [[], [], []],
+      $field: 'zAsymmetric',
+      zAsymmetric: [[]],
     },
   );
 
@@ -3176,13 +3071,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaAsymmetric',
-      value: [[{}, {}, {}]],
-      fallback,
+      $field: 'zAsymmetric',
+      zAsymmetric: [[{}]],
+      $fallback,
     },
     {
-      field: 'aaAsymmetric',
-      value: [[{}, {}, {}]],
+      $field: 'zAsymmetric',
+      zAsymmetric: [[{}]],
     },
   );
 
@@ -3191,13 +3086,133 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaAsymmetric',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
-      fallback,
+      $field: 'zAsymmetric',
+      zAsymmetric: [[], [], []],
+      $fallback,
     },
     {
-      field: 'aaAsymmetric',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $field: 'zAsymmetric',
+      zAsymmetric: [[], [], []],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'zAsymmetric',
+      zAsymmetric: [[{}, {}, {}]],
+      $fallback,
+    },
+    {
+      $field: 'zAsymmetric',
+      zAsymmetric: [[{}, {}, {}]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'zAsymmetric',
+      zAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $fallback,
+    },
+    {
+      $field: 'zAsymmetric',
+      zAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [],
+      $fallback,
+    },
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[]],
+      $fallback,
+    },
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[{}]],
+      $fallback,
+    },
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[{}]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[], [], []],
+      $fallback,
+    },
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[], [], []],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[{}, {}, {}]],
+      $fallback,
+    },
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[{}, {}, {}]],
+    },
+  );
+
+  assertMatch(
+    Comprehensive.Types.Bar.size,
+    Comprehensive.Types.Bar.serialize,
+    Comprehensive.Types.Bar.deserialize,
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $fallback,
+    },
+    {
+      $field: 'aaAsymmetric',
+      aaAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
     },
   );
 
@@ -3206,46 +3221,46 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aOptional',
-      fallback,
+      $field: 'aOptional',
+      $fallback,
     },
   );
 
-  f64TestValues.forEach((value) => {
+  f64TestValues.forEach((bOptional) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'bOptional',
-        value,
-        fallback,
+        $field: 'bOptional',
+        bOptional,
+        $fallback,
       },
     );
   });
 
-  u64TestValues.forEach((value) => {
+  u64TestValues.forEach((cOptional) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'cOptional',
-        value,
-        fallback,
+        $field: 'cOptional',
+        cOptional,
+        $fallback,
       },
     );
   });
 
-  s64TestValues.forEach((value) => {
+  s64TestValues.forEach((dOptional) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
-        field: 'dOptional',
-        value,
-        fallback,
+        $field: 'dOptional',
+        dOptional,
+        $fallback,
       },
     );
   });
@@ -3255,9 +3270,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'eOptional',
-      value: false,
-      fallback,
+      $field: 'eOptional',
+      eOptional: false,
+      $fallback,
     },
   );
 
@@ -3266,9 +3281,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'eOptional',
-      value: true,
-      fallback,
+      $field: 'eOptional',
+      eOptional: true,
+      $fallback,
     },
   );
 
@@ -3277,9 +3292,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fOptional',
-      value: new Uint8Array([]).buffer,
-      fallback,
+      $field: 'fOptional',
+      fOptional: new Uint8Array([]).buffer,
+      $fallback,
     },
   );
 
@@ -3288,9 +3303,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fOptional',
-      value: new Uint8Array([0]).buffer,
-      fallback,
+      $field: 'fOptional',
+      fOptional: new Uint8Array([0]).buffer,
+      $fallback,
     },
   );
 
@@ -3299,9 +3314,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fOptional',
-      value: new Uint8Array([0, 42]).buffer,
-      fallback,
+      $field: 'fOptional',
+      fOptional: new Uint8Array([0, 42]).buffer,
+      $fallback,
     },
   );
 
@@ -3310,9 +3325,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'fOptional',
-      value: new Uint8Array([0, 42, 255]).buffer,
-      fallback,
+      $field: 'fOptional',
+      fOptional: new Uint8Array([0, 42, 255]).buffer,
+      $fallback,
     },
   );
 
@@ -3321,9 +3336,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gOptional',
-      value: '',
-      fallback,
+      $field: 'gOptional',
+      gOptional: '',
+      $fallback,
     },
   );
 
@@ -3332,9 +3347,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gOptional',
-      value: '=8 bytes',
-      fallback,
+      $field: 'gOptional',
+      gOptional: '=8 bytes',
+      $fallback,
     },
   );
 
@@ -3343,9 +3358,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'gOptional',
-      value: 'Hello, World!',
-      fallback,
+      $field: 'gOptional',
+      gOptional: 'Hello, World!',
+      $fallback,
     },
   );
 
@@ -3354,9 +3369,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'hOptional',
-      value: {},
-      fallback,
+      $field: 'hOptional',
+      hOptional: {},
+      $fallback,
     },
   );
 
@@ -3365,9 +3380,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'iOptional',
-      value: {},
-      fallback,
+      $field: 'iOptional',
+      iOptional: {},
+      $fallback,
     },
   );
 
@@ -3376,9 +3391,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jOptional',
-      value: [],
-      fallback,
+      $field: 'jOptional',
+      jOptional: [],
+      $fallback,
     },
   );
 
@@ -3387,9 +3402,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jOptional',
-      value: [null],
-      fallback,
+      $field: 'jOptional',
+      jOptional: [null],
+      $fallback,
     },
   );
 
@@ -3398,9 +3413,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jOptional',
-      value: [null, null],
-      fallback,
+      $field: 'jOptional',
+      jOptional: [null, null],
+      $fallback,
     },
   );
 
@@ -3409,9 +3424,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'jOptional',
-      value: [null, null, null],
-      fallback,
+      $field: 'jOptional',
+      jOptional: [null, null, null],
+      $fallback,
     },
   );
 
@@ -3420,9 +3435,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kOptional',
-      value: [],
-      fallback,
+      $field: 'kOptional',
+      kOptional: [],
+      $fallback,
     },
   );
 
@@ -3431,9 +3446,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kOptional',
-      value: [0.0],
-      fallback,
+      $field: 'kOptional',
+      kOptional: [0.0],
+      $fallback,
     },
   );
 
@@ -3442,9 +3457,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kOptional',
-      value: [0.0, Math.PI],
-      fallback,
+      $field: 'kOptional',
+      kOptional: [0.0, Math.PI],
+      $fallback,
     },
   );
 
@@ -3453,9 +3468,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kOptional',
-      value: [0.0, Math.PI, Number.EPSILON],
-      fallback,
+      $field: 'kOptional',
+      kOptional: [0.0, Math.PI, Number.EPSILON],
+      $fallback,
     },
   );
 
@@ -3464,9 +3479,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'kOptional',
-      value: f64TestValues,
-      fallback,
+      $field: 'kOptional',
+      kOptional: f64TestValues,
+      $fallback,
     },
   );
 
@@ -3475,9 +3490,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lOptional',
-      value: [],
-      fallback,
+      $field: 'lOptional',
+      lOptional: [],
+      $fallback,
     },
   );
 
@@ -3486,9 +3501,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lOptional',
-      value: [u64Min],
-      fallback,
+      $field: 'lOptional',
+      lOptional: [u64Min],
+      $fallback,
     },
   );
 
@@ -3497,9 +3512,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lOptional',
-      value: [u64Min, 256n],
-      fallback,
+      $field: 'lOptional',
+      lOptional: [u64Min, 256n],
+      $fallback,
     },
   );
 
@@ -3508,9 +3523,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lOptional',
-      value: [u64Min, 256n, u64Max],
-      fallback,
+      $field: 'lOptional',
+      lOptional: [u64Min, 256n, u64Max],
+      $fallback,
     },
   );
 
@@ -3519,9 +3534,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'lOptional',
-      value: u64TestValues,
-      fallback,
+      $field: 'lOptional',
+      lOptional: u64TestValues,
+      $fallback,
     },
   );
 
@@ -3530,9 +3545,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mOptional',
-      value: [],
-      fallback,
+      $field: 'mOptional',
+      mOptional: [],
+      $fallback,
     },
   );
 
@@ -3541,9 +3556,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mOptional',
-      value: [s64Min],
-      fallback,
+      $field: 'mOptional',
+      mOptional: [s64Min],
+      $fallback,
     },
   );
 
@@ -3552,9 +3567,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mOptional',
-      value: [s64Min, 0n],
-      fallback,
+      $field: 'mOptional',
+      mOptional: [s64Min, 0n],
+      $fallback,
     },
   );
 
@@ -3563,9 +3578,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mOptional',
-      value: [s64Min, 0n, s64Max],
-      fallback,
+      $field: 'mOptional',
+      mOptional: [s64Min, 0n, s64Max],
+      $fallback,
     },
   );
 
@@ -3574,9 +3589,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'mOptional',
-      value: s64TestValues,
-      fallback,
+      $field: 'mOptional',
+      mOptional: s64TestValues,
+      $fallback,
     },
   );
 
@@ -3585,9 +3600,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nOptional',
-      value: [],
-      fallback,
+      $field: 'nOptional',
+      nOptional: [],
+      $fallback,
     },
   );
 
@@ -3596,9 +3611,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nOptional',
-      value: [false],
-      fallback,
+      $field: 'nOptional',
+      nOptional: [false],
+      $fallback,
     },
   );
 
@@ -3607,9 +3622,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nOptional',
-      value: [false, true],
-      fallback,
+      $field: 'nOptional',
+      nOptional: [false, true],
+      $fallback,
     },
   );
 
@@ -3618,9 +3633,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'nOptional',
-      value: [false, true, false],
-      fallback,
+      $field: 'nOptional',
+      nOptional: [false, true, false],
+      $fallback,
     },
   );
 
@@ -3629,9 +3644,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oOptional',
-      value: [],
-      fallback,
+      $field: 'oOptional',
+      oOptional: [],
+      $fallback,
     },
   );
 
@@ -3640,9 +3655,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oOptional',
-      value: [new Uint8Array([0, 42, 255]).buffer],
-      fallback,
+      $field: 'oOptional',
+      oOptional: [new Uint8Array([0, 42, 255]).buffer],
+      $fallback,
     },
   );
 
@@ -3651,12 +3666,12 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oOptional',
-      value: [
+      $field: 'oOptional',
+      oOptional: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
       ],
-      fallback,
+      $fallback,
     },
   );
 
@@ -3665,13 +3680,13 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'oOptional',
-      value: [
+      $field: 'oOptional',
+      oOptional: [
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([1, 43, 254]).buffer,
         new Uint8Array([2, 44, 253]).buffer,
       ],
-      fallback,
+      $fallback,
     },
   );
 
@@ -3680,9 +3695,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pOptional',
-      value: [],
-      fallback,
+      $field: 'pOptional',
+      pOptional: [],
+      $fallback,
     },
   );
 
@@ -3691,9 +3706,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pOptional',
-      value: [''],
-      fallback,
+      $field: 'pOptional',
+      pOptional: [''],
+      $fallback,
     },
   );
 
@@ -3702,9 +3717,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pOptional',
-      value: ['', '=8 bytes'],
-      fallback,
+      $field: 'pOptional',
+      pOptional: ['', '=8 bytes'],
+      $fallback,
     },
   );
 
@@ -3713,9 +3728,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'pOptional',
-      value: ['', '=8 bytes', 'Hello, World!'],
-      fallback,
+      $field: 'pOptional',
+      pOptional: ['', '=8 bytes', 'Hello, World!'],
+      $fallback,
     },
   );
 
@@ -3724,9 +3739,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qOptional',
-      value: [],
-      fallback,
+      $field: 'qOptional',
+      qOptional: [],
+      $fallback,
     },
   );
 
@@ -3735,9 +3750,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qOptional',
-      value: [{}],
-      fallback,
+      $field: 'qOptional',
+      qOptional: [{}],
+      $fallback,
     },
   );
 
@@ -3746,9 +3761,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qOptional',
-      value: [{}, {}],
-      fallback,
+      $field: 'qOptional',
+      qOptional: [{}, {}],
+      $fallback,
     },
   );
 
@@ -3757,9 +3772,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'qOptional',
-      value: [{}, {}, {}],
-      fallback,
+      $field: 'qOptional',
+      qOptional: [{}, {}, {}],
+      $fallback,
     },
   );
 
@@ -3768,9 +3783,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rOptional',
-      value: [],
-      fallback,
+      $field: 'rOptional',
+      rOptional: [],
+      $fallback,
     },
   );
 
@@ -3779,9 +3794,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rOptional',
-      value: [{}],
-      fallback,
+      $field: 'rOptional',
+      rOptional: [{}],
+      $fallback,
     },
   );
 
@@ -3790,9 +3805,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rOptional',
-      value: [{}, {}],
-      fallback,
+      $field: 'rOptional',
+      rOptional: [{}, {}],
+      $fallback,
     },
   );
 
@@ -3801,9 +3816,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'rOptional',
-      value: [{}, {}, {}],
-      fallback,
+      $field: 'rOptional',
+      rOptional: [{}, {}, {}],
+      $fallback,
     },
   );
 
@@ -3812,9 +3827,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sOptional',
-      value: [],
-      fallback,
+      $field: 'sOptional',
+      sOptional: [],
+      $fallback,
     },
   );
 
@@ -3823,9 +3838,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sOptional',
-      value: [[]],
-      fallback,
+      $field: 'sOptional',
+      sOptional: [[]],
+      $fallback,
     },
   );
 
@@ -3834,9 +3849,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sOptional',
-      value: [[null]],
-      fallback,
+      $field: 'sOptional',
+      sOptional: [[null]],
+      $fallback,
     },
   );
 
@@ -3845,9 +3860,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'sOptional',
+      sOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -3856,9 +3871,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sOptional',
-      value: [[null, null, null]],
-      fallback,
+      $field: 'sOptional',
+      sOptional: [[null, null, null]],
+      $fallback,
     },
   );
 
@@ -3867,9 +3882,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'sOptional',
-      value: [[], [null], [null, null], [null, null, null]],
-      fallback,
+      $field: 'sOptional',
+      sOptional: [[], [null], [null, null], [null, null, null]],
+      $fallback,
     },
   );
 
@@ -3878,9 +3893,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tOptional',
-      value: [],
-      fallback,
+      $field: 'tOptional',
+      tOptional: [],
+      $fallback,
     },
   );
 
@@ -3889,9 +3904,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tOptional',
-      value: [[]],
-      fallback,
+      $field: 'tOptional',
+      tOptional: [[]],
+      $fallback,
     },
   );
 
@@ -3900,9 +3915,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tOptional',
-      value: [[0.0]],
-      fallback,
+      $field: 'tOptional',
+      tOptional: [[0.0]],
+      $fallback,
     },
   );
 
@@ -3911,9 +3926,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'tOptional',
+      tOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -3922,9 +3937,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tOptional',
-      value: [f64TestValues],
-      fallback,
+      $field: 'tOptional',
+      tOptional: [f64TestValues],
+      $fallback,
     },
   );
 
@@ -3933,9 +3948,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'tOptional',
-      value: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
-      fallback,
+      $field: 'tOptional',
+      tOptional: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
+      $fallback,
     },
   );
 
@@ -3944,9 +3959,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uOptional',
-      value: [],
-      fallback,
+      $field: 'uOptional',
+      uOptional: [],
+      $fallback,
     },
   );
 
@@ -3955,9 +3970,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uOptional',
-      value: [[]],
-      fallback,
+      $field: 'uOptional',
+      uOptional: [[]],
+      $fallback,
     },
   );
 
@@ -3966,9 +3981,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uOptional',
-      value: [[u64Min]],
-      fallback,
+      $field: 'uOptional',
+      uOptional: [[u64Min]],
+      $fallback,
     },
   );
 
@@ -3977,9 +3992,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'uOptional',
+      uOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -3988,9 +4003,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uOptional',
-      value: [u64TestValues],
-      fallback,
+      $field: 'uOptional',
+      uOptional: [u64TestValues],
+      $fallback,
     },
   );
 
@@ -3999,9 +4014,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'uOptional',
-      value: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
-      fallback,
+      $field: 'uOptional',
+      uOptional: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
+      $fallback,
     },
   );
 
@@ -4010,9 +4025,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vOptional',
-      value: [],
-      fallback,
+      $field: 'vOptional',
+      vOptional: [],
+      $fallback,
     },
   );
 
@@ -4021,9 +4036,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vOptional',
-      value: [[]],
-      fallback,
+      $field: 'vOptional',
+      vOptional: [[]],
+      $fallback,
     },
   );
 
@@ -4032,9 +4047,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vOptional',
-      value: [[s64Min]],
-      fallback,
+      $field: 'vOptional',
+      vOptional: [[s64Min]],
+      $fallback,
     },
   );
 
@@ -4043,9 +4058,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'vOptional',
+      vOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -4054,9 +4069,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vOptional',
-      value: [s64TestValues],
-      fallback,
+      $field: 'vOptional',
+      vOptional: [s64TestValues],
+      $fallback,
     },
   );
 
@@ -4065,9 +4080,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'vOptional',
-      value: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
-      fallback,
+      $field: 'vOptional',
+      vOptional: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
+      $fallback,
     },
   );
 
@@ -4076,9 +4091,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wOptional',
-      value: [],
-      fallback,
+      $field: 'wOptional',
+      wOptional: [],
+      $fallback,
     },
   );
 
@@ -4087,9 +4102,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wOptional',
-      value: [[]],
-      fallback,
+      $field: 'wOptional',
+      wOptional: [[]],
+      $fallback,
     },
   );
 
@@ -4098,9 +4113,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wOptional',
-      value: [[false]],
-      fallback,
+      $field: 'wOptional',
+      wOptional: [[false]],
+      $fallback,
     },
   );
 
@@ -4109,9 +4124,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'wOptional',
+      wOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -4120,9 +4135,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wOptional',
-      value: [[false, true, false]],
-      fallback,
+      $field: 'wOptional',
+      wOptional: [[false, true, false]],
+      $fallback,
     },
   );
 
@@ -4131,9 +4146,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'wOptional',
-      value: [[], [false], [false, true], [false, true, false]],
-      fallback,
+      $field: 'wOptional',
+      wOptional: [[], [false], [false, true], [false, true, false]],
+      $fallback,
     },
   );
 
@@ -4142,9 +4157,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xOptional',
-      value: [],
-      fallback,
+      $field: 'xOptional',
+      xOptional: [],
+      $fallback,
     },
   );
 
@@ -4153,9 +4168,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xOptional',
-      value: [[]],
-      fallback,
+      $field: 'xOptional',
+      xOptional: [[]],
+      $fallback,
     },
   );
 
@@ -4164,9 +4179,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xOptional',
-      value: [[new Uint8Array([0, 42, 255]).buffer]],
-      fallback,
+      $field: 'xOptional',
+      xOptional: [[new Uint8Array([0, 42, 255]).buffer]],
+      $fallback,
     },
   );
 
@@ -4175,9 +4190,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'xOptional',
+      xOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -4186,15 +4201,15 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xOptional',
-      value: [
+      $field: 'xOptional',
+      xOptional: [
         [
           new Uint8Array([0, 42, 255]).buffer,
           new Uint8Array([1, 43, 254]).buffer,
           new Uint8Array([2, 44, 253]).buffer,
         ],
       ],
-      fallback,
+      $fallback,
     },
   );
 
@@ -4203,8 +4218,8 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'xOptional',
-      value: [
+      $field: 'xOptional',
+      xOptional: [
         [],
         [new Uint8Array([0, 42, 255]).buffer],
         [
@@ -4217,7 +4232,7 @@ export default function run(): void {
           new Uint8Array([2, 44, 253]).buffer,
         ],
       ],
-      fallback,
+      $fallback,
     },
   );
 
@@ -4226,9 +4241,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yOptional',
-      value: [],
-      fallback,
+      $field: 'yOptional',
+      yOptional: [],
+      $fallback,
     },
   );
 
@@ -4237,9 +4252,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yOptional',
-      value: [[]],
-      fallback,
+      $field: 'yOptional',
+      yOptional: [[]],
+      $fallback,
     },
   );
 
@@ -4248,9 +4263,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yOptional',
-      value: [['']],
-      fallback,
+      $field: 'yOptional',
+      yOptional: [['']],
+      $fallback,
     },
   );
 
@@ -4259,9 +4274,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'yOptional',
+      yOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -4270,9 +4285,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yOptional',
-      value: [['', '=8 bytes', 'Hello, World!']],
-      fallback,
+      $field: 'yOptional',
+      yOptional: [['', '=8 bytes', 'Hello, World!']],
+      $fallback,
     },
   );
 
@@ -4281,9 +4296,14 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'yOptional',
-      value: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
-      fallback,
+      $field: 'yOptional',
+      yOptional: [
+        [],
+        [''],
+        ['', '=8 bytes'],
+        ['', '=8 bytes', 'Hello, World!'],
+      ],
+      $fallback,
     },
   );
 
@@ -4292,9 +4312,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zOptional',
-      value: [],
-      fallback,
+      $field: 'zOptional',
+      zOptional: [],
+      $fallback,
     },
   );
 
@@ -4303,9 +4323,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zOptional',
-      value: [[]],
-      fallback,
+      $field: 'zOptional',
+      zOptional: [[]],
+      $fallback,
     },
   );
 
@@ -4314,9 +4334,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zOptional',
-      value: [[{}]],
-      fallback,
+      $field: 'zOptional',
+      zOptional: [[{}]],
+      $fallback,
     },
   );
 
@@ -4325,9 +4345,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'zOptional',
+      zOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -4336,9 +4356,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zOptional',
-      value: [[{}, {}, {}]],
-      fallback,
+      $field: 'zOptional',
+      zOptional: [[{}, {}, {}]],
+      $fallback,
     },
   );
 
@@ -4347,9 +4367,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'zOptional',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
-      fallback,
+      $field: 'zOptional',
+      zOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $fallback,
     },
   );
 
@@ -4358,9 +4378,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaOptional',
-      value: [],
-      fallback,
+      $field: 'aaOptional',
+      aaOptional: [],
+      $fallback,
     },
   );
 
@@ -4369,9 +4389,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaOptional',
-      value: [[]],
-      fallback,
+      $field: 'aaOptional',
+      aaOptional: [[]],
+      $fallback,
     },
   );
 
@@ -4380,9 +4400,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaOptional',
-      value: [[{}]],
-      fallback,
+      $field: 'aaOptional',
+      aaOptional: [[{}]],
+      $fallback,
     },
   );
 
@@ -4391,9 +4411,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaOptional',
-      value: [[], [], []],
-      fallback,
+      $field: 'aaOptional',
+      aaOptional: [[], [], []],
+      $fallback,
     },
   );
 
@@ -4402,9 +4422,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaOptional',
-      value: [[{}, {}, {}]],
-      fallback,
+      $field: 'aaOptional',
+      aaOptional: [[{}, {}, {}]],
+      $fallback,
     },
   );
 
@@ -4413,9 +4433,9 @@ export default function run(): void {
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
-      field: 'aaOptional',
-      value: [[], [{}], [{}, {}], [{}, {}, {}]],
-      fallback,
+      $field: 'aaOptional',
+      aaOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
+      $fallback,
     },
   );
 }
