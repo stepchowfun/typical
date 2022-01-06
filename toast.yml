@@ -183,7 +183,7 @@ tasks:
 
       # Validate and run the example project and the integration test.
       for SCENARIO in examples/typescript integration_tests/typescript; do
-        (cd "$SCENARIO" && npm ci && npm run main && npm run check)
+        (cd "$SCENARIO" && npm ci && npm run main && npm run lint)
       done
 
       # Validate the data from the integration test.
