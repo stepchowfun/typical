@@ -309,12 +309,12 @@ export namespace CircularDependency {
       export namespace StructFromBelow {
         export function size(value: StructFromBelowOut): number {
           let valueSize = 0;
-          let payloadSize = 0;
+          let payloadSize1 = 0;
 
           {
             const payload = value.x;
-            payloadSize = CircularDependency.Types.StructFromAbove.size(payload);
-            valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+            payloadSize1 = CircularDependency.Types.StructFromAbove.size(payload);
+            valueSize += fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
           }
 
           return valueSize;
@@ -325,12 +325,12 @@ export namespace CircularDependency {
           offset: number,
           value: StructFromBelowOut,
         ): number {
-          let payloadSize = 0;
+          let payloadSize1 = 0;
 
           {
             const payload = value.x;
-            payloadSize = CircularDependency.Types.StructFromAbove.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            payloadSize1 = CircularDependency.Types.StructFromAbove.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
             offset = CircularDependency.Types.StructFromAbove.serialize(dataView, offset, payload);
           }
 
@@ -346,9 +346,9 @@ export namespace CircularDependency {
           let $x;
 
           while (true) {
-            let index, payloadSize;
+            let index, payloadSize1;
             try {
-              [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+              [offset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
             } catch (e) {
               if (e instanceof RangeError) {
                 break;
@@ -361,7 +361,7 @@ export namespace CircularDependency {
                 const dataView = new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
-                  payloadSize,
+                  payloadSize1,
                 );
                 const oldOffset = offset;
                 offset = 0;
@@ -372,7 +372,7 @@ export namespace CircularDependency {
                 break;
               }
               default:
-                offset += payloadSize;
+                offset += payloadSize1;
                 break;
             }
           }
@@ -406,7 +406,7 @@ export namespace CircularDependency {
     export namespace StructFromAbove {
       export function size(value: StructFromAboveOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         return valueSize;
       }
@@ -416,7 +416,7 @@ export namespace CircularDependency {
         offset: number,
         value: StructFromAboveOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         return offset;
       }
@@ -450,7 +450,7 @@ export namespace Comprehensive {
     export namespace LocalStruct {
       export function size(value: LocalStructOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         return valueSize;
       }
@@ -460,7 +460,7 @@ export namespace Comprehensive {
         offset: number,
         value: LocalStructOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         return offset;
       }
@@ -652,34 +652,34 @@ export namespace Comprehensive {
     export namespace Foo {
       export function size(value: FooOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.aRequired;
-          payloadSize = 0;
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          payloadSize1 = 0;
+          valueSize += fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.bRequired;
           if (Object.is(payload, 0)) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(1n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.cRequired;
           if (payload === 0n) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
+            payloadSize1 = varintSizeFromValue(payload);
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          valueSize += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
+          valueSize += fieldHeaderSize(2n, payloadSize1, true) + payloadSize1;
         }
 
         {
@@ -687,48 +687,48 @@ export namespace Comprehensive {
           {
             const zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
+              payloadSize1 = varintSizeFromValue(zigzag);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
           }
-          valueSize += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
+          valueSize += fieldHeaderSize(3n, payloadSize1, true) + payloadSize1;
         }
 
         {
           const payload = value.eRequired;
           if (payload) {
-            payloadSize = 1;
+            payloadSize1 = 1;
           } else {
-            payloadSize = 0;
+            payloadSize1 = 0;
           }
-          valueSize += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
+          valueSize += fieldHeaderSize(4n, payloadSize1, true) + payloadSize1;
         }
 
         {
           const payload = value.fRequired;
-          payloadSize = payload.byteLength;
-          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+          payloadSize1 = payload.byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.gRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(6n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.hRequired;
-          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-          valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+          payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+          valueSize += fieldHeaderSize(7n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.iRequired;
-          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+          payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+          valueSize += fieldHeaderSize(8n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -738,21 +738,21 @@ export namespace Comprehensive {
             {
               const payload = BigInt(oldPayload.length);
               if (payload === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
           }
-          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(9n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.kRequired;
-          payloadSize = 8 * payload.length;
-          valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+          payloadSize1 = 8 * payload.length;
+          valueSize += fieldHeaderSize(10n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -762,13 +762,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(payload);
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(11n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -778,13 +778,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(12n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -794,13 +794,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 1;
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(13n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -810,13 +810,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(14n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -826,13 +826,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(15n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -842,13 +842,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(16n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -858,13 +858,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(17n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -874,19 +874,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 const oldPayload = payload;
                 {
                   const payload = BigInt(oldPayload.length);
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize2 = varintSizeFromValue(payload);
                 }
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(18n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -896,13 +896,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 8 * payload.length;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(19n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(19n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -912,23 +912,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(payload);
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(payload);
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(20n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(20n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -938,23 +938,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(21n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -964,23 +964,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = 1;
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = 1;
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(22n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -990,23 +990,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = payload.byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(23n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1016,23 +1016,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(24n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1042,23 +1042,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(25n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1068,51 +1068,51 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(26n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.aAsymmetric;
-          payloadSize = 0;
-          valueSize += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
+          payloadSize1 = 0;
+          valueSize += fieldHeaderSize(28n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.bAsymmetric;
           if (Object.is(payload, 0)) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          valueSize += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(29n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.cAsymmetric;
           if (payload === 0n) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
+            payloadSize1 = varintSizeFromValue(payload);
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          valueSize += fieldHeaderSize(30n, payloadSize, true) + payloadSize;
+          valueSize += fieldHeaderSize(30n, payloadSize1, true) + payloadSize1;
         }
 
         {
@@ -1120,48 +1120,48 @@ export namespace Comprehensive {
           {
             const zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
+              payloadSize1 = varintSizeFromValue(zigzag);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
           }
-          valueSize += fieldHeaderSize(31n, payloadSize, true) + payloadSize;
+          valueSize += fieldHeaderSize(31n, payloadSize1, true) + payloadSize1;
         }
 
         {
           const payload = value.eAsymmetric;
           if (payload) {
-            payloadSize = 1;
+            payloadSize1 = 1;
           } else {
-            payloadSize = 0;
+            payloadSize1 = 0;
           }
-          valueSize += fieldHeaderSize(32n, payloadSize, true) + payloadSize;
+          valueSize += fieldHeaderSize(32n, payloadSize1, true) + payloadSize1;
         }
 
         {
           const payload = value.fAsymmetric;
-          payloadSize = payload.byteLength;
-          valueSize += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
+          payloadSize1 = payload.byteLength;
+          valueSize += fieldHeaderSize(33n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.gAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(34n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(34n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.hAsymmetric;
-          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-          valueSize += fieldHeaderSize(35n, payloadSize, false) + payloadSize;
+          payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+          valueSize += fieldHeaderSize(35n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.iAsymmetric;
-          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-          valueSize += fieldHeaderSize(36n, payloadSize, false) + payloadSize;
+          payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+          valueSize += fieldHeaderSize(36n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1171,21 +1171,21 @@ export namespace Comprehensive {
             {
               const payload = BigInt(oldPayload.length);
               if (payload === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
           }
-          valueSize += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(37n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.kAsymmetric;
-          payloadSize = 8 * payload.length;
-          valueSize += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
+          payloadSize1 = 8 * payload.length;
+          valueSize += fieldHeaderSize(38n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1195,13 +1195,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(payload);
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(39n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1211,13 +1211,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(40n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1227,13 +1227,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 1;
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(41n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1243,13 +1243,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(42n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1259,13 +1259,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(43n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1275,13 +1275,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(44n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1291,13 +1291,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(45n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1307,19 +1307,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 const oldPayload = payload;
                 {
                   const payload = BigInt(oldPayload.length);
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize2 = varintSizeFromValue(payload);
                 }
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(46n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1329,13 +1329,13 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 8 * payload.length;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(47n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(47n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1345,23 +1345,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(payload);
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(payload);
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(48n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(48n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1371,23 +1371,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(49n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(49n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1397,23 +1397,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = 1;
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = 1;
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(50n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(50n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1423,23 +1423,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = payload.byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(51n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(51n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1449,23 +1449,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(52n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(52n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1475,23 +1475,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(53n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(53n, payloadSize1, false) + payloadSize1;
         }
 
         {
@@ -1501,563 +1501,563 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          valueSize += fieldHeaderSize(54n, payloadSize, false) + payloadSize;
+          valueSize += fieldHeaderSize(54n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.aOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 0;
-            valueSize += fieldHeaderSize(56n, payloadSize, false) + payloadSize;
+            payloadSize1 = 0;
+            valueSize += fieldHeaderSize(56n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.bOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            valueSize += fieldHeaderSize(57n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(57n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.cOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            valueSize += fieldHeaderSize(58n, payloadSize, true) + payloadSize;
+            valueSize += fieldHeaderSize(58n, payloadSize1, true) + payloadSize1;
           }
         }
 
         {
           const payload = value.dOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            valueSize += fieldHeaderSize(59n, payloadSize, true) + payloadSize;
+            valueSize += fieldHeaderSize(59n, payloadSize1, true) + payloadSize1;
           }
         }
 
         {
           const payload = value.eOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            valueSize += fieldHeaderSize(60n, payloadSize, true) + payloadSize;
+            valueSize += fieldHeaderSize(60n, payloadSize1, true) + payloadSize1;
           }
         }
 
         {
           const payload = value.fOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = payload.byteLength;
-            valueSize += fieldHeaderSize(61n, payloadSize, false) + payloadSize;
+            payloadSize1 = payload.byteLength;
+            valueSize += fieldHeaderSize(61n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.gOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(62n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(62n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.hOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            valueSize += fieldHeaderSize(63n, payloadSize, false) + payloadSize;
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            valueSize += fieldHeaderSize(63n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.iOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            valueSize += fieldHeaderSize(64n, payloadSize, false) + payloadSize;
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            valueSize += fieldHeaderSize(64n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.jOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               const oldPayload = payload;
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            valueSize += fieldHeaderSize(65n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(65n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.kOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 8 * payload.length;
-            valueSize += fieldHeaderSize(66n, payloadSize, false) + payloadSize;
+            payloadSize1 = 8 * payload.length;
+            valueSize += fieldHeaderSize(66n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.lOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(67n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(67n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.mOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(68n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(68n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.nOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(69n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(69n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.oOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(70n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(70n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.pOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(71n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(71n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.qOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(72n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(72n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.rOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(73n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(73n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.sOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(74n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(74n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.tOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(75n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(75n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.uOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(76n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(76n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.vOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(77n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(77n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.wOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(78n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(78n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.xOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(79n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(79n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.yOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(80n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(80n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.zOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(81n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(81n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.aaOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
             {
               let arraySize = 0;
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            valueSize += fieldHeaderSize(82n, payloadSize, false) + payloadSize;
+            valueSize += fieldHeaderSize(82n, payloadSize1, false) + payloadSize1;
           }
         }
 
@@ -2069,23 +2069,23 @@ export namespace Comprehensive {
         offset: number,
         value: FooOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.aRequired;
-          payloadSize = 0;
-          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          payloadSize1 = 0;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
         }
 
         {
           const payload = value.bRequired;
           if (Object.is(payload, 0)) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-          if (payloadSize !== 0) {
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize1, false);
+          if (payloadSize1 !== 0) {
             dataView.setFloat64(offset, payload, true);
             offset += 8;
           }
@@ -2094,13 +2094,13 @@ export namespace Comprehensive {
         {
           const payload = value.cRequired;
           if (payload === 0n) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
+            payloadSize1 = varintSizeFromValue(payload);
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
+          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize1, true);
           {
             const varint = payload;
             if (varint > 567_382_630_219_903n) {
@@ -2117,14 +2117,14 @@ export namespace Comprehensive {
           {
             const zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
+              payloadSize1 = varintSizeFromValue(zigzag);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
           }
-          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
+          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize1, true);
           {
             const varint = zigzagEncode(payload);
             if (varint > 567_382_630_219_903n) {
@@ -2139,11 +2139,11 @@ export namespace Comprehensive {
         {
           const payload = value.eRequired;
           if (payload) {
-            payloadSize = 1;
+            payloadSize1 = 1;
           } else {
-            payloadSize = 0;
+            payloadSize1 = 0;
           }
-          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize1, true);
           {
             const varint = payload ? 1n : 0n;
             if (varint > 567_382_630_219_903n) {
@@ -2157,8 +2157,8 @@ export namespace Comprehensive {
 
         {
           const payload = value.fRequired;
-          payloadSize = payload.byteLength;
-          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          payloadSize1 = payload.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize1, false);
           {
             const sourceBuffer = new Uint8Array(payload);
             const targetBuffer = new Uint8Array(
@@ -2173,8 +2173,8 @@ export namespace Comprehensive {
 
         {
           const payload = value.gRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -2189,15 +2189,15 @@ export namespace Comprehensive {
 
         {
           const payload = value.hRequired;
-          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize1, false);
           offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
         }
 
         {
           const payload = value.iRequired;
-          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize1, false);
           offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
         }
 
@@ -2208,15 +2208,15 @@ export namespace Comprehensive {
             {
               const payload = BigInt(oldPayload.length);
               if (payload === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
           }
-          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize1, false);
           {
             const varint = BigInt(payload.length);
             if (varint > 567_382_630_219_903n) {
@@ -2230,13 +2230,13 @@ export namespace Comprehensive {
 
         {
           const payload = value.kRequired;
-          payloadSize = 8 * payload.length;
-          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+          payloadSize1 = 8 * payload.length;
+          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = 8;
+              payloadSize1 = 8;
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
@@ -2250,18 +2250,18 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(payload);
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
               {
                 const varint = payload;
                 offset = serializeVarint(dataView, offset, varint);
@@ -2277,18 +2277,18 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
               {
                 const varint = zigzagEncode(payload);
                 offset = serializeVarint(dataView, offset, varint);
@@ -2304,18 +2304,18 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 1;
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = 1;
+              payloadSize1 = 1;
               {
                 const varint = payload ? 1n : 0n;
                 offset = serializeVarint(dataView, offset, varint);
@@ -2331,19 +2331,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = payload.byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = payload.byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const sourceBuffer = new Uint8Array(payload);
                 const targetBuffer = new Uint8Array(
@@ -2365,19 +2365,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 15n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = textEncoder.encode(payload).byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = textEncoder.encode(payload).byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const sourceBuffer = textEncoder.encode(payload);
                 const targetBuffer = new Uint8Array(
@@ -2399,19 +2399,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 16n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
             }
           }
@@ -2424,19 +2424,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
             }
           }
@@ -2449,19 +2449,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 const oldPayload = payload;
                 {
                   const payload = BigInt(oldPayload.length);
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize2 = varintSizeFromValue(payload);
                 }
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 18n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2470,10 +2470,10 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 {
                   const payload = BigInt(oldPayload.length);
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 }
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const varint = BigInt(payload.length);
                 offset = serializeVarint(dataView, offset, varint);
@@ -2489,24 +2489,24 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 8 * payload.length;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 19n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = 8 * payload.length;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = 8 * payload.length;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                   dataView.setFloat64(offset, payload, true);
                   offset += 8;
                 }
@@ -2522,23 +2522,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(payload);
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(payload);
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 20n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2548,18 +2548,18 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(payload);
-                  arraySize += payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = varintSizeFromValue(payload);
+                  arraySize += payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                   {
                     const varint = payload;
                     offset = serializeVarint(dataView, offset, varint);
@@ -2577,23 +2577,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 21n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2603,18 +2603,18 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                  arraySize += payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                   {
                     const varint = zigzagEncode(payload);
                     offset = serializeVarint(dataView, offset, varint);
@@ -2632,23 +2632,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = 1;
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = 1;
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 22n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2658,18 +2658,18 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = 1;
-                  arraySize += payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = 1;
+                  arraySize += payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = 1;
+                  payloadSize1 = 1;
                   {
                     const varint = payload ? 1n : 0n;
                     offset = serializeVarint(dataView, offset, varint);
@@ -2687,23 +2687,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = payload.byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 23n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2713,19 +2713,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = payload.byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = payload.byteLength;
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = payload.byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   {
                     const sourceBuffer = new Uint8Array(payload);
                     const targetBuffer = new Uint8Array(
@@ -2749,23 +2749,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 24n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2775,19 +2775,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = textEncoder.encode(payload).byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   {
                     const sourceBuffer = textEncoder.encode(payload);
                     const targetBuffer = new Uint8Array(
@@ -2811,23 +2811,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 25n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2837,19 +2837,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
                 }
               }
@@ -2864,23 +2864,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 26n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -2890,19 +2890,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
                 }
               }
@@ -2912,19 +2912,19 @@ export namespace Comprehensive {
 
         {
           const payload = value.aAsymmetric;
-          payloadSize = 0;
-          offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+          payloadSize1 = 0;
+          offset = serializeFieldHeader(dataView, offset, 28n, payloadSize1, false);
         }
 
         {
           const payload = value.bAsymmetric;
           if (Object.is(payload, 0)) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
-          if (payloadSize !== 0) {
+          offset = serializeFieldHeader(dataView, offset, 29n, payloadSize1, false);
+          if (payloadSize1 !== 0) {
             dataView.setFloat64(offset, payload, true);
             offset += 8;
           }
@@ -2933,13 +2933,13 @@ export namespace Comprehensive {
         {
           const payload = value.cAsymmetric;
           if (payload === 0n) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else if (payload < 567_382_630_219_904n) {
-            payloadSize = varintSizeFromValue(payload);
+            payloadSize1 = varintSizeFromValue(payload);
           } else {
-            payloadSize = 8;
+            payloadSize1 = 8;
           }
-          offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
+          offset = serializeFieldHeader(dataView, offset, 30n, payloadSize1, true);
           {
             const varint = payload;
             if (varint > 567_382_630_219_903n) {
@@ -2956,14 +2956,14 @@ export namespace Comprehensive {
           {
             const zigzag = zigzagEncode(payload);
             if (zigzag === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (zigzag < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(zigzag);
+              payloadSize1 = varintSizeFromValue(zigzag);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
           }
-          offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
+          offset = serializeFieldHeader(dataView, offset, 31n, payloadSize1, true);
           {
             const varint = zigzagEncode(payload);
             if (varint > 567_382_630_219_903n) {
@@ -2978,11 +2978,11 @@ export namespace Comprehensive {
         {
           const payload = value.eAsymmetric;
           if (payload) {
-            payloadSize = 1;
+            payloadSize1 = 1;
           } else {
-            payloadSize = 0;
+            payloadSize1 = 0;
           }
-          offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
+          offset = serializeFieldHeader(dataView, offset, 32n, payloadSize1, true);
           {
             const varint = payload ? 1n : 0n;
             if (varint > 567_382_630_219_903n) {
@@ -2996,8 +2996,8 @@ export namespace Comprehensive {
 
         {
           const payload = value.fAsymmetric;
-          payloadSize = payload.byteLength;
-          offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+          payloadSize1 = payload.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 33n, payloadSize1, false);
           {
             const sourceBuffer = new Uint8Array(payload);
             const targetBuffer = new Uint8Array(
@@ -3012,8 +3012,8 @@ export namespace Comprehensive {
 
         {
           const payload = value.gAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 34n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -3028,15 +3028,15 @@ export namespace Comprehensive {
 
         {
           const payload = value.hAsymmetric;
-          payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-          offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
+          payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 35n, payloadSize1, false);
           offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
         }
 
         {
           const payload = value.iAsymmetric;
-          payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-          offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
+          payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+          offset = serializeFieldHeader(dataView, offset, 36n, payloadSize1, false);
           offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
         }
 
@@ -3047,15 +3047,15 @@ export namespace Comprehensive {
             {
               const payload = BigInt(oldPayload.length);
               if (payload === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (payload < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
           }
-          offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 37n, payloadSize1, false);
           {
             const varint = BigInt(payload.length);
             if (varint > 567_382_630_219_903n) {
@@ -3069,13 +3069,13 @@ export namespace Comprehensive {
 
         {
           const payload = value.kAsymmetric;
-          payloadSize = 8 * payload.length;
-          offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+          payloadSize1 = 8 * payload.length;
+          offset = serializeFieldHeader(dataView, offset, 38n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = 8;
+              payloadSize1 = 8;
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
@@ -3089,18 +3089,18 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(payload);
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(payload);
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 39n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
               {
                 const varint = payload;
                 offset = serializeVarint(dataView, offset, varint);
@@ -3116,18 +3116,18 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 40n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = varintSizeFromValue(zigzagEncode(payload));
+              payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
               {
                 const varint = zigzagEncode(payload);
                 offset = serializeVarint(dataView, offset, varint);
@@ -3143,18 +3143,18 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 1;
-              arraySize += payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 1;
+              arraySize += payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 41n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = 1;
+              payloadSize1 = 1;
               {
                 const varint = payload ? 1n : 0n;
                 offset = serializeVarint(dataView, offset, varint);
@@ -3170,19 +3170,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = payload.byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = payload.byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 42n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = payload.byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = payload.byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const sourceBuffer = new Uint8Array(payload);
                 const targetBuffer = new Uint8Array(
@@ -3204,19 +3204,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = textEncoder.encode(payload).byteLength;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = textEncoder.encode(payload).byteLength;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 43n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = textEncoder.encode(payload).byteLength;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = textEncoder.encode(payload).byteLength;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const sourceBuffer = textEncoder.encode(payload);
                 const targetBuffer = new Uint8Array(
@@ -3238,19 +3238,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 44n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
             }
           }
@@ -3263,19 +3263,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 45n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
             }
           }
@@ -3288,19 +3288,19 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 const oldPayload = payload;
                 {
                   const payload = BigInt(oldPayload.length);
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize2 = varintSizeFromValue(payload);
                 }
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 46n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3309,10 +3309,10 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 {
                   const payload = BigInt(oldPayload.length);
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 }
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const varint = BigInt(payload.length);
                 offset = serializeVarint(dataView, offset, varint);
@@ -3328,24 +3328,24 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
-              payloadSize = 8 * payload.length;
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              let payloadSize2 = 0;
+              payloadSize2 = 8 * payload.length;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 47n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              payloadSize = 8 * payload.length;
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              payloadSize1 = 8 * payload.length;
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                   dataView.setFloat64(offset, payload, true);
                   offset += 8;
                 }
@@ -3361,23 +3361,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(payload);
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(payload);
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 48n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3387,18 +3387,18 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(payload);
-                  arraySize += payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = varintSizeFromValue(payload);
+                  arraySize += payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                   {
                     const varint = payload;
                     offset = serializeVarint(dataView, offset, varint);
@@ -3416,23 +3416,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 49n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3442,18 +3442,18 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                  arraySize += payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                  payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                   {
                     const varint = zigzagEncode(payload);
                     offset = serializeVarint(dataView, offset, varint);
@@ -3471,23 +3471,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = 1;
-                  arraySize += payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = 1;
+                  arraySize += payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 50n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3497,18 +3497,18 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = 1;
-                  arraySize += payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = 1;
+                  arraySize += payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = 1;
+                  payloadSize1 = 1;
                   {
                     const varint = payload ? 1n : 0n;
                     offset = serializeVarint(dataView, offset, varint);
@@ -3526,23 +3526,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = payload.byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 51n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3552,19 +3552,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = payload.byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = payload.byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = payload.byteLength;
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = payload.byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   {
                     const sourceBuffer = new Uint8Array(payload);
                     const targetBuffer = new Uint8Array(
@@ -3588,23 +3588,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 52n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3614,19 +3614,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = textEncoder.encode(payload).byteLength;
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = textEncoder.encode(payload).byteLength;
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = textEncoder.encode(payload).byteLength;
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   {
                     const sourceBuffer = textEncoder.encode(payload);
                     const targetBuffer = new Uint8Array(
@@ -3650,23 +3650,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 53n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3676,19 +3676,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
                 }
               }
@@ -3703,23 +3703,23 @@ export namespace Comprehensive {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadSize = 0;
+              let payloadSize2 = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize3 = 0;
+                  payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                 }
-                payloadSize = arraySize;
+                payloadSize2 = arraySize;
               }
-              arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
             }
-            payloadSize = arraySize;
+            payloadSize1 = arraySize;
           }
-          offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
+          offset = serializeFieldHeader(dataView, offset, 54n, payloadSize1, false);
           {
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
@@ -3729,19 +3729,19 @@ export namespace Comprehensive {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  let payloadSize = 0;
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  let payloadSize2 = 0;
+                  payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                  arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                 }
-                payloadSize = arraySize;
+                payloadSize1 = arraySize;
               }
-              offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+              offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
               {
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
-                  payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                  offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                  payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                  offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                   offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
                 }
               }
@@ -3752,8 +3752,8 @@ export namespace Comprehensive {
         {
           const payload = value.aOptional;
           if (payload !== undefined) {
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 56n, payloadSize1, false);
           }
         }
 
@@ -3761,12 +3761,12 @@ export namespace Comprehensive {
           const payload = value.bOptional;
           if (payload !== undefined) {
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
-            if (payloadSize !== 0) {
+            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize1, false);
+            if (payloadSize1 !== 0) {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
@@ -3777,13 +3777,13 @@ export namespace Comprehensive {
           const payload = value.cOptional;
           if (payload !== undefined) {
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize1, true);
             {
               const varint = payload;
               if (varint > 567_382_630_219_903n) {
@@ -3802,14 +3802,14 @@ export namespace Comprehensive {
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize1, true);
             {
               const varint = zigzagEncode(payload);
               if (varint > 567_382_630_219_903n) {
@@ -3826,11 +3826,11 @@ export namespace Comprehensive {
           const payload = value.eOptional;
           if (payload !== undefined) {
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize1, true);
             {
               const varint = payload ? 1n : 0n;
               if (varint > 567_382_630_219_903n) {
@@ -3846,8 +3846,8 @@ export namespace Comprehensive {
         {
           const payload = value.fOptional;
           if (payload !== undefined) {
-            payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
+            payloadSize1 = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize1, false);
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
@@ -3864,8 +3864,8 @@ export namespace Comprehensive {
         {
           const payload = value.gOptional;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -3882,8 +3882,8 @@ export namespace Comprehensive {
         {
           const payload = value.hOptional;
           if (payload !== undefined) {
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize1, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
           }
         }
@@ -3891,8 +3891,8 @@ export namespace Comprehensive {
         {
           const payload = value.iOptional;
           if (payload !== undefined) {
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize1, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
           }
         }
@@ -3905,15 +3905,15 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize1, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -3929,13 +3929,13 @@ export namespace Comprehensive {
         {
           const payload = value.kOptional;
           if (payload !== undefined) {
-            payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
+            payloadSize1 = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8;
+                payloadSize1 = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
               }
@@ -3951,18 +3951,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
                 {
                   const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
@@ -3980,18 +3980,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
                   offset = serializeVarint(dataView, offset, varint);
@@ -4009,18 +4009,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 1;
+                payloadSize1 = 1;
                 {
                   const varint = payload ? 1n : 0n;
                   offset = serializeVarint(dataView, offset, varint);
@@ -4038,19 +4038,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = payload.byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = payload.byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = new Uint8Array(payload);
                   const targetBuffer = new Uint8Array(
@@ -4074,19 +4074,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = textEncoder.encode(payload).byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = textEncoder.encode(payload).byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
@@ -4110,19 +4110,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
               }
             }
@@ -4137,19 +4137,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
               }
             }
@@ -4164,19 +4164,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4185,10 +4185,10 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                   }
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const varint = BigInt(payload.length);
                   offset = serializeVarint(dataView, offset, varint);
@@ -4206,24 +4206,24 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8 * payload.length;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 8;
+                    payloadSize1 = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
                   }
@@ -4241,23 +4241,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4267,18 +4267,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(payload);
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                     {
                       const varint = payload;
                       offset = serializeVarint(dataView, offset, varint);
@@ -4298,23 +4298,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4324,18 +4324,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
                       offset = serializeVarint(dataView, offset, varint);
@@ -4355,23 +4355,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4381,18 +4381,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = 1;
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 1;
+                    payloadSize1 = 1;
                     {
                       const varint = payload ? 1n : 0n;
                       offset = serializeVarint(dataView, offset, varint);
@@ -4412,23 +4412,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4438,19 +4438,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = payload.byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = new Uint8Array(payload);
                       const targetBuffer = new Uint8Array(
@@ -4476,23 +4476,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4502,19 +4502,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
@@ -4540,23 +4540,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4566,19 +4566,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -4595,23 +4595,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -4621,19 +4621,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -4654,9 +4654,9 @@ export namespace Comprehensive {
         let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
 
         while (true) {
-          let index, payloadSize;
+          let index, payloadSize1;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+            [offset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -4669,7 +4669,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4682,13 +4682,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0;
                     break;
@@ -4706,13 +4706,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -4733,13 +4733,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -4761,7 +4761,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4771,7 +4771,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -4796,7 +4796,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4813,7 +4813,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4833,7 +4833,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4847,7 +4847,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4861,7 +4861,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4871,7 +4871,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -4896,7 +4896,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4927,7 +4927,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4958,7 +4958,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -4990,7 +4990,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5029,7 +5029,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5074,7 +5074,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5122,7 +5122,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5164,7 +5164,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5206,7 +5206,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5256,7 +5256,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5315,7 +5315,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5374,7 +5374,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5434,7 +5434,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5501,7 +5501,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5574,7 +5574,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5650,7 +5650,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5720,7 +5720,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5790,7 +5790,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5803,13 +5803,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0;
                     break;
@@ -5827,13 +5827,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -5854,13 +5854,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -5882,7 +5882,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5892,7 +5892,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -5917,7 +5917,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5934,7 +5934,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5954,7 +5954,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5968,7 +5968,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5982,7 +5982,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -5992,7 +5992,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -6017,7 +6017,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6048,7 +6048,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6079,7 +6079,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6111,7 +6111,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6150,7 +6150,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6195,7 +6195,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6243,7 +6243,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6285,7 +6285,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6327,7 +6327,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6377,7 +6377,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6436,7 +6436,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6495,7 +6495,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6555,7 +6555,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6622,7 +6622,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6695,7 +6695,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6771,7 +6771,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6841,7 +6841,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6911,7 +6911,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -6924,13 +6924,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0;
                     break;
@@ -6948,13 +6948,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -6975,13 +6975,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -7003,7 +7003,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7013,7 +7013,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -7038,7 +7038,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7055,7 +7055,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7075,7 +7075,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7089,7 +7089,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7103,7 +7103,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7113,7 +7113,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -7138,7 +7138,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7169,7 +7169,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7200,7 +7200,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7232,7 +7232,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7271,7 +7271,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7316,7 +7316,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7364,7 +7364,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7406,7 +7406,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7448,7 +7448,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7498,7 +7498,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7557,7 +7557,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7616,7 +7616,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7676,7 +7676,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7743,7 +7743,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7816,7 +7816,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7892,7 +7892,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -7962,7 +7962,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -8029,7 +8029,7 @@ export namespace Comprehensive {
               break;
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -8299,76 +8299,76 @@ export namespace Comprehensive {
 
     export namespace Bar {
       export function size(value: BarOut): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'aRequired': {
             const payload = null;
-            payloadSize = 0;
-            return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+            payloadSize1 = 0;
+            return fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
           }
           case 'bRequired': {
             const payload = value.bRequired;
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(1n, payloadSize1, false) + payloadSize1;
           }
           case 'cRequired': {
             const payload = value.cRequired;
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            return fieldHeaderSize(2n, payloadSize, true) + payloadSize;
+            return fieldHeaderSize(2n, payloadSize1, true) + payloadSize1;
           }
           case 'dRequired': {
             const payload = value.dRequired;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            return fieldHeaderSize(3n, payloadSize, true) + payloadSize;
+            return fieldHeaderSize(3n, payloadSize1, true) + payloadSize1;
           }
           case 'eRequired': {
             const payload = value.eRequired;
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            return fieldHeaderSize(4n, payloadSize, true) + payloadSize;
+            return fieldHeaderSize(4n, payloadSize1, true) + payloadSize1;
           }
           case 'fRequired': {
             const payload = value.fRequired;
-            payloadSize = payload.byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+            payloadSize1 = payload.byteLength;
+            return fieldHeaderSize(5n, payloadSize1, false) + payloadSize1;
           }
           case 'gRequired': {
             const payload = value.gRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(6n, payloadSize1, false) + payloadSize1;
           }
           case 'hRequired': {
             const payload = value.hRequired;
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            return fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            return fieldHeaderSize(7n, payloadSize1, false) + payloadSize1;
           }
           case 'iRequired': {
             const payload = value.iRequired;
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            return fieldHeaderSize(8n, payloadSize1, false) + payloadSize1;
           }
           case 'jRequired': {
             const payload = value.jRequired;
@@ -8377,20 +8377,20 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            return fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(9n, payloadSize1, false) + payloadSize1;
           }
           case 'kRequired': {
             const payload = value.kRequired;
-            payloadSize = 8 * payload.length;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+            payloadSize1 = 8 * payload.length;
+            return fieldHeaderSize(10n, payloadSize1, false) + payloadSize1;
           }
           case 'lRequired': {
             const payload = value.lRequired;
@@ -8399,13 +8399,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(11n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(11n, payloadSize1, false) + payloadSize1;
           }
           case 'mRequired': {
             const payload = value.mRequired;
@@ -8414,13 +8414,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(12n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(12n, payloadSize1, false) + payloadSize1;
           }
           case 'nRequired': {
             const payload = value.nRequired;
@@ -8429,13 +8429,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(13n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(13n, payloadSize1, false) + payloadSize1;
           }
           case 'oRequired': {
             const payload = value.oRequired;
@@ -8444,13 +8444,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(14n, payloadSize1, false) + payloadSize1;
           }
           case 'pRequired': {
             const payload = value.pRequired;
@@ -8459,13 +8459,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(15n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(15n, payloadSize1, false) + payloadSize1;
           }
           case 'qRequired': {
             const payload = value.qRequired;
@@ -8474,13 +8474,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(16n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(16n, payloadSize1, false) + payloadSize1;
           }
           case 'rRequired': {
             const payload = value.rRequired;
@@ -8489,13 +8489,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(17n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(17n, payloadSize1, false) + payloadSize1;
           }
           case 'sRequired': {
             const payload = value.sRequired;
@@ -8504,19 +8504,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(18n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(18n, payloadSize1, false) + payloadSize1;
           }
           case 'tRequired': {
             const payload = value.tRequired;
@@ -8525,13 +8525,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(19n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(19n, payloadSize1, false) + payloadSize1;
           }
           case 'uRequired': {
             const payload = value.uRequired;
@@ -8540,23 +8540,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(20n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(20n, payloadSize1, false) + payloadSize1;
           }
           case 'vRequired': {
             const payload = value.vRequired;
@@ -8565,23 +8565,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(21n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(21n, payloadSize1, false) + payloadSize1;
           }
           case 'wRequired': {
             const payload = value.wRequired;
@@ -8590,23 +8590,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(22n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(22n, payloadSize1, false) + payloadSize1;
           }
           case 'xRequired': {
             const payload = value.xRequired;
@@ -8615,23 +8615,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(23n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(23n, payloadSize1, false) + payloadSize1;
           }
           case 'yRequired': {
             const payload = value.yRequired;
@@ -8640,23 +8640,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(24n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(24n, payloadSize1, false) + payloadSize1;
           }
           case 'zRequired': {
             const payload = value.zRequired;
@@ -8665,23 +8665,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(25n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(25n, payloadSize1, false) + payloadSize1;
           }
           case 'aaRequired': {
             const payload = value.aaRequired;
@@ -8690,91 +8690,91 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(26n, payloadSize, false) + payloadSize;
+            return fieldHeaderSize(26n, payloadSize1, false) + payloadSize1;
           }
           case 'aAsymmetric': {
             const payload = null;
-            payloadSize = 0;
-            return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = 0;
+            return fieldHeaderSize(28n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'bAsymmetric': {
             const payload = value.bAsymmetric;
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(29n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'cAsymmetric': {
             const payload = value.cAsymmetric;
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            return fieldHeaderSize(30n, payloadSize, true) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(30n, payloadSize1, true) + payloadSize1 + size(value.$fallback);
           }
           case 'dAsymmetric': {
             const payload = value.dAsymmetric;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            return fieldHeaderSize(31n, payloadSize, true) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(31n, payloadSize1, true) + payloadSize1 + size(value.$fallback);
           }
           case 'eAsymmetric': {
             const payload = value.eAsymmetric;
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            return fieldHeaderSize(32n, payloadSize, true) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(32n, payloadSize1, true) + payloadSize1 + size(value.$fallback);
           }
           case 'fAsymmetric': {
             const payload = value.fAsymmetric;
-            payloadSize = payload.byteLength;
-            return fieldHeaderSize(33n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = payload.byteLength;
+            return fieldHeaderSize(33n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'gAsymmetric': {
             const payload = value.gAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(34n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(34n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'hAsymmetric': {
             const payload = value.hAsymmetric;
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            return fieldHeaderSize(35n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            return fieldHeaderSize(35n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'iAsymmetric': {
             const payload = value.iAsymmetric;
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            return fieldHeaderSize(36n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            return fieldHeaderSize(36n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'jAsymmetric': {
             const payload = value.jAsymmetric;
@@ -8783,20 +8783,20 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(37n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'kAsymmetric': {
             const payload = value.kAsymmetric;
-            payloadSize = 8 * payload.length;
-            return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = 8 * payload.length;
+            return fieldHeaderSize(38n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'lAsymmetric': {
             const payload = value.lAsymmetric;
@@ -8805,13 +8805,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(39n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'mAsymmetric': {
             const payload = value.mAsymmetric;
@@ -8820,13 +8820,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(40n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'nAsymmetric': {
             const payload = value.nAsymmetric;
@@ -8835,13 +8835,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(41n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'oAsymmetric': {
             const payload = value.oAsymmetric;
@@ -8850,13 +8850,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(42n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'pAsymmetric': {
             const payload = value.pAsymmetric;
@@ -8865,13 +8865,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(43n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'qAsymmetric': {
             const payload = value.qAsymmetric;
@@ -8880,13 +8880,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(44n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'rAsymmetric': {
             const payload = value.rAsymmetric;
@@ -8895,13 +8895,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(45n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'sAsymmetric': {
             const payload = value.sAsymmetric;
@@ -8910,19 +8910,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(46n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'tAsymmetric': {
             const payload = value.tAsymmetric;
@@ -8931,13 +8931,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(47n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(47n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'uAsymmetric': {
             const payload = value.uAsymmetric;
@@ -8946,23 +8946,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(48n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(48n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'vAsymmetric': {
             const payload = value.vAsymmetric;
@@ -8971,23 +8971,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(49n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(49n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'wAsymmetric': {
             const payload = value.wAsymmetric;
@@ -8996,23 +8996,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(50n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(50n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'xAsymmetric': {
             const payload = value.xAsymmetric;
@@ -9021,23 +9021,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(51n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(51n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'yAsymmetric': {
             const payload = value.yAsymmetric;
@@ -9046,23 +9046,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(52n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(52n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'zAsymmetric': {
             const payload = value.zAsymmetric;
@@ -9071,23 +9071,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(53n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(53n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'aaAsymmetric': {
             const payload = value.aaAsymmetric;
@@ -9096,91 +9096,91 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(54n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(54n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'aOptional': {
             const payload = null;
-            payloadSize = 0;
-            return fieldHeaderSize(56n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = 0;
+            return fieldHeaderSize(56n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'bOptional': {
             const payload = value.bOptional;
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            return fieldHeaderSize(57n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(57n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'cOptional': {
             const payload = value.cOptional;
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            return fieldHeaderSize(58n, payloadSize, true) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(58n, payloadSize1, true) + payloadSize1 + size(value.$fallback);
           }
           case 'dOptional': {
             const payload = value.dOptional;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            return fieldHeaderSize(59n, payloadSize, true) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(59n, payloadSize1, true) + payloadSize1 + size(value.$fallback);
           }
           case 'eOptional': {
             const payload = value.eOptional;
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            return fieldHeaderSize(60n, payloadSize, true) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(60n, payloadSize1, true) + payloadSize1 + size(value.$fallback);
           }
           case 'fOptional': {
             const payload = value.fOptional;
-            payloadSize = payload.byteLength;
-            return fieldHeaderSize(61n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = payload.byteLength;
+            return fieldHeaderSize(61n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'gOptional': {
             const payload = value.gOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(62n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(62n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'hOptional': {
             const payload = value.hOptional;
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            return fieldHeaderSize(63n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            return fieldHeaderSize(63n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'iOptional': {
             const payload = value.iOptional;
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            return fieldHeaderSize(64n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            return fieldHeaderSize(64n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'jOptional': {
             const payload = value.jOptional;
@@ -9189,20 +9189,20 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            return fieldHeaderSize(65n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(65n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'kOptional': {
             const payload = value.kOptional;
-            payloadSize = 8 * payload.length;
-            return fieldHeaderSize(66n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = 8 * payload.length;
+            return fieldHeaderSize(66n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'lOptional': {
             const payload = value.lOptional;
@@ -9211,13 +9211,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(67n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(67n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'mOptional': {
             const payload = value.mOptional;
@@ -9226,13 +9226,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(68n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(68n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'nOptional': {
             const payload = value.nOptional;
@@ -9241,13 +9241,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(69n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(69n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'oOptional': {
             const payload = value.oOptional;
@@ -9256,13 +9256,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(70n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(70n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'pOptional': {
             const payload = value.pOptional;
@@ -9271,13 +9271,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(71n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(71n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'qOptional': {
             const payload = value.qOptional;
@@ -9286,13 +9286,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(72n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(72n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'rOptional': {
             const payload = value.rOptional;
@@ -9301,13 +9301,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(73n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(73n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'sOptional': {
             const payload = value.sOptional;
@@ -9316,19 +9316,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(74n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(74n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'tOptional': {
             const payload = value.tOptional;
@@ -9337,13 +9337,13 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(75n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(75n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'uOptional': {
             const payload = value.uOptional;
@@ -9352,23 +9352,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(76n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(76n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'vOptional': {
             const payload = value.vOptional;
@@ -9377,23 +9377,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(77n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(77n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'wOptional': {
             const payload = value.wOptional;
@@ -9402,23 +9402,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(78n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(78n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'xOptional': {
             const payload = value.xOptional;
@@ -9427,23 +9427,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(79n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(79n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'yOptional': {
             const payload = value.yOptional;
@@ -9452,23 +9452,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(80n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(80n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'zOptional': {
             const payload = value.zOptional;
@@ -9477,23 +9477,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(81n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(81n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'aaOptional': {
             const payload = value.aaOptional;
@@ -9502,23 +9502,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            return fieldHeaderSize(82n, payloadSize, false) + payloadSize + size(value.$fallback);
+            return fieldHeaderSize(82n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           default:
             return unreachable(value);
@@ -9530,24 +9530,24 @@ export namespace Comprehensive {
         offset: number,
         value: BarOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'aRequired': {
             const payload = null;
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
             return offset;
           }
           case 'bRequired': {
             const payload = value.bRequired;
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-            if (payloadSize !== 0) {
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize1, false);
+            if (payloadSize1 !== 0) {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
@@ -9556,13 +9556,13 @@ export namespace Comprehensive {
           case 'cRequired': {
             const payload = value.cRequired;
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize1, true);
             {
               const varint = payload;
               if (varint > 567_382_630_219_903n) {
@@ -9579,14 +9579,14 @@ export namespace Comprehensive {
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 3n, payloadSize1, true);
             {
               const varint = zigzagEncode(payload);
               if (varint > 567_382_630_219_903n) {
@@ -9601,11 +9601,11 @@ export namespace Comprehensive {
           case 'eRequired': {
             const payload = value.eRequired;
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize1, true);
             {
               const varint = payload ? 1n : 0n;
               if (varint > 567_382_630_219_903n) {
@@ -9619,8 +9619,8 @@ export namespace Comprehensive {
           }
           case 'fRequired': {
             const payload = value.fRequired;
-            payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            payloadSize1 = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize1, false);
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
@@ -9635,8 +9635,8 @@ export namespace Comprehensive {
           }
           case 'gRequired': {
             const payload = value.gRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -9651,15 +9651,15 @@ export namespace Comprehensive {
           }
           case 'hRequired': {
             const payload = value.hRequired;
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize1, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
             return offset;
           }
           case 'iRequired': {
             const payload = value.iRequired;
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize1, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
             return offset;
           }
@@ -9670,15 +9670,15 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize1, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -9692,13 +9692,13 @@ export namespace Comprehensive {
           }
           case 'kRequired': {
             const payload = value.kRequired;
-            payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            payloadSize1 = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8;
+                payloadSize1 = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
               }
@@ -9712,18 +9712,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
                 {
                   const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
@@ -9739,18 +9739,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
                   offset = serializeVarint(dataView, offset, varint);
@@ -9766,18 +9766,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 1;
+                payloadSize1 = 1;
                 {
                   const varint = payload ? 1n : 0n;
                   offset = serializeVarint(dataView, offset, varint);
@@ -9793,19 +9793,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = payload.byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = payload.byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = new Uint8Array(payload);
                   const targetBuffer = new Uint8Array(
@@ -9827,19 +9827,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = textEncoder.encode(payload).byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = textEncoder.encode(payload).byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
@@ -9861,19 +9861,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 16n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
               }
             }
@@ -9886,19 +9886,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
               }
             }
@@ -9911,19 +9911,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -9932,10 +9932,10 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                   }
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const varint = BigInt(payload.length);
                   offset = serializeVarint(dataView, offset, varint);
@@ -9951,24 +9951,24 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 19n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8 * payload.length;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 8;
+                    payloadSize1 = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
                   }
@@ -9984,23 +9984,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 20n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10010,18 +10010,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(payload);
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                     {
                       const varint = payload;
                       offset = serializeVarint(dataView, offset, varint);
@@ -10039,23 +10039,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 21n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10065,18 +10065,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
                       offset = serializeVarint(dataView, offset, varint);
@@ -10094,23 +10094,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 22n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10120,18 +10120,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = 1;
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 1;
+                    payloadSize1 = 1;
                     {
                       const varint = payload ? 1n : 0n;
                       offset = serializeVarint(dataView, offset, varint);
@@ -10149,23 +10149,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 23n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10175,19 +10175,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = payload.byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = new Uint8Array(payload);
                       const targetBuffer = new Uint8Array(
@@ -10211,23 +10211,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 24n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10237,19 +10237,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
@@ -10273,23 +10273,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 25n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10299,19 +10299,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -10326,23 +10326,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 26n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10352,19 +10352,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -10374,20 +10374,20 @@ export namespace Comprehensive {
           }
           case 'aAsymmetric': {
             const payload = null;
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 28n, payloadSize1, false);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'bAsymmetric': {
             const payload = value.bAsymmetric;
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
-            if (payloadSize !== 0) {
+            offset = serializeFieldHeader(dataView, offset, 29n, payloadSize1, false);
+            if (payloadSize1 !== 0) {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
@@ -10397,13 +10397,13 @@ export namespace Comprehensive {
           case 'cAsymmetric': {
             const payload = value.cAsymmetric;
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 30n, payloadSize1, true);
             {
               const varint = payload;
               if (varint > 567_382_630_219_903n) {
@@ -10421,14 +10421,14 @@ export namespace Comprehensive {
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 31n, payloadSize1, true);
             {
               const varint = zigzagEncode(payload);
               if (varint > 567_382_630_219_903n) {
@@ -10444,11 +10444,11 @@ export namespace Comprehensive {
           case 'eAsymmetric': {
             const payload = value.eAsymmetric;
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 32n, payloadSize1, true);
             {
               const varint = payload ? 1n : 0n;
               if (varint > 567_382_630_219_903n) {
@@ -10463,8 +10463,8 @@ export namespace Comprehensive {
           }
           case 'fAsymmetric': {
             const payload = value.fAsymmetric;
-            payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+            payloadSize1 = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize1, false);
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
@@ -10480,8 +10480,8 @@ export namespace Comprehensive {
           }
           case 'gAsymmetric': {
             const payload = value.gAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -10497,16 +10497,16 @@ export namespace Comprehensive {
           }
           case 'hAsymmetric': {
             const payload = value.hAsymmetric;
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize1, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'iAsymmetric': {
             const payload = value.iAsymmetric;
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize1, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -10518,15 +10518,15 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize1, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -10541,13 +10541,13 @@ export namespace Comprehensive {
           }
           case 'kAsymmetric': {
             const payload = value.kAsymmetric;
-            payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+            payloadSize1 = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8;
+                payloadSize1 = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
               }
@@ -10562,18 +10562,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
                 {
                   const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
@@ -10590,18 +10590,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
                   offset = serializeVarint(dataView, offset, varint);
@@ -10618,18 +10618,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 1;
+                payloadSize1 = 1;
                 {
                   const varint = payload ? 1n : 0n;
                   offset = serializeVarint(dataView, offset, varint);
@@ -10646,19 +10646,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = payload.byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = payload.byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = new Uint8Array(payload);
                   const targetBuffer = new Uint8Array(
@@ -10681,19 +10681,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = textEncoder.encode(payload).byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = textEncoder.encode(payload).byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
@@ -10716,19 +10716,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
               }
             }
@@ -10742,19 +10742,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
               }
             }
@@ -10768,19 +10768,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10789,10 +10789,10 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                   }
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const varint = BigInt(payload.length);
                   offset = serializeVarint(dataView, offset, varint);
@@ -10809,24 +10809,24 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 47n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8 * payload.length;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 8;
+                    payloadSize1 = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
                   }
@@ -10843,23 +10843,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 48n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10869,18 +10869,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(payload);
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                     {
                       const varint = payload;
                       offset = serializeVarint(dataView, offset, varint);
@@ -10899,23 +10899,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 49n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10925,18 +10925,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
                       offset = serializeVarint(dataView, offset, varint);
@@ -10955,23 +10955,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 50n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -10981,18 +10981,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = 1;
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 1;
+                    payloadSize1 = 1;
                     {
                       const varint = payload ? 1n : 0n;
                       offset = serializeVarint(dataView, offset, varint);
@@ -11011,23 +11011,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 51n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11037,19 +11037,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = payload.byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = new Uint8Array(payload);
                       const targetBuffer = new Uint8Array(
@@ -11074,23 +11074,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 52n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11100,19 +11100,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
@@ -11137,23 +11137,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 53n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11163,19 +11163,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -11191,23 +11191,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 54n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11217,19 +11217,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -11240,20 +11240,20 @@ export namespace Comprehensive {
           }
           case 'aOptional': {
             const payload = null;
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 56n, payloadSize1, false);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'bOptional': {
             const payload = value.bOptional;
             if (Object.is(payload, 0)) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
-            if (payloadSize !== 0) {
+            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize1, false);
+            if (payloadSize1 !== 0) {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
@@ -11263,13 +11263,13 @@ export namespace Comprehensive {
           case 'cOptional': {
             const payload = value.cOptional;
             if (payload === 0n) {
-              payloadSize = 0;
+              payloadSize1 = 0;
             } else if (payload < 567_382_630_219_904n) {
-              payloadSize = varintSizeFromValue(payload);
+              payloadSize1 = varintSizeFromValue(payload);
             } else {
-              payloadSize = 8;
+              payloadSize1 = 8;
             }
-            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize1, true);
             {
               const varint = payload;
               if (varint > 567_382_630_219_903n) {
@@ -11287,14 +11287,14 @@ export namespace Comprehensive {
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
-                payloadSize = 0;
+                payloadSize1 = 0;
               } else if (zigzag < 567_382_630_219_904n) {
-                payloadSize = varintSizeFromValue(zigzag);
+                payloadSize1 = varintSizeFromValue(zigzag);
               } else {
-                payloadSize = 8;
+                payloadSize1 = 8;
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize1, true);
             {
               const varint = zigzagEncode(payload);
               if (varint > 567_382_630_219_903n) {
@@ -11310,11 +11310,11 @@ export namespace Comprehensive {
           case 'eOptional': {
             const payload = value.eOptional;
             if (payload) {
-              payloadSize = 1;
+              payloadSize1 = 1;
             } else {
-              payloadSize = 0;
+              payloadSize1 = 0;
             }
-            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
+            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize1, true);
             {
               const varint = payload ? 1n : 0n;
               if (varint > 567_382_630_219_903n) {
@@ -11329,8 +11329,8 @@ export namespace Comprehensive {
           }
           case 'fOptional': {
             const payload = value.fOptional;
-            payloadSize = payload.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
+            payloadSize1 = payload.byteLength;
+            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize1, false);
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
@@ -11346,8 +11346,8 @@ export namespace Comprehensive {
           }
           case 'gOptional': {
             const payload = value.gOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -11363,16 +11363,16 @@ export namespace Comprehensive {
           }
           case 'hOptional': {
             const payload = value.hOptional;
-            payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
+            payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize1, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'iOptional': {
             const payload = value.iOptional;
-            payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
+            payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize1, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -11384,15 +11384,15 @@ export namespace Comprehensive {
               {
                 const payload = BigInt(oldPayload.length);
                 if (payload === 0n) {
-                  payloadSize = 0;
+                  payloadSize1 = 0;
                 } else if (payload < 567_382_630_219_904n) {
-                  payloadSize = varintSizeFromValue(payload);
+                  payloadSize1 = varintSizeFromValue(payload);
                 } else {
-                  payloadSize = 8;
+                  payloadSize1 = 8;
                 }
               }
             }
-            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize1, false);
             {
               const varint = BigInt(payload.length);
               if (varint > 567_382_630_219_903n) {
@@ -11407,13 +11407,13 @@ export namespace Comprehensive {
           }
           case 'kOptional': {
             const payload = value.kOptional;
-            payloadSize = 8 * payload.length;
-            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
+            payloadSize1 = 8 * payload.length;
+            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8;
+                payloadSize1 = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
               }
@@ -11428,18 +11428,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(payload);
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(payload);
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(payload);
+                payloadSize1 = varintSizeFromValue(payload);
                 {
                   const varint = payload;
                   offset = serializeVarint(dataView, offset, varint);
@@ -11456,18 +11456,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
                   offset = serializeVarint(dataView, offset, varint);
@@ -11484,18 +11484,18 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 1;
-                arraySize += payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 1;
+                arraySize += payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 1;
+                payloadSize1 = 1;
                 {
                   const varint = payload ? 1n : 0n;
                   offset = serializeVarint(dataView, offset, varint);
@@ -11512,19 +11512,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = payload.byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = payload.byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = payload.byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = payload.byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = new Uint8Array(payload);
                   const targetBuffer = new Uint8Array(
@@ -11547,19 +11547,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = textEncoder.encode(payload).byteLength;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = textEncoder.encode(payload).byteLength;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = textEncoder.encode(payload).byteLength;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = textEncoder.encode(payload).byteLength;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
@@ -11582,19 +11582,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
               }
             }
@@ -11608,19 +11608,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
               }
             }
@@ -11634,19 +11634,19 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize2 = varintSizeFromValue(payload);
                   }
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11655,10 +11655,10 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   {
                     const payload = BigInt(oldPayload.length);
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                   }
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const varint = BigInt(payload.length);
                   offset = serializeVarint(dataView, offset, varint);
@@ -11675,24 +11675,24 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
-                payloadSize = 8 * payload.length;
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                let payloadSize2 = 0;
+                payloadSize2 = 8 * payload.length;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                payloadSize = 8 * payload.length;
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                payloadSize1 = 8 * payload.length;
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 8;
+                    payloadSize1 = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
                   }
@@ -11709,23 +11709,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(payload);
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11735,18 +11735,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(payload);
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(payload);
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(payload);
+                    payloadSize1 = varintSizeFromValue(payload);
                     {
                       const varint = payload;
                       offset = serializeVarint(dataView, offset, varint);
@@ -11765,23 +11765,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11791,18 +11791,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = varintSizeFromValue(zigzagEncode(payload));
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = varintSizeFromValue(zigzagEncode(payload));
+                    payloadSize1 = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
                       offset = serializeVarint(dataView, offset, varint);
@@ -11821,23 +11821,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = 1;
+                    arraySize += payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11847,18 +11847,18 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = 1;
-                    arraySize += payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = 1;
+                    arraySize += payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = 1;
+                    payloadSize1 = 1;
                     {
                       const varint = payload ? 1n : 0n;
                       offset = serializeVarint(dataView, offset, varint);
@@ -11877,23 +11877,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11903,19 +11903,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = payload.byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = payload.byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = payload.byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = payload.byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = new Uint8Array(payload);
                       const targetBuffer = new Uint8Array(
@@ -11940,23 +11940,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -11966,19 +11966,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = textEncoder.encode(payload).byteLength;
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = textEncoder.encode(payload).byteLength;
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = textEncoder.encode(payload).byteLength;
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     {
                       const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
@@ -12003,23 +12003,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -12029,19 +12029,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Comprehensive.Types.LocalStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Comprehensive.Types.LocalStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -12057,23 +12057,23 @@ export namespace Comprehensive {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
-                let payloadSize = 0;
+                let payloadSize2 = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize3 = 0;
+                    payloadSize3 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize3)) + payloadSize3;
                   }
-                  payloadSize = arraySize;
+                  payloadSize2 = arraySize;
                 }
-                arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
               }
-              payloadSize = arraySize;
+              payloadSize1 = arraySize;
             }
-            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
+            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize1, false);
             {
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
@@ -12083,19 +12083,19 @@ export namespace Comprehensive {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    let payloadSize = 0;
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    let payloadSize2 = 0;
+                    payloadSize2 = Degenerate.Types.EmptyStruct.size(payload);
+                    arraySize += varintSizeFromValue(BigInt(payloadSize2)) + payloadSize2;
                   }
-                  payloadSize = arraySize;
+                  payloadSize1 = arraySize;
                 }
-                offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                 {
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
-                    payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-                    offset = serializeVarint(dataView, offset, BigInt(payloadSize));
+                    payloadSize1 = Degenerate.Types.EmptyStruct.size(payload);
+                    offset = serializeVarint(dataView, offset, BigInt(payloadSize1));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
                   }
                 }
@@ -12116,14 +12116,14 @@ export namespace Comprehensive {
         const dataViewAlias = dataView;
 
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+          const [newOffset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12140,13 +12140,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0;
                     break;
@@ -12169,13 +12169,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -12201,13 +12201,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -12234,7 +12234,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12244,7 +12244,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -12274,7 +12274,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12296,7 +12296,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12321,7 +12321,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12340,7 +12340,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12359,7 +12359,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12369,7 +12369,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -12399,7 +12399,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12435,7 +12435,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12471,7 +12471,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12508,7 +12508,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12552,7 +12552,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12602,7 +12602,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12655,7 +12655,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12702,7 +12702,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12749,7 +12749,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12804,7 +12804,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12868,7 +12868,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12932,7 +12932,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -12997,7 +12997,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13069,7 +13069,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13147,7 +13147,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13228,7 +13228,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13303,7 +13303,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13378,7 +13378,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13395,13 +13395,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0;
                     break;
@@ -13424,13 +13424,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -13456,13 +13456,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -13489,7 +13489,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13499,7 +13499,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -13529,7 +13529,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13551,7 +13551,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13576,7 +13576,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13595,7 +13595,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13614,7 +13614,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13624,7 +13624,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -13654,7 +13654,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13690,7 +13690,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13726,7 +13726,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13763,7 +13763,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13807,7 +13807,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13857,7 +13857,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13910,7 +13910,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -13957,7 +13957,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14004,7 +14004,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14059,7 +14059,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14123,7 +14123,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14187,7 +14187,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14252,7 +14252,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14324,7 +14324,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14402,7 +14402,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14483,7 +14483,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14558,7 +14558,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14633,7 +14633,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14653,13 +14653,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0;
                     break;
@@ -14685,13 +14685,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -14720,13 +14720,13 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
               let payload;
               {
-                switch (payloadSize) {
+                switch (payloadSize1) {
                   case 0:
                     payload = 0n;
                     break;
@@ -14756,7 +14756,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14766,7 +14766,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -14799,7 +14799,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14824,7 +14824,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14852,7 +14852,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14874,7 +14874,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14896,7 +14896,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14906,7 +14906,7 @@ export namespace Comprehensive {
                 {
                   let payload;
                   {
-                    switch (payloadSize) {
+                    switch (payloadSize1) {
                       case 0:
                         payload = 0n;
                         break;
@@ -14939,7 +14939,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -14978,7 +14978,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15017,7 +15017,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15057,7 +15057,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15104,7 +15104,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15157,7 +15157,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15213,7 +15213,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15263,7 +15263,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15313,7 +15313,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15371,7 +15371,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15438,7 +15438,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15505,7 +15505,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15573,7 +15573,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15648,7 +15648,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15729,7 +15729,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15813,7 +15813,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15891,7 +15891,7 @@ export namespace Comprehensive {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -15966,7 +15966,7 @@ export namespace Comprehensive {
               ];
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -15990,7 +15990,7 @@ export namespace Degenerate {
     export namespace EmptyStruct {
       export function size(value: EmptyStructOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         return valueSize;
       }
@@ -16000,7 +16000,7 @@ export namespace Degenerate {
         offset: number,
         value: EmptyStructOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         return offset;
       }
@@ -16045,11 +16045,11 @@ export namespace Degenerate {
         const dataViewAlias = dataView;
 
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+          const [newOffset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -16095,87 +16095,87 @@ export namespace SchemaEvolution {
     export namespace ExampleStruct {
       export function size(value: ExampleStructOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.requiredToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.requiredToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(1n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.requiredToOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(2n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.asymmetricToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(4n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.asymmetricToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.asymmetricToOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(6n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.optionalToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(8n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.optionalToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(9n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.optionalToOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(10n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.nonexistentToAsymmetric;
-          payloadSize = 0;
-          valueSize += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
+          payloadSize1 = 0;
+          valueSize += fieldHeaderSize(13n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.nonexistentToOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = 0;
-            valueSize += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+            payloadSize1 = 0;
+            valueSize += fieldHeaderSize(14n, payloadSize1, false) + payloadSize1;
           }
         }
 
@@ -16187,12 +16187,12 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleStructOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.requiredToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -16207,8 +16207,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.requiredToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -16224,8 +16224,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.requiredToOptional;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16241,8 +16241,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.asymmetricToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -16257,8 +16257,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.asymmetricToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -16274,8 +16274,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.asymmetricToOptional;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16291,8 +16291,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.optionalToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -16307,8 +16307,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.optionalToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -16324,8 +16324,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.optionalToOptional;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16341,15 +16341,15 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.nonexistentToAsymmetric;
-          payloadSize = 0;
-          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          payloadSize1 = 0;
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize1, false);
         }
 
         {
           const payload = value.nonexistentToOptional;
           if (payload !== undefined) {
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize1, false);
           }
         }
 
@@ -16365,9 +16365,9 @@ export namespace SchemaEvolution {
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $nonexistentToAsymmetric, $nonexistentToOptional;
 
         while (true) {
-          let index, payloadSize;
+          let index, payloadSize1;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+            [offset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -16380,7 +16380,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16400,7 +16400,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16420,7 +16420,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16440,7 +16440,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16460,7 +16460,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16480,7 +16480,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16500,7 +16500,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16520,7 +16520,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16540,7 +16540,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16560,7 +16560,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16573,7 +16573,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16583,7 +16583,7 @@ export namespace SchemaEvolution {
               break;
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -16643,63 +16643,63 @@ export namespace SchemaEvolution {
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'requiredToRequired': {
             const payload = value.requiredToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
           }
           case 'requiredToAsymmetric': {
             const payload = value.requiredToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(1n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(1n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'asymmetricToRequired': {
             const payload = value.asymmetricToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(4n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(4n, payloadSize1, false) + payloadSize1;
           }
           case 'asymmetricToAsymmetric': {
             const payload = value.asymmetricToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(5n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'asymmetricToOptional': {
             const payload = value.asymmetricToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(6n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'optionalToRequired': {
             const payload = value.optionalToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(8n, payloadSize1, false) + payloadSize1;
           }
           case 'optionalToAsymmetric': {
             const payload = value.optionalToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(9n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'optionalToOptional': {
             const payload = value.optionalToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(10n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'nonexistentToRequired': {
             const payload = null;
-            payloadSize = 0;
-            return fieldHeaderSize(12n, payloadSize, false) + payloadSize;
+            payloadSize1 = 0;
+            return fieldHeaderSize(12n, payloadSize1, false) + payloadSize1;
           }
           case 'nonexistentToAsymmetric': {
             const payload = null;
-            payloadSize = 0;
-            return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = 0;
+            return fieldHeaderSize(13n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'nonexistentToOptional': {
             const payload = null;
-            payloadSize = 0;
-            return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = 0;
+            return fieldHeaderSize(14n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           default:
             return unreachable(value);
@@ -16711,13 +16711,13 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleChoiceOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'requiredToRequired': {
             const payload = value.requiredToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16732,8 +16732,8 @@ export namespace SchemaEvolution {
           }
           case 'requiredToAsymmetric': {
             const payload = value.requiredToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16749,8 +16749,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToRequired': {
             const payload = value.asymmetricToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16765,8 +16765,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToAsymmetric': {
             const payload = value.asymmetricToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16782,8 +16782,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToOptional': {
             const payload = value.asymmetricToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16799,8 +16799,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToRequired': {
             const payload = value.optionalToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16815,8 +16815,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToAsymmetric': {
             const payload = value.optionalToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16832,8 +16832,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToOptional': {
             const payload = value.optionalToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -16849,21 +16849,21 @@ export namespace SchemaEvolution {
           }
           case 'nonexistentToRequired': {
             const payload = null;
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize1, false);
             return offset;
           }
           case 'nonexistentToAsymmetric': {
             const payload = null;
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize1, false);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'nonexistentToOptional': {
             const payload = null;
-            payloadSize = 0;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+            payloadSize1 = 0;
+            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize1, false);
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
@@ -16879,14 +16879,14 @@ export namespace SchemaEvolution {
         const dataViewAlias = dataView;
 
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+          const [newOffset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16911,7 +16911,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16936,7 +16936,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16961,7 +16961,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -16986,7 +16986,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17014,7 +17014,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17039,7 +17039,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17064,7 +17064,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17092,7 +17092,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17109,7 +17109,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17126,7 +17126,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17143,7 +17143,7 @@ export namespace SchemaEvolution {
               ];
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -17189,93 +17189,93 @@ export namespace SchemaEvolution {
     export namespace ExampleStruct {
       export function size(value: ExampleStructOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.requiredToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.requiredToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(1n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.requiredToOptional;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(2n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.requiredToNonexistent;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(3n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.asymmetricToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(4n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.asymmetricToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(5n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.asymmetricToOptional;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(6n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.asymmetricToNonexistent;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(7n, payloadSize1, false) + payloadSize1;
         }
 
         {
           const payload = value.optionalToRequired;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(8n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.optionalToAsymmetric;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(9n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.optionalToOptional;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(10n, payloadSize1, false) + payloadSize1;
           }
         }
 
         {
           const payload = value.optionalToNonexistent;
           if (payload === undefined) {
-            payloadSize = 0;
+            payloadSize1 = 0;
           } else {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            valueSize += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            valueSize += fieldHeaderSize(11n, payloadSize1, false) + payloadSize1;
           }
         }
 
@@ -17287,12 +17287,12 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleStructOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.requiredToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17307,8 +17307,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.requiredToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17323,8 +17323,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.requiredToOptional;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17339,8 +17339,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.requiredToNonexistent;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17355,8 +17355,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.asymmetricToRequired;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17371,8 +17371,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.asymmetricToAsymmetric;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17387,8 +17387,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.asymmetricToOptional;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17403,8 +17403,8 @@ export namespace SchemaEvolution {
 
         {
           const payload = value.asymmetricToNonexistent;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -17420,8 +17420,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.optionalToRequired;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17438,8 +17438,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.optionalToAsymmetric;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17456,8 +17456,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.optionalToOptional;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17474,8 +17474,8 @@ export namespace SchemaEvolution {
         {
           const payload = value.optionalToNonexistent;
           if (payload !== undefined) {
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17501,9 +17501,9 @@ export namespace SchemaEvolution {
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
 
         while (true) {
-          let index, payloadSize;
+          let index, payloadSize1;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+            [offset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -17516,7 +17516,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17536,7 +17536,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17556,7 +17556,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17576,7 +17576,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17596,7 +17596,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17616,7 +17616,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17636,7 +17636,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17656,7 +17656,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17676,7 +17676,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17696,7 +17696,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17716,7 +17716,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17736,7 +17736,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -17753,7 +17753,7 @@ export namespace SchemaEvolution {
               break;
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -17812,58 +17812,58 @@ export namespace SchemaEvolution {
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'requiredToRequired': {
             const payload = value.requiredToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
           }
           case 'requiredToAsymmetric': {
             const payload = value.requiredToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(1n, payloadSize1, false) + payloadSize1;
           }
           case 'asymmetricToRequired': {
             const payload = value.asymmetricToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(4n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(4n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'asymmetricToAsymmetric': {
             const payload = value.asymmetricToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(5n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'asymmetricToOptional': {
             const payload = value.asymmetricToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(6n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'asymmetricToNonexistent': {
             const payload = value.asymmetricToNonexistent;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(7n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'optionalToRequired': {
             const payload = value.optionalToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(8n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'optionalToAsymmetric': {
             const payload = value.optionalToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(9n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'optionalToOptional': {
             const payload = value.optionalToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(10n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           case 'optionalToNonexistent': {
             const payload = value.optionalToNonexistent;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.$fallback);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(11n, payloadSize1, false) + payloadSize1 + size(value.$fallback);
           }
           default:
             return unreachable(value);
@@ -17875,13 +17875,13 @@ export namespace SchemaEvolution {
         offset: number,
         value: ExampleChoiceOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'requiredToRequired': {
             const payload = value.requiredToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17896,8 +17896,8 @@ export namespace SchemaEvolution {
           }
           case 'requiredToAsymmetric': {
             const payload = value.requiredToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17912,8 +17912,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToRequired': {
             const payload = value.asymmetricToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17929,8 +17929,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToAsymmetric': {
             const payload = value.asymmetricToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17946,8 +17946,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToOptional': {
             const payload = value.asymmetricToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17963,8 +17963,8 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToNonexistent': {
             const payload = value.asymmetricToNonexistent;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17980,8 +17980,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToRequired': {
             const payload = value.optionalToRequired;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -17997,8 +17997,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToAsymmetric': {
             const payload = value.optionalToAsymmetric;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -18014,8 +18014,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToOptional': {
             const payload = value.optionalToOptional;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -18031,8 +18031,8 @@ export namespace SchemaEvolution {
           }
           case 'optionalToNonexistent': {
             const payload = value.optionalToNonexistent;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -18058,14 +18058,14 @@ export namespace SchemaEvolution {
         const dataViewAlias = dataView;
 
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+          const [newOffset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18090,7 +18090,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18115,7 +18115,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18140,7 +18140,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18165,7 +18165,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18190,7 +18190,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18215,7 +18215,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18243,7 +18243,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18271,7 +18271,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18299,7 +18299,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18324,7 +18324,7 @@ export namespace SchemaEvolution {
               ];
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -18348,12 +18348,12 @@ export namespace SchemaEvolution {
     export namespace SingletonStruct {
       export function size(value: SingletonStructOut): number {
         let valueSize = 0;
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.x;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          valueSize += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          valueSize += fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
         }
 
         return valueSize;
@@ -18364,12 +18364,12 @@ export namespace SchemaEvolution {
         offset: number,
         value: SingletonStructOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         {
           const payload = value.x;
-          payloadSize = textEncoder.encode(payload).byteLength;
-          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          payloadSize1 = textEncoder.encode(payload).byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
           {
             const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
@@ -18394,9 +18394,9 @@ export namespace SchemaEvolution {
         let $x;
 
         while (true) {
-          let index, payloadSize;
+          let index, payloadSize1;
           try {
-            [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+            [offset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
             if (e instanceof RangeError) {
               break;
@@ -18409,7 +18409,7 @@ export namespace SchemaEvolution {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18426,7 +18426,7 @@ export namespace SchemaEvolution {
               break;
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }
@@ -18458,13 +18458,13 @@ export namespace SchemaEvolution {
 
     export namespace SingletonChoice {
       export function size(value: SingletonChoiceOut): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'x': {
             const payload = value.x;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            return fieldHeaderSize(0n, payloadSize1, false) + payloadSize1;
           }
           default:
             return unreachable(value);
@@ -18476,13 +18476,13 @@ export namespace SchemaEvolution {
         offset: number,
         value: SingletonChoiceOut,
       ): number {
-        let payloadSize = 0;
+        let payloadSize1 = 0;
 
         switch (value.$field) {
           case 'x': {
             const payload = value.x;
-            payloadSize = textEncoder.encode(payload).byteLength;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+            payloadSize1 = textEncoder.encode(payload).byteLength;
+            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize1, false);
             {
               const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
@@ -18507,14 +18507,14 @@ export namespace SchemaEvolution {
         const dataViewAlias = dataView;
 
         while (true) {
-          const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
+          const [newOffset, index, payloadSize1] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
           switch (index) {
             case 0n: {
               const dataView = new DataView(
                 dataViewAlias.buffer,
                 dataViewAlias.byteOffset + offset,
-                payloadSize,
+                payloadSize1,
               );
               const oldOffset = offset;
               offset = 0;
@@ -18536,7 +18536,7 @@ export namespace SchemaEvolution {
               ];
             }
             default:
-              offset += payloadSize;
+              offset += payloadSize1;
               break;
           }
         }

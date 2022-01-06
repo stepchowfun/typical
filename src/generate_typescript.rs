@@ -1,7 +1,7 @@
 use {
     crate::{identifier::Identifier, schema},
     std::{
-        collections::BTreeMap,
+        collections::{BTreeMap, HashMap},
         fmt::{self, Write},
         path::PathBuf,
     },
@@ -94,6 +94,54 @@ const TYPESCRIPT_KEYWORDS: &[&str] = &[
     "with",
     "yield",
 ];
+
+// These are variables used in the generated code.
+const VAR_PAYLOAD_SIZE: &str = "payloadSize";
+
+// This struct represents a set of variables.
+#[derive(Clone, Debug)]
+struct Environment {
+    variables: HashMap<String, usize>,
+}
+
+impl Environment {
+    fn new() -> Environment {
+        Environment {
+            variables: HashMap::new(),
+        }
+    }
+
+    fn declare(&mut self, name: &str) -> String {
+        let counter = self
+            .variables
+            .entry(name.to_owned())
+            .and_modify(|counter| {
+                *counter += 1;
+            })
+            .or_insert(1);
+        format!("{}{}", name, counter)
+    }
+
+    fn undeclare(&mut self, name: &str) {
+        *self.variables.get_mut(name).unwrap() -= 1;
+    }
+
+    fn reference(&mut self, name: &str) -> String {
+        format!("{}{}", name, self.variables.get_mut(name).unwrap())
+    }
+}
+
+impl Drop for Environment {
+    fn drop(&mut self) {
+        for (name, counter) in &self.variables {
+            assert_eq!(
+                *counter, 0,
+                "Variable {} has non-zero counter {}.",
+                name, counter,
+            );
+        }
+    }
+}
 
 // This struct represents a tree of schemas organized in a module hierarchy.
 #[derive(Clone, Debug)]
@@ -565,6 +613,9 @@ fn write_schema<T: Write>(
     namespace: &schema::Namespace,
     schema: &schema::Schema,
 ) -> Result<(), fmt::Error> {
+    // Construct an environment for keeping track of variables.
+    let mut environment = Environment::new();
+
     // Construct a map from import name to namespace.
     let mut imports = BTreeMap::new();
     for (name, import) in &schema.imports {
@@ -613,7 +664,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "let valueSize = 0;")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "let payloadSize = 0;")?;
+                writeln!(buffer, "let {} = 0;", environment.declare(VAR_PAYLOAD_SIZE))?;
                 for field in &declaration.fields {
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
@@ -627,6 +678,7 @@ fn write_schema<T: Write>(
                             write_size_calculation(
                                 buffer,
                                 indentation + 3,
+                                &mut environment,
                                 &imports,
                                 namespace,
                                 &field.r#type.variant,
@@ -635,21 +687,24 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(
                                 buffer,
-                                "valueSize += fieldHeaderSize({}n, payloadSize, {}) + payloadSize;",
+                                "valueSize += fieldHeaderSize({}n, {}, {}) + {};",
                                 field.index,
+                                environment.reference(VAR_PAYLOAD_SIZE),
                                 integer_encoded(&field.r#type),
+                                environment.reference(VAR_PAYLOAD_SIZE),
                             )?;
                         }
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(buffer, "if (payload === undefined) {{")?;
                             write_indentation(buffer, indentation + 4)?;
-                            writeln!(buffer, "payloadSize = 0;")?;
+                            writeln!(buffer, "{} = 0;", environment.reference(VAR_PAYLOAD_SIZE))?;
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(buffer, "}} else {{")?;
                             write_size_calculation(
                                 buffer,
                                 indentation + 4,
+                                &mut environment,
                                 &imports,
                                 namespace,
                                 &field.r#type.variant,
@@ -658,9 +713,11 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(
                                 buffer,
-                                "valueSize += fieldHeaderSize({}n, payloadSize, {}) + payloadSize;",
+                                "valueSize += fieldHeaderSize({}n, {}, {}) + {};",
                                 field.index,
+                                environment.reference(VAR_PAYLOAD_SIZE),
                                 integer_encoded(&field.r#type),
+                                environment.reference(VAR_PAYLOAD_SIZE),
                             )?;
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(buffer, "}}")?;
@@ -669,6 +726,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
+                environment.undeclare(VAR_PAYLOAD_SIZE);
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "return valueSize;")?;
@@ -690,7 +748,7 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "): number {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "let payloadSize = 0;")?;
+                writeln!(buffer, "let {} = 0;", environment.declare(VAR_PAYLOAD_SIZE))?;
                 for field in &declaration.fields {
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
@@ -704,6 +762,7 @@ fn write_schema<T: Write>(
                             write_size_calculation(
                                 buffer,
                                 indentation + 3,
+                                &mut environment,
                                 &imports,
                                 namespace,
                                 &field.r#type.variant,
@@ -712,14 +771,15 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 3)?;
                             writeln!(
                                 buffer,
-                                "offset = serializeFieldHeader(dataView, offset, {}n, \
-                                    payloadSize, {});",
+                                "offset = serializeFieldHeader(dataView, offset, {}n, {}, {});",
                                 field.index,
+                                environment.reference(VAR_PAYLOAD_SIZE),
                                 integer_encoded(&field.r#type),
                             )?;
                             write_serialization_invocation(
                                 buffer,
                                 indentation + 3,
+                                &mut environment,
                                 &imports,
                                 namespace,
                                 &field.r#type.variant,
@@ -732,6 +792,7 @@ fn write_schema<T: Write>(
                             write_size_calculation(
                                 buffer,
                                 indentation + 4,
+                                &mut environment,
                                 &imports,
                                 namespace,
                                 &field.r#type.variant,
@@ -740,14 +801,15 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(
                                 buffer,
-                                "offset = serializeFieldHeader(dataView, offset, {}n, \
-                                    payloadSize, {});",
+                                "offset = serializeFieldHeader(dataView, offset, {}n, {}, {});",
                                 field.index,
+                                environment.reference(VAR_PAYLOAD_SIZE),
                                 integer_encoded(&field.r#type),
                             )?;
                             write_serialization_invocation(
                                 buffer,
                                 indentation + 4,
+                                &mut environment,
                                 &imports,
                                 namespace,
                                 &field.r#type.variant,
@@ -763,6 +825,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "return offset;")?;
+                environment.undeclare(VAR_PAYLOAD_SIZE);
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
@@ -799,14 +862,18 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "while (true) {{")?;
                     write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "let index, payloadSize;")?;
+                    writeln!(
+                        buffer,
+                        "let index, {};",
+                        environment.declare(VAR_PAYLOAD_SIZE)
+                    )?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "try {{")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(
                         buffer,
-                        "[offset, index, payloadSize] = \
-                            deserializeFieldHeader(dataViewAlias, offset);",
+                        "[offset, index, {}] = deserializeFieldHeader(dataViewAlias, offset);",
+                        environment.reference(VAR_PAYLOAD_SIZE),
                     )?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "}} catch (e) {{")?;
@@ -834,7 +901,7 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 6)?;
                         writeln!(buffer, "dataViewAlias.byteOffset + offset,")?;
                         write_indentation(buffer, indentation + 6)?;
-                        writeln!(buffer, "payloadSize,")?;
+                        writeln!(buffer, "{},", environment.reference(VAR_PAYLOAD_SIZE))?;
                         write_indentation(buffer, indentation + 5)?;
                         writeln!(buffer, ");")?;
                         write_indentation(buffer, indentation + 5)?;
@@ -844,6 +911,7 @@ fn write_schema<T: Write>(
                         write_deserialization_invocation(
                             buffer,
                             indentation + 5,
+                            &mut environment,
                             &imports,
                             namespace,
                             &field.r#type.variant,
@@ -863,11 +931,16 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "default:")?;
                     write_indentation(buffer, indentation + 5)?;
-                    writeln!(buffer, "offset += payloadSize;")?;
+                    writeln!(
+                        buffer,
+                        "offset += {};",
+                        environment.reference(VAR_PAYLOAD_SIZE)
+                    )?;
                     write_indentation(buffer, indentation + 5)?;
                     writeln!(buffer, "break;")?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "}}")?;
+                    environment.undeclare(VAR_PAYLOAD_SIZE);
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                     writeln!(buffer)?;
@@ -978,7 +1051,7 @@ fn write_schema<T: Write>(
                 if declaration.fields.is_empty() {
                     writeln!(buffer, "return 0;")?;
                 } else {
-                    writeln!(buffer, "let payloadSize = 0;")?;
+                    writeln!(buffer, "let {} = 0;", environment.declare(VAR_PAYLOAD_SIZE))?;
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "switch (value.$field) {{")?;
@@ -998,6 +1071,7 @@ fn write_schema<T: Write>(
                         write_size_calculation(
                             buffer,
                             indentation + 4,
+                            &mut environment,
                             &imports,
                             namespace,
                             &field.r#type.variant,
@@ -1006,9 +1080,11 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 4)?;
                         write!(
                             buffer,
-                            "return fieldHeaderSize({}n, payloadSize, {}) + payloadSize",
+                            "return fieldHeaderSize({}n, {}, {}) + {}",
                             field.index,
+                            environment.reference(VAR_PAYLOAD_SIZE),
                             integer_encoded(&field.r#type),
+                            environment.reference(VAR_PAYLOAD_SIZE),
                         )?;
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {
@@ -1027,6 +1103,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "return unreachable(value);")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
+                    environment.undeclare(VAR_PAYLOAD_SIZE);
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
@@ -1049,7 +1126,7 @@ fn write_schema<T: Write>(
                 if declaration.fields.is_empty() {
                     writeln!(buffer, "return offset;")?;
                 } else {
-                    writeln!(buffer, "let payloadSize = 0;")?;
+                    writeln!(buffer, "let {} = 0;", environment.declare(VAR_PAYLOAD_SIZE))?;
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "switch (value.$field) {{")?;
@@ -1069,6 +1146,7 @@ fn write_schema<T: Write>(
                         write_size_calculation(
                             buffer,
                             indentation + 4,
+                            &mut environment,
                             &imports,
                             namespace,
                             &field.r#type.variant,
@@ -1077,14 +1155,15 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 4)?;
                         writeln!(
                             buffer,
-                            "offset = serializeFieldHeader(dataView, offset, {}n, \
-                                payloadSize, {});",
+                            "offset = serializeFieldHeader(dataView, offset, {}n, {}, {});",
                             field.index,
+                            environment.reference(VAR_PAYLOAD_SIZE),
                             integer_encoded(&field.r#type),
                         )?;
                         write_serialization_invocation(
                             buffer,
                             indentation + 4,
+                            &mut environment,
                             &imports,
                             namespace,
                             &field.r#type.variant,
@@ -1111,6 +1190,7 @@ fn write_schema<T: Write>(
                     writeln!(buffer, "return unreachable(value);")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
+                    environment.undeclare(VAR_PAYLOAD_SIZE);
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
@@ -1135,8 +1215,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(
                     buffer,
-                    "const [newOffset, index, payloadSize] = \
-                        deserializeFieldHeader(dataViewAlias, offset);",
+                    "const [newOffset, index, {}] = deserializeFieldHeader(dataViewAlias, offset);",
+                    environment.declare(VAR_PAYLOAD_SIZE),
                 )?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "offset = newOffset;")?;
@@ -1152,7 +1232,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 6)?;
                     writeln!(buffer, "dataViewAlias.byteOffset + offset,")?;
                     write_indentation(buffer, indentation + 6)?;
-                    writeln!(buffer, "payloadSize,")?;
+                    writeln!(buffer, "{},", environment.reference(VAR_PAYLOAD_SIZE))?;
                     write_indentation(buffer, indentation + 5)?;
                     writeln!(buffer, ");")?;
                     write_indentation(buffer, indentation + 5)?;
@@ -1162,6 +1242,7 @@ fn write_schema<T: Write>(
                     write_deserialization_invocation(
                         buffer,
                         indentation + 5,
+                        &mut environment,
                         &imports,
                         namespace,
                         &field.r#type.variant,
@@ -1214,12 +1295,17 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 4)?;
                 writeln!(buffer, "default:")?;
                 write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "offset += payloadSize;")?;
+                writeln!(
+                    buffer,
+                    "offset += {};",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation + 5)?;
                 writeln!(buffer, "break;")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 2)?;
+                environment.undeclare(VAR_PAYLOAD_SIZE);
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
@@ -1469,6 +1555,7 @@ fn write_indentation<T: Write>(buffer: &mut T, indentation: usize) -> Result<(),
 fn write_size_calculation<T: Write>(
     buffer: &mut T,
     indentation: usize,
+    environment: &mut Environment,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     type_variant: &schema::TypeVariant,
@@ -1491,10 +1578,11 @@ fn write_size_calculation<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "let payloadSize = 0;")?;
+                writeln!(buffer, "let {} = 0;", environment.declare(VAR_PAYLOAD_SIZE))?;
                 write_size_calculation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -1503,12 +1591,19 @@ fn write_size_calculation<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(
                     buffer,
-                    "arraySize += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;",
+                    "arraySize += varintSizeFromValue(BigInt({})) + {};",
+                    environment.reference(VAR_PAYLOAD_SIZE),
+                    environment.reference(VAR_PAYLOAD_SIZE),
                 )?;
+                environment.undeclare(VAR_PAYLOAD_SIZE);
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = arraySize;")?;
+                writeln!(
+                    buffer,
+                    "{} = arraySize;",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             }
@@ -1524,27 +1619,41 @@ fn write_size_calculation<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "let payloadSize = 0;")?;
+                writeln!(buffer, "let {} = 0;", environment.declare(VAR_PAYLOAD_SIZE))?;
                 write_size_calculation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
                     false,
                 )?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "arraySize += payloadSize;")?;
+                writeln!(
+                    buffer,
+                    "arraySize += {};",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
+                environment.undeclare(VAR_PAYLOAD_SIZE);
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = arraySize;")?;
+                writeln!(
+                    buffer,
+                    "{} = arraySize;",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             }
             schema::TypeVariant::F64 => {
                 write_indentation(buffer, indentation)?;
-                writeln!(buffer, "payloadSize = 8 * payload.length;")
+                writeln!(
+                    buffer,
+                    "{} = 8 * payload.length;",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )
             }
             schema::TypeVariant::Unit => {
                 write_indentation(buffer, indentation)?;
@@ -1558,6 +1667,7 @@ fn write_size_calculation<T: Write>(
                 write_size_calculation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &schema::TypeVariant::U64,
@@ -1574,31 +1684,36 @@ fn write_size_calculation<T: Write>(
             if is_field {
                 writeln!(buffer, "if (payload) {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = 1;")?;
+                writeln!(buffer, "{} = 1;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}} else {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = 0;")?;
+                writeln!(buffer, "{} = 0;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             } else {
-                writeln!(buffer, "payloadSize = 1;")
+                writeln!(buffer, "{} = 1;", environment.reference(VAR_PAYLOAD_SIZE))
             }
         }
         schema::TypeVariant::Bytes => {
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "payloadSize = payload.byteLength;")
+            writeln!(
+                buffer,
+                "{} = payload.byteLength;",
+                environment.reference(VAR_PAYLOAD_SIZE)
+            )
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
             writeln!(
                 buffer,
-                "payloadSize = textEncoder.encode(payload).byteLength;",
+                "{} = textEncoder.encode(payload).byteLength;",
+                environment.reference(VAR_PAYLOAD_SIZE)
             )
         }
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
-            write!(buffer, "payloadSize = ")?;
+            write!(buffer, "{} = ", environment.reference(VAR_PAYLOAD_SIZE))?;
             write_custom_type(buffer, imports, namespace, import, name, None)?;
             writeln!(buffer, ".size(payload);")
         }
@@ -1607,15 +1722,15 @@ fn write_size_calculation<T: Write>(
             if is_field {
                 writeln!(buffer, "if (Object.is(payload, 0)) {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = 0;")?;
+                writeln!(buffer, "{} = 0;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}} else {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = 8;")?;
+                writeln!(buffer, "{} = 8;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             } else {
-                writeln!(buffer, "payloadSize = 8;")
+                writeln!(buffer, "{} = 8;", environment.reference(VAR_PAYLOAD_SIZE))
             }
         }
         schema::TypeVariant::S64 => {
@@ -1627,15 +1742,19 @@ fn write_size_calculation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "if (zigzag === 0n) {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "payloadSize = 0;")?;
+                writeln!(buffer, "{} = 0;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}} else if (zigzag < 567_382_630_219_904n) {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "payloadSize = varintSizeFromValue(zigzag);")?;
+                writeln!(
+                    buffer,
+                    "{} = varintSizeFromValue(zigzag);",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}} else {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "payloadSize = 8;")?;
+                writeln!(buffer, "{} = 8;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -1643,7 +1762,8 @@ fn write_size_calculation<T: Write>(
             } else {
                 writeln!(
                     buffer,
-                    "payloadSize = varintSizeFromValue(zigzagEncode(payload));",
+                    "{} = varintSizeFromValue(zigzagEncode(payload));",
+                    environment.reference(VAR_PAYLOAD_SIZE),
                 )
             }
         }
@@ -1652,24 +1772,32 @@ fn write_size_calculation<T: Write>(
             if is_field {
                 writeln!(buffer, "if (payload === 0n) {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = 0;")?;
+                writeln!(buffer, "{} = 0;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}} else if (payload < 567_382_630_219_904n) {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = varintSizeFromValue(payload);")?;
+                writeln!(
+                    buffer,
+                    "{} = varintSizeFromValue(payload);",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}} else {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "payloadSize = 8;")?;
+                writeln!(buffer, "{} = 8;", environment.reference(VAR_PAYLOAD_SIZE))?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")
             } else {
-                writeln!(buffer, "payloadSize = varintSizeFromValue(payload);")
+                writeln!(
+                    buffer,
+                    "{} = varintSizeFromValue(payload);",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )
             }
         }
         schema::TypeVariant::Unit => {
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "payloadSize = 0;")
+            writeln!(buffer, "{} = 0;", environment.reference(VAR_PAYLOAD_SIZE))
         }
     }
 }
@@ -1685,6 +1813,7 @@ fn write_size_calculation<T: Write>(
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
+    environment: &mut Environment,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     type_variant: &schema::TypeVariant,
@@ -1707,6 +1836,7 @@ fn write_serialization_invocation<T: Write>(
                 write_size_calculation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -1715,11 +1845,13 @@ fn write_serialization_invocation<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(
                     buffer,
-                    "offset = serializeVarint(dataView, offset, BigInt(payloadSize));",
+                    "offset = serializeVarint(dataView, offset, BigInt({}));",
+                    environment.reference(VAR_PAYLOAD_SIZE),
                 )?;
                 write_serialization_invocation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -1745,6 +1877,7 @@ fn write_serialization_invocation<T: Write>(
                 write_size_calculation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -1753,6 +1886,7 @@ fn write_serialization_invocation<T: Write>(
                 write_serialization_invocation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -1813,7 +1947,11 @@ fn write_serialization_invocation<T: Write>(
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "if (payloadSize !== 0) {{")?;
+                writeln!(
+                    buffer,
+                    "if ({} !== 0) {{",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "dataView.setFloat64(offset, payload, true);")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1922,6 +2060,7 @@ fn write_u64_serialization_invocation<T: Write>(
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
+    environment: &mut Environment,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
     type_variant: &schema::TypeVariant,
@@ -1987,6 +2126,7 @@ fn write_deserialization_invocation<T: Write>(
                 write_deserialization_invocation(
                     buffer,
                     indentation + 3,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -2024,6 +2164,7 @@ fn write_deserialization_invocation<T: Write>(
                 write_deserialization_invocation(
                     buffer,
                     indentation + 4,
+                    environment,
                     imports,
                     namespace,
                     &inner_type.variant,
@@ -2064,6 +2205,7 @@ fn write_deserialization_invocation<T: Write>(
                 write_deserialization_invocation(
                     buffer,
                     indentation + 2,
+                    environment,
                     imports,
                     namespace,
                     &schema::TypeVariant::U64,
@@ -2094,6 +2236,7 @@ fn write_deserialization_invocation<T: Write>(
             write_deserialization_invocation(
                 buffer,
                 indentation + 2,
+                environment,
                 imports,
                 namespace,
                 &schema::TypeVariant::U64,
@@ -2135,7 +2278,11 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "switch (payloadSize) {{")?;
+                writeln!(
+                    buffer,
+                    "switch ({}) {{",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "case 0:")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -2164,6 +2311,7 @@ fn write_deserialization_invocation<T: Write>(
             write_deserialization_invocation(
                 buffer,
                 indentation,
+                environment,
                 imports,
                 namespace,
                 &schema::TypeVariant::U64,
@@ -2197,7 +2345,11 @@ fn write_deserialization_invocation<T: Write>(
             if is_field {
                 writeln!(buffer, "{{")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "switch (payloadSize) {{")?;
+                writeln!(
+                    buffer,
+                    "switch ({}) {{",
+                    environment.reference(VAR_PAYLOAD_SIZE)
+                )?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "case 0:")?;
                 write_indentation(buffer, indentation + 3)?;
