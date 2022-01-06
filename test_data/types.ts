@@ -20,23 +20,37 @@ function zigzagDecode(value: bigint): bigint {
 function varintSizeFromValue(value: bigint): number {
   if (value < 128n) {
     return 1;
-  } else if (value < 16_512n) {
-    return 2;
-  } else if (value < 2_113_664n) {
-    return 3;
-  } else if (value < 270_549_120n) {
-    return 4;
-  } else if (value < 34_630_287_488n) {
-    return 5;
-  } else if (value < 4_432_676_798_592n) {
-    return 6;
-  } else if (value < 567_382_630_219_904n) {
-    return 7;
-  } else if (value < 72_624_976_668_147_840n) {
-    return 8;
-  } else {
-    return 9;
   }
+
+  if (value < 16_512n) {
+    return 2;
+  }
+
+  if (value < 2_113_664n) {
+    return 3;
+  }
+
+  if (value < 270_549_120n) {
+    return 4;
+  }
+
+  if (value < 34_630_287_488n) {
+    return 5;
+  }
+
+  if (value < 4_432_676_798_592n) {
+    return 6;
+  }
+
+  if (value < 567_382_630_219_904n) {
+    return 7;
+  }
+
+  if (value < 72_624_976_668_147_840n) {
+    return 8;
+  }
+
+  return 9;
 }
 
 function varintSizeFromFirstByte(firstByte: number): number {
@@ -60,23 +74,31 @@ function serializeVarint(
   if (value < 128n) {
     dataView.setUint8(offset, Number(value << 1n) | 0b0000_0001);
     return offset + 1;
-  } else if (value < 16_512n) {
+  }
+
+  if (value < 16_512n) {
     value -= 128n;
     dataView.setUint8(offset, Number((value << 2n) % 256n) | 0b0000_0010);
     dataView.setUint8(offset + 1, Number(value >> 6n));
     return offset + 2;
-  } else if (value < 2_113_664n) {
+  }
+
+  if (value < 2_113_664n) {
     value -= 16_512n;
     dataView.setUint8(offset, Number((value << 3n) % 256n) | 0b0000_0100);
     dataView.setUint16(offset + 1, Number((value >> 5n) % 65_536n), true);
     return offset + 3;
-  } else if (value < 270_549_120n) {
+  }
+
+  if (value < 270_549_120n) {
     value -= 2_113_664n;
     dataView.setUint8(offset, Number((value << 4n) % 256n) | 0b0000_1000);
     dataView.setUint8(offset + 1, Number((value >> 4n) % 256n));
     dataView.setUint16(offset + 2, Number((value >> 12n) % 65_536n), true);
     return offset + 4;
-  } else if (value < 34_630_287_488n) {
+  }
+
+  if (value < 34_630_287_488n) {
     value -= 270_549_120n;
     dataView.setUint8(offset, Number((value << 5n) % 256n) | 0b0001_0000);
     dataView.setUint32(
@@ -85,7 +107,9 @@ function serializeVarint(
       true,
     );
     return offset + 5;
-  } else if (value < 4_432_676_798_592n) {
+  }
+
+  if (value < 4_432_676_798_592n) {
     value -= 34_630_287_488n;
     dataView.setUint8(offset, Number((value << 6n) % 256n) | 0b0010_0000);
     dataView.setUint8(offset + 1, Number((value >> 2n) % 256n));
@@ -95,7 +119,9 @@ function serializeVarint(
       true,
     );
     return offset + 6;
-  } else if (value < 567_382_630_219_904n) {
+  }
+
+  if (value < 567_382_630_219_904n) {
     value -= 4_432_676_798_592n;
     dataView.setUint8(offset, Number((value << 7n) % 256n) | 0b0100_0000);
     dataView.setUint16(offset + 1, Number((value >> 1n) % 65_536n), true);
@@ -105,7 +131,9 @@ function serializeVarint(
       true,
     );
     return offset + 7;
-  } else if (value < 72_624_976_668_147_840n) {
+  }
+
+  if (value < 72_624_976_668_147_840n) {
     value -= 567_382_630_219_904n;
     dataView.setUint8(offset, 0b1000_0000);
     dataView.setUint8(offset + 1, Number(value % 256n));
@@ -116,12 +144,12 @@ function serializeVarint(
       true,
     );
     return offset + 8;
-  } else {
-    value -= 72_624_976_668_147_840n;
-    dataView.setUint8(offset, 0b0000_0000);
-    dataView.setBigUint64(offset + 1, value, true);
-    return offset + 9;
   }
+
+  value -= 72_624_976_668_147_840n;
+  dataView.setUint8(offset, 0b0000_0000);
+  dataView.setBigUint64(offset + 1, value, true);
+  return offset + 9;
 }
 
 function deserializeVarint(
@@ -197,12 +225,12 @@ function fieldHeaderSize(
     default:
       if (integerEncoded) {
         return varintSizeFromValue((index << 2n) | BigInt(0b10));
-      } else {
-        return (
-          varintSizeFromValue((index << 2n) | BigInt(0b11)) +
-          varintSizeFromValue(BigInt(payloadSize))
-        );
       }
+
+      return (
+        varintSizeFromValue((index << 2n) | BigInt(0b11)) +
+        varintSizeFromValue(BigInt(payloadSize))
+      );
   }
 }
 
@@ -221,15 +249,15 @@ function serializeFieldHeader(
     default:
       if (integerEncoded) {
         return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b10));
-      } else {
-        offset = serializeVarint(
-          dataView,
-          offset,
-          (index << 2n) | BigInt(0b11),
-        );
-
-        return serializeVarint(dataView, offset, BigInt(payloadSize));
       }
+
+      offset = serializeVarint(
+        dataView,
+        offset,
+        (index << 2n) | BigInt(0b11),
+      );
+
+      return serializeVarint(dataView, offset, BigInt(payloadSize));
   }
 }
 
@@ -253,11 +281,12 @@ function deserializeFieldHeader(
     case 2n:
       size = varintSizeFromFirstByte(dataView.getUint8(offset));
       break;
-    default:
+    default: {
       const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
       offset = newNewOffset;
       size = Number(sizeValue);
       break;
+    }
   }
 
   return [offset, index, size];
@@ -312,7 +341,7 @@ export namespace CircularDependency {
           dataView: DataView,
           offset: number,
         ): [number, StructFromBelowIn] {
-          let dataViewAlias = dataView;
+          const dataViewAlias = dataView;
 
           let $x;
 
@@ -2203,7 +2232,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = 8;
               dataView.setFloat64(offset, payload, true);
               offset += 8;
@@ -2227,7 +2257,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = varintSizeFromValue(payload);
               {
                 const varint = payload;
@@ -2253,7 +2284,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
               {
                 const varint = zigzagEncode(payload);
@@ -2279,7 +2311,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = 1;
               {
                 const varint = payload ? 1n : 0n;
@@ -2305,7 +2338,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = payload.byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
@@ -2335,7 +2369,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = textEncoder.encode(payload).byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
@@ -2365,7 +2400,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = Comprehensive.Types.LocalStruct.size(payload);
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -2389,7 +2425,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = Degenerate.Types.EmptyStruct.size(payload);
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -2419,7 +2456,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 const oldPayload = payload;
                 {
@@ -2452,12 +2490,14 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = 8 * payload.length;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = 8;
                   dataView.setFloat64(offset, payload, true);
                   offset += 8;
@@ -2493,7 +2533,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2508,7 +2549,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = varintSizeFromValue(payload);
                   {
                     const varint = payload;
@@ -2546,7 +2588,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2561,7 +2604,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
                   {
                     const varint = zigzagEncode(payload);
@@ -2599,7 +2643,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2614,7 +2659,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = 1;
                   {
                     const varint = payload ? 1n : 0n;
@@ -2652,7 +2698,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2667,7 +2714,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = payload.byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
@@ -2709,7 +2757,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2724,7 +2773,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = textEncoder.encode(payload).byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
@@ -2766,7 +2816,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2781,7 +2832,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -2817,7 +2869,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -2832,7 +2885,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -3000,7 +3054,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = 8;
               dataView.setFloat64(offset, payload, true);
               offset += 8;
@@ -3024,7 +3079,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = varintSizeFromValue(payload);
               {
                 const varint = payload;
@@ -3050,7 +3106,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
               {
                 const varint = zigzagEncode(payload);
@@ -3076,7 +3133,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = 1;
               {
                 const varint = payload ? 1n : 0n;
@@ -3102,7 +3160,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = payload.byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
@@ -3132,7 +3191,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = textEncoder.encode(payload).byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
@@ -3162,7 +3222,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = Comprehensive.Types.LocalStruct.size(payload);
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -3186,7 +3247,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = Degenerate.Types.EmptyStruct.size(payload);
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -3216,7 +3278,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 const oldPayload = payload;
                 {
@@ -3249,12 +3312,14 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               payloadSize = 8 * payload.length;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = 8;
                   dataView.setFloat64(offset, payload, true);
                   offset += 8;
@@ -3290,7 +3355,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3305,7 +3371,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = varintSizeFromValue(payload);
                   {
                     const varint = payload;
@@ -3343,7 +3410,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3358,7 +3426,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
                   {
                     const varint = zigzagEncode(payload);
@@ -3396,7 +3465,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3411,7 +3481,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = 1;
                   {
                     const varint = payload ? 1n : 0n;
@@ -3449,7 +3520,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3464,7 +3536,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = payload.byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
@@ -3506,7 +3579,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3521,7 +3595,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = textEncoder.encode(payload).byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
@@ -3563,7 +3638,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3578,7 +3654,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -3614,7 +3691,8 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
           {
             const oldPayload = payload;
-            for (const payload of oldPayload) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
               {
                 let arraySize = 0;
                 const oldPayload = payload;
@@ -3629,7 +3707,8 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const oldPayload = payload;
-                for (const payload of oldPayload) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -3818,7 +3897,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
@@ -3844,7 +3924,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(payload);
                 {
                   const varint = payload;
@@ -3872,7 +3953,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
@@ -3900,7 +3982,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 1;
                 {
                   const varint = payload ? 1n : 0n;
@@ -3928,7 +4011,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -3960,7 +4044,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -3992,7 +4077,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -4018,7 +4104,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -4050,7 +4137,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   const oldPayload = payload;
                   {
@@ -4085,12 +4173,14 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8 * payload.length;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
@@ -4128,7 +4218,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4143,7 +4234,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(payload);
                     {
                       const varint = payload;
@@ -4183,7 +4275,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4198,7 +4291,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
@@ -4238,7 +4332,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4253,7 +4348,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 1;
                     {
                       const varint = payload ? 1n : 0n;
@@ -4293,7 +4389,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4308,7 +4405,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -4352,7 +4450,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4367,7 +4466,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -4411,7 +4511,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4426,7 +4527,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -4464,7 +4566,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -4479,7 +4582,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -4497,7 +4601,7 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, FooIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
 
@@ -4732,7 +4836,7 @@ export namespace Comprehensive {
                         break;
                     }
                   }
-                  newPayload = Array(Number(payload)).fill(null);
+                  newPayload = Array(Number(payload)).fill(null) as null[];
                 }
                 payload = newPayload;
               }
@@ -4750,7 +4854,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -4781,7 +4885,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -4812,7 +4916,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -4844,7 +4948,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -4883,8 +4987,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -4928,8 +5032,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -4976,8 +5080,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5018,8 +5122,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5060,8 +5164,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: null[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5087,7 +5191,7 @@ export namespace Comprehensive {
                       {
                         let payload;
                         [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = Array(Number(payload)).fill(null);
+                        newPayload = Array(Number(payload)).fill(null) as null[];
                       }
                       payload = newPayload;
                     }
@@ -5110,8 +5214,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5133,7 +5237,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: number[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -5169,8 +5273,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5192,7 +5296,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -5228,8 +5332,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5251,7 +5355,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -5288,8 +5392,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5311,7 +5415,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: boolean[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -5355,8 +5459,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5378,8 +5482,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -5428,8 +5532,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5451,8 +5555,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: string[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -5504,8 +5608,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5527,8 +5631,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -5574,8 +5678,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -5597,8 +5701,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -5853,7 +5957,7 @@ export namespace Comprehensive {
                         break;
                     }
                   }
-                  newPayload = Array(Number(payload)).fill(null);
+                  newPayload = Array(Number(payload)).fill(null) as null[];
                 }
                 payload = newPayload;
               }
@@ -5871,7 +5975,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -5902,7 +6006,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -5933,7 +6037,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -5965,7 +6069,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -6004,8 +6108,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6049,8 +6153,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6097,8 +6201,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6139,8 +6243,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6181,8 +6285,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: null[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6208,7 +6312,7 @@ export namespace Comprehensive {
                       {
                         let payload;
                         [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = Array(Number(payload)).fill(null);
+                        newPayload = Array(Number(payload)).fill(null) as null[];
                       }
                       payload = newPayload;
                     }
@@ -6231,8 +6335,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6254,7 +6358,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: number[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -6290,8 +6394,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6313,7 +6417,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -6349,8 +6453,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6372,7 +6476,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -6409,8 +6513,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6432,7 +6536,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: boolean[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -6476,8 +6580,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6499,8 +6603,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -6549,8 +6653,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6572,8 +6676,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: string[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -6625,8 +6729,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6648,8 +6752,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -6695,8 +6799,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -6718,8 +6822,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -6974,7 +7078,7 @@ export namespace Comprehensive {
                         break;
                     }
                   }
-                  newPayload = Array(Number(payload)).fill(null);
+                  newPayload = Array(Number(payload)).fill(null) as null[];
                 }
                 payload = newPayload;
               }
@@ -6992,7 +7096,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -7023,7 +7127,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -7054,7 +7158,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -7086,7 +7190,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -7125,8 +7229,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7170,8 +7274,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7218,8 +7322,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7260,8 +7364,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7302,8 +7406,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: null[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7329,7 +7433,7 @@ export namespace Comprehensive {
                       {
                         let payload;
                         [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = Array(Number(payload)).fill(null);
+                        newPayload = Array(Number(payload)).fill(null) as null[];
                       }
                       payload = newPayload;
                     }
@@ -7352,8 +7456,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7375,7 +7479,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: number[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -7411,8 +7515,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7434,7 +7538,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -7470,8 +7574,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7493,7 +7597,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -7530,8 +7634,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7553,7 +7657,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: boolean[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -7597,8 +7701,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7620,8 +7724,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -7670,8 +7774,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7693,8 +7797,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: string[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -7746,8 +7850,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7769,8 +7873,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -7816,8 +7920,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -7839,8 +7943,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -9542,7 +9646,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
@@ -9566,7 +9671,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(payload);
                 {
                   const varint = payload;
@@ -9592,7 +9698,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
@@ -9618,7 +9725,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 1;
                 {
                   const varint = payload ? 1n : 0n;
@@ -9644,7 +9752,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -9674,7 +9783,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -9704,7 +9814,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -9728,7 +9839,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -9758,7 +9870,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   const oldPayload = payload;
                   {
@@ -9791,12 +9904,14 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8 * payload.length;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
@@ -9832,7 +9947,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -9847,7 +9963,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(payload);
                     {
                       const varint = payload;
@@ -9885,7 +10002,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -9900,7 +10018,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
@@ -9938,7 +10057,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -9953,7 +10073,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 1;
                     {
                       const varint = payload ? 1n : 0n;
@@ -9991,7 +10112,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10006,7 +10128,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -10048,7 +10171,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10063,7 +10187,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -10105,7 +10230,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10120,7 +10246,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -10156,7 +10283,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10171,7 +10299,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -10349,7 +10478,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
@@ -10374,7 +10504,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(payload);
                 {
                   const varint = payload;
@@ -10401,7 +10532,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
@@ -10428,7 +10560,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 1;
                 {
                   const varint = payload ? 1n : 0n;
@@ -10455,7 +10588,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -10486,7 +10620,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -10517,7 +10652,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -10542,7 +10678,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -10573,7 +10710,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   const oldPayload = payload;
                   {
@@ -10607,12 +10745,14 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8 * payload.length;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
@@ -10649,7 +10789,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10664,7 +10805,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(payload);
                     {
                       const varint = payload;
@@ -10703,7 +10845,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10718,7 +10861,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
@@ -10757,7 +10901,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10772,7 +10917,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 1;
                     {
                       const varint = payload ? 1n : 0n;
@@ -10811,7 +10957,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10826,7 +10973,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -10869,7 +11017,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10884,7 +11033,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -10927,7 +11077,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10942,7 +11093,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -10979,7 +11131,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -10994,7 +11147,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -11173,7 +11327,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8;
                 dataView.setFloat64(offset, payload, true);
                 offset += 8;
@@ -11198,7 +11353,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(payload);
                 {
                   const varint = payload;
@@ -11225,7 +11381,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
                 {
                   const varint = zigzagEncode(payload);
@@ -11252,7 +11409,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 1;
                 {
                   const varint = payload ? 1n : 0n;
@@ -11279,7 +11437,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -11310,7 +11469,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
@@ -11341,7 +11501,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -11366,7 +11527,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -11397,7 +11559,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   const oldPayload = payload;
                   {
@@ -11431,12 +11594,14 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 payloadSize = 8 * payload.length;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 8;
                     dataView.setFloat64(offset, payload, true);
                     offset += 8;
@@ -11473,7 +11638,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11488,7 +11654,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(payload);
                     {
                       const varint = payload;
@@ -11527,7 +11694,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11542,7 +11710,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
                     {
                       const varint = zigzagEncode(payload);
@@ -11581,7 +11750,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11596,7 +11766,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = 1;
                     {
                       const varint = payload ? 1n : 0n;
@@ -11635,7 +11806,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11650,7 +11822,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -11693,7 +11866,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11708,7 +11882,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
@@ -11751,7 +11926,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11766,7 +11942,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
@@ -11803,7 +11980,8 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
             {
               const oldPayload = payload;
-              for (const payload of oldPayload) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
+                const payload = oldPayload[i];
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
@@ -11818,7 +11996,8 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const oldPayload = payload;
-                  for (const payload of oldPayload) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
+                    const payload = oldPayload[i];
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
@@ -11838,7 +12017,7 @@ export namespace Comprehensive {
         dataView: DataView,
         offset: number,
       ): [number, BarIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -12107,7 +12286,7 @@ export namespace Comprehensive {
                         break;
                     }
                   }
-                  newPayload = Array(Number(payload)).fill(null);
+                  newPayload = Array(Number(payload)).fill(null) as null[];
                 }
                 payload = newPayload;
               }
@@ -12130,7 +12309,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -12166,7 +12345,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -12202,7 +12381,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -12239,7 +12418,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -12283,8 +12462,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12333,8 +12512,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12386,8 +12565,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12433,8 +12612,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12480,8 +12659,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: null[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12507,7 +12686,7 @@ export namespace Comprehensive {
                       {
                         let payload;
                         [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = Array(Number(payload)).fill(null);
+                        newPayload = Array(Number(payload)).fill(null) as null[];
                       }
                       payload = newPayload;
                     }
@@ -12535,8 +12714,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12558,7 +12737,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: number[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -12599,8 +12778,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12622,7 +12801,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -12663,8 +12842,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12686,7 +12865,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -12728,8 +12907,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12751,7 +12930,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: boolean[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -12800,8 +12979,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12823,8 +13002,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -12878,8 +13057,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12901,8 +13080,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: string[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -12959,8 +13138,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -12982,8 +13161,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -13034,8 +13213,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13057,8 +13236,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -13362,7 +13541,7 @@ export namespace Comprehensive {
                         break;
                     }
                   }
-                  newPayload = Array(Number(payload)).fill(null);
+                  newPayload = Array(Number(payload)).fill(null) as null[];
                 }
                 payload = newPayload;
               }
@@ -13385,7 +13564,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -13421,7 +13600,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -13457,7 +13636,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -13494,7 +13673,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -13538,8 +13717,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13588,8 +13767,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13641,8 +13820,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13688,8 +13867,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13735,8 +13914,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: null[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13762,7 +13941,7 @@ export namespace Comprehensive {
                       {
                         let payload;
                         [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = Array(Number(payload)).fill(null);
+                        newPayload = Array(Number(payload)).fill(null) as null[];
                       }
                       payload = newPayload;
                     }
@@ -13790,8 +13969,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13813,7 +13992,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: number[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -13854,8 +14033,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13877,7 +14056,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -13918,8 +14097,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -13941,7 +14120,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -13983,8 +14162,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14006,7 +14185,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: boolean[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -14055,8 +14234,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14078,8 +14257,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -14133,8 +14312,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14156,8 +14335,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: string[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -14214,8 +14393,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14237,8 +14416,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -14289,8 +14468,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14312,8 +14491,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -14644,7 +14823,7 @@ export namespace Comprehensive {
                         break;
                     }
                   }
-                  newPayload = Array(Number(payload)).fill(null);
+                  newPayload = Array(Number(payload)).fill(null) as null[];
                 }
                 payload = newPayload;
               }
@@ -14670,7 +14849,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -14709,7 +14888,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -14748,7 +14927,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -14788,7 +14967,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[] = [];
               {
-                let payloadAlias = payload;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     try {
@@ -14835,8 +15014,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14888,8 +15067,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14944,8 +15123,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -14994,8 +15173,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15044,8 +15223,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: null[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15071,7 +15250,7 @@ export namespace Comprehensive {
                       {
                         let payload;
                         [offset, payload] = deserializeVarint(dataView, offset);
-                        newPayload = Array(Number(payload)).fill(null);
+                        newPayload = Array(Number(payload)).fill(null) as null[];
                       }
                       payload = newPayload;
                     }
@@ -15102,8 +15281,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: number[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15125,7 +15304,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: number[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -15169,8 +15348,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15192,7 +15371,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -15236,8 +15415,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: bigint[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15259,7 +15438,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: bigint[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -15304,8 +15483,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: boolean[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15327,7 +15506,7 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: boolean[] = [];
                     {
-                      let payloadAlias = payload;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           try {
@@ -15379,8 +15558,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: ArrayBuffer[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15402,8 +15581,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: ArrayBuffer[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -15460,8 +15639,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: string[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15483,8 +15662,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: string[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -15544,8 +15723,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Comprehensive.Types.LocalStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15567,8 +15746,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Comprehensive.Types.LocalStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -15622,8 +15801,8 @@ export namespace Comprehensive {
               offset = 0;
               let payload: Degenerate.Types.EmptyStructIn[][] = [];
               {
-                let dataViewAlias = dataView;
-                let payloadAlias = payload;
+                const dataViewAlias = dataView;
+                const payloadAlias = payload;
                 {
                   while (true) {
                     let payloadSizeBig;
@@ -15645,8 +15824,8 @@ export namespace Comprehensive {
                     offset = 0;
                     let payload: Degenerate.Types.EmptyStructIn[] = [];
                     {
-                      let dataViewAlias = dataView;
-                      let payloadAlias = payload;
+                      const dataViewAlias = dataView;
+                      const payloadAlias = payload;
                       {
                         while (true) {
                           let payloadSizeBig;
@@ -15767,7 +15946,7 @@ export namespace Degenerate {
         dataView: DataView,
         offset: number,
       ): [number, EmptyChoiceIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -16058,7 +16237,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $nonexistentToAsymmetric, $nonexistentToOptional;
 
@@ -16550,7 +16729,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleChoiceIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -17134,7 +17313,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleStructIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
 
@@ -17663,7 +17842,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, ExampleChoiceIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -17994,7 +18173,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonStructIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         let $x;
 
@@ -18106,7 +18285,7 @@ export namespace SchemaEvolution {
         dataView: DataView,
         offset: number,
       ): [number, SingletonChoiceIn] {
-        let dataViewAlias = dataView;
+        const dataViewAlias = dataView;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
