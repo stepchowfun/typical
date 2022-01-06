@@ -314,7 +314,7 @@ export namespace CircularDependency {
         ): [number, StructFromBelowIn] {
           let dataViewAlias = dataView;
 
-          let xField;
+          let $x;
 
           while (true) {
             let index, payloadSize;
@@ -339,7 +339,7 @@ export namespace CircularDependency {
                 let payload;
                 [offset, payload] = CircularDependency.Types.StructFromAbove.deserialize(dataView, offset);
                 offset += oldOffset;
-                xField = payload;
+                $x = payload;
                 break;
               }
               default:
@@ -348,14 +348,14 @@ export namespace CircularDependency {
             }
           }
 
-          if (xField === undefined) {
+          if ($x === undefined) {
             throw new Error('Struct missing one or more field(s).');
           }
 
           return [
             offset,
             {
-              x: xField,
+              x: $x,
             }
           ];
         }
@@ -4499,7 +4499,7 @@ export namespace Comprehensive {
       ): [number, FooIn] {
         let dataViewAlias = dataView;
 
-        let aRequiredField, bRequiredField, cRequiredField, dRequiredField, eRequiredField, fRequiredField, gRequiredField, hRequiredField, iRequiredField, jRequiredField, kRequiredField, lRequiredField, mRequiredField, nRequiredField, oRequiredField, pRequiredField, qRequiredField, rRequiredField, sRequiredField, tRequiredField, uRequiredField, vRequiredField, wRequiredField, xRequiredField, yRequiredField, zRequiredField, aaRequiredField, aAsymmetricField, bAsymmetricField, cAsymmetricField, dAsymmetricField, eAsymmetricField, fAsymmetricField, gAsymmetricField, hAsymmetricField, iAsymmetricField, jAsymmetricField, kAsymmetricField, lAsymmetricField, mAsymmetricField, nAsymmetricField, oAsymmetricField, pAsymmetricField, qAsymmetricField, rAsymmetricField, sAsymmetricField, tAsymmetricField, uAsymmetricField, vAsymmetricField, wAsymmetricField, xAsymmetricField, yAsymmetricField, zAsymmetricField, aaAsymmetricField, aOptionalField, bOptionalField, cOptionalField, dOptionalField, eOptionalField, fOptionalField, gOptionalField, hOptionalField, iOptionalField, jOptionalField, kOptionalField, lOptionalField, mOptionalField, nOptionalField, oOptionalField, pOptionalField, qOptionalField, rOptionalField, sOptionalField, tOptionalField, uOptionalField, vOptionalField, wOptionalField, xOptionalField, yOptionalField, zOptionalField, aaOptionalField;
+        let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
 
         while (true) {
           let index, payloadSize;
@@ -4523,7 +4523,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              aRequiredField = payload;
+              $aRequired = payload;
               break;
             }
             case 1n: {
@@ -4547,7 +4547,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              bRequiredField = payload;
+              $bRequired = payload;
               break;
             }
             case 2n: {
@@ -4574,7 +4574,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              cRequiredField = payload;
+              $cRequired = payload;
               break;
             }
             case 3n: {
@@ -4602,7 +4602,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              dRequiredField = payload;
+              $dRequired = payload;
               break;
             }
             case 4n: {
@@ -4637,7 +4637,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              eRequiredField = payload;
+              $eRequired = payload;
               break;
             }
             case 5n: {
@@ -4654,7 +4654,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              fRequiredField = payload;
+              $fRequired = payload;
               break;
             }
             case 6n: {
@@ -4674,7 +4674,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              gRequiredField = payload;
+              $gRequired = payload;
               break;
             }
             case 7n: {
@@ -4688,7 +4688,7 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              hRequiredField = payload;
+              $hRequired = payload;
               break;
             }
             case 8n: {
@@ -4702,7 +4702,7 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              iRequiredField = payload;
+              $iRequired = payload;
               break;
             }
             case 9n: {
@@ -4737,7 +4737,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              jRequiredField = payload;
+              $jRequired = payload;
               break;
             }
             case 10n: {
@@ -4768,7 +4768,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              kRequiredField = payload;
+              $kRequired = payload;
               break;
             }
             case 11n: {
@@ -4799,7 +4799,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              lRequiredField = payload;
+              $lRequired = payload;
               break;
             }
             case 12n: {
@@ -4831,7 +4831,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              mRequiredField = payload;
+              $mRequired = payload;
               break;
             }
             case 13n: {
@@ -4870,7 +4870,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              nRequiredField = payload;
+              $nRequired = payload;
               break;
             }
             case 14n: {
@@ -4915,7 +4915,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              oRequiredField = payload;
+              $oRequired = payload;
               break;
             }
             case 15n: {
@@ -4963,7 +4963,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              pRequiredField = payload;
+              $pRequired = payload;
               break;
             }
             case 16n: {
@@ -5005,7 +5005,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              qRequiredField = payload;
+              $qRequired = payload;
               break;
             }
             case 17n: {
@@ -5047,7 +5047,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              rRequiredField = payload;
+              $rRequired = payload;
               break;
             }
             case 18n: {
@@ -5097,7 +5097,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              sRequiredField = payload;
+              $sRequired = payload;
               break;
             }
             case 19n: {
@@ -5156,7 +5156,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              tRequiredField = payload;
+              $tRequired = payload;
               break;
             }
             case 20n: {
@@ -5215,7 +5215,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              uRequiredField = payload;
+              $uRequired = payload;
               break;
             }
             case 21n: {
@@ -5275,7 +5275,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              vRequiredField = payload;
+              $vRequired = payload;
               break;
             }
             case 22n: {
@@ -5342,7 +5342,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              wRequiredField = payload;
+              $wRequired = payload;
               break;
             }
             case 23n: {
@@ -5415,7 +5415,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              xRequiredField = payload;
+              $xRequired = payload;
               break;
             }
             case 24n: {
@@ -5491,7 +5491,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              yRequiredField = payload;
+              $yRequired = payload;
               break;
             }
             case 25n: {
@@ -5561,7 +5561,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              zRequiredField = payload;
+              $zRequired = payload;
               break;
             }
             case 26n: {
@@ -5631,7 +5631,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              aaRequiredField = payload;
+              $aaRequired = payload;
               break;
             }
             case 28n: {
@@ -5644,7 +5644,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              aAsymmetricField = payload;
+              $aAsymmetric = payload;
               break;
             }
             case 29n: {
@@ -5668,7 +5668,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              bAsymmetricField = payload;
+              $bAsymmetric = payload;
               break;
             }
             case 30n: {
@@ -5695,7 +5695,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              cAsymmetricField = payload;
+              $cAsymmetric = payload;
               break;
             }
             case 31n: {
@@ -5723,7 +5723,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              dAsymmetricField = payload;
+              $dAsymmetric = payload;
               break;
             }
             case 32n: {
@@ -5758,7 +5758,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              eAsymmetricField = payload;
+              $eAsymmetric = payload;
               break;
             }
             case 33n: {
@@ -5775,7 +5775,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              fAsymmetricField = payload;
+              $fAsymmetric = payload;
               break;
             }
             case 34n: {
@@ -5795,7 +5795,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              gAsymmetricField = payload;
+              $gAsymmetric = payload;
               break;
             }
             case 35n: {
@@ -5809,7 +5809,7 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              hAsymmetricField = payload;
+              $hAsymmetric = payload;
               break;
             }
             case 36n: {
@@ -5823,7 +5823,7 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              iAsymmetricField = payload;
+              $iAsymmetric = payload;
               break;
             }
             case 37n: {
@@ -5858,7 +5858,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              jAsymmetricField = payload;
+              $jAsymmetric = payload;
               break;
             }
             case 38n: {
@@ -5889,7 +5889,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              kAsymmetricField = payload;
+              $kAsymmetric = payload;
               break;
             }
             case 39n: {
@@ -5920,7 +5920,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              lAsymmetricField = payload;
+              $lAsymmetric = payload;
               break;
             }
             case 40n: {
@@ -5952,7 +5952,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              mAsymmetricField = payload;
+              $mAsymmetric = payload;
               break;
             }
             case 41n: {
@@ -5991,7 +5991,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              nAsymmetricField = payload;
+              $nAsymmetric = payload;
               break;
             }
             case 42n: {
@@ -6036,7 +6036,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              oAsymmetricField = payload;
+              $oAsymmetric = payload;
               break;
             }
             case 43n: {
@@ -6084,7 +6084,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              pAsymmetricField = payload;
+              $pAsymmetric = payload;
               break;
             }
             case 44n: {
@@ -6126,7 +6126,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              qAsymmetricField = payload;
+              $qAsymmetric = payload;
               break;
             }
             case 45n: {
@@ -6168,7 +6168,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              rAsymmetricField = payload;
+              $rAsymmetric = payload;
               break;
             }
             case 46n: {
@@ -6218,7 +6218,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              sAsymmetricField = payload;
+              $sAsymmetric = payload;
               break;
             }
             case 47n: {
@@ -6277,7 +6277,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              tAsymmetricField = payload;
+              $tAsymmetric = payload;
               break;
             }
             case 48n: {
@@ -6336,7 +6336,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              uAsymmetricField = payload;
+              $uAsymmetric = payload;
               break;
             }
             case 49n: {
@@ -6396,7 +6396,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              vAsymmetricField = payload;
+              $vAsymmetric = payload;
               break;
             }
             case 50n: {
@@ -6463,7 +6463,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              wAsymmetricField = payload;
+              $wAsymmetric = payload;
               break;
             }
             case 51n: {
@@ -6536,7 +6536,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              xAsymmetricField = payload;
+              $xAsymmetric = payload;
               break;
             }
             case 52n: {
@@ -6612,7 +6612,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              yAsymmetricField = payload;
+              $yAsymmetric = payload;
               break;
             }
             case 53n: {
@@ -6682,7 +6682,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              zAsymmetricField = payload;
+              $zAsymmetric = payload;
               break;
             }
             case 54n: {
@@ -6752,7 +6752,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              aaAsymmetricField = payload;
+              $aaAsymmetric = payload;
               break;
             }
             case 56n: {
@@ -6765,7 +6765,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              aOptionalField = payload;
+              $aOptional = payload;
               break;
             }
             case 57n: {
@@ -6789,7 +6789,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              bOptionalField = payload;
+              $bOptional = payload;
               break;
             }
             case 58n: {
@@ -6816,7 +6816,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              cOptionalField = payload;
+              $cOptional = payload;
               break;
             }
             case 59n: {
@@ -6844,7 +6844,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              dOptionalField = payload;
+              $dOptional = payload;
               break;
             }
             case 60n: {
@@ -6879,7 +6879,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              eOptionalField = payload;
+              $eOptional = payload;
               break;
             }
             case 61n: {
@@ -6896,7 +6896,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              fOptionalField = payload;
+              $fOptional = payload;
               break;
             }
             case 62n: {
@@ -6916,7 +6916,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              gOptionalField = payload;
+              $gOptional = payload;
               break;
             }
             case 63n: {
@@ -6930,7 +6930,7 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              hOptionalField = payload;
+              $hOptional = payload;
               break;
             }
             case 64n: {
@@ -6944,7 +6944,7 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              iOptionalField = payload;
+              $iOptional = payload;
               break;
             }
             case 65n: {
@@ -6979,7 +6979,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              jOptionalField = payload;
+              $jOptional = payload;
               break;
             }
             case 66n: {
@@ -7010,7 +7010,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              kOptionalField = payload;
+              $kOptional = payload;
               break;
             }
             case 67n: {
@@ -7041,7 +7041,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              lOptionalField = payload;
+              $lOptional = payload;
               break;
             }
             case 68n: {
@@ -7073,7 +7073,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              mOptionalField = payload;
+              $mOptional = payload;
               break;
             }
             case 69n: {
@@ -7112,7 +7112,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              nOptionalField = payload;
+              $nOptional = payload;
               break;
             }
             case 70n: {
@@ -7157,7 +7157,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              oOptionalField = payload;
+              $oOptional = payload;
               break;
             }
             case 71n: {
@@ -7205,7 +7205,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              pOptionalField = payload;
+              $pOptional = payload;
               break;
             }
             case 72n: {
@@ -7247,7 +7247,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              qOptionalField = payload;
+              $qOptional = payload;
               break;
             }
             case 73n: {
@@ -7289,7 +7289,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              rOptionalField = payload;
+              $rOptional = payload;
               break;
             }
             case 74n: {
@@ -7339,7 +7339,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              sOptionalField = payload;
+              $sOptional = payload;
               break;
             }
             case 75n: {
@@ -7398,7 +7398,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              tOptionalField = payload;
+              $tOptional = payload;
               break;
             }
             case 76n: {
@@ -7457,7 +7457,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              uOptionalField = payload;
+              $uOptional = payload;
               break;
             }
             case 77n: {
@@ -7517,7 +7517,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              vOptionalField = payload;
+              $vOptional = payload;
               break;
             }
             case 78n: {
@@ -7584,7 +7584,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              wOptionalField = payload;
+              $wOptional = payload;
               break;
             }
             case 79n: {
@@ -7657,7 +7657,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              xOptionalField = payload;
+              $xOptional = payload;
               break;
             }
             case 80n: {
@@ -7733,7 +7733,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              yOptionalField = payload;
+              $yOptional = payload;
               break;
             }
             case 81n: {
@@ -7803,7 +7803,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              zOptionalField = payload;
+              $zOptional = payload;
               break;
             }
             case 82n: {
@@ -7873,7 +7873,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              aaOptionalField = payload;
+              $aaOptional = payload;
               break;
             }
             default:
@@ -7882,94 +7882,94 @@ export namespace Comprehensive {
           }
         }
 
-        if (aRequiredField === undefined || bRequiredField === undefined || cRequiredField === undefined || dRequiredField === undefined || eRequiredField === undefined || fRequiredField === undefined || gRequiredField === undefined || hRequiredField === undefined || iRequiredField === undefined || jRequiredField === undefined || kRequiredField === undefined || lRequiredField === undefined || mRequiredField === undefined || nRequiredField === undefined || oRequiredField === undefined || pRequiredField === undefined || qRequiredField === undefined || rRequiredField === undefined || sRequiredField === undefined || tRequiredField === undefined || uRequiredField === undefined || vRequiredField === undefined || wRequiredField === undefined || xRequiredField === undefined || yRequiredField === undefined || zRequiredField === undefined || aaRequiredField === undefined) {
+        if ($aRequired === undefined || $bRequired === undefined || $cRequired === undefined || $dRequired === undefined || $eRequired === undefined || $fRequired === undefined || $gRequired === undefined || $hRequired === undefined || $iRequired === undefined || $jRequired === undefined || $kRequired === undefined || $lRequired === undefined || $mRequired === undefined || $nRequired === undefined || $oRequired === undefined || $pRequired === undefined || $qRequired === undefined || $rRequired === undefined || $sRequired === undefined || $tRequired === undefined || $uRequired === undefined || $vRequired === undefined || $wRequired === undefined || $xRequired === undefined || $yRequired === undefined || $zRequired === undefined || $aaRequired === undefined) {
           throw new Error('Struct missing one or more field(s).');
         }
 
         return [
           offset,
           {
-            aRequired: aRequiredField,
-            bRequired: bRequiredField,
-            cRequired: cRequiredField,
-            dRequired: dRequiredField,
-            eRequired: eRequiredField,
-            fRequired: fRequiredField,
-            gRequired: gRequiredField,
-            hRequired: hRequiredField,
-            iRequired: iRequiredField,
-            jRequired: jRequiredField,
-            kRequired: kRequiredField,
-            lRequired: lRequiredField,
-            mRequired: mRequiredField,
-            nRequired: nRequiredField,
-            oRequired: oRequiredField,
-            pRequired: pRequiredField,
-            qRequired: qRequiredField,
-            rRequired: rRequiredField,
-            sRequired: sRequiredField,
-            tRequired: tRequiredField,
-            uRequired: uRequiredField,
-            vRequired: vRequiredField,
-            wRequired: wRequiredField,
-            xRequired: xRequiredField,
-            yRequired: yRequiredField,
-            zRequired: zRequiredField,
-            aaRequired: aaRequiredField,
-            aAsymmetric: aAsymmetricField,
-            bAsymmetric: bAsymmetricField,
-            cAsymmetric: cAsymmetricField,
-            dAsymmetric: dAsymmetricField,
-            eAsymmetric: eAsymmetricField,
-            fAsymmetric: fAsymmetricField,
-            gAsymmetric: gAsymmetricField,
-            hAsymmetric: hAsymmetricField,
-            iAsymmetric: iAsymmetricField,
-            jAsymmetric: jAsymmetricField,
-            kAsymmetric: kAsymmetricField,
-            lAsymmetric: lAsymmetricField,
-            mAsymmetric: mAsymmetricField,
-            nAsymmetric: nAsymmetricField,
-            oAsymmetric: oAsymmetricField,
-            pAsymmetric: pAsymmetricField,
-            qAsymmetric: qAsymmetricField,
-            rAsymmetric: rAsymmetricField,
-            sAsymmetric: sAsymmetricField,
-            tAsymmetric: tAsymmetricField,
-            uAsymmetric: uAsymmetricField,
-            vAsymmetric: vAsymmetricField,
-            wAsymmetric: wAsymmetricField,
-            xAsymmetric: xAsymmetricField,
-            yAsymmetric: yAsymmetricField,
-            zAsymmetric: zAsymmetricField,
-            aaAsymmetric: aaAsymmetricField,
-            aOptional: aOptionalField,
-            bOptional: bOptionalField,
-            cOptional: cOptionalField,
-            dOptional: dOptionalField,
-            eOptional: eOptionalField,
-            fOptional: fOptionalField,
-            gOptional: gOptionalField,
-            hOptional: hOptionalField,
-            iOptional: iOptionalField,
-            jOptional: jOptionalField,
-            kOptional: kOptionalField,
-            lOptional: lOptionalField,
-            mOptional: mOptionalField,
-            nOptional: nOptionalField,
-            oOptional: oOptionalField,
-            pOptional: pOptionalField,
-            qOptional: qOptionalField,
-            rOptional: rOptionalField,
-            sOptional: sOptionalField,
-            tOptional: tOptionalField,
-            uOptional: uOptionalField,
-            vOptional: vOptionalField,
-            wOptional: wOptionalField,
-            xOptional: xOptionalField,
-            yOptional: yOptionalField,
-            zOptional: zOptionalField,
-            aaOptional: aaOptionalField,
+            aRequired: $aRequired,
+            bRequired: $bRequired,
+            cRequired: $cRequired,
+            dRequired: $dRequired,
+            eRequired: $eRequired,
+            fRequired: $fRequired,
+            gRequired: $gRequired,
+            hRequired: $hRequired,
+            iRequired: $iRequired,
+            jRequired: $jRequired,
+            kRequired: $kRequired,
+            lRequired: $lRequired,
+            mRequired: $mRequired,
+            nRequired: $nRequired,
+            oRequired: $oRequired,
+            pRequired: $pRequired,
+            qRequired: $qRequired,
+            rRequired: $rRequired,
+            sRequired: $sRequired,
+            tRequired: $tRequired,
+            uRequired: $uRequired,
+            vRequired: $vRequired,
+            wRequired: $wRequired,
+            xRequired: $xRequired,
+            yRequired: $yRequired,
+            zRequired: $zRequired,
+            aaRequired: $aaRequired,
+            aAsymmetric: $aAsymmetric,
+            bAsymmetric: $bAsymmetric,
+            cAsymmetric: $cAsymmetric,
+            dAsymmetric: $dAsymmetric,
+            eAsymmetric: $eAsymmetric,
+            fAsymmetric: $fAsymmetric,
+            gAsymmetric: $gAsymmetric,
+            hAsymmetric: $hAsymmetric,
+            iAsymmetric: $iAsymmetric,
+            jAsymmetric: $jAsymmetric,
+            kAsymmetric: $kAsymmetric,
+            lAsymmetric: $lAsymmetric,
+            mAsymmetric: $mAsymmetric,
+            nAsymmetric: $nAsymmetric,
+            oAsymmetric: $oAsymmetric,
+            pAsymmetric: $pAsymmetric,
+            qAsymmetric: $qAsymmetric,
+            rAsymmetric: $rAsymmetric,
+            sAsymmetric: $sAsymmetric,
+            tAsymmetric: $tAsymmetric,
+            uAsymmetric: $uAsymmetric,
+            vAsymmetric: $vAsymmetric,
+            wAsymmetric: $wAsymmetric,
+            xAsymmetric: $xAsymmetric,
+            yAsymmetric: $yAsymmetric,
+            zAsymmetric: $zAsymmetric,
+            aaAsymmetric: $aaAsymmetric,
+            aOptional: $aOptional,
+            bOptional: $bOptional,
+            cOptional: $cOptional,
+            dOptional: $dOptional,
+            eOptional: $eOptional,
+            fOptional: $fOptional,
+            gOptional: $gOptional,
+            hOptional: $hOptional,
+            iOptional: $iOptional,
+            jOptional: $jOptional,
+            kOptional: $kOptional,
+            lOptional: $lOptional,
+            mOptional: $mOptional,
+            nOptional: $nOptional,
+            oOptional: $oOptional,
+            pOptional: $pOptional,
+            qOptional: $qOptional,
+            rOptional: $rOptional,
+            sOptional: $sOptional,
+            tOptional: $tOptional,
+            uOptional: $uOptional,
+            vOptional: $vOptional,
+            wOptional: $wOptional,
+            xOptional: $xOptional,
+            yOptional: $yOptional,
+            zOptional: $zOptional,
+            aaOptional: $aaOptional,
           }
         ];
       }
@@ -7980,183 +7980,183 @@ export namespace Comprehensive {
     }
 
     export type BarOut =
-      | { field: 'aRequired' }
-      | { field: 'bRequired'; value: number }
-      | { field: 'cRequired'; value: bigint }
-      | { field: 'dRequired'; value: bigint }
-      | { field: 'eRequired'; value: boolean }
-      | { field: 'fRequired'; value: ArrayBuffer }
-      | { field: 'gRequired'; value: string }
-      | { field: 'hRequired'; value: Comprehensive.Types.LocalStructOut }
-      | { field: 'iRequired'; value: Degenerate.Types.EmptyStructOut }
-      | { field: 'jRequired'; value: null[] }
-      | { field: 'kRequired'; value: number[] }
-      | { field: 'lRequired'; value: bigint[] }
-      | { field: 'mRequired'; value: bigint[] }
-      | { field: 'nRequired'; value: boolean[] }
-      | { field: 'oRequired'; value: ArrayBuffer[] }
-      | { field: 'pRequired'; value: string[] }
-      | { field: 'qRequired'; value: Comprehensive.Types.LocalStructOut[] }
-      | { field: 'rRequired'; value: Degenerate.Types.EmptyStructOut[] }
-      | { field: 'sRequired'; value: null[][] }
-      | { field: 'tRequired'; value: number[][] }
-      | { field: 'uRequired'; value: bigint[][] }
-      | { field: 'vRequired'; value: bigint[][] }
-      | { field: 'wRequired'; value: boolean[][] }
-      | { field: 'xRequired'; value: ArrayBuffer[][] }
-      | { field: 'yRequired'; value: string[][] }
-      | { field: 'zRequired'; value: Comprehensive.Types.LocalStructOut[][] }
-      | { field: 'aaRequired'; value: Degenerate.Types.EmptyStructOut[][] }
-      | { field: 'aAsymmetric'; fallback: BarOut }
-      | { field: 'bAsymmetric'; value: number; fallback: BarOut }
-      | { field: 'cAsymmetric'; value: bigint; fallback: BarOut }
-      | { field: 'dAsymmetric'; value: bigint; fallback: BarOut }
-      | { field: 'eAsymmetric'; value: boolean; fallback: BarOut }
-      | { field: 'fAsymmetric'; value: ArrayBuffer; fallback: BarOut }
-      | { field: 'gAsymmetric'; value: string; fallback: BarOut }
-      | { field: 'hAsymmetric'; value: Comprehensive.Types.LocalStructOut; fallback: BarOut }
-      | { field: 'iAsymmetric'; value: Degenerate.Types.EmptyStructOut; fallback: BarOut }
-      | { field: 'jAsymmetric'; value: null[]; fallback: BarOut }
-      | { field: 'kAsymmetric'; value: number[]; fallback: BarOut }
-      | { field: 'lAsymmetric'; value: bigint[]; fallback: BarOut }
-      | { field: 'mAsymmetric'; value: bigint[]; fallback: BarOut }
-      | { field: 'nAsymmetric'; value: boolean[]; fallback: BarOut }
-      | { field: 'oAsymmetric'; value: ArrayBuffer[]; fallback: BarOut }
-      | { field: 'pAsymmetric'; value: string[]; fallback: BarOut }
-      | { field: 'qAsymmetric'; value: Comprehensive.Types.LocalStructOut[]; fallback: BarOut }
-      | { field: 'rAsymmetric'; value: Degenerate.Types.EmptyStructOut[]; fallback: BarOut }
-      | { field: 'sAsymmetric'; value: null[][]; fallback: BarOut }
-      | { field: 'tAsymmetric'; value: number[][]; fallback: BarOut }
-      | { field: 'uAsymmetric'; value: bigint[][]; fallback: BarOut }
-      | { field: 'vAsymmetric'; value: bigint[][]; fallback: BarOut }
-      | { field: 'wAsymmetric'; value: boolean[][]; fallback: BarOut }
-      | { field: 'xAsymmetric'; value: ArrayBuffer[][]; fallback: BarOut }
-      | { field: 'yAsymmetric'; value: string[][]; fallback: BarOut }
-      | { field: 'zAsymmetric'; value: Comprehensive.Types.LocalStructOut[][]; fallback: BarOut }
-      | { field: 'aaAsymmetric'; value: Degenerate.Types.EmptyStructOut[][]; fallback: BarOut }
-      | { field: 'aOptional'; fallback: BarOut }
-      | { field: 'bOptional'; value: number; fallback: BarOut }
-      | { field: 'cOptional'; value: bigint; fallback: BarOut }
-      | { field: 'dOptional'; value: bigint; fallback: BarOut }
-      | { field: 'eOptional'; value: boolean; fallback: BarOut }
-      | { field: 'fOptional'; value: ArrayBuffer; fallback: BarOut }
-      | { field: 'gOptional'; value: string; fallback: BarOut }
-      | { field: 'hOptional'; value: Comprehensive.Types.LocalStructOut; fallback: BarOut }
-      | { field: 'iOptional'; value: Degenerate.Types.EmptyStructOut; fallback: BarOut }
-      | { field: 'jOptional'; value: null[]; fallback: BarOut }
-      | { field: 'kOptional'; value: number[]; fallback: BarOut }
-      | { field: 'lOptional'; value: bigint[]; fallback: BarOut }
-      | { field: 'mOptional'; value: bigint[]; fallback: BarOut }
-      | { field: 'nOptional'; value: boolean[]; fallback: BarOut }
-      | { field: 'oOptional'; value: ArrayBuffer[]; fallback: BarOut }
-      | { field: 'pOptional'; value: string[]; fallback: BarOut }
-      | { field: 'qOptional'; value: Comprehensive.Types.LocalStructOut[]; fallback: BarOut }
-      | { field: 'rOptional'; value: Degenerate.Types.EmptyStructOut[]; fallback: BarOut }
-      | { field: 'sOptional'; value: null[][]; fallback: BarOut }
-      | { field: 'tOptional'; value: number[][]; fallback: BarOut }
-      | { field: 'uOptional'; value: bigint[][]; fallback: BarOut }
-      | { field: 'vOptional'; value: bigint[][]; fallback: BarOut }
-      | { field: 'wOptional'; value: boolean[][]; fallback: BarOut }
-      | { field: 'xOptional'; value: ArrayBuffer[][]; fallback: BarOut }
-      | { field: 'yOptional'; value: string[][]; fallback: BarOut }
-      | { field: 'zOptional'; value: Comprehensive.Types.LocalStructOut[][]; fallback: BarOut }
-      | { field: 'aaOptional'; value: Degenerate.Types.EmptyStructOut[][]; fallback: BarOut };
+      | { $field: 'aRequired' }
+      | { $field: 'bRequired'; bRequired: number }
+      | { $field: 'cRequired'; cRequired: bigint }
+      | { $field: 'dRequired'; dRequired: bigint }
+      | { $field: 'eRequired'; eRequired: boolean }
+      | { $field: 'fRequired'; fRequired: ArrayBuffer }
+      | { $field: 'gRequired'; gRequired: string }
+      | { $field: 'hRequired'; hRequired: Comprehensive.Types.LocalStructOut }
+      | { $field: 'iRequired'; iRequired: Degenerate.Types.EmptyStructOut }
+      | { $field: 'jRequired'; jRequired: null[] }
+      | { $field: 'kRequired'; kRequired: number[] }
+      | { $field: 'lRequired'; lRequired: bigint[] }
+      | { $field: 'mRequired'; mRequired: bigint[] }
+      | { $field: 'nRequired'; nRequired: boolean[] }
+      | { $field: 'oRequired'; oRequired: ArrayBuffer[] }
+      | { $field: 'pRequired'; pRequired: string[] }
+      | { $field: 'qRequired'; qRequired: Comprehensive.Types.LocalStructOut[] }
+      | { $field: 'rRequired'; rRequired: Degenerate.Types.EmptyStructOut[] }
+      | { $field: 'sRequired'; sRequired: null[][] }
+      | { $field: 'tRequired'; tRequired: number[][] }
+      | { $field: 'uRequired'; uRequired: bigint[][] }
+      | { $field: 'vRequired'; vRequired: bigint[][] }
+      | { $field: 'wRequired'; wRequired: boolean[][] }
+      | { $field: 'xRequired'; xRequired: ArrayBuffer[][] }
+      | { $field: 'yRequired'; yRequired: string[][] }
+      | { $field: 'zRequired'; zRequired: Comprehensive.Types.LocalStructOut[][] }
+      | { $field: 'aaRequired'; aaRequired: Degenerate.Types.EmptyStructOut[][] }
+      | { $field: 'aAsymmetric'; $fallback: BarOut }
+      | { $field: 'bAsymmetric'; bAsymmetric: number; $fallback: BarOut }
+      | { $field: 'cAsymmetric'; cAsymmetric: bigint; $fallback: BarOut }
+      | { $field: 'dAsymmetric'; dAsymmetric: bigint; $fallback: BarOut }
+      | { $field: 'eAsymmetric'; eAsymmetric: boolean; $fallback: BarOut }
+      | { $field: 'fAsymmetric'; fAsymmetric: ArrayBuffer; $fallback: BarOut }
+      | { $field: 'gAsymmetric'; gAsymmetric: string; $fallback: BarOut }
+      | { $field: 'hAsymmetric'; hAsymmetric: Comprehensive.Types.LocalStructOut; $fallback: BarOut }
+      | { $field: 'iAsymmetric'; iAsymmetric: Degenerate.Types.EmptyStructOut; $fallback: BarOut }
+      | { $field: 'jAsymmetric'; jAsymmetric: null[]; $fallback: BarOut }
+      | { $field: 'kAsymmetric'; kAsymmetric: number[]; $fallback: BarOut }
+      | { $field: 'lAsymmetric'; lAsymmetric: bigint[]; $fallback: BarOut }
+      | { $field: 'mAsymmetric'; mAsymmetric: bigint[]; $fallback: BarOut }
+      | { $field: 'nAsymmetric'; nAsymmetric: boolean[]; $fallback: BarOut }
+      | { $field: 'oAsymmetric'; oAsymmetric: ArrayBuffer[]; $fallback: BarOut }
+      | { $field: 'pAsymmetric'; pAsymmetric: string[]; $fallback: BarOut }
+      | { $field: 'qAsymmetric'; qAsymmetric: Comprehensive.Types.LocalStructOut[]; $fallback: BarOut }
+      | { $field: 'rAsymmetric'; rAsymmetric: Degenerate.Types.EmptyStructOut[]; $fallback: BarOut }
+      | { $field: 'sAsymmetric'; sAsymmetric: null[][]; $fallback: BarOut }
+      | { $field: 'tAsymmetric'; tAsymmetric: number[][]; $fallback: BarOut }
+      | { $field: 'uAsymmetric'; uAsymmetric: bigint[][]; $fallback: BarOut }
+      | { $field: 'vAsymmetric'; vAsymmetric: bigint[][]; $fallback: BarOut }
+      | { $field: 'wAsymmetric'; wAsymmetric: boolean[][]; $fallback: BarOut }
+      | { $field: 'xAsymmetric'; xAsymmetric: ArrayBuffer[][]; $fallback: BarOut }
+      | { $field: 'yAsymmetric'; yAsymmetric: string[][]; $fallback: BarOut }
+      | { $field: 'zAsymmetric'; zAsymmetric: Comprehensive.Types.LocalStructOut[][]; $fallback: BarOut }
+      | { $field: 'aaAsymmetric'; aaAsymmetric: Degenerate.Types.EmptyStructOut[][]; $fallback: BarOut }
+      | { $field: 'aOptional'; $fallback: BarOut }
+      | { $field: 'bOptional'; bOptional: number; $fallback: BarOut }
+      | { $field: 'cOptional'; cOptional: bigint; $fallback: BarOut }
+      | { $field: 'dOptional'; dOptional: bigint; $fallback: BarOut }
+      | { $field: 'eOptional'; eOptional: boolean; $fallback: BarOut }
+      | { $field: 'fOptional'; fOptional: ArrayBuffer; $fallback: BarOut }
+      | { $field: 'gOptional'; gOptional: string; $fallback: BarOut }
+      | { $field: 'hOptional'; hOptional: Comprehensive.Types.LocalStructOut; $fallback: BarOut }
+      | { $field: 'iOptional'; iOptional: Degenerate.Types.EmptyStructOut; $fallback: BarOut }
+      | { $field: 'jOptional'; jOptional: null[]; $fallback: BarOut }
+      | { $field: 'kOptional'; kOptional: number[]; $fallback: BarOut }
+      | { $field: 'lOptional'; lOptional: bigint[]; $fallback: BarOut }
+      | { $field: 'mOptional'; mOptional: bigint[]; $fallback: BarOut }
+      | { $field: 'nOptional'; nOptional: boolean[]; $fallback: BarOut }
+      | { $field: 'oOptional'; oOptional: ArrayBuffer[]; $fallback: BarOut }
+      | { $field: 'pOptional'; pOptional: string[]; $fallback: BarOut }
+      | { $field: 'qOptional'; qOptional: Comprehensive.Types.LocalStructOut[]; $fallback: BarOut }
+      | { $field: 'rOptional'; rOptional: Degenerate.Types.EmptyStructOut[]; $fallback: BarOut }
+      | { $field: 'sOptional'; sOptional: null[][]; $fallback: BarOut }
+      | { $field: 'tOptional'; tOptional: number[][]; $fallback: BarOut }
+      | { $field: 'uOptional'; uOptional: bigint[][]; $fallback: BarOut }
+      | { $field: 'vOptional'; vOptional: bigint[][]; $fallback: BarOut }
+      | { $field: 'wOptional'; wOptional: boolean[][]; $fallback: BarOut }
+      | { $field: 'xOptional'; xOptional: ArrayBuffer[][]; $fallback: BarOut }
+      | { $field: 'yOptional'; yOptional: string[][]; $fallback: BarOut }
+      | { $field: 'zOptional'; zOptional: Comprehensive.Types.LocalStructOut[][]; $fallback: BarOut }
+      | { $field: 'aaOptional'; aaOptional: Degenerate.Types.EmptyStructOut[][]; $fallback: BarOut };
 
     export type BarIn =
-      | { field: 'aRequired' }
-      | { field: 'bRequired'; value: number }
-      | { field: 'cRequired'; value: bigint }
-      | { field: 'dRequired'; value: bigint }
-      | { field: 'eRequired'; value: boolean }
-      | { field: 'fRequired'; value: ArrayBuffer }
-      | { field: 'gRequired'; value: string }
-      | { field: 'hRequired'; value: Comprehensive.Types.LocalStructIn }
-      | { field: 'iRequired'; value: Degenerate.Types.EmptyStructIn }
-      | { field: 'jRequired'; value: null[] }
-      | { field: 'kRequired'; value: number[] }
-      | { field: 'lRequired'; value: bigint[] }
-      | { field: 'mRequired'; value: bigint[] }
-      | { field: 'nRequired'; value: boolean[] }
-      | { field: 'oRequired'; value: ArrayBuffer[] }
-      | { field: 'pRequired'; value: string[] }
-      | { field: 'qRequired'; value: Comprehensive.Types.LocalStructIn[] }
-      | { field: 'rRequired'; value: Degenerate.Types.EmptyStructIn[] }
-      | { field: 'sRequired'; value: null[][] }
-      | { field: 'tRequired'; value: number[][] }
-      | { field: 'uRequired'; value: bigint[][] }
-      | { field: 'vRequired'; value: bigint[][] }
-      | { field: 'wRequired'; value: boolean[][] }
-      | { field: 'xRequired'; value: ArrayBuffer[][] }
-      | { field: 'yRequired'; value: string[][] }
-      | { field: 'zRequired'; value: Comprehensive.Types.LocalStructIn[][] }
-      | { field: 'aaRequired'; value: Degenerate.Types.EmptyStructIn[][] }
-      | { field: 'aAsymmetric' }
-      | { field: 'bAsymmetric'; value: number }
-      | { field: 'cAsymmetric'; value: bigint }
-      | { field: 'dAsymmetric'; value: bigint }
-      | { field: 'eAsymmetric'; value: boolean }
-      | { field: 'fAsymmetric'; value: ArrayBuffer }
-      | { field: 'gAsymmetric'; value: string }
-      | { field: 'hAsymmetric'; value: Comprehensive.Types.LocalStructIn }
-      | { field: 'iAsymmetric'; value: Degenerate.Types.EmptyStructIn }
-      | { field: 'jAsymmetric'; value: null[] }
-      | { field: 'kAsymmetric'; value: number[] }
-      | { field: 'lAsymmetric'; value: bigint[] }
-      | { field: 'mAsymmetric'; value: bigint[] }
-      | { field: 'nAsymmetric'; value: boolean[] }
-      | { field: 'oAsymmetric'; value: ArrayBuffer[] }
-      | { field: 'pAsymmetric'; value: string[] }
-      | { field: 'qAsymmetric'; value: Comprehensive.Types.LocalStructIn[] }
-      | { field: 'rAsymmetric'; value: Degenerate.Types.EmptyStructIn[] }
-      | { field: 'sAsymmetric'; value: null[][] }
-      | { field: 'tAsymmetric'; value: number[][] }
-      | { field: 'uAsymmetric'; value: bigint[][] }
-      | { field: 'vAsymmetric'; value: bigint[][] }
-      | { field: 'wAsymmetric'; value: boolean[][] }
-      | { field: 'xAsymmetric'; value: ArrayBuffer[][] }
-      | { field: 'yAsymmetric'; value: string[][] }
-      | { field: 'zAsymmetric'; value: Comprehensive.Types.LocalStructIn[][] }
-      | { field: 'aaAsymmetric'; value: Degenerate.Types.EmptyStructIn[][] }
-      | { field: 'aOptional'; fallback: BarIn }
-      | { field: 'bOptional'; value: number; fallback: BarIn }
-      | { field: 'cOptional'; value: bigint; fallback: BarIn }
-      | { field: 'dOptional'; value: bigint; fallback: BarIn }
-      | { field: 'eOptional'; value: boolean; fallback: BarIn }
-      | { field: 'fOptional'; value: ArrayBuffer; fallback: BarIn }
-      | { field: 'gOptional'; value: string; fallback: BarIn }
-      | { field: 'hOptional'; value: Comprehensive.Types.LocalStructIn; fallback: BarIn }
-      | { field: 'iOptional'; value: Degenerate.Types.EmptyStructIn; fallback: BarIn }
-      | { field: 'jOptional'; value: null[]; fallback: BarIn }
-      | { field: 'kOptional'; value: number[]; fallback: BarIn }
-      | { field: 'lOptional'; value: bigint[]; fallback: BarIn }
-      | { field: 'mOptional'; value: bigint[]; fallback: BarIn }
-      | { field: 'nOptional'; value: boolean[]; fallback: BarIn }
-      | { field: 'oOptional'; value: ArrayBuffer[]; fallback: BarIn }
-      | { field: 'pOptional'; value: string[]; fallback: BarIn }
-      | { field: 'qOptional'; value: Comprehensive.Types.LocalStructIn[]; fallback: BarIn }
-      | { field: 'rOptional'; value: Degenerate.Types.EmptyStructIn[]; fallback: BarIn }
-      | { field: 'sOptional'; value: null[][]; fallback: BarIn }
-      | { field: 'tOptional'; value: number[][]; fallback: BarIn }
-      | { field: 'uOptional'; value: bigint[][]; fallback: BarIn }
-      | { field: 'vOptional'; value: bigint[][]; fallback: BarIn }
-      | { field: 'wOptional'; value: boolean[][]; fallback: BarIn }
-      | { field: 'xOptional'; value: ArrayBuffer[][]; fallback: BarIn }
-      | { field: 'yOptional'; value: string[][]; fallback: BarIn }
-      | { field: 'zOptional'; value: Comprehensive.Types.LocalStructIn[][]; fallback: BarIn }
-      | { field: 'aaOptional'; value: Degenerate.Types.EmptyStructIn[][]; fallback: BarIn };
+      | { $field: 'aRequired' }
+      | { $field: 'bRequired'; bRequired: number }
+      | { $field: 'cRequired'; cRequired: bigint }
+      | { $field: 'dRequired'; dRequired: bigint }
+      | { $field: 'eRequired'; eRequired: boolean }
+      | { $field: 'fRequired'; fRequired: ArrayBuffer }
+      | { $field: 'gRequired'; gRequired: string }
+      | { $field: 'hRequired'; hRequired: Comprehensive.Types.LocalStructIn }
+      | { $field: 'iRequired'; iRequired: Degenerate.Types.EmptyStructIn }
+      | { $field: 'jRequired'; jRequired: null[] }
+      | { $field: 'kRequired'; kRequired: number[] }
+      | { $field: 'lRequired'; lRequired: bigint[] }
+      | { $field: 'mRequired'; mRequired: bigint[] }
+      | { $field: 'nRequired'; nRequired: boolean[] }
+      | { $field: 'oRequired'; oRequired: ArrayBuffer[] }
+      | { $field: 'pRequired'; pRequired: string[] }
+      | { $field: 'qRequired'; qRequired: Comprehensive.Types.LocalStructIn[] }
+      | { $field: 'rRequired'; rRequired: Degenerate.Types.EmptyStructIn[] }
+      | { $field: 'sRequired'; sRequired: null[][] }
+      | { $field: 'tRequired'; tRequired: number[][] }
+      | { $field: 'uRequired'; uRequired: bigint[][] }
+      | { $field: 'vRequired'; vRequired: bigint[][] }
+      | { $field: 'wRequired'; wRequired: boolean[][] }
+      | { $field: 'xRequired'; xRequired: ArrayBuffer[][] }
+      | { $field: 'yRequired'; yRequired: string[][] }
+      | { $field: 'zRequired'; zRequired: Comprehensive.Types.LocalStructIn[][] }
+      | { $field: 'aaRequired'; aaRequired: Degenerate.Types.EmptyStructIn[][] }
+      | { $field: 'aAsymmetric' }
+      | { $field: 'bAsymmetric'; bAsymmetric: number }
+      | { $field: 'cAsymmetric'; cAsymmetric: bigint }
+      | { $field: 'dAsymmetric'; dAsymmetric: bigint }
+      | { $field: 'eAsymmetric'; eAsymmetric: boolean }
+      | { $field: 'fAsymmetric'; fAsymmetric: ArrayBuffer }
+      | { $field: 'gAsymmetric'; gAsymmetric: string }
+      | { $field: 'hAsymmetric'; hAsymmetric: Comprehensive.Types.LocalStructIn }
+      | { $field: 'iAsymmetric'; iAsymmetric: Degenerate.Types.EmptyStructIn }
+      | { $field: 'jAsymmetric'; jAsymmetric: null[] }
+      | { $field: 'kAsymmetric'; kAsymmetric: number[] }
+      | { $field: 'lAsymmetric'; lAsymmetric: bigint[] }
+      | { $field: 'mAsymmetric'; mAsymmetric: bigint[] }
+      | { $field: 'nAsymmetric'; nAsymmetric: boolean[] }
+      | { $field: 'oAsymmetric'; oAsymmetric: ArrayBuffer[] }
+      | { $field: 'pAsymmetric'; pAsymmetric: string[] }
+      | { $field: 'qAsymmetric'; qAsymmetric: Comprehensive.Types.LocalStructIn[] }
+      | { $field: 'rAsymmetric'; rAsymmetric: Degenerate.Types.EmptyStructIn[] }
+      | { $field: 'sAsymmetric'; sAsymmetric: null[][] }
+      | { $field: 'tAsymmetric'; tAsymmetric: number[][] }
+      | { $field: 'uAsymmetric'; uAsymmetric: bigint[][] }
+      | { $field: 'vAsymmetric'; vAsymmetric: bigint[][] }
+      | { $field: 'wAsymmetric'; wAsymmetric: boolean[][] }
+      | { $field: 'xAsymmetric'; xAsymmetric: ArrayBuffer[][] }
+      | { $field: 'yAsymmetric'; yAsymmetric: string[][] }
+      | { $field: 'zAsymmetric'; zAsymmetric: Comprehensive.Types.LocalStructIn[][] }
+      | { $field: 'aaAsymmetric'; aaAsymmetric: Degenerate.Types.EmptyStructIn[][] }
+      | { $field: 'aOptional'; $fallback: BarIn }
+      | { $field: 'bOptional'; bOptional: number; $fallback: BarIn }
+      | { $field: 'cOptional'; cOptional: bigint; $fallback: BarIn }
+      | { $field: 'dOptional'; dOptional: bigint; $fallback: BarIn }
+      | { $field: 'eOptional'; eOptional: boolean; $fallback: BarIn }
+      | { $field: 'fOptional'; fOptional: ArrayBuffer; $fallback: BarIn }
+      | { $field: 'gOptional'; gOptional: string; $fallback: BarIn }
+      | { $field: 'hOptional'; hOptional: Comprehensive.Types.LocalStructIn; $fallback: BarIn }
+      | { $field: 'iOptional'; iOptional: Degenerate.Types.EmptyStructIn; $fallback: BarIn }
+      | { $field: 'jOptional'; jOptional: null[]; $fallback: BarIn }
+      | { $field: 'kOptional'; kOptional: number[]; $fallback: BarIn }
+      | { $field: 'lOptional'; lOptional: bigint[]; $fallback: BarIn }
+      | { $field: 'mOptional'; mOptional: bigint[]; $fallback: BarIn }
+      | { $field: 'nOptional'; nOptional: boolean[]; $fallback: BarIn }
+      | { $field: 'oOptional'; oOptional: ArrayBuffer[]; $fallback: BarIn }
+      | { $field: 'pOptional'; pOptional: string[]; $fallback: BarIn }
+      | { $field: 'qOptional'; qOptional: Comprehensive.Types.LocalStructIn[]; $fallback: BarIn }
+      | { $field: 'rOptional'; rOptional: Degenerate.Types.EmptyStructIn[]; $fallback: BarIn }
+      | { $field: 'sOptional'; sOptional: null[][]; $fallback: BarIn }
+      | { $field: 'tOptional'; tOptional: number[][]; $fallback: BarIn }
+      | { $field: 'uOptional'; uOptional: bigint[][]; $fallback: BarIn }
+      | { $field: 'vOptional'; vOptional: bigint[][]; $fallback: BarIn }
+      | { $field: 'wOptional'; wOptional: boolean[][]; $fallback: BarIn }
+      | { $field: 'xOptional'; xOptional: ArrayBuffer[][]; $fallback: BarIn }
+      | { $field: 'yOptional'; yOptional: string[][]; $fallback: BarIn }
+      | { $field: 'zOptional'; zOptional: Comprehensive.Types.LocalStructIn[][]; $fallback: BarIn }
+      | { $field: 'aaOptional'; aaOptional: Degenerate.Types.EmptyStructIn[][]; $fallback: BarIn };
 
     export namespace Bar {
       export function size(value: BarOut): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'aRequired': {
             const payload = null;
             payloadSize = 0;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'bRequired': {
-            const payload = value.value;
+            const payload = value.bRequired;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
@@ -8166,7 +8166,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
           case 'cRequired': {
-            const payload = value.value;
+            const payload = value.cRequired;
             if (payload === 0n) {
               payloadSize = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -8177,7 +8177,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(2n, payloadSize, true) + payloadSize;
           }
           case 'dRequired': {
-            const payload = value.value;
+            const payload = value.dRequired;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -8191,7 +8191,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(3n, payloadSize, true) + payloadSize;
           }
           case 'eRequired': {
-            const payload = value.value;
+            const payload = value.eRequired;
             if (payload) {
               payloadSize = 1;
             } else {
@@ -8200,27 +8200,27 @@ export namespace Comprehensive {
             return fieldHeaderSize(4n, payloadSize, true) + payloadSize;
           }
           case 'fRequired': {
-            const payload = value.value;
+            const payload = value.fRequired;
             payloadSize = payload.byteLength;
             return fieldHeaderSize(5n, payloadSize, false) + payloadSize;
           }
           case 'gRequired': {
-            const payload = value.value;
+            const payload = value.gRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(6n, payloadSize, false) + payloadSize;
           }
           case 'hRequired': {
-            const payload = value.value;
+            const payload = value.hRequired;
             payloadSize = Comprehensive.Types.LocalStruct.size(payload);
             return fieldHeaderSize(7n, payloadSize, false) + payloadSize;
           }
           case 'iRequired': {
-            const payload = value.value;
+            const payload = value.iRequired;
             payloadSize = Degenerate.Types.EmptyStruct.size(payload);
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
           case 'jRequired': {
-            const payload = value.value;
+            const payload = value.jRequired;
             {
               const oldPayload = payload;
               {
@@ -8237,12 +8237,12 @@ export namespace Comprehensive {
             return fieldHeaderSize(9n, payloadSize, false) + payloadSize;
           }
           case 'kRequired': {
-            const payload = value.value;
+            const payload = value.kRequired;
             payloadSize = 8 * payload.length;
             return fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
           case 'lRequired': {
-            const payload = value.value;
+            const payload = value.lRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8257,7 +8257,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(11n, payloadSize, false) + payloadSize;
           }
           case 'mRequired': {
-            const payload = value.value;
+            const payload = value.mRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8272,7 +8272,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(12n, payloadSize, false) + payloadSize;
           }
           case 'nRequired': {
-            const payload = value.value;
+            const payload = value.nRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8287,7 +8287,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(13n, payloadSize, false) + payloadSize;
           }
           case 'oRequired': {
-            const payload = value.value;
+            const payload = value.oRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8302,7 +8302,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(14n, payloadSize, false) + payloadSize;
           }
           case 'pRequired': {
-            const payload = value.value;
+            const payload = value.pRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8317,7 +8317,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(15n, payloadSize, false) + payloadSize;
           }
           case 'qRequired': {
-            const payload = value.value;
+            const payload = value.qRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8332,7 +8332,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(16n, payloadSize, false) + payloadSize;
           }
           case 'rRequired': {
-            const payload = value.value;
+            const payload = value.rRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8347,7 +8347,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(17n, payloadSize, false) + payloadSize;
           }
           case 'sRequired': {
-            const payload = value.value;
+            const payload = value.sRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8368,7 +8368,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(18n, payloadSize, false) + payloadSize;
           }
           case 'tRequired': {
-            const payload = value.value;
+            const payload = value.tRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8383,7 +8383,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(19n, payloadSize, false) + payloadSize;
           }
           case 'uRequired': {
-            const payload = value.value;
+            const payload = value.uRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8408,7 +8408,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(20n, payloadSize, false) + payloadSize;
           }
           case 'vRequired': {
-            const payload = value.value;
+            const payload = value.vRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8433,7 +8433,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(21n, payloadSize, false) + payloadSize;
           }
           case 'wRequired': {
-            const payload = value.value;
+            const payload = value.wRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8458,7 +8458,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(22n, payloadSize, false) + payloadSize;
           }
           case 'xRequired': {
-            const payload = value.value;
+            const payload = value.xRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8483,7 +8483,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(23n, payloadSize, false) + payloadSize;
           }
           case 'yRequired': {
-            const payload = value.value;
+            const payload = value.yRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8508,7 +8508,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(24n, payloadSize, false) + payloadSize;
           }
           case 'zRequired': {
-            const payload = value.value;
+            const payload = value.zRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8533,7 +8533,7 @@ export namespace Comprehensive {
             return fieldHeaderSize(25n, payloadSize, false) + payloadSize;
           }
           case 'aaRequired': {
-            const payload = value.value;
+            const payload = value.aaRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8560,20 +8560,20 @@ export namespace Comprehensive {
           case 'aAsymmetric': {
             const payload = null;
             payloadSize = 0;
-            return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(28n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'bAsymmetric': {
-            const payload = value.value;
+            const payload = value.bAsymmetric;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(29n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'cAsymmetric': {
-            const payload = value.value;
+            const payload = value.cAsymmetric;
             if (payload === 0n) {
               payloadSize = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -8581,10 +8581,10 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(30n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(30n, payloadSize, true) + payloadSize + size(value.$fallback);
           }
           case 'dAsymmetric': {
-            const payload = value.value;
+            const payload = value.dAsymmetric;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -8595,39 +8595,39 @@ export namespace Comprehensive {
                 payloadSize = 8;
               }
             }
-            return fieldHeaderSize(31n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(31n, payloadSize, true) + payloadSize + size(value.$fallback);
           }
           case 'eAsymmetric': {
-            const payload = value.value;
+            const payload = value.eAsymmetric;
             if (payload) {
               payloadSize = 1;
             } else {
               payloadSize = 0;
             }
-            return fieldHeaderSize(32n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(32n, payloadSize, true) + payloadSize + size(value.$fallback);
           }
           case 'fAsymmetric': {
-            const payload = value.value;
+            const payload = value.fAsymmetric;
             payloadSize = payload.byteLength;
-            return fieldHeaderSize(33n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(33n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'gAsymmetric': {
-            const payload = value.value;
+            const payload = value.gAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(34n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(34n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'hAsymmetric': {
-            const payload = value.value;
+            const payload = value.hAsymmetric;
             payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            return fieldHeaderSize(35n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(35n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'iAsymmetric': {
-            const payload = value.value;
+            const payload = value.iAsymmetric;
             payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            return fieldHeaderSize(36n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(36n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'jAsymmetric': {
-            const payload = value.value;
+            const payload = value.jAsymmetric;
             {
               const oldPayload = payload;
               {
@@ -8641,15 +8641,15 @@ export namespace Comprehensive {
                 }
               }
             }
-            return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(37n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'kAsymmetric': {
-            const payload = value.value;
+            const payload = value.kAsymmetric;
             payloadSize = 8 * payload.length;
-            return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(38n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'lAsymmetric': {
-            const payload = value.value;
+            const payload = value.lAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8661,10 +8661,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(39n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'mAsymmetric': {
-            const payload = value.value;
+            const payload = value.mAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8676,10 +8676,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(40n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'nAsymmetric': {
-            const payload = value.value;
+            const payload = value.nAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8691,10 +8691,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(41n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'oAsymmetric': {
-            const payload = value.value;
+            const payload = value.oAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8706,10 +8706,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(42n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'pAsymmetric': {
-            const payload = value.value;
+            const payload = value.pAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8721,10 +8721,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(43n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'qAsymmetric': {
-            const payload = value.value;
+            const payload = value.qAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8736,10 +8736,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(44n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'rAsymmetric': {
-            const payload = value.value;
+            const payload = value.rAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8751,10 +8751,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(45n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'sAsymmetric': {
-            const payload = value.value;
+            const payload = value.sAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8772,10 +8772,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(46n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'tAsymmetric': {
-            const payload = value.value;
+            const payload = value.tAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8787,10 +8787,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(47n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(47n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'uAsymmetric': {
-            const payload = value.value;
+            const payload = value.uAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8812,10 +8812,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(48n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(48n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'vAsymmetric': {
-            const payload = value.value;
+            const payload = value.vAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8837,10 +8837,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(49n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(49n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'wAsymmetric': {
-            const payload = value.value;
+            const payload = value.wAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8862,10 +8862,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(50n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(50n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'xAsymmetric': {
-            const payload = value.value;
+            const payload = value.xAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8887,10 +8887,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(51n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(51n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'yAsymmetric': {
-            const payload = value.value;
+            const payload = value.yAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8912,10 +8912,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(52n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(52n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'zAsymmetric': {
-            const payload = value.value;
+            const payload = value.zAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8937,10 +8937,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(53n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(53n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'aaAsymmetric': {
-            const payload = value.value;
+            const payload = value.aaAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -8962,25 +8962,25 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(54n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(54n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'aOptional': {
             const payload = null;
             payloadSize = 0;
-            return fieldHeaderSize(56n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(56n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'bOptional': {
-            const payload = value.value;
+            const payload = value.bOptional;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(57n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(57n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'cOptional': {
-            const payload = value.value;
+            const payload = value.cOptional;
             if (payload === 0n) {
               payloadSize = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -8988,10 +8988,10 @@ export namespace Comprehensive {
             } else {
               payloadSize = 8;
             }
-            return fieldHeaderSize(58n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(58n, payloadSize, true) + payloadSize + size(value.$fallback);
           }
           case 'dOptional': {
-            const payload = value.value;
+            const payload = value.dOptional;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -9002,39 +9002,39 @@ export namespace Comprehensive {
                 payloadSize = 8;
               }
             }
-            return fieldHeaderSize(59n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(59n, payloadSize, true) + payloadSize + size(value.$fallback);
           }
           case 'eOptional': {
-            const payload = value.value;
+            const payload = value.eOptional;
             if (payload) {
               payloadSize = 1;
             } else {
               payloadSize = 0;
             }
-            return fieldHeaderSize(60n, payloadSize, true) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(60n, payloadSize, true) + payloadSize + size(value.$fallback);
           }
           case 'fOptional': {
-            const payload = value.value;
+            const payload = value.fOptional;
             payloadSize = payload.byteLength;
-            return fieldHeaderSize(61n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(61n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'gOptional': {
-            const payload = value.value;
+            const payload = value.gOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(62n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(62n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'hOptional': {
-            const payload = value.value;
+            const payload = value.hOptional;
             payloadSize = Comprehensive.Types.LocalStruct.size(payload);
-            return fieldHeaderSize(63n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(63n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'iOptional': {
-            const payload = value.value;
+            const payload = value.iOptional;
             payloadSize = Degenerate.Types.EmptyStruct.size(payload);
-            return fieldHeaderSize(64n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(64n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'jOptional': {
-            const payload = value.value;
+            const payload = value.jOptional;
             {
               const oldPayload = payload;
               {
@@ -9048,15 +9048,15 @@ export namespace Comprehensive {
                 }
               }
             }
-            return fieldHeaderSize(65n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(65n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'kOptional': {
-            const payload = value.value;
+            const payload = value.kOptional;
             payloadSize = 8 * payload.length;
-            return fieldHeaderSize(66n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(66n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'lOptional': {
-            const payload = value.value;
+            const payload = value.lOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9068,10 +9068,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(67n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(67n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'mOptional': {
-            const payload = value.value;
+            const payload = value.mOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9083,10 +9083,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(68n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(68n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'nOptional': {
-            const payload = value.value;
+            const payload = value.nOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9098,10 +9098,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(69n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(69n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'oOptional': {
-            const payload = value.value;
+            const payload = value.oOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9113,10 +9113,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(70n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(70n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'pOptional': {
-            const payload = value.value;
+            const payload = value.pOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9128,10 +9128,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(71n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(71n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'qOptional': {
-            const payload = value.value;
+            const payload = value.qOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9143,10 +9143,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(72n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(72n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'rOptional': {
-            const payload = value.value;
+            const payload = value.rOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9158,10 +9158,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(73n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(73n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'sOptional': {
-            const payload = value.value;
+            const payload = value.sOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9179,10 +9179,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(74n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(74n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'tOptional': {
-            const payload = value.value;
+            const payload = value.tOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9194,10 +9194,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(75n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(75n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'uOptional': {
-            const payload = value.value;
+            const payload = value.uOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9219,10 +9219,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(76n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(76n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'vOptional': {
-            const payload = value.value;
+            const payload = value.vOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9244,10 +9244,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(77n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(77n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'wOptional': {
-            const payload = value.value;
+            const payload = value.wOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9269,10 +9269,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(78n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(78n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'xOptional': {
-            const payload = value.value;
+            const payload = value.xOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9294,10 +9294,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(79n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(79n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'yOptional': {
-            const payload = value.value;
+            const payload = value.yOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9319,10 +9319,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(80n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(80n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'zOptional': {
-            const payload = value.value;
+            const payload = value.zOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9344,10 +9344,10 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(81n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(81n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'aaOptional': {
-            const payload = value.value;
+            const payload = value.aaOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9369,7 +9369,7 @@ export namespace Comprehensive {
               }
               payloadSize = arraySize;
             }
-            return fieldHeaderSize(82n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(82n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           default:
             return unreachable(value);
@@ -9383,7 +9383,7 @@ export namespace Comprehensive {
       ): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'aRequired': {
             const payload = null;
             payloadSize = 0;
@@ -9391,7 +9391,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'bRequired': {
-            const payload = value.value;
+            const payload = value.bRequired;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
@@ -9406,7 +9406,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'cRequired': {
-            const payload = value.value;
+            const payload = value.cRequired;
             if (payload === 0n) {
               payloadSize = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -9427,7 +9427,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'dRequired': {
-            const payload = value.value;
+            const payload = value.dRequired;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -9451,7 +9451,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'eRequired': {
-            const payload = value.value;
+            const payload = value.eRequired;
             if (payload) {
               payloadSize = 1;
             } else {
@@ -9470,7 +9470,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'fRequired': {
-            const payload = value.value;
+            const payload = value.fRequired;
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
@@ -9483,7 +9483,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'gRequired': {
-            const payload = value.value;
+            const payload = value.gRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
@@ -9496,21 +9496,21 @@ export namespace Comprehensive {
             return offset;
           }
           case 'hRequired': {
-            const payload = value.value;
+            const payload = value.hRequired;
             payloadSize = Comprehensive.Types.LocalStruct.size(payload);
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
             return offset;
           }
           case 'iRequired': {
-            const payload = value.value;
+            const payload = value.iRequired;
             payloadSize = Degenerate.Types.EmptyStruct.size(payload);
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
             return offset;
           }
           case 'jRequired': {
-            const payload = value.value;
+            const payload = value.jRequired;
             {
               const oldPayload = payload;
               {
@@ -9537,7 +9537,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'kRequired': {
-            const payload = value.value;
+            const payload = value.kRequired;
             payloadSize = 8 * payload.length;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
@@ -9551,7 +9551,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'lRequired': {
-            const payload = value.value;
+            const payload = value.lRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9577,7 +9577,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'mRequired': {
-            const payload = value.value;
+            const payload = value.mRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9603,7 +9603,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'nRequired': {
-            const payload = value.value;
+            const payload = value.nRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9629,7 +9629,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'oRequired': {
-            const payload = value.value;
+            const payload = value.oRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9659,7 +9659,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'pRequired': {
-            const payload = value.value;
+            const payload = value.pRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9689,7 +9689,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'qRequired': {
-            const payload = value.value;
+            const payload = value.qRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9713,7 +9713,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'rRequired': {
-            const payload = value.value;
+            const payload = value.rRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9737,7 +9737,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'sRequired': {
-            const payload = value.value;
+            const payload = value.sRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9776,7 +9776,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'tRequired': {
-            const payload = value.value;
+            const payload = value.tRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9807,7 +9807,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'uRequired': {
-            const payload = value.value;
+            const payload = value.uRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9860,7 +9860,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'vRequired': {
-            const payload = value.value;
+            const payload = value.vRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9913,7 +9913,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'wRequired': {
-            const payload = value.value;
+            const payload = value.wRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -9966,7 +9966,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'xRequired': {
-            const payload = value.value;
+            const payload = value.xRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10023,7 +10023,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'yRequired': {
-            const payload = value.value;
+            const payload = value.yRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10080,7 +10080,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'zRequired': {
-            const payload = value.value;
+            const payload = value.zRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10131,7 +10131,7 @@ export namespace Comprehensive {
             return offset;
           }
           case 'aaRequired': {
-            const payload = value.value;
+            const payload = value.aaRequired;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10185,11 +10185,11 @@ export namespace Comprehensive {
             const payload = null;
             payloadSize = 0;
             offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'bAsymmetric': {
-            const payload = value.value;
+            const payload = value.bAsymmetric;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
@@ -10201,11 +10201,11 @@ export namespace Comprehensive {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'cAsymmetric': {
-            const payload = value.value;
+            const payload = value.cAsymmetric;
             if (payload === 0n) {
               payloadSize = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -10223,11 +10223,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'dAsymmetric': {
-            const payload = value.value;
+            const payload = value.dAsymmetric;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -10248,11 +10248,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'eAsymmetric': {
-            const payload = value.value;
+            const payload = value.eAsymmetric;
             if (payload) {
               payloadSize = 1;
             } else {
@@ -10268,11 +10268,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'fAsymmetric': {
-            const payload = value.value;
+            const payload = value.fAsymmetric;
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
             {
@@ -10282,11 +10282,11 @@ export namespace Comprehensive {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'gAsymmetric': {
-            const payload = value.value;
+            const payload = value.gAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
             {
@@ -10296,27 +10296,27 @@ export namespace Comprehensive {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'hAsymmetric': {
-            const payload = value.value;
+            const payload = value.hAsymmetric;
             payloadSize = Comprehensive.Types.LocalStruct.size(payload);
             offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'iAsymmetric': {
-            const payload = value.value;
+            const payload = value.iAsymmetric;
             payloadSize = Degenerate.Types.EmptyStruct.size(payload);
             offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'jAsymmetric': {
-            const payload = value.value;
+            const payload = value.jAsymmetric;
             {
               const oldPayload = payload;
               {
@@ -10340,11 +10340,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'kAsymmetric': {
-            const payload = value.value;
+            const payload = value.kAsymmetric;
             payloadSize = 8 * payload.length;
             offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
             {
@@ -10355,11 +10355,11 @@ export namespace Comprehensive {
                 offset += 8;
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'lAsymmetric': {
-            const payload = value.value;
+            const payload = value.lAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10382,11 +10382,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'mAsymmetric': {
-            const payload = value.value;
+            const payload = value.mAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10409,11 +10409,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'nAsymmetric': {
-            const payload = value.value;
+            const payload = value.nAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10436,11 +10436,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'oAsymmetric': {
-            const payload = value.value;
+            const payload = value.oAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10467,11 +10467,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'pAsymmetric': {
-            const payload = value.value;
+            const payload = value.pAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10498,11 +10498,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'qAsymmetric': {
-            const payload = value.value;
+            const payload = value.qAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10523,11 +10523,11 @@ export namespace Comprehensive {
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'rAsymmetric': {
-            const payload = value.value;
+            const payload = value.rAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10548,11 +10548,11 @@ export namespace Comprehensive {
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'sAsymmetric': {
-            const payload = value.value;
+            const payload = value.sAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10588,11 +10588,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'tAsymmetric': {
-            const payload = value.value;
+            const payload = value.tAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10620,11 +10620,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'uAsymmetric': {
-            const payload = value.value;
+            const payload = value.uAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10674,11 +10674,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'vAsymmetric': {
-            const payload = value.value;
+            const payload = value.vAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10728,11 +10728,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'wAsymmetric': {
-            const payload = value.value;
+            const payload = value.wAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10782,11 +10782,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'xAsymmetric': {
-            const payload = value.value;
+            const payload = value.xAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10840,11 +10840,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'yAsymmetric': {
-            const payload = value.value;
+            const payload = value.yAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10898,11 +10898,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'zAsymmetric': {
-            const payload = value.value;
+            const payload = value.zAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -10950,11 +10950,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'aaAsymmetric': {
-            const payload = value.value;
+            const payload = value.aaAsymmetric;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11002,18 +11002,18 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'aOptional': {
             const payload = null;
             payloadSize = 0;
             offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'bOptional': {
-            const payload = value.value;
+            const payload = value.bOptional;
             dataView64.setFloat64(0, payload, true);
             if (dataView64.getBigUint64(0, true) === 0n) {
               payloadSize = 0;
@@ -11025,11 +11025,11 @@ export namespace Comprehensive {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'cOptional': {
-            const payload = value.value;
+            const payload = value.cOptional;
             if (payload === 0n) {
               payloadSize = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -11047,11 +11047,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'dOptional': {
-            const payload = value.value;
+            const payload = value.dOptional;
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -11072,11 +11072,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'eOptional': {
-            const payload = value.value;
+            const payload = value.eOptional;
             if (payload) {
               payloadSize = 1;
             } else {
@@ -11092,11 +11092,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'fOptional': {
-            const payload = value.value;
+            const payload = value.fOptional;
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
@@ -11106,11 +11106,11 @@ export namespace Comprehensive {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'gOptional': {
-            const payload = value.value;
+            const payload = value.gOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
@@ -11120,27 +11120,27 @@ export namespace Comprehensive {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'hOptional': {
-            const payload = value.value;
+            const payload = value.hOptional;
             payloadSize = Comprehensive.Types.LocalStruct.size(payload);
             offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
             offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'iOptional': {
-            const payload = value.value;
+            const payload = value.iOptional;
             payloadSize = Degenerate.Types.EmptyStruct.size(payload);
             offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
             offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'jOptional': {
-            const payload = value.value;
+            const payload = value.jOptional;
             {
               const oldPayload = payload;
               {
@@ -11164,11 +11164,11 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'kOptional': {
-            const payload = value.value;
+            const payload = value.kOptional;
             payloadSize = 8 * payload.length;
             offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
             {
@@ -11179,11 +11179,11 @@ export namespace Comprehensive {
                 offset += 8;
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'lOptional': {
-            const payload = value.value;
+            const payload = value.lOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11206,11 +11206,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'mOptional': {
-            const payload = value.value;
+            const payload = value.mOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11233,11 +11233,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'nOptional': {
-            const payload = value.value;
+            const payload = value.nOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11260,11 +11260,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'oOptional': {
-            const payload = value.value;
+            const payload = value.oOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11291,11 +11291,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'pOptional': {
-            const payload = value.value;
+            const payload = value.pOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11322,11 +11322,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'qOptional': {
-            const payload = value.value;
+            const payload = value.qOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11347,11 +11347,11 @@ export namespace Comprehensive {
                 offset = Comprehensive.Types.LocalStruct.serialize(dataView, offset, payload);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'rOptional': {
-            const payload = value.value;
+            const payload = value.rOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11372,11 +11372,11 @@ export namespace Comprehensive {
                 offset = Degenerate.Types.EmptyStruct.serialize(dataView, offset, payload);
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'sOptional': {
-            const payload = value.value;
+            const payload = value.sOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11412,11 +11412,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'tOptional': {
-            const payload = value.value;
+            const payload = value.tOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11444,11 +11444,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'uOptional': {
-            const payload = value.value;
+            const payload = value.uOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11498,11 +11498,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'vOptional': {
-            const payload = value.value;
+            const payload = value.vOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11552,11 +11552,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'wOptional': {
-            const payload = value.value;
+            const payload = value.wOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11606,11 +11606,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'xOptional': {
-            const payload = value.value;
+            const payload = value.xOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11664,11 +11664,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'yOptional': {
-            const payload = value.value;
+            const payload = value.yOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11722,11 +11722,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'zOptional': {
-            const payload = value.value;
+            const payload = value.zOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11774,11 +11774,11 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'aaOptional': {
-            const payload = value.value;
+            const payload = value.aaOptional;
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -11826,7 +11826,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           default:
@@ -11857,7 +11857,7 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'aRequired',
+                  $field: 'aRequired',
                 },
               ];
             }
@@ -11885,8 +11885,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'bRequired',
-                  value: payload,
+                  $field: 'bRequired',
+                  bRequired: payload,
                 },
               ];
             }
@@ -11917,8 +11917,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'cRequired',
-                  value: payload,
+                  $field: 'cRequired',
+                  cRequired: payload,
                 },
               ];
             }
@@ -11950,8 +11950,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'dRequired',
-                  value: payload,
+                  $field: 'dRequired',
+                  dRequired: payload,
                 },
               ];
             }
@@ -11990,8 +11990,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'eRequired',
-                  value: payload,
+                  $field: 'eRequired',
+                  eRequired: payload,
                 },
               ];
             }
@@ -12012,8 +12012,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'fRequired',
-                  value: payload,
+                  $field: 'fRequired',
+                  fRequired: payload,
                 },
               ];
             }
@@ -12037,8 +12037,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'gRequired',
-                  value: payload,
+                  $field: 'gRequired',
+                  gRequired: payload,
                 },
               ];
             }
@@ -12056,8 +12056,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'hRequired',
-                  value: payload,
+                  $field: 'hRequired',
+                  hRequired: payload,
                 },
               ];
             }
@@ -12075,8 +12075,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'iRequired',
-                  value: payload,
+                  $field: 'iRequired',
+                  iRequired: payload,
                 },
               ];
             }
@@ -12115,8 +12115,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'jRequired',
-                  value: payload,
+                  $field: 'jRequired',
+                  jRequired: payload,
                 },
               ];
             }
@@ -12151,8 +12151,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'kRequired',
-                  value: payload,
+                  $field: 'kRequired',
+                  kRequired: payload,
                 },
               ];
             }
@@ -12187,8 +12187,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'lRequired',
-                  value: payload,
+                  $field: 'lRequired',
+                  lRequired: payload,
                 },
               ];
             }
@@ -12224,8 +12224,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'mRequired',
-                  value: payload,
+                  $field: 'mRequired',
+                  mRequired: payload,
                 },
               ];
             }
@@ -12268,8 +12268,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'nRequired',
-                  value: payload,
+                  $field: 'nRequired',
+                  nRequired: payload,
                 },
               ];
             }
@@ -12318,8 +12318,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'oRequired',
-                  value: payload,
+                  $field: 'oRequired',
+                  oRequired: payload,
                 },
               ];
             }
@@ -12371,8 +12371,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'pRequired',
-                  value: payload,
+                  $field: 'pRequired',
+                  pRequired: payload,
                 },
               ];
             }
@@ -12418,8 +12418,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'qRequired',
-                  value: payload,
+                  $field: 'qRequired',
+                  qRequired: payload,
                 },
               ];
             }
@@ -12465,8 +12465,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'rRequired',
-                  value: payload,
+                  $field: 'rRequired',
+                  rRequired: payload,
                 },
               ];
             }
@@ -12520,8 +12520,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'sRequired',
-                  value: payload,
+                  $field: 'sRequired',
+                  sRequired: payload,
                 },
               ];
             }
@@ -12584,8 +12584,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'tRequired',
-                  value: payload,
+                  $field: 'tRequired',
+                  tRequired: payload,
                 },
               ];
             }
@@ -12648,8 +12648,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'uRequired',
-                  value: payload,
+                  $field: 'uRequired',
+                  uRequired: payload,
                 },
               ];
             }
@@ -12713,8 +12713,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'vRequired',
-                  value: payload,
+                  $field: 'vRequired',
+                  vRequired: payload,
                 },
               ];
             }
@@ -12785,8 +12785,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'wRequired',
-                  value: payload,
+                  $field: 'wRequired',
+                  wRequired: payload,
                 },
               ];
             }
@@ -12863,8 +12863,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'xRequired',
-                  value: payload,
+                  $field: 'xRequired',
+                  xRequired: payload,
                 },
               ];
             }
@@ -12944,8 +12944,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'yRequired',
-                  value: payload,
+                  $field: 'yRequired',
+                  yRequired: payload,
                 },
               ];
             }
@@ -13019,8 +13019,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'zRequired',
-                  value: payload,
+                  $field: 'zRequired',
+                  zRequired: payload,
                 },
               ];
             }
@@ -13094,8 +13094,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'aaRequired',
-                  value: payload,
+                  $field: 'aaRequired',
+                  aaRequired: payload,
                 },
               ];
             }
@@ -13112,7 +13112,7 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'aAsymmetric',
+                  $field: 'aAsymmetric',
                 },
               ];
             }
@@ -13140,8 +13140,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'bAsymmetric',
-                  value: payload,
+                  $field: 'bAsymmetric',
+                  bAsymmetric: payload,
                 },
               ];
             }
@@ -13172,8 +13172,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'cAsymmetric',
-                  value: payload,
+                  $field: 'cAsymmetric',
+                  cAsymmetric: payload,
                 },
               ];
             }
@@ -13205,8 +13205,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'dAsymmetric',
-                  value: payload,
+                  $field: 'dAsymmetric',
+                  dAsymmetric: payload,
                 },
               ];
             }
@@ -13245,8 +13245,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'eAsymmetric',
-                  value: payload,
+                  $field: 'eAsymmetric',
+                  eAsymmetric: payload,
                 },
               ];
             }
@@ -13267,8 +13267,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'fAsymmetric',
-                  value: payload,
+                  $field: 'fAsymmetric',
+                  fAsymmetric: payload,
                 },
               ];
             }
@@ -13292,8 +13292,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'gAsymmetric',
-                  value: payload,
+                  $field: 'gAsymmetric',
+                  gAsymmetric: payload,
                 },
               ];
             }
@@ -13311,8 +13311,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'hAsymmetric',
-                  value: payload,
+                  $field: 'hAsymmetric',
+                  hAsymmetric: payload,
                 },
               ];
             }
@@ -13330,8 +13330,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'iAsymmetric',
-                  value: payload,
+                  $field: 'iAsymmetric',
+                  iAsymmetric: payload,
                 },
               ];
             }
@@ -13370,8 +13370,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'jAsymmetric',
-                  value: payload,
+                  $field: 'jAsymmetric',
+                  jAsymmetric: payload,
                 },
               ];
             }
@@ -13406,8 +13406,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'kAsymmetric',
-                  value: payload,
+                  $field: 'kAsymmetric',
+                  kAsymmetric: payload,
                 },
               ];
             }
@@ -13442,8 +13442,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'lAsymmetric',
-                  value: payload,
+                  $field: 'lAsymmetric',
+                  lAsymmetric: payload,
                 },
               ];
             }
@@ -13479,8 +13479,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'mAsymmetric',
-                  value: payload,
+                  $field: 'mAsymmetric',
+                  mAsymmetric: payload,
                 },
               ];
             }
@@ -13523,8 +13523,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'nAsymmetric',
-                  value: payload,
+                  $field: 'nAsymmetric',
+                  nAsymmetric: payload,
                 },
               ];
             }
@@ -13573,8 +13573,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'oAsymmetric',
-                  value: payload,
+                  $field: 'oAsymmetric',
+                  oAsymmetric: payload,
                 },
               ];
             }
@@ -13626,8 +13626,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'pAsymmetric',
-                  value: payload,
+                  $field: 'pAsymmetric',
+                  pAsymmetric: payload,
                 },
               ];
             }
@@ -13673,8 +13673,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'qAsymmetric',
-                  value: payload,
+                  $field: 'qAsymmetric',
+                  qAsymmetric: payload,
                 },
               ];
             }
@@ -13720,8 +13720,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'rAsymmetric',
-                  value: payload,
+                  $field: 'rAsymmetric',
+                  rAsymmetric: payload,
                 },
               ];
             }
@@ -13775,8 +13775,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'sAsymmetric',
-                  value: payload,
+                  $field: 'sAsymmetric',
+                  sAsymmetric: payload,
                 },
               ];
             }
@@ -13839,8 +13839,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'tAsymmetric',
-                  value: payload,
+                  $field: 'tAsymmetric',
+                  tAsymmetric: payload,
                 },
               ];
             }
@@ -13903,8 +13903,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'uAsymmetric',
-                  value: payload,
+                  $field: 'uAsymmetric',
+                  uAsymmetric: payload,
                 },
               ];
             }
@@ -13968,8 +13968,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'vAsymmetric',
-                  value: payload,
+                  $field: 'vAsymmetric',
+                  vAsymmetric: payload,
                 },
               ];
             }
@@ -14040,8 +14040,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'wAsymmetric',
-                  value: payload,
+                  $field: 'wAsymmetric',
+                  wAsymmetric: payload,
                 },
               ];
             }
@@ -14118,8 +14118,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'xAsymmetric',
-                  value: payload,
+                  $field: 'xAsymmetric',
+                  xAsymmetric: payload,
                 },
               ];
             }
@@ -14199,8 +14199,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'yAsymmetric',
-                  value: payload,
+                  $field: 'yAsymmetric',
+                  yAsymmetric: payload,
                 },
               ];
             }
@@ -14274,8 +14274,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'zAsymmetric',
-                  value: payload,
+                  $field: 'zAsymmetric',
+                  zAsymmetric: payload,
                 },
               ];
             }
@@ -14349,8 +14349,8 @@ export namespace Comprehensive {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'aaAsymmetric',
-                  value: payload,
+                  $field: 'aaAsymmetric',
+                  aaAsymmetric: payload,
                 },
               ];
             }
@@ -14364,13 +14364,13 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'aOptional',
-                  fallback,
+                  $field: 'aOptional',
+                  $fallback,
                 },
               ];
             }
@@ -14395,14 +14395,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'bOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'bOptional',
+                  bOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14430,14 +14430,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'cOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'cOptional',
+                  cOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14466,14 +14466,14 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'dOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'dOptional',
+                  dOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14509,14 +14509,14 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'eOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'eOptional',
+                  eOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14534,14 +14534,14 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'fOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'fOptional',
+                  fOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14562,14 +14562,14 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'gOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'gOptional',
+                  gOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14584,14 +14584,14 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'hOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'hOptional',
+                  hOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14606,14 +14606,14 @@ export namespace Comprehensive {
               let payload;
               [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'iOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'iOptional',
+                  iOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14649,14 +14649,14 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'jOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'jOptional',
+                  jOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14688,14 +14688,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'kOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'kOptional',
+                  kOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14727,14 +14727,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'lOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'lOptional',
+                  lOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14767,14 +14767,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'mOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'mOptional',
+                  mOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14814,14 +14814,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'nOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'nOptional',
+                  nOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14867,14 +14867,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'oOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'oOptional',
+                  oOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14923,14 +14923,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'pOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'pOptional',
+                  pOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -14973,14 +14973,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'qOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'qOptional',
+                  qOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15023,14 +15023,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'rOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'rOptional',
+                  rOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15081,14 +15081,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'sOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'sOptional',
+                  sOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15148,14 +15148,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'tOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'tOptional',
+                  tOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15215,14 +15215,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'uOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'uOptional',
+                  uOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15283,14 +15283,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'vOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'vOptional',
+                  vOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15358,14 +15358,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'wOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'wOptional',
+                  wOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15439,14 +15439,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'xOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'xOptional',
+                  xOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15523,14 +15523,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'yOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'yOptional',
+                  yOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15601,14 +15601,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'zOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'zOptional',
+                  zOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -15679,14 +15679,14 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'aaOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'aaOptional',
+                  aaOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -16060,7 +16060,7 @@ export namespace SchemaEvolution {
       ): [number, ExampleStructIn] {
         let dataViewAlias = dataView;
 
-        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, optionalToRequiredField, optionalToAsymmetricField, optionalToOptionalField, nonexistentToAsymmetricField, nonexistentToOptionalField;
+        let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $nonexistentToAsymmetric, $nonexistentToOptional;
 
         while (true) {
           let index, payloadSize;
@@ -16091,7 +16091,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToRequiredField = payload;
+              $requiredToRequired = payload;
               break;
             }
             case 1n: {
@@ -16111,7 +16111,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToAsymmetricField = payload;
+              $requiredToAsymmetric = payload;
               break;
             }
             case 2n: {
@@ -16131,7 +16131,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToOptionalField = payload;
+              $requiredToOptional = payload;
               break;
             }
             case 4n: {
@@ -16151,7 +16151,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToRequiredField = payload;
+              $asymmetricToRequired = payload;
               break;
             }
             case 5n: {
@@ -16171,7 +16171,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToAsymmetricField = payload;
+              $asymmetricToAsymmetric = payload;
               break;
             }
             case 6n: {
@@ -16191,7 +16191,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToOptionalField = payload;
+              $asymmetricToOptional = payload;
               break;
             }
             case 8n: {
@@ -16211,7 +16211,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToRequiredField = payload;
+              $optionalToRequired = payload;
               break;
             }
             case 9n: {
@@ -16231,7 +16231,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToAsymmetricField = payload;
+              $optionalToAsymmetric = payload;
               break;
             }
             case 10n: {
@@ -16251,7 +16251,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToOptionalField = payload;
+              $optionalToOptional = payload;
               break;
             }
             case 13n: {
@@ -16264,7 +16264,7 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              nonexistentToAsymmetricField = payload;
+              $nonexistentToAsymmetric = payload;
               break;
             }
             case 14n: {
@@ -16277,7 +16277,7 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              nonexistentToOptionalField = payload;
+              $nonexistentToOptional = payload;
               break;
             }
             default:
@@ -16286,24 +16286,24 @@ export namespace SchemaEvolution {
           }
         }
 
-        if (requiredToRequiredField === undefined || asymmetricToRequiredField === undefined || optionalToRequiredField === undefined) {
+        if ($requiredToRequired === undefined || $asymmetricToRequired === undefined || $optionalToRequired === undefined) {
           throw new Error('Struct missing one or more field(s).');
         }
 
         return [
           offset,
           {
-            requiredToRequired: requiredToRequiredField,
-            requiredToAsymmetric: requiredToAsymmetricField,
-            requiredToOptional: requiredToOptionalField,
-            asymmetricToRequired: asymmetricToRequiredField,
-            asymmetricToAsymmetric: asymmetricToAsymmetricField,
-            asymmetricToOptional: asymmetricToOptionalField,
-            optionalToRequired: optionalToRequiredField,
-            optionalToAsymmetric: optionalToAsymmetricField,
-            optionalToOptional: optionalToOptionalField,
-            nonexistentToAsymmetric: nonexistentToAsymmetricField,
-            nonexistentToOptional: nonexistentToOptionalField,
+            requiredToRequired: $requiredToRequired,
+            requiredToAsymmetric: $requiredToAsymmetric,
+            requiredToOptional: $requiredToOptional,
+            asymmetricToRequired: $asymmetricToRequired,
+            asymmetricToAsymmetric: $asymmetricToAsymmetric,
+            asymmetricToOptional: $asymmetricToOptional,
+            optionalToRequired: $optionalToRequired,
+            optionalToAsymmetric: $optionalToAsymmetric,
+            optionalToOptional: $optionalToOptional,
+            nonexistentToAsymmetric: $nonexistentToAsymmetric,
+            nonexistentToOptional: $nonexistentToOptional,
           }
         ];
       }
@@ -16314,75 +16314,75 @@ export namespace SchemaEvolution {
     }
 
     export type ExampleChoiceOut =
-      | { field: 'requiredToRequired'; value: string }
-      | { field: 'requiredToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToRequired'; value: string }
-      | { field: 'asymmetricToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToOptional'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToRequired'; value: string }
-      | { field: 'optionalToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'nonexistentToRequired' }
-      | { field: 'nonexistentToAsymmetric'; fallback: ExampleChoiceOut }
-      | { field: 'nonexistentToOptional'; fallback: ExampleChoiceOut };
+      | { $field: 'requiredToRequired'; requiredToRequired: string }
+      | { $field: 'requiredToAsymmetric'; requiredToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { $field: 'asymmetricToRequired'; asymmetricToRequired: string }
+      | { $field: 'asymmetricToAsymmetric'; asymmetricToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { $field: 'asymmetricToOptional'; asymmetricToOptional: string; $fallback: ExampleChoiceOut }
+      | { $field: 'optionalToRequired'; optionalToRequired: string }
+      | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceOut }
+      | { $field: 'nonexistentToRequired' }
+      | { $field: 'nonexistentToAsymmetric'; $fallback: ExampleChoiceOut }
+      | { $field: 'nonexistentToOptional'; $fallback: ExampleChoiceOut };
 
     export type ExampleChoiceIn =
-      | { field: 'requiredToRequired'; value: string }
-      | { field: 'requiredToAsymmetric'; value: string }
-      | { field: 'asymmetricToRequired'; value: string }
-      | { field: 'asymmetricToAsymmetric'; value: string }
-      | { field: 'asymmetricToOptional'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToRequired'; value: string }
-      | { field: 'optionalToAsymmetric'; value: string }
-      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'nonexistentToRequired' }
-      | { field: 'nonexistentToAsymmetric' }
-      | { field: 'nonexistentToOptional'; fallback: ExampleChoiceIn };
+      | { $field: 'requiredToRequired'; requiredToRequired: string }
+      | { $field: 'requiredToAsymmetric'; requiredToAsymmetric: string }
+      | { $field: 'asymmetricToRequired'; asymmetricToRequired: string }
+      | { $field: 'asymmetricToAsymmetric'; asymmetricToAsymmetric: string }
+      | { $field: 'asymmetricToOptional'; asymmetricToOptional: string; $fallback: ExampleChoiceIn }
+      | { $field: 'optionalToRequired'; optionalToRequired: string }
+      | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string }
+      | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceIn }
+      | { $field: 'nonexistentToRequired' }
+      | { $field: 'nonexistentToAsymmetric' }
+      | { $field: 'nonexistentToOptional'; $fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'requiredToRequired': {
-            const payload = value.value;
+            const payload = value.requiredToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'requiredToAsymmetric': {
-            const payload = value.value;
+            const payload = value.requiredToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(1n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(1n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'asymmetricToRequired': {
-            const payload = value.value;
+            const payload = value.asymmetricToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(4n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToAsymmetric': {
-            const payload = value.value;
+            const payload = value.asymmetricToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'asymmetricToOptional': {
-            const payload = value.value;
+            const payload = value.asymmetricToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'optionalToRequired': {
-            const payload = value.value;
+            const payload = value.optionalToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
           case 'optionalToAsymmetric': {
-            const payload = value.value;
+            const payload = value.optionalToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'optionalToOptional': {
-            const payload = value.value;
+            const payload = value.optionalToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'nonexistentToRequired': {
             const payload = null;
@@ -16392,12 +16392,12 @@ export namespace SchemaEvolution {
           case 'nonexistentToAsymmetric': {
             const payload = null;
             payloadSize = 0;
-            return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(13n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'nonexistentToOptional': {
             const payload = null;
             payloadSize = 0;
-            return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(14n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           default:
             return unreachable(value);
@@ -16411,9 +16411,9 @@ export namespace SchemaEvolution {
       ): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'requiredToRequired': {
-            const payload = value.value;
+            const payload = value.requiredToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
@@ -16426,7 +16426,7 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'requiredToAsymmetric': {
-            const payload = value.value;
+            const payload = value.requiredToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
@@ -16436,11 +16436,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'asymmetricToRequired': {
-            const payload = value.value;
+            const payload = value.asymmetricToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
@@ -16453,7 +16453,7 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'asymmetricToAsymmetric': {
-            const payload = value.value;
+            const payload = value.asymmetricToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
@@ -16463,11 +16463,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'asymmetricToOptional': {
-            const payload = value.value;
+            const payload = value.asymmetricToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
@@ -16477,11 +16477,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'optionalToRequired': {
-            const payload = value.value;
+            const payload = value.optionalToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
@@ -16494,7 +16494,7 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'optionalToAsymmetric': {
-            const payload = value.value;
+            const payload = value.optionalToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
@@ -16504,11 +16504,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'optionalToOptional': {
-            const payload = value.value;
+            const payload = value.optionalToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
@@ -16518,7 +16518,7 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'nonexistentToRequired': {
@@ -16531,14 +16531,14 @@ export namespace SchemaEvolution {
             const payload = null;
             payloadSize = 0;
             offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'nonexistentToOptional': {
             const payload = null;
             payloadSize = 0;
             offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           default:
@@ -16576,8 +16576,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'requiredToRequired',
-                  value: payload,
+                  $field: 'requiredToRequired',
+                  requiredToRequired: payload,
                 },
               ];
             }
@@ -16601,8 +16601,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'requiredToAsymmetric',
-                  value: payload,
+                  $field: 'requiredToAsymmetric',
+                  requiredToAsymmetric: payload,
                 },
               ];
             }
@@ -16626,8 +16626,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToRequired',
-                  value: payload,
+                  $field: 'asymmetricToRequired',
+                  asymmetricToRequired: payload,
                 },
               ];
             }
@@ -16651,8 +16651,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToAsymmetric',
-                  value: payload,
+                  $field: 'asymmetricToAsymmetric',
+                  asymmetricToAsymmetric: payload,
                 },
               ];
             }
@@ -16673,14 +16673,14 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'asymmetricToOptional',
+                  asymmetricToOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -16704,8 +16704,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToRequired',
-                  value: payload,
+                  $field: 'optionalToRequired',
+                  optionalToRequired: payload,
                 },
               ];
             }
@@ -16729,8 +16729,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToAsymmetric',
-                  value: payload,
+                  $field: 'optionalToAsymmetric',
+                  optionalToAsymmetric: payload,
                 },
               ];
             }
@@ -16751,14 +16751,14 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'optionalToOptional',
+                  optionalToOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -16775,7 +16775,7 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'nonexistentToRequired',
+                  $field: 'nonexistentToRequired',
                 },
               ];
             }
@@ -16792,7 +16792,7 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'nonexistentToAsymmetric',
+                  $field: 'nonexistentToAsymmetric',
                 },
               ];
             }
@@ -16806,13 +16806,13 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'nonexistentToOptional',
-                  fallback,
+                  $field: 'nonexistentToOptional',
+                  $fallback,
                 },
               ];
             }
@@ -17136,7 +17136,7 @@ export namespace SchemaEvolution {
       ): [number, ExampleStructIn] {
         let dataViewAlias = dataView;
 
-        let requiredToRequiredField, requiredToAsymmetricField, requiredToOptionalField, requiredToNonexistentField, asymmetricToRequiredField, asymmetricToAsymmetricField, asymmetricToOptionalField, asymmetricToNonexistentField, optionalToRequiredField, optionalToAsymmetricField, optionalToOptionalField, optionalToNonexistentField;
+        let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
 
         while (true) {
           let index, payloadSize;
@@ -17167,7 +17167,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToRequiredField = payload;
+              $requiredToRequired = payload;
               break;
             }
             case 1n: {
@@ -17187,7 +17187,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToAsymmetricField = payload;
+              $requiredToAsymmetric = payload;
               break;
             }
             case 2n: {
@@ -17207,7 +17207,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToOptionalField = payload;
+              $requiredToOptional = payload;
               break;
             }
             case 3n: {
@@ -17227,7 +17227,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              requiredToNonexistentField = payload;
+              $requiredToNonexistent = payload;
               break;
             }
             case 4n: {
@@ -17247,7 +17247,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToRequiredField = payload;
+              $asymmetricToRequired = payload;
               break;
             }
             case 5n: {
@@ -17267,7 +17267,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToAsymmetricField = payload;
+              $asymmetricToAsymmetric = payload;
               break;
             }
             case 6n: {
@@ -17287,7 +17287,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToOptionalField = payload;
+              $asymmetricToOptional = payload;
               break;
             }
             case 7n: {
@@ -17307,7 +17307,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              asymmetricToNonexistentField = payload;
+              $asymmetricToNonexistent = payload;
               break;
             }
             case 8n: {
@@ -17327,7 +17327,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToRequiredField = payload;
+              $optionalToRequired = payload;
               break;
             }
             case 9n: {
@@ -17347,7 +17347,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToAsymmetricField = payload;
+              $optionalToAsymmetric = payload;
               break;
             }
             case 10n: {
@@ -17367,7 +17367,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToOptionalField = payload;
+              $optionalToOptional = payload;
               break;
             }
             case 11n: {
@@ -17387,7 +17387,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              optionalToNonexistentField = payload;
+              $optionalToNonexistent = payload;
               break;
             }
             default:
@@ -17396,25 +17396,25 @@ export namespace SchemaEvolution {
           }
         }
 
-        if (requiredToRequiredField === undefined || requiredToAsymmetricField === undefined || requiredToOptionalField === undefined || requiredToNonexistentField === undefined) {
+        if ($requiredToRequired === undefined || $requiredToAsymmetric === undefined || $requiredToOptional === undefined || $requiredToNonexistent === undefined) {
           throw new Error('Struct missing one or more field(s).');
         }
 
         return [
           offset,
           {
-            requiredToRequired: requiredToRequiredField,
-            requiredToAsymmetric: requiredToAsymmetricField,
-            requiredToOptional: requiredToOptionalField,
-            requiredToNonexistent: requiredToNonexistentField,
-            asymmetricToRequired: asymmetricToRequiredField,
-            asymmetricToAsymmetric: asymmetricToAsymmetricField,
-            asymmetricToOptional: asymmetricToOptionalField,
-            asymmetricToNonexistent: asymmetricToNonexistentField,
-            optionalToRequired: optionalToRequiredField,
-            optionalToAsymmetric: optionalToAsymmetricField,
-            optionalToOptional: optionalToOptionalField,
-            optionalToNonexistent: optionalToNonexistentField,
+            requiredToRequired: $requiredToRequired,
+            requiredToAsymmetric: $requiredToAsymmetric,
+            requiredToOptional: $requiredToOptional,
+            requiredToNonexistent: $requiredToNonexistent,
+            asymmetricToRequired: $asymmetricToRequired,
+            asymmetricToAsymmetric: $asymmetricToAsymmetric,
+            asymmetricToOptional: $asymmetricToOptional,
+            asymmetricToNonexistent: $asymmetricToNonexistent,
+            optionalToRequired: $optionalToRequired,
+            optionalToAsymmetric: $optionalToAsymmetric,
+            optionalToOptional: $optionalToOptional,
+            optionalToNonexistent: $optionalToNonexistent,
           }
         ];
       }
@@ -17425,83 +17425,83 @@ export namespace SchemaEvolution {
     }
 
     export type ExampleChoiceOut =
-      | { field: 'requiredToRequired'; value: string }
-      | { field: 'requiredToAsymmetric'; value: string }
-      | { field: 'asymmetricToRequired'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToOptional'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'asymmetricToNonexistent'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToRequired'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToAsymmetric'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceOut }
-      | { field: 'optionalToNonexistent'; value: string; fallback: ExampleChoiceOut };
+      | { $field: 'requiredToRequired'; requiredToRequired: string }
+      | { $field: 'requiredToAsymmetric'; requiredToAsymmetric: string }
+      | { $field: 'asymmetricToRequired'; asymmetricToRequired: string; $fallback: ExampleChoiceOut }
+      | { $field: 'asymmetricToAsymmetric'; asymmetricToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { $field: 'asymmetricToOptional'; asymmetricToOptional: string; $fallback: ExampleChoiceOut }
+      | { $field: 'asymmetricToNonexistent'; asymmetricToNonexistent: string; $fallback: ExampleChoiceOut }
+      | { $field: 'optionalToRequired'; optionalToRequired: string; $fallback: ExampleChoiceOut }
+      | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceOut }
+      | { $field: 'optionalToNonexistent'; optionalToNonexistent: string; $fallback: ExampleChoiceOut };
 
     export type ExampleChoiceIn =
-      | { field: 'requiredToRequired'; value: string }
-      | { field: 'requiredToAsymmetric'; value: string }
-      | { field: 'asymmetricToRequired'; value: string }
-      | { field: 'asymmetricToAsymmetric'; value: string }
-      | { field: 'asymmetricToOptional'; value: string }
-      | { field: 'asymmetricToNonexistent'; value: string }
-      | { field: 'optionalToRequired'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToAsymmetric'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToOptional'; value: string; fallback: ExampleChoiceIn }
-      | { field: 'optionalToNonexistent'; value: string; fallback: ExampleChoiceIn };
+      | { $field: 'requiredToRequired'; requiredToRequired: string }
+      | { $field: 'requiredToAsymmetric'; requiredToAsymmetric: string }
+      | { $field: 'asymmetricToRequired'; asymmetricToRequired: string }
+      | { $field: 'asymmetricToAsymmetric'; asymmetricToAsymmetric: string }
+      | { $field: 'asymmetricToOptional'; asymmetricToOptional: string }
+      | { $field: 'asymmetricToNonexistent'; asymmetricToNonexistent: string }
+      | { $field: 'optionalToRequired'; optionalToRequired: string; $fallback: ExampleChoiceIn }
+      | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string; $fallback: ExampleChoiceIn }
+      | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceIn }
+      | { $field: 'optionalToNonexistent'; optionalToNonexistent: string; $fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
       export function size(value: ExampleChoiceOut): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'requiredToRequired': {
-            const payload = value.value;
+            const payload = value.requiredToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
           case 'requiredToAsymmetric': {
-            const payload = value.value;
+            const payload = value.requiredToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(1n, payloadSize, false) + payloadSize;
           }
           case 'asymmetricToRequired': {
-            const payload = value.value;
+            const payload = value.asymmetricToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(4n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(4n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'asymmetricToAsymmetric': {
-            const payload = value.value;
+            const payload = value.asymmetricToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(5n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'asymmetricToOptional': {
-            const payload = value.value;
+            const payload = value.asymmetricToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(6n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'asymmetricToNonexistent': {
-            const payload = value.value;
+            const payload = value.asymmetricToNonexistent;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(7n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'optionalToRequired': {
-            const payload = value.value;
+            const payload = value.optionalToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(8n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'optionalToAsymmetric': {
-            const payload = value.value;
+            const payload = value.optionalToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(9n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'optionalToOptional': {
-            const payload = value.value;
+            const payload = value.optionalToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(10n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           case 'optionalToNonexistent': {
-            const payload = value.value;
+            const payload = value.optionalToNonexistent;
             payloadSize = textEncoder.encode(payload).byteLength;
-            return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.fallback);
+            return fieldHeaderSize(11n, payloadSize, false) + payloadSize + size(value.$fallback);
           }
           default:
             return unreachable(value);
@@ -17515,9 +17515,9 @@ export namespace SchemaEvolution {
       ): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'requiredToRequired': {
-            const payload = value.value;
+            const payload = value.requiredToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
@@ -17530,7 +17530,7 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'requiredToAsymmetric': {
-            const payload = value.value;
+            const payload = value.requiredToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
@@ -17543,7 +17543,7 @@ export namespace SchemaEvolution {
             return offset;
           }
           case 'asymmetricToRequired': {
-            const payload = value.value;
+            const payload = value.asymmetricToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
@@ -17553,11 +17553,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'asymmetricToAsymmetric': {
-            const payload = value.value;
+            const payload = value.asymmetricToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
@@ -17567,11 +17567,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'asymmetricToOptional': {
-            const payload = value.value;
+            const payload = value.asymmetricToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
@@ -17581,11 +17581,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'asymmetricToNonexistent': {
-            const payload = value.value;
+            const payload = value.asymmetricToNonexistent;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
@@ -17595,11 +17595,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'optionalToRequired': {
-            const payload = value.value;
+            const payload = value.optionalToRequired;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
@@ -17609,11 +17609,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'optionalToAsymmetric': {
-            const payload = value.value;
+            const payload = value.optionalToAsymmetric;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
@@ -17623,11 +17623,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'optionalToOptional': {
-            const payload = value.value;
+            const payload = value.optionalToOptional;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
@@ -17637,11 +17637,11 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           case 'optionalToNonexistent': {
-            const payload = value.value;
+            const payload = value.optionalToNonexistent;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
@@ -17651,7 +17651,7 @@ export namespace SchemaEvolution {
               }
               offset += buffer.byteLength;
             }
-            offset = serialize(dataView, offset, value.fallback);
+            offset = serialize(dataView, offset, value.$fallback);
             return offset;
           }
           default:
@@ -17689,8 +17689,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'requiredToRequired',
-                  value: payload,
+                  $field: 'requiredToRequired',
+                  requiredToRequired: payload,
                 },
               ];
             }
@@ -17714,8 +17714,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'requiredToAsymmetric',
-                  value: payload,
+                  $field: 'requiredToAsymmetric',
+                  requiredToAsymmetric: payload,
                 },
               ];
             }
@@ -17739,8 +17739,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToRequired',
-                  value: payload,
+                  $field: 'asymmetricToRequired',
+                  asymmetricToRequired: payload,
                 },
               ];
             }
@@ -17764,8 +17764,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToAsymmetric',
-                  value: payload,
+                  $field: 'asymmetricToAsymmetric',
+                  asymmetricToAsymmetric: payload,
                 },
               ];
             }
@@ -17789,8 +17789,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToOptional',
-                  value: payload,
+                  $field: 'asymmetricToOptional',
+                  asymmetricToOptional: payload,
                 },
               ];
             }
@@ -17814,8 +17814,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'asymmetricToNonexistent',
-                  value: payload,
+                  $field: 'asymmetricToNonexistent',
+                  asymmetricToNonexistent: payload,
                 },
               ];
             }
@@ -17836,14 +17836,14 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToRequired',
-                  value: payload,
-                  fallback,
+                  $field: 'optionalToRequired',
+                  optionalToRequired: payload,
+                  $fallback,
                 },
               ];
             }
@@ -17864,14 +17864,14 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToAsymmetric',
-                  value: payload,
-                  fallback,
+                  $field: 'optionalToAsymmetric',
+                  optionalToAsymmetric: payload,
+                  $fallback,
                 },
               ];
             }
@@ -17892,14 +17892,14 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToOptional',
-                  value: payload,
-                  fallback,
+                  $field: 'optionalToOptional',
+                  optionalToOptional: payload,
+                  $fallback,
                 },
               ];
             }
@@ -17920,14 +17920,14 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, fallback] = deserialize(dataViewAlias, offset);
+              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
               offset = newNewOffset;
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'optionalToNonexistent',
-                  value: payload,
-                  fallback,
+                  $field: 'optionalToNonexistent',
+                  optionalToNonexistent: payload,
+                  $fallback,
                 },
               ];
             }
@@ -17996,7 +17996,7 @@ export namespace SchemaEvolution {
       ): [number, SingletonStructIn] {
         let dataViewAlias = dataView;
 
-        let xField;
+        let $x;
 
         while (true) {
           let index, payloadSize;
@@ -18027,7 +18027,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              xField = payload;
+              $x = payload;
               break;
             }
             default:
@@ -18036,14 +18036,14 @@ export namespace SchemaEvolution {
           }
         }
 
-        if (xField === undefined) {
+        if ($x === undefined) {
           throw new Error('Struct missing one or more field(s).');
         }
 
         return [
           offset,
           {
-            x: xField,
+            x: $x,
           }
         ];
       }
@@ -18054,20 +18054,20 @@ export namespace SchemaEvolution {
     }
 
     export type SingletonChoiceOut =
-      | { field: 'x'; value: string }
-      | { field: never };
+      | { $field: 'x'; x: string }
+      | { $field: never };
 
     export type SingletonChoiceIn =
-      | { field: 'x'; value: string }
-      | { field: never };
+      | { $field: 'x'; x: string }
+      | { $field: never };
 
     export namespace SingletonChoice {
       export function size(value: SingletonChoiceOut): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'x': {
-            const payload = value.value;
+            const payload = value.x;
             payloadSize = textEncoder.encode(payload).byteLength;
             return fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
@@ -18083,9 +18083,9 @@ export namespace SchemaEvolution {
       ): number {
         let payloadSize = 0;
 
-        switch (value.field) {
+        switch (value.$field) {
           case 'x': {
-            const payload = value.value;
+            const payload = value.x;
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
@@ -18132,8 +18132,8 @@ export namespace SchemaEvolution {
               return [
                 dataViewAlias.byteLength,
                 {
-                  field: 'x',
-                  value: payload,
+                  $field: 'x',
+                  x: payload,
                 },
               ];
             }

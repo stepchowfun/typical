@@ -70,9 +70,12 @@ export default function run(): void {
 
   console.log();
 
-  const fallback: { field: 'requiredToRequired'; value: string } = {
-    field: 'requiredToRequired',
-    value: 'required_to_required',
+  const $fallback: {
+    $field: 'requiredToRequired';
+    requiredToRequired: string;
+  } = {
+    $field: 'requiredToRequired',
+    requiredToRequired: 'required_to_required',
   };
 
   assertMatch(
@@ -80,12 +83,12 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'requiredToRequired',
-      value: 'required_to_required',
+      $field: 'requiredToRequired',
+      requiredToRequired: 'required_to_required',
     },
     {
-      field: 'requiredToRequired',
-      value: 'required_to_required',
+      $field: 'requiredToRequired',
+      requiredToRequired: 'required_to_required',
     },
   );
 
@@ -94,12 +97,12 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'requiredToAsymmetric',
-      value: 'required_to_asymmetric',
+      $field: 'requiredToAsymmetric',
+      requiredToAsymmetric: 'required_to_asymmetric',
     },
     {
-      field: 'requiredToAsymmetric',
-      value: 'required_to_asymmetric',
+      $field: 'requiredToAsymmetric',
+      requiredToAsymmetric: 'required_to_asymmetric',
     },
   );
 
@@ -108,13 +111,13 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'asymmetricToRequired',
-      value: 'asymmetric_to_required',
-      fallback,
+      $field: 'asymmetricToRequired',
+      asymmetricToRequired: 'asymmetric_to_required',
+      $fallback,
     },
     {
-      field: 'asymmetricToRequired',
-      value: 'asymmetric_to_required',
+      $field: 'asymmetricToRequired',
+      asymmetricToRequired: 'asymmetric_to_required',
     },
   );
 
@@ -123,13 +126,13 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'asymmetricToAsymmetric',
-      value: 'asymmetric_to_asymmetric',
-      fallback,
+      $field: 'asymmetricToAsymmetric',
+      asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
+      $fallback,
     },
     {
-      field: 'asymmetricToAsymmetric',
-      value: 'asymmetric_to_asymmetric',
+      $field: 'asymmetricToAsymmetric',
+      asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
     },
   );
 
@@ -138,14 +141,14 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'asymmetricToOptional',
-      value: 'asymmetric_to_optional',
-      fallback,
+      $field: 'asymmetricToOptional',
+      asymmetricToOptional: 'asymmetric_to_optional',
+      $fallback,
     },
     {
-      field: 'asymmetricToOptional',
-      value: 'asymmetric_to_optional',
-      fallback,
+      $field: 'asymmetricToOptional',
+      asymmetricToOptional: 'asymmetric_to_optional',
+      $fallback,
     },
   );
 
@@ -154,11 +157,11 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'asymmetricToNonexistent',
-      value: 'asymmetric_to_nonexistent',
-      fallback,
+      $field: 'asymmetricToNonexistent',
+      asymmetricToNonexistent: 'asymmetric_to_nonexistent',
+      $fallback,
     },
-    fallback,
+    $fallback,
   );
 
   assertMatch(
@@ -166,28 +169,13 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'optionalToRequired',
-      value: 'optional_to_required',
-      fallback,
+      $field: 'optionalToRequired',
+      optionalToRequired: 'optional_to_required',
+      $fallback,
     },
     {
-      field: 'optionalToRequired',
-      value: 'optional_to_required',
-    },
-  );
-
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      field: 'optionalToAsymmetric',
-      value: 'optional_to_asymmetric',
-      fallback,
-    },
-    {
-      field: 'optionalToAsymmetric',
-      value: 'optional_to_asymmetric',
+      $field: 'optionalToRequired',
+      optionalToRequired: 'optional_to_required',
     },
   );
 
@@ -196,14 +184,13 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'optionalToOptional',
-      value: 'optional_to_optional',
-      fallback,
+      $field: 'optionalToAsymmetric',
+      optionalToAsymmetric: 'optional_to_asymmetric',
+      $fallback,
     },
     {
-      field: 'optionalToOptional',
-      value: 'optional_to_optional',
-      fallback,
+      $field: 'optionalToAsymmetric',
+      optionalToAsymmetric: 'optional_to_asymmetric',
     },
   );
 
@@ -212,11 +199,27 @@ export default function run(): void {
     SchemaEvolution.Before.ExampleChoice.serialize,
     SchemaEvolution.After.ExampleChoice.deserialize,
     {
-      field: 'optionalToNonexistent',
-      value: 'optional_to_nonexistent',
-      fallback,
+      $field: 'optionalToOptional',
+      optionalToOptional: 'optional_to_optional',
+      $fallback,
     },
-    fallback,
+    {
+      $field: 'optionalToOptional',
+      optionalToOptional: 'optional_to_optional',
+      $fallback,
+    },
+  );
+
+  assertMatch(
+    SchemaEvolution.Before.ExampleChoice.size,
+    SchemaEvolution.Before.ExampleChoice.serialize,
+    SchemaEvolution.After.ExampleChoice.deserialize,
+    {
+      $field: 'optionalToNonexistent',
+      optionalToNonexistent: 'optional_to_nonexistent',
+      $fallback,
+    },
+    $fallback,
   );
 
   assertMatch(
@@ -227,8 +230,8 @@ export default function run(): void {
       x: 'foo',
     },
     {
-      field: 'x',
-      value: 'foo',
+      $field: 'x',
+      x: 'foo',
     },
   );
 
@@ -237,8 +240,8 @@ export default function run(): void {
     SchemaEvolution.Types.SingletonChoice.serialize,
     SchemaEvolution.Types.SingletonStruct.deserialize,
     {
-      field: 'x',
-      value: 'foo',
+      $field: 'x',
+      x: 'foo',
     },
     {
       x: 'foo',

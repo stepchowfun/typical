@@ -491,20 +491,20 @@ Every language has its own patterns and idiosyncrasies. The sections below conta
 
 - The generated code is self-contained in that it only depends on JavaScript's standard built-in objects. It can run in the browser or with Node.js.
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
-- Typical's integer types map to `bigint`, rather than `number`. It's safe to use integers to represent money or other quantities that should not be rounded. Typical's `F64` type maps to `number`, as one would expect.
-- Structs map straightforwardly to objects, as one would expect. Empty choices map to TypeScript's `never` type. Non-empty choices map to objects with a `field` property indicating which field was set, a `value` property containing the payload (unless the type of the field is `Unit`, in which case the property is omitted), and, for optional or asymmetric fields, a `fallback` property for the fallback object.
-- The generated code contains a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
+- Typical's integer types map to `bigint`, rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
+- Structs map straightforwardly to objects, as one would expect. Empty choices map to TypeScript's `never` type. Non-empty choices map to objects with a `$field` property indicating which field was set, a property for the field itself (unless the type of the field is `Unit`, in which case the property is omitted), and, for optional or asymmetric fields, a `$fallback` property for the fallback object.
+- The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
 
   ```typescript
-  switch (shape.field) {
+  switch (shape.$field) {
     case 'square':
-      area = shape.value.sideLength * shape.value.sideLength;
+      area = shape.square.sideLength * shape.square.sideLength;
       break;
     case 'rectangle':
-      area = shape.value.width * shape.value.height;
+      area = shape.rectangle.width * shape.rectangle.height;
       break;
     case 'circle':
-      area = Math.PI * shape.value.radius * shape.value.radius;
+      area = Math.PI * shape.circle.radius * shape.circle.radius;
       break;
     default:
       area = unreachable(shape);
