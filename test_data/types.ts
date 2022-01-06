@@ -337,11 +337,10 @@ export namespace CircularDependency {
           return offset;
         }
 
-        export function deserialize(
-          dataView: DataView,
-          offset: number,
-        ): [number, StructFromBelowIn] {
+        export function deserialize(dataView: DataView): StructFromBelowIn {
           const dataViewAlias = dataView;
+
+          let offset = 0;
 
           let $x;
 
@@ -365,8 +364,8 @@ export namespace CircularDependency {
                 );
                 const oldOffset = offset;
                 offset = 0;
-                let payload;
-                [offset, payload] = CircularDependency.Types.StructFromAbove.deserialize(dataView, offset);
+                let payload = CircularDependency.Types.StructFromAbove.deserialize(dataView);
+                offset = dataView.byteLength;
                 offset += oldOffset;
                 $x = payload;
                 break;
@@ -381,12 +380,9 @@ export namespace CircularDependency {
             throw new Error('Struct missing one or more field(s).');
           }
 
-          return [
-            offset,
-            {
-              x: $x,
-            }
-          ];
+          return {
+            x: $x,
+          };
         }
 
         export function outToIn(value: StructFromBelowOut): StructFromBelowIn {
@@ -421,15 +417,9 @@ export namespace CircularDependency {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, StructFromAboveIn] {
-        return [
-          offset,
-          {
-          }
-        ];
+      export function deserialize(dataView: DataView): StructFromAboveIn {
+        return {
+        };
       }
 
       export function outToIn(value: StructFromAboveOut): StructFromAboveIn {
@@ -465,15 +455,9 @@ export namespace Comprehensive {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, LocalStructIn] {
-        return [
-          offset,
-          {
-          }
-        ];
+      export function deserialize(dataView: DataView): LocalStructIn {
+        return {
+        };
       }
 
       export function outToIn(value: LocalStructOut): LocalStructIn {
@@ -4645,11 +4629,10 @@ export namespace Comprehensive {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, FooIn] {
+      export function deserialize(dataView: DataView): FooIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
 
@@ -4837,8 +4820,8 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
               $hRequired = payload;
               break;
@@ -4851,8 +4834,8 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
               $iRequired = payload;
               break;
@@ -5149,8 +5132,8 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
@@ -5191,8 +5174,8 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
@@ -5700,8 +5683,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -5770,8 +5753,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -5958,8 +5941,8 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
               $hAsymmetric = payload;
               break;
@@ -5972,8 +5955,8 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
               $iAsymmetric = payload;
               break;
@@ -6270,8 +6253,8 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
@@ -6312,8 +6295,8 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
@@ -6821,8 +6804,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -6891,8 +6874,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -7079,8 +7062,8 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
               $hOptional = payload;
               break;
@@ -7093,8 +7076,8 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
               $iOptional = payload;
               break;
@@ -7391,8 +7374,8 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
@@ -7433,8 +7416,8 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
@@ -7942,8 +7925,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -8012,8 +7995,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -8038,92 +8021,89 @@ export namespace Comprehensive {
           throw new Error('Struct missing one or more field(s).');
         }
 
-        return [
-          offset,
-          {
-            aRequired: $aRequired,
-            bRequired: $bRequired,
-            cRequired: $cRequired,
-            dRequired: $dRequired,
-            eRequired: $eRequired,
-            fRequired: $fRequired,
-            gRequired: $gRequired,
-            hRequired: $hRequired,
-            iRequired: $iRequired,
-            jRequired: $jRequired,
-            kRequired: $kRequired,
-            lRequired: $lRequired,
-            mRequired: $mRequired,
-            nRequired: $nRequired,
-            oRequired: $oRequired,
-            pRequired: $pRequired,
-            qRequired: $qRequired,
-            rRequired: $rRequired,
-            sRequired: $sRequired,
-            tRequired: $tRequired,
-            uRequired: $uRequired,
-            vRequired: $vRequired,
-            wRequired: $wRequired,
-            xRequired: $xRequired,
-            yRequired: $yRequired,
-            zRequired: $zRequired,
-            aaRequired: $aaRequired,
-            aAsymmetric: $aAsymmetric,
-            bAsymmetric: $bAsymmetric,
-            cAsymmetric: $cAsymmetric,
-            dAsymmetric: $dAsymmetric,
-            eAsymmetric: $eAsymmetric,
-            fAsymmetric: $fAsymmetric,
-            gAsymmetric: $gAsymmetric,
-            hAsymmetric: $hAsymmetric,
-            iAsymmetric: $iAsymmetric,
-            jAsymmetric: $jAsymmetric,
-            kAsymmetric: $kAsymmetric,
-            lAsymmetric: $lAsymmetric,
-            mAsymmetric: $mAsymmetric,
-            nAsymmetric: $nAsymmetric,
-            oAsymmetric: $oAsymmetric,
-            pAsymmetric: $pAsymmetric,
-            qAsymmetric: $qAsymmetric,
-            rAsymmetric: $rAsymmetric,
-            sAsymmetric: $sAsymmetric,
-            tAsymmetric: $tAsymmetric,
-            uAsymmetric: $uAsymmetric,
-            vAsymmetric: $vAsymmetric,
-            wAsymmetric: $wAsymmetric,
-            xAsymmetric: $xAsymmetric,
-            yAsymmetric: $yAsymmetric,
-            zAsymmetric: $zAsymmetric,
-            aaAsymmetric: $aaAsymmetric,
-            aOptional: $aOptional,
-            bOptional: $bOptional,
-            cOptional: $cOptional,
-            dOptional: $dOptional,
-            eOptional: $eOptional,
-            fOptional: $fOptional,
-            gOptional: $gOptional,
-            hOptional: $hOptional,
-            iOptional: $iOptional,
-            jOptional: $jOptional,
-            kOptional: $kOptional,
-            lOptional: $lOptional,
-            mOptional: $mOptional,
-            nOptional: $nOptional,
-            oOptional: $oOptional,
-            pOptional: $pOptional,
-            qOptional: $qOptional,
-            rOptional: $rOptional,
-            sOptional: $sOptional,
-            tOptional: $tOptional,
-            uOptional: $uOptional,
-            vOptional: $vOptional,
-            wOptional: $wOptional,
-            xOptional: $xOptional,
-            yOptional: $yOptional,
-            zOptional: $zOptional,
-            aaOptional: $aaOptional,
-          }
-        ];
+        return {
+          aRequired: $aRequired,
+          bRequired: $bRequired,
+          cRequired: $cRequired,
+          dRequired: $dRequired,
+          eRequired: $eRequired,
+          fRequired: $fRequired,
+          gRequired: $gRequired,
+          hRequired: $hRequired,
+          iRequired: $iRequired,
+          jRequired: $jRequired,
+          kRequired: $kRequired,
+          lRequired: $lRequired,
+          mRequired: $mRequired,
+          nRequired: $nRequired,
+          oRequired: $oRequired,
+          pRequired: $pRequired,
+          qRequired: $qRequired,
+          rRequired: $rRequired,
+          sRequired: $sRequired,
+          tRequired: $tRequired,
+          uRequired: $uRequired,
+          vRequired: $vRequired,
+          wRequired: $wRequired,
+          xRequired: $xRequired,
+          yRequired: $yRequired,
+          zRequired: $zRequired,
+          aaRequired: $aaRequired,
+          aAsymmetric: $aAsymmetric,
+          bAsymmetric: $bAsymmetric,
+          cAsymmetric: $cAsymmetric,
+          dAsymmetric: $dAsymmetric,
+          eAsymmetric: $eAsymmetric,
+          fAsymmetric: $fAsymmetric,
+          gAsymmetric: $gAsymmetric,
+          hAsymmetric: $hAsymmetric,
+          iAsymmetric: $iAsymmetric,
+          jAsymmetric: $jAsymmetric,
+          kAsymmetric: $kAsymmetric,
+          lAsymmetric: $lAsymmetric,
+          mAsymmetric: $mAsymmetric,
+          nAsymmetric: $nAsymmetric,
+          oAsymmetric: $oAsymmetric,
+          pAsymmetric: $pAsymmetric,
+          qAsymmetric: $qAsymmetric,
+          rAsymmetric: $rAsymmetric,
+          sAsymmetric: $sAsymmetric,
+          tAsymmetric: $tAsymmetric,
+          uAsymmetric: $uAsymmetric,
+          vAsymmetric: $vAsymmetric,
+          wAsymmetric: $wAsymmetric,
+          xAsymmetric: $xAsymmetric,
+          yAsymmetric: $yAsymmetric,
+          zAsymmetric: $zAsymmetric,
+          aaAsymmetric: $aaAsymmetric,
+          aOptional: $aOptional,
+          bOptional: $bOptional,
+          cOptional: $cOptional,
+          dOptional: $dOptional,
+          eOptional: $eOptional,
+          fOptional: $fOptional,
+          gOptional: $gOptional,
+          hOptional: $hOptional,
+          iOptional: $iOptional,
+          jOptional: $jOptional,
+          kOptional: $kOptional,
+          lOptional: $lOptional,
+          mOptional: $mOptional,
+          nOptional: $nOptional,
+          oOptional: $oOptional,
+          pOptional: $pOptional,
+          qOptional: $qOptional,
+          rOptional: $rOptional,
+          sOptional: $sOptional,
+          tOptional: $tOptional,
+          uOptional: $uOptional,
+          vOptional: $vOptional,
+          wOptional: $wOptional,
+          xOptional: $xOptional,
+          yOptional: $yOptional,
+          zOptional: $zOptional,
+          aaOptional: $aaOptional,
+        };
       }
 
       export function outToIn(value: FooOut): FooIn {
@@ -12109,11 +12089,10 @@ export namespace Comprehensive {
         }
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, BarIn] {
+      export function deserialize(dataView: DataView): BarIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -12129,12 +12108,9 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'aRequired',
-                },
-              ];
+              return {
+                $field: 'aRequired',
+              };
             }
             case 1n: {
               const dataView = new DataView(
@@ -12157,13 +12133,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'bRequired',
-                  bRequired: payload,
-                },
-              ];
+              return {
+                $field: 'bRequired',
+                bRequired: payload,
+              };
             }
             case 2n: {
               const dataView = new DataView(
@@ -12189,13 +12162,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'cRequired',
-                  cRequired: payload,
-                },
-              ];
+              return {
+                $field: 'cRequired',
+                cRequired: payload,
+              };
             }
             case 3n: {
               const dataView = new DataView(
@@ -12222,13 +12192,10 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'dRequired',
-                  dRequired: payload,
-                },
-              ];
+              return {
+                $field: 'dRequired',
+                dRequired: payload,
+              };
             }
             case 4n: {
               const dataView = new DataView(
@@ -12262,13 +12229,10 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'eRequired',
-                  eRequired: payload,
-                },
-              ];
+              return {
+                $field: 'eRequired',
+                eRequired: payload,
+              };
             }
             case 5n: {
               const dataView = new DataView(
@@ -12284,13 +12248,10 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'fRequired',
-                  fRequired: payload,
-                },
-              ];
+              return {
+                $field: 'fRequired',
+                fRequired: payload,
+              };
             }
             case 6n: {
               const dataView = new DataView(
@@ -12309,13 +12270,10 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'gRequired',
-                  gRequired: payload,
-                },
-              ];
+              return {
+                $field: 'gRequired',
+                gRequired: payload,
+              };
             }
             case 7n: {
               const dataView = new DataView(
@@ -12325,16 +12283,13 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'hRequired',
-                  hRequired: payload,
-                },
-              ];
+              return {
+                $field: 'hRequired',
+                hRequired: payload,
+              };
             }
             case 8n: {
               const dataView = new DataView(
@@ -12344,16 +12299,13 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'iRequired',
-                  iRequired: payload,
-                },
-              ];
+              return {
+                $field: 'iRequired',
+                iRequired: payload,
+              };
             }
             case 9n: {
               const dataView = new DataView(
@@ -12387,13 +12339,10 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'jRequired',
-                  jRequired: payload,
-                },
-              ];
+              return {
+                $field: 'jRequired',
+                jRequired: payload,
+              };
             }
             case 10n: {
               const dataView = new DataView(
@@ -12423,13 +12372,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'kRequired',
-                  kRequired: payload,
-                },
-              ];
+              return {
+                $field: 'kRequired',
+                kRequired: payload,
+              };
             }
             case 11n: {
               const dataView = new DataView(
@@ -12459,13 +12405,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'lRequired',
-                  lRequired: payload,
-                },
-              ];
+              return {
+                $field: 'lRequired',
+                lRequired: payload,
+              };
             }
             case 12n: {
               const dataView = new DataView(
@@ -12496,13 +12439,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'mRequired',
-                  mRequired: payload,
-                },
-              ];
+              return {
+                $field: 'mRequired',
+                mRequired: payload,
+              };
             }
             case 13n: {
               const dataView = new DataView(
@@ -12540,13 +12480,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'nRequired',
-                  nRequired: payload,
-                },
-              ];
+              return {
+                $field: 'nRequired',
+                nRequired: payload,
+              };
             }
             case 14n: {
               const dataView = new DataView(
@@ -12590,13 +12527,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'oRequired',
-                  oRequired: payload,
-                },
-              ];
+              return {
+                $field: 'oRequired',
+                oRequired: payload,
+              };
             }
             case 15n: {
               const dataView = new DataView(
@@ -12643,13 +12577,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'pRequired',
-                  pRequired: payload,
-                },
-              ];
+              return {
+                $field: 'pRequired',
+                pRequired: payload,
+              };
             }
             case 16n: {
               const dataView = new DataView(
@@ -12682,21 +12613,18 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'qRequired',
-                  qRequired: payload,
-                },
-              ];
+              return {
+                $field: 'qRequired',
+                qRequired: payload,
+              };
             }
             case 17n: {
               const dataView = new DataView(
@@ -12729,21 +12657,18 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'rRequired',
-                  rRequired: payload,
-                },
-              ];
+              return {
+                $field: 'rRequired',
+                rRequired: payload,
+              };
             }
             case 18n: {
               const dataView = new DataView(
@@ -12792,13 +12717,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'sRequired',
-                  sRequired: payload,
-                },
-              ];
+              return {
+                $field: 'sRequired',
+                sRequired: payload,
+              };
             }
             case 19n: {
               const dataView = new DataView(
@@ -12856,13 +12778,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'tRequired',
-                  tRequired: payload,
-                },
-              ];
+              return {
+                $field: 'tRequired',
+                tRequired: payload,
+              };
             }
             case 20n: {
               const dataView = new DataView(
@@ -12920,13 +12839,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'uRequired',
-                  uRequired: payload,
-                },
-              ];
+              return {
+                $field: 'uRequired',
+                uRequired: payload,
+              };
             }
             case 21n: {
               const dataView = new DataView(
@@ -12985,13 +12901,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'vRequired',
-                  vRequired: payload,
-                },
-              ];
+              return {
+                $field: 'vRequired',
+                vRequired: payload,
+              };
             }
             case 22n: {
               const dataView = new DataView(
@@ -13057,13 +12970,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'wRequired',
-                  wRequired: payload,
-                },
-              ];
+              return {
+                $field: 'wRequired',
+                wRequired: payload,
+              };
             }
             case 23n: {
               const dataView = new DataView(
@@ -13135,13 +13045,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'xRequired',
-                  xRequired: payload,
-                },
-              ];
+              return {
+                $field: 'xRequired',
+                xRequired: payload,
+              };
             }
             case 24n: {
               const dataView = new DataView(
@@ -13216,13 +13123,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'yRequired',
-                  yRequired: payload,
-                },
-              ];
+              return {
+                $field: 'yRequired',
+                yRequired: payload,
+              };
             }
             case 25n: {
               const dataView = new DataView(
@@ -13278,8 +13182,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -13291,13 +13195,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'zRequired',
-                  zRequired: payload,
-                },
-              ];
+              return {
+                $field: 'zRequired',
+                zRequired: payload,
+              };
             }
             case 26n: {
               const dataView = new DataView(
@@ -13353,8 +13254,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -13366,13 +13267,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'aaRequired',
-                  aaRequired: payload,
-                },
-              ];
+              return {
+                $field: 'aaRequired',
+                aaRequired: payload,
+              };
             }
             case 28n: {
               const dataView = new DataView(
@@ -13384,12 +13282,9 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'aAsymmetric',
-                },
-              ];
+              return {
+                $field: 'aAsymmetric',
+              };
             }
             case 29n: {
               const dataView = new DataView(
@@ -13412,13 +13307,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'bAsymmetric',
-                  bAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'bAsymmetric',
+                bAsymmetric: payload,
+              };
             }
             case 30n: {
               const dataView = new DataView(
@@ -13444,13 +13336,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'cAsymmetric',
-                  cAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'cAsymmetric',
+                cAsymmetric: payload,
+              };
             }
             case 31n: {
               const dataView = new DataView(
@@ -13477,13 +13366,10 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'dAsymmetric',
-                  dAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'dAsymmetric',
+                dAsymmetric: payload,
+              };
             }
             case 32n: {
               const dataView = new DataView(
@@ -13517,13 +13403,10 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'eAsymmetric',
-                  eAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'eAsymmetric',
+                eAsymmetric: payload,
+              };
             }
             case 33n: {
               const dataView = new DataView(
@@ -13539,13 +13422,10 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'fAsymmetric',
-                  fAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'fAsymmetric',
+                fAsymmetric: payload,
+              };
             }
             case 34n: {
               const dataView = new DataView(
@@ -13564,13 +13444,10 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'gAsymmetric',
-                  gAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'gAsymmetric',
+                gAsymmetric: payload,
+              };
             }
             case 35n: {
               const dataView = new DataView(
@@ -13580,16 +13457,13 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'hAsymmetric',
-                  hAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'hAsymmetric',
+                hAsymmetric: payload,
+              };
             }
             case 36n: {
               const dataView = new DataView(
@@ -13599,16 +13473,13 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'iAsymmetric',
-                  iAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'iAsymmetric',
+                iAsymmetric: payload,
+              };
             }
             case 37n: {
               const dataView = new DataView(
@@ -13642,13 +13513,10 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'jAsymmetric',
-                  jAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'jAsymmetric',
+                jAsymmetric: payload,
+              };
             }
             case 38n: {
               const dataView = new DataView(
@@ -13678,13 +13546,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'kAsymmetric',
-                  kAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'kAsymmetric',
+                kAsymmetric: payload,
+              };
             }
             case 39n: {
               const dataView = new DataView(
@@ -13714,13 +13579,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'lAsymmetric',
-                  lAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'lAsymmetric',
+                lAsymmetric: payload,
+              };
             }
             case 40n: {
               const dataView = new DataView(
@@ -13751,13 +13613,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'mAsymmetric',
-                  mAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'mAsymmetric',
+                mAsymmetric: payload,
+              };
             }
             case 41n: {
               const dataView = new DataView(
@@ -13795,13 +13654,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'nAsymmetric',
-                  nAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'nAsymmetric',
+                nAsymmetric: payload,
+              };
             }
             case 42n: {
               const dataView = new DataView(
@@ -13845,13 +13701,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'oAsymmetric',
-                  oAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'oAsymmetric',
+                oAsymmetric: payload,
+              };
             }
             case 43n: {
               const dataView = new DataView(
@@ -13898,13 +13751,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'pAsymmetric',
-                  pAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'pAsymmetric',
+                pAsymmetric: payload,
+              };
             }
             case 44n: {
               const dataView = new DataView(
@@ -13937,21 +13787,18 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'qAsymmetric',
-                  qAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'qAsymmetric',
+                qAsymmetric: payload,
+              };
             }
             case 45n: {
               const dataView = new DataView(
@@ -13984,21 +13831,18 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'rAsymmetric',
-                  rAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'rAsymmetric',
+                rAsymmetric: payload,
+              };
             }
             case 46n: {
               const dataView = new DataView(
@@ -14047,13 +13891,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'sAsymmetric',
-                  sAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'sAsymmetric',
+                sAsymmetric: payload,
+              };
             }
             case 47n: {
               const dataView = new DataView(
@@ -14111,13 +13952,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'tAsymmetric',
-                  tAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'tAsymmetric',
+                tAsymmetric: payload,
+              };
             }
             case 48n: {
               const dataView = new DataView(
@@ -14175,13 +14013,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'uAsymmetric',
-                  uAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'uAsymmetric',
+                uAsymmetric: payload,
+              };
             }
             case 49n: {
               const dataView = new DataView(
@@ -14240,13 +14075,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'vAsymmetric',
-                  vAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'vAsymmetric',
+                vAsymmetric: payload,
+              };
             }
             case 50n: {
               const dataView = new DataView(
@@ -14312,13 +14144,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'wAsymmetric',
-                  wAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'wAsymmetric',
+                wAsymmetric: payload,
+              };
             }
             case 51n: {
               const dataView = new DataView(
@@ -14390,13 +14219,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'xAsymmetric',
-                  xAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'xAsymmetric',
+                xAsymmetric: payload,
+              };
             }
             case 52n: {
               const dataView = new DataView(
@@ -14471,13 +14297,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'yAsymmetric',
-                  yAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'yAsymmetric',
+                yAsymmetric: payload,
+              };
             }
             case 53n: {
               const dataView = new DataView(
@@ -14533,8 +14356,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -14546,13 +14369,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'zAsymmetric',
-                  zAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'zAsymmetric',
+                zAsymmetric: payload,
+              };
             }
             case 54n: {
               const dataView = new DataView(
@@ -14608,8 +14428,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -14621,13 +14441,10 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'aaAsymmetric',
-                  aaAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'aaAsymmetric',
+                aaAsymmetric: payload,
+              };
             }
             case 56n: {
               const dataView = new DataView(
@@ -14639,15 +14456,18 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'aOptional',
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'aOptional',
+                $fallback,
+              };
             }
             case 57n: {
               const dataView = new DataView(
@@ -14670,16 +14490,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'bOptional',
-                  bOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'bOptional',
+                bOptional: payload,
+                $fallback,
+              };
             }
             case 58n: {
               const dataView = new DataView(
@@ -14705,16 +14528,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'cOptional',
-                  cOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'cOptional',
+                cOptional: payload,
+                $fallback,
+              };
             }
             case 59n: {
               const dataView = new DataView(
@@ -14741,16 +14567,19 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'dOptional',
-                  dOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'dOptional',
+                dOptional: payload,
+                $fallback,
+              };
             }
             case 60n: {
               const dataView = new DataView(
@@ -14784,16 +14613,19 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'eOptional',
-                  eOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'eOptional',
+                eOptional: payload,
+                $fallback,
+              };
             }
             case 61n: {
               const dataView = new DataView(
@@ -14809,16 +14641,19 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'fOptional',
-                  fOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'fOptional',
+                fOptional: payload,
+                $fallback,
+              };
             }
             case 62n: {
               const dataView = new DataView(
@@ -14837,16 +14672,19 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'gOptional',
-                  gOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'gOptional',
+                gOptional: payload,
+                $fallback,
+              };
             }
             case 63n: {
               const dataView = new DataView(
@@ -14856,19 +14694,22 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'hOptional',
-                  hOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'hOptional',
+                hOptional: payload,
+                $fallback,
+              };
             }
             case 64n: {
               const dataView = new DataView(
@@ -14878,19 +14719,22 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
-              [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'iOptional',
-                  iOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'iOptional',
+                iOptional: payload,
+                $fallback,
+              };
             }
             case 65n: {
               const dataView = new DataView(
@@ -14924,16 +14768,19 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'jOptional',
-                  jOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'jOptional',
+                jOptional: payload,
+                $fallback,
+              };
             }
             case 66n: {
               const dataView = new DataView(
@@ -14963,16 +14810,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'kOptional',
-                  kOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'kOptional',
+                kOptional: payload,
+                $fallback,
+              };
             }
             case 67n: {
               const dataView = new DataView(
@@ -15002,16 +14852,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'lOptional',
-                  lOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'lOptional',
+                lOptional: payload,
+                $fallback,
+              };
             }
             case 68n: {
               const dataView = new DataView(
@@ -15042,16 +14895,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'mOptional',
-                  mOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'mOptional',
+                mOptional: payload,
+                $fallback,
+              };
             }
             case 69n: {
               const dataView = new DataView(
@@ -15089,16 +14945,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'nOptional',
-                  nOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'nOptional',
+                nOptional: payload,
+                $fallback,
+              };
             }
             case 70n: {
               const dataView = new DataView(
@@ -15142,16 +15001,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'oOptional',
-                  oOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'oOptional',
+                oOptional: payload,
+                $fallback,
+              };
             }
             case 71n: {
               const dataView = new DataView(
@@ -15198,16 +15060,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'pOptional',
-                  pOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'pOptional',
+                pOptional: payload,
+                $fallback,
+              };
             }
             case 72n: {
               const dataView = new DataView(
@@ -15240,24 +15105,27 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'qOptional',
-                  qOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'qOptional',
+                qOptional: payload,
+                $fallback,
+              };
             }
             case 73n: {
               const dataView = new DataView(
@@ -15290,24 +15158,27 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload;
-                    [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
                   }
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'rOptional',
-                  rOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'rOptional',
+                rOptional: payload,
+                $fallback,
+              };
             }
             case 74n: {
               const dataView = new DataView(
@@ -15356,16 +15227,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'sOptional',
-                  sOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'sOptional',
+                sOptional: payload,
+                $fallback,
+              };
             }
             case 75n: {
               const dataView = new DataView(
@@ -15423,16 +15297,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'tOptional',
-                  tOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'tOptional',
+                tOptional: payload,
+                $fallback,
+              };
             }
             case 76n: {
               const dataView = new DataView(
@@ -15490,16 +15367,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'uOptional',
-                  uOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'uOptional',
+                uOptional: payload,
+                $fallback,
+              };
             }
             case 77n: {
               const dataView = new DataView(
@@ -15558,16 +15438,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'vOptional',
-                  vOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'vOptional',
+                vOptional: payload,
+                $fallback,
+              };
             }
             case 78n: {
               const dataView = new DataView(
@@ -15633,16 +15516,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'wOptional',
-                  wOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'wOptional',
+                wOptional: payload,
+                $fallback,
+              };
             }
             case 79n: {
               const dataView = new DataView(
@@ -15714,16 +15600,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'xOptional',
-                  xOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'xOptional',
+                xOptional: payload,
+                $fallback,
+              };
             }
             case 80n: {
               const dataView = new DataView(
@@ -15798,16 +15687,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'yOptional',
-                  yOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'yOptional',
+                yOptional: payload,
+                $fallback,
+              };
             }
             case 81n: {
               const dataView = new DataView(
@@ -15863,8 +15755,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Comprehensive.Types.LocalStruct.deserialize(dataView, offset);
+                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -15876,16 +15768,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'zOptional',
-                  zOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'zOptional',
+                zOptional: payload,
+                $fallback,
+              };
             }
             case 82n: {
               const dataView = new DataView(
@@ -15941,8 +15836,8 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload;
-                          [offset, payload] = Degenerate.Types.EmptyStruct.deserialize(dataView, offset);
+                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
                         }
@@ -15954,16 +15849,19 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'aaOptional',
-                  aaOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'aaOptional',
+                aaOptional: payload,
+                $fallback,
+              };
             }
             default:
               offset += payloadSize;
@@ -16005,15 +15903,9 @@ export namespace Degenerate {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, EmptyStructIn] {
-        return [
-          offset,
-          {
-          }
-        ];
+      export function deserialize(dataView: DataView): EmptyStructIn {
+        return {
+        };
       }
 
       export function outToIn(value: EmptyStructOut): EmptyStructIn {
@@ -16038,11 +15930,10 @@ export namespace Degenerate {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, EmptyChoiceIn] {
+      export function deserialize(dataView: DataView): EmptyChoiceIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -16356,11 +16247,10 @@ export namespace SchemaEvolution {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, ExampleStructIn] {
+      export function deserialize(dataView: DataView): ExampleStructIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $nonexistentToAsymmetric, $nonexistentToOptional;
 
@@ -16592,22 +16482,19 @@ export namespace SchemaEvolution {
           throw new Error('Struct missing one or more field(s).');
         }
 
-        return [
-          offset,
-          {
-            requiredToRequired: $requiredToRequired,
-            requiredToAsymmetric: $requiredToAsymmetric,
-            requiredToOptional: $requiredToOptional,
-            asymmetricToRequired: $asymmetricToRequired,
-            asymmetricToAsymmetric: $asymmetricToAsymmetric,
-            asymmetricToOptional: $asymmetricToOptional,
-            optionalToRequired: $optionalToRequired,
-            optionalToAsymmetric: $optionalToAsymmetric,
-            optionalToOptional: $optionalToOptional,
-            nonexistentToAsymmetric: $nonexistentToAsymmetric,
-            nonexistentToOptional: $nonexistentToOptional,
-          }
-        ];
+        return {
+          requiredToRequired: $requiredToRequired,
+          requiredToAsymmetric: $requiredToAsymmetric,
+          requiredToOptional: $requiredToOptional,
+          asymmetricToRequired: $asymmetricToRequired,
+          asymmetricToAsymmetric: $asymmetricToAsymmetric,
+          asymmetricToOptional: $asymmetricToOptional,
+          optionalToRequired: $optionalToRequired,
+          optionalToAsymmetric: $optionalToAsymmetric,
+          optionalToOptional: $optionalToOptional,
+          nonexistentToAsymmetric: $nonexistentToAsymmetric,
+          nonexistentToOptional: $nonexistentToOptional,
+        };
       }
 
       export function outToIn(value: ExampleStructOut): ExampleStructIn {
@@ -16872,11 +16759,10 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, ExampleChoiceIn] {
+      export function deserialize(dataView: DataView): ExampleChoiceIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -16899,13 +16785,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'requiredToRequired',
-                  requiredToRequired: payload,
-                },
-              ];
+              return {
+                $field: 'requiredToRequired',
+                requiredToRequired: payload,
+              };
             }
             case 1n: {
               const dataView = new DataView(
@@ -16924,13 +16807,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'requiredToAsymmetric',
-                  requiredToAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'requiredToAsymmetric',
+                requiredToAsymmetric: payload,
+              };
             }
             case 4n: {
               const dataView = new DataView(
@@ -16949,13 +16829,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToRequired',
-                  asymmetricToRequired: payload,
-                },
-              ];
+              return {
+                $field: 'asymmetricToRequired',
+                asymmetricToRequired: payload,
+              };
             }
             case 5n: {
               const dataView = new DataView(
@@ -16974,13 +16851,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToAsymmetric',
-                  asymmetricToAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'asymmetricToAsymmetric',
+                asymmetricToAsymmetric: payload,
+              };
             }
             case 6n: {
               const dataView = new DataView(
@@ -16999,16 +16873,19 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToOptional',
-                  asymmetricToOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'asymmetricToOptional',
+                asymmetricToOptional: payload,
+                $fallback,
+              };
             }
             case 8n: {
               const dataView = new DataView(
@@ -17027,13 +16904,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToRequired',
-                  optionalToRequired: payload,
-                },
-              ];
+              return {
+                $field: 'optionalToRequired',
+                optionalToRequired: payload,
+              };
             }
             case 9n: {
               const dataView = new DataView(
@@ -17052,13 +16926,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToAsymmetric',
-                  optionalToAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'optionalToAsymmetric',
+                optionalToAsymmetric: payload,
+              };
             }
             case 10n: {
               const dataView = new DataView(
@@ -17077,16 +16948,19 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToOptional',
-                  optionalToOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'optionalToOptional',
+                optionalToOptional: payload,
+                $fallback,
+              };
             }
             case 12n: {
               const dataView = new DataView(
@@ -17098,12 +16972,9 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'nonexistentToRequired',
-                },
-              ];
+              return {
+                $field: 'nonexistentToRequired',
+              };
             }
             case 13n: {
               const dataView = new DataView(
@@ -17115,12 +16986,9 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'nonexistentToAsymmetric',
-                },
-              ];
+              return {
+                $field: 'nonexistentToAsymmetric',
+              };
             }
             case 14n: {
               const dataView = new DataView(
@@ -17132,15 +17000,18 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'nonexistentToOptional',
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'nonexistentToOptional',
+                $fallback,
+              };
             }
             default:
               offset += payloadSize;
@@ -17492,11 +17363,10 @@ export namespace SchemaEvolution {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, ExampleStructIn] {
+      export function deserialize(dataView: DataView): ExampleStructIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
 
@@ -17762,23 +17632,20 @@ export namespace SchemaEvolution {
           throw new Error('Struct missing one or more field(s).');
         }
 
-        return [
-          offset,
-          {
-            requiredToRequired: $requiredToRequired,
-            requiredToAsymmetric: $requiredToAsymmetric,
-            requiredToOptional: $requiredToOptional,
-            requiredToNonexistent: $requiredToNonexistent,
-            asymmetricToRequired: $asymmetricToRequired,
-            asymmetricToAsymmetric: $asymmetricToAsymmetric,
-            asymmetricToOptional: $asymmetricToOptional,
-            asymmetricToNonexistent: $asymmetricToNonexistent,
-            optionalToRequired: $optionalToRequired,
-            optionalToAsymmetric: $optionalToAsymmetric,
-            optionalToOptional: $optionalToOptional,
-            optionalToNonexistent: $optionalToNonexistent,
-          }
-        ];
+        return {
+          requiredToRequired: $requiredToRequired,
+          requiredToAsymmetric: $requiredToAsymmetric,
+          requiredToOptional: $requiredToOptional,
+          requiredToNonexistent: $requiredToNonexistent,
+          asymmetricToRequired: $asymmetricToRequired,
+          asymmetricToAsymmetric: $asymmetricToAsymmetric,
+          asymmetricToOptional: $asymmetricToOptional,
+          asymmetricToNonexistent: $asymmetricToNonexistent,
+          optionalToRequired: $optionalToRequired,
+          optionalToAsymmetric: $optionalToAsymmetric,
+          optionalToOptional: $optionalToOptional,
+          optionalToNonexistent: $optionalToNonexistent,
+        };
       }
 
       export function outToIn(value: ExampleStructOut): ExampleStructIn {
@@ -18051,11 +17918,10 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, ExampleChoiceIn] {
+      export function deserialize(dataView: DataView): ExampleChoiceIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -18078,13 +17944,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'requiredToRequired',
-                  requiredToRequired: payload,
-                },
-              ];
+              return {
+                $field: 'requiredToRequired',
+                requiredToRequired: payload,
+              };
             }
             case 1n: {
               const dataView = new DataView(
@@ -18103,13 +17966,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'requiredToAsymmetric',
-                  requiredToAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'requiredToAsymmetric',
+                requiredToAsymmetric: payload,
+              };
             }
             case 4n: {
               const dataView = new DataView(
@@ -18128,13 +17988,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToRequired',
-                  asymmetricToRequired: payload,
-                },
-              ];
+              return {
+                $field: 'asymmetricToRequired',
+                asymmetricToRequired: payload,
+              };
             }
             case 5n: {
               const dataView = new DataView(
@@ -18153,13 +18010,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToAsymmetric',
-                  asymmetricToAsymmetric: payload,
-                },
-              ];
+              return {
+                $field: 'asymmetricToAsymmetric',
+                asymmetricToAsymmetric: payload,
+              };
             }
             case 6n: {
               const dataView = new DataView(
@@ -18178,13 +18032,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToOptional',
-                  asymmetricToOptional: payload,
-                },
-              ];
+              return {
+                $field: 'asymmetricToOptional',
+                asymmetricToOptional: payload,
+              };
             }
             case 7n: {
               const dataView = new DataView(
@@ -18203,13 +18054,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'asymmetricToNonexistent',
-                  asymmetricToNonexistent: payload,
-                },
-              ];
+              return {
+                $field: 'asymmetricToNonexistent',
+                asymmetricToNonexistent: payload,
+              };
             }
             case 8n: {
               const dataView = new DataView(
@@ -18228,16 +18076,19 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToRequired',
-                  optionalToRequired: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'optionalToRequired',
+                optionalToRequired: payload,
+                $fallback,
+              };
             }
             case 9n: {
               const dataView = new DataView(
@@ -18256,16 +18107,19 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToAsymmetric',
-                  optionalToAsymmetric: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'optionalToAsymmetric',
+                optionalToAsymmetric: payload,
+                $fallback,
+              };
             }
             case 10n: {
               const dataView = new DataView(
@@ -18284,16 +18138,19 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToOptional',
-                  optionalToOptional: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'optionalToOptional',
+                optionalToOptional: payload,
+                $fallback,
+              };
             }
             case 11n: {
               const dataView = new DataView(
@@ -18312,16 +18169,19 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const [newNewOffset, $fallback] = deserialize(dataViewAlias, offset);
-              offset = newNewOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'optionalToNonexistent',
-                  optionalToNonexistent: payload,
-                  $fallback,
-                },
-              ];
+              const $fallback = deserialize(
+                new DataView(
+                  dataViewAlias.buffer,
+                  dataViewAlias.byteOffset + offset,
+                  dataViewAlias.byteLength - offset,
+                ),
+              );
+              offset = dataViewAlias.byteLength;
+              return {
+                $field: 'optionalToNonexistent',
+                optionalToNonexistent: payload,
+                $fallback,
+              };
             }
             default:
               offset += payloadSize;
@@ -18385,11 +18245,10 @@ export namespace SchemaEvolution {
         return offset;
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, SingletonStructIn] {
+      export function deserialize(dataView: DataView): SingletonStructIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         let $x;
 
@@ -18435,12 +18294,9 @@ export namespace SchemaEvolution {
           throw new Error('Struct missing one or more field(s).');
         }
 
-        return [
-          offset,
-          {
-            x: $x,
-          }
-        ];
+        return {
+          x: $x,
+        };
       }
 
       export function outToIn(value: SingletonStructOut): SingletonStructIn {
@@ -18500,11 +18356,10 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function deserialize(
-        dataView: DataView,
-        offset: number,
-      ): [number, SingletonChoiceIn] {
+      export function deserialize(dataView: DataView): SingletonChoiceIn {
         const dataViewAlias = dataView;
+
+        let offset = 0;
 
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -18527,13 +18382,10 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              return [
-                dataViewAlias.byteLength,
-                {
-                  $field: 'x',
-                  x: payload,
-                },
-              ];
+              return {
+                $field: 'x',
+                x: payload,
+              };
             }
             default:
               offset += payloadSize;
