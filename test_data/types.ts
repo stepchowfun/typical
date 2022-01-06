@@ -662,8 +662,7 @@ export namespace Comprehensive {
 
         {
           const payload = value.bRequired;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
+          if (Object.is(payload, 0)) {
             payloadSize = 0;
           } else {
             payloadSize = 8;
@@ -1096,8 +1095,7 @@ export namespace Comprehensive {
 
         {
           const payload = value.bAsymmetric;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
+          if (Object.is(payload, 0)) {
             payloadSize = 0;
           } else {
             payloadSize = 8;
@@ -1537,8 +1535,7 @@ export namespace Comprehensive {
           if (payload === undefined) {
             payloadSize = 0;
           } else {
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -2082,8 +2079,7 @@ export namespace Comprehensive {
 
         {
           const payload = value.bRequired;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
+          if (Object.is(payload, 0)) {
             payloadSize = 0;
           } else {
             payloadSize = 8;
@@ -2164,11 +2160,14 @@ export namespace Comprehensive {
           payloadSize = payload.byteLength;
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
-            const buffer = new Uint8Array(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = new Uint8Array(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -2177,11 +2176,14 @@ export namespace Comprehensive {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -2343,11 +2345,14 @@ export namespace Comprehensive {
               payloadSize = payload.byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
-                const buffer = new Uint8Array(payload);
-                for (let i = 0; i < buffer.byteLength; i += 1) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
+                const sourceBuffer = new Uint8Array(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
               }
             }
           }
@@ -2374,11 +2379,14 @@ export namespace Comprehensive {
               payloadSize = textEncoder.encode(payload).byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
-                const buffer = textEncoder.encode(payload);
-                for (let i = 0; i < buffer.byteLength; i += 1) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
+                const sourceBuffer = textEncoder.encode(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
               }
             }
           }
@@ -2719,11 +2727,14 @@ export namespace Comprehensive {
                   payloadSize = payload.byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
-                    const buffer = new Uint8Array(payload);
-                    for (let i = 0; i < buffer.byteLength; i += 1) {
-                      dataView.setUint8(offset + i, buffer[i]);
-                    }
-                    offset += buffer.byteLength;
+                    const sourceBuffer = new Uint8Array(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
                   }
                 }
               }
@@ -2778,11 +2789,14 @@ export namespace Comprehensive {
                   payloadSize = textEncoder.encode(payload).byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
-                    const buffer = textEncoder.encode(payload);
-                    for (let i = 0; i < buffer.byteLength; i += 1) {
-                      dataView.setUint8(offset + i, buffer[i]);
-                    }
-                    offset += buffer.byteLength;
+                    const sourceBuffer = textEncoder.encode(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
                   }
                 }
               }
@@ -2904,8 +2918,7 @@ export namespace Comprehensive {
 
         {
           const payload = value.bAsymmetric;
-          dataView64.setFloat64(0, payload, true);
-          if (dataView64.getBigUint64(0, true) === 0n) {
+          if (Object.is(payload, 0)) {
             payloadSize = 0;
           } else {
             payloadSize = 8;
@@ -2986,11 +2999,14 @@ export namespace Comprehensive {
           payloadSize = payload.byteLength;
           offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
           {
-            const buffer = new Uint8Array(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = new Uint8Array(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -2999,11 +3015,14 @@ export namespace Comprehensive {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -3165,11 +3184,14 @@ export namespace Comprehensive {
               payloadSize = payload.byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
-                const buffer = new Uint8Array(payload);
-                for (let i = 0; i < buffer.byteLength; i += 1) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
+                const sourceBuffer = new Uint8Array(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
               }
             }
           }
@@ -3196,11 +3218,14 @@ export namespace Comprehensive {
               payloadSize = textEncoder.encode(payload).byteLength;
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
-                const buffer = textEncoder.encode(payload);
-                for (let i = 0; i < buffer.byteLength; i += 1) {
-                  dataView.setUint8(offset + i, buffer[i]);
-                }
-                offset += buffer.byteLength;
+                const sourceBuffer = textEncoder.encode(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
               }
             }
           }
@@ -3541,11 +3566,14 @@ export namespace Comprehensive {
                   payloadSize = payload.byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
-                    const buffer = new Uint8Array(payload);
-                    for (let i = 0; i < buffer.byteLength; i += 1) {
-                      dataView.setUint8(offset + i, buffer[i]);
-                    }
-                    offset += buffer.byteLength;
+                    const sourceBuffer = new Uint8Array(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
                   }
                 }
               }
@@ -3600,11 +3628,14 @@ export namespace Comprehensive {
                   payloadSize = textEncoder.encode(payload).byteLength;
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
-                    const buffer = textEncoder.encode(payload);
-                    for (let i = 0; i < buffer.byteLength; i += 1) {
-                      dataView.setUint8(offset + i, buffer[i]);
-                    }
-                    offset += buffer.byteLength;
+                    const sourceBuffer = textEncoder.encode(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
                   }
                 }
               }
@@ -3729,8 +3760,7 @@ export namespace Comprehensive {
         {
           const payload = value.bOptional;
           if (payload !== undefined) {
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -3819,11 +3849,14 @@ export namespace Comprehensive {
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
-              const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = new Uint8Array(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -3834,11 +3867,14 @@ export namespace Comprehensive {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -4016,11 +4052,14 @@ export namespace Comprehensive {
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = new Uint8Array(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -4049,11 +4088,14 @@ export namespace Comprehensive {
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = textEncoder.encode(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -4410,11 +4452,14 @@ export namespace Comprehensive {
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = new Uint8Array(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -4471,11 +4516,14 @@ export namespace Comprehensive {
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = textEncoder.encode(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -8261,8 +8309,7 @@ export namespace Comprehensive {
           }
           case 'bRequired': {
             const payload = value.bRequired;
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -8668,8 +8715,7 @@ export namespace Comprehensive {
           }
           case 'bAsymmetric': {
             const payload = value.bAsymmetric;
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -9075,8 +9121,7 @@ export namespace Comprehensive {
           }
           case 'bOptional': {
             const payload = value.bOptional;
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -9496,8 +9541,7 @@ export namespace Comprehensive {
           }
           case 'bRequired': {
             const payload = value.bRequired;
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -9578,11 +9622,14 @@ export namespace Comprehensive {
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
-              const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = new Uint8Array(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -9591,11 +9638,14 @@ export namespace Comprehensive {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -9757,11 +9807,14 @@ export namespace Comprehensive {
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = new Uint8Array(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -9788,11 +9841,14 @@ export namespace Comprehensive {
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = textEncoder.encode(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -10133,11 +10189,14 @@ export namespace Comprehensive {
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = new Uint8Array(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -10192,11 +10251,14 @@ export namespace Comprehensive {
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = textEncoder.encode(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -10319,8 +10381,7 @@ export namespace Comprehensive {
           }
           case 'bAsymmetric': {
             const payload = value.bAsymmetric;
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -10405,11 +10466,14 @@ export namespace Comprehensive {
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
             {
-              const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = new Uint8Array(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -10419,11 +10483,14 @@ export namespace Comprehensive {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -10593,11 +10660,14 @@ export namespace Comprehensive {
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = new Uint8Array(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -10625,11 +10695,14 @@ export namespace Comprehensive {
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = textEncoder.encode(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -10978,11 +11051,14 @@ export namespace Comprehensive {
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = new Uint8Array(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -11038,11 +11114,14 @@ export namespace Comprehensive {
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = textEncoder.encode(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -11168,8 +11247,7 @@ export namespace Comprehensive {
           }
           case 'bOptional': {
             const payload = value.bOptional;
-            dataView64.setFloat64(0, payload, true);
-            if (dataView64.getBigUint64(0, true) === 0n) {
+            if (Object.is(payload, 0)) {
               payloadSize = 0;
             } else {
               payloadSize = 8;
@@ -11254,11 +11332,14 @@ export namespace Comprehensive {
             payloadSize = payload.byteLength;
             offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
-              const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = new Uint8Array(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -11268,11 +11349,14 @@ export namespace Comprehensive {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -11442,11 +11526,14 @@ export namespace Comprehensive {
                 payloadSize = payload.byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = new Uint8Array(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -11474,11 +11561,14 @@ export namespace Comprehensive {
                 payloadSize = textEncoder.encode(payload).byteLength;
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
-                  const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; i += 1) {
-                    dataView.setUint8(offset + i, buffer[i]);
-                  }
-                  offset += buffer.byteLength;
+                  const sourceBuffer = textEncoder.encode(payload);
+                  const targetBuffer = new Uint8Array(
+                    dataView.buffer,
+                    dataView.byteOffset,
+                    dataView.byteLength,
+                  );
+                  targetBuffer.set(sourceBuffer, offset);
+                  offset += sourceBuffer.byteLength;
                 }
               }
             }
@@ -11827,11 +11917,14 @@ export namespace Comprehensive {
                     payloadSize = payload.byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = new Uint8Array(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -11887,11 +11980,14 @@ export namespace Comprehensive {
                     payloadSize = textEncoder.encode(payload).byteLength;
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
-                      const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; i += 1) {
-                        dataView.setUint8(offset + i, buffer[i]);
-                      }
-                      offset += buffer.byteLength;
+                      const sourceBuffer = textEncoder.encode(payload);
+                      const targetBuffer = new Uint8Array(
+                        dataView.buffer,
+                        dataView.byteOffset,
+                        dataView.byteLength,
+                      );
+                      targetBuffer.set(sourceBuffer, offset);
+                      offset += sourceBuffer.byteLength;
                     }
                   }
                 }
@@ -16098,11 +16194,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -16111,11 +16210,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -16125,11 +16227,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -16139,11 +16244,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -16152,11 +16260,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -16166,11 +16277,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -16180,11 +16294,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -16193,11 +16310,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -16207,11 +16327,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -16596,11 +16719,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -16609,11 +16735,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -16623,11 +16752,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -16636,11 +16768,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -16650,11 +16785,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -16664,11 +16802,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -16677,11 +16818,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -16691,11 +16835,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17147,11 +17294,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17160,11 +17310,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17173,11 +17326,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17186,11 +17342,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17199,11 +17358,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17212,11 +17374,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17225,11 +17390,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17238,11 +17406,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -17252,11 +17423,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -17267,11 +17441,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -17282,11 +17459,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -17297,11 +17477,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
           }
         }
@@ -17700,11 +17883,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -17713,11 +17899,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }
@@ -17726,11 +17915,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17740,11 +17932,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17754,11 +17949,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17768,11 +17966,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17782,11 +17983,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17796,11 +18000,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17810,11 +18017,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -17824,11 +18034,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             offset = serialize(dataView, offset, value.$fallback);
             return offset;
@@ -18158,11 +18371,14 @@ export namespace SchemaEvolution {
           payloadSize = textEncoder.encode(payload).byteLength;
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
-            const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; i += 1) {
-              dataView.setUint8(offset + i, buffer[i]);
-            }
-            offset += buffer.byteLength;
+            const sourceBuffer = textEncoder.encode(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
           }
         }
 
@@ -18268,11 +18484,14 @@ export namespace SchemaEvolution {
             payloadSize = textEncoder.encode(payload).byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
-              const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; i += 1) {
-                dataView.setUint8(offset + i, buffer[i]);
-              }
-              offset += buffer.byteLength;
+              const sourceBuffer = textEncoder.encode(payload);
+              const targetBuffer = new Uint8Array(
+                dataView.buffer,
+                dataView.byteOffset,
+                dataView.byteLength,
+              );
+              targetBuffer.set(sourceBuffer, offset);
+              offset += sourceBuffer.byteLength;
             }
             return offset;
           }

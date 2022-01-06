@@ -1605,9 +1605,7 @@ fn write_size_calculation<T: Write>(
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
             if is_field {
-                writeln!(buffer, "dataView64.setFloat64(0, payload, true);")?;
-                write_indentation(buffer, indentation)?;
-                writeln!(buffer, "if (dataView64.getBigUint64(0, true) === 0n) {{")?;
+                writeln!(buffer, "if (Object.is(payload, 0)) {{")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "payloadSize = 0;")?;
                 write_indentation(buffer, indentation)?;
@@ -1788,15 +1786,21 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "{{")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "const buffer = new Uint8Array(payload);")?;
+            writeln!(buffer, "const sourceBuffer = new Uint8Array(payload);")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; i += 1) {{")?;
+            writeln!(buffer, "const targetBuffer = new Uint8Array(")?;
             write_indentation(buffer, indentation + 2)?;
-            writeln!(buffer, "dataView.setUint8(offset + i, buffer[i]);")?;
+            writeln!(buffer, "dataView.buffer,")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.byteOffset,")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.byteLength,")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "}}")?;
+            writeln!(buffer, ");")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "offset += buffer.byteLength;")?;
+            writeln!(buffer, "targetBuffer.set(sourceBuffer, offset);")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "offset += sourceBuffer.byteLength;")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "}}")
         }
@@ -1835,15 +1839,21 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "{{")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "const buffer = textEncoder.encode(payload);")?;
+            writeln!(buffer, "const sourceBuffer = textEncoder.encode(payload);")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; i += 1) {{")?;
+            writeln!(buffer, "const targetBuffer = new Uint8Array(")?;
             write_indentation(buffer, indentation + 2)?;
-            writeln!(buffer, "dataView.setUint8(offset + i, buffer[i]);")?;
+            writeln!(buffer, "dataView.buffer,")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.byteOffset,")?;
+            write_indentation(buffer, indentation + 2)?;
+            writeln!(buffer, "dataView.byteLength,")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "}}")?;
+            writeln!(buffer, ");")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "offset += buffer.byteLength;")?;
+            writeln!(buffer, "targetBuffer.set(sourceBuffer, offset);")?;
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "offset += sourceBuffer.byteLength;")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "}}")
         }
