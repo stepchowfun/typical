@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2022-01-06
+
+### Changed
+- Choices now have a different representation in TypeScript and JavaScript. The payload is now a property named after the appropriate field, rather than the `value` property. To avoid collisions with user-defined fields, the `field` and `fallback` fields have been renamed to `$field` and `$fallback`, respectively. For example, `{ type: 'foo', value: 0 }` is now `{ $type: 'foo', foo: 0 }`.
+
 ## [0.6.0] - 2022-01-04
 
 ### Fixed
