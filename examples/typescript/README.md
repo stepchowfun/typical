@@ -7,7 +7,7 @@ following commands in this directory:
 
 ```sh
 npm install
-npm run demo
+npm run main
 ```
 
 Note that you don't need to run Typical directly, since there's a

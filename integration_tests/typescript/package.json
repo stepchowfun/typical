@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "typical generate ../types/types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
+    "main": "typical generate ../types/types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
     "dev": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript integration_tests/typescript/generated/types.ts) && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
     "check": "eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
-    "validate": "npm run test && npm run check",
     "format": "prettier --config .prettierrc.js --ignore-path .ignore --write ."
   },
   "devDependencies": {

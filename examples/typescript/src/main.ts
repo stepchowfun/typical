@@ -12,7 +12,6 @@ function writeToFile() {
 
   const requestSize = Types.SendEmailRequest.size(request);
   const dataView = new DataView(new ArrayBuffer(requestSize));
-
   Types.SendEmailRequest.serialize(dataView, 0, request);
   writeFileSync(filePath, dataView);
 }
@@ -29,13 +28,8 @@ function readFromFile() {
     0,
   )[1];
 
-  // eslint-disable-next-line no-console
   console.log('to:', request.to);
-
-  // eslint-disable-next-line no-console
   console.log('subject:', request.subject);
-
-  // eslint-disable-next-line no-console
   console.log('body:', request.body);
 
   unlinkSync(filePath);
