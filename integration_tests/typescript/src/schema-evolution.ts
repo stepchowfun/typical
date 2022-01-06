@@ -1,6 +1,121 @@
 import { SchemaEvolution } from '../generated/types';
 import { assertMatch } from './assertions';
 
+function choiceTestCases(
+  fallbackBefore: SchemaEvolution.Before.ExampleChoiceOut,
+  fallbackAfter: SchemaEvolution.After.ExampleChoiceIn,
+): [
+  SchemaEvolution.Before.ExampleChoiceOut,
+  SchemaEvolution.After.ExampleChoiceIn,
+][] {
+  return [
+    [
+      {
+        $field: 'requiredToRequired',
+        requiredToRequired: 'required_to_required',
+      },
+      {
+        $field: 'requiredToRequired',
+        requiredToRequired: 'required_to_required',
+      },
+    ],
+    [
+      {
+        $field: 'requiredToAsymmetric',
+        requiredToAsymmetric: 'required_to_asymmetric',
+      },
+      {
+        $field: 'requiredToAsymmetric',
+        requiredToAsymmetric: 'required_to_asymmetric',
+      },
+    ],
+    [
+      {
+        $field: 'asymmetricToRequired',
+        asymmetricToRequired: 'asymmetric_to_required',
+        $fallback: fallbackBefore,
+      },
+      {
+        $field: 'asymmetricToRequired',
+        asymmetricToRequired: 'asymmetric_to_required',
+      },
+    ],
+    [
+      {
+        $field: 'asymmetricToAsymmetric',
+        asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
+        $fallback: fallbackBefore,
+      },
+      {
+        $field: 'asymmetricToAsymmetric',
+        asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
+      },
+    ],
+    [
+      {
+        $field: 'asymmetricToOptional',
+        asymmetricToOptional: 'asymmetric_to_optional',
+        $fallback: fallbackBefore,
+      },
+      {
+        $field: 'asymmetricToOptional',
+        asymmetricToOptional: 'asymmetric_to_optional',
+        $fallback: fallbackAfter,
+      },
+    ],
+    [
+      {
+        $field: 'asymmetricToNonexistent',
+        asymmetricToNonexistent: 'asymmetric_to_nonexistent',
+        $fallback: fallbackBefore,
+      },
+      fallbackAfter,
+    ],
+    [
+      {
+        $field: 'optionalToRequired',
+        optionalToRequired: 'optional_to_required',
+        $fallback: fallbackBefore,
+      },
+      {
+        $field: 'optionalToRequired',
+        optionalToRequired: 'optional_to_required',
+      },
+    ],
+    [
+      {
+        $field: 'optionalToAsymmetric',
+        optionalToAsymmetric: 'optional_to_asymmetric',
+        $fallback: fallbackBefore,
+      },
+      {
+        $field: 'optionalToAsymmetric',
+        optionalToAsymmetric: 'optional_to_asymmetric',
+      },
+    ],
+    [
+      {
+        $field: 'optionalToOptional',
+        optionalToOptional: 'optional_to_optional',
+        $fallback: fallbackBefore,
+      },
+      {
+        $field: 'optionalToOptional',
+        optionalToOptional: 'optional_to_optional',
+        $fallback: fallbackAfter,
+      },
+    ],
+    [
+      {
+        $field: 'optionalToNonexistent',
+        optionalToNonexistent: 'optional_to_nonexistent',
+        $fallback: fallbackBefore,
+      },
+      fallbackAfter,
+    ],
+  ];
+}
+
 export default function run(): void {
   assertMatch(
     SchemaEvolution.Before.ExampleStruct.size,
@@ -70,18 +185,7 @@ export default function run(): void {
 
   console.log();
 
-  const $fallback: {
-    $field: 'requiredToRequired';
-    requiredToRequired: string;
-  } = {
-    $field: 'requiredToRequired',
-    requiredToRequired: 'required_to_required',
-  };
-
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
+  const secondFallbacks = choiceTestCases(
     {
       $field: 'requiredToRequired',
       requiredToRequired: 'required_to_required',
@@ -92,135 +196,27 @@ export default function run(): void {
     },
   );
 
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'requiredToAsymmetric',
-      requiredToAsymmetric: 'required_to_asymmetric',
-    },
-    {
-      $field: 'requiredToAsymmetric',
-      requiredToAsymmetric: 'required_to_asymmetric',
-    },
-  );
+  for (let i = 0; i < secondFallbacks.length; i += 1) {
+    const firstFallbacks = choiceTestCases(...secondFallbacks[i]);
 
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'asymmetricToRequired',
-      asymmetricToRequired: 'asymmetric_to_required',
-      $fallback,
-    },
-    {
-      $field: 'asymmetricToRequired',
-      asymmetricToRequired: 'asymmetric_to_required',
-    },
-  );
+    for (let j = 0; j < firstFallbacks.length; j += 1) {
+      const tests = choiceTestCases(...firstFallbacks[j]);
 
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'asymmetricToAsymmetric',
-      asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
-      $fallback,
-    },
-    {
-      $field: 'asymmetricToAsymmetric',
-      asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
-    },
-  );
+      for (let k = 0; k < tests.length; k += 1) {
+        const [before, after] = tests[k];
 
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'asymmetricToOptional',
-      asymmetricToOptional: 'asymmetric_to_optional',
-      $fallback,
-    },
-    {
-      $field: 'asymmetricToOptional',
-      asymmetricToOptional: 'asymmetric_to_optional',
-      $fallback,
-    },
-  );
+        assertMatch(
+          SchemaEvolution.Before.ExampleChoice.size,
+          SchemaEvolution.Before.ExampleChoice.serialize,
+          SchemaEvolution.After.ExampleChoice.deserialize,
+          before,
+          after,
+        );
+      }
+    }
+  }
 
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'asymmetricToNonexistent',
-      asymmetricToNonexistent: 'asymmetric_to_nonexistent',
-      $fallback,
-    },
-    $fallback,
-  );
-
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'optionalToRequired',
-      optionalToRequired: 'optional_to_required',
-      $fallback,
-    },
-    {
-      $field: 'optionalToRequired',
-      optionalToRequired: 'optional_to_required',
-    },
-  );
-
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'optionalToAsymmetric',
-      optionalToAsymmetric: 'optional_to_asymmetric',
-      $fallback,
-    },
-    {
-      $field: 'optionalToAsymmetric',
-      optionalToAsymmetric: 'optional_to_asymmetric',
-    },
-  );
-
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'optionalToOptional',
-      optionalToOptional: 'optional_to_optional',
-      $fallback,
-    },
-    {
-      $field: 'optionalToOptional',
-      optionalToOptional: 'optional_to_optional',
-      $fallback,
-    },
-  );
-
-  assertMatch(
-    SchemaEvolution.Before.ExampleChoice.size,
-    SchemaEvolution.Before.ExampleChoice.serialize,
-    SchemaEvolution.After.ExampleChoice.deserialize,
-    {
-      $field: 'optionalToNonexistent',
-      optionalToNonexistent: 'optional_to_nonexistent',
-      $fallback,
-    },
-    $fallback,
-  );
+  console.log();
 
   assertMatch(
     SchemaEvolution.Types.SingletonStruct.size,

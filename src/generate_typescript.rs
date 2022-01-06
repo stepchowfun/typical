@@ -194,7 +194,7 @@ function varintSizeFromFirstByte(firstByte: number): number {{
   let trailingZeros = 0;
 
   while (trailingZeros < 8 && (firstByte & 1) !== 1) {{
-    ++trailingZeros;
+    trailingZeros += 1;
     firstByte >>= 1;
   }}
 
@@ -284,7 +284,7 @@ function deserializeVarint(
 
   const offsetPlusOne = offset + 1;
   dataView64.setBigUint64(0, 0n, true);
-  for (let i = 0; i < sizeMinusOne; ++i) {{
+  for (let i = 0; i < sizeMinusOne; i += 1) {{
     dataView64.setUint8(i, dataView.getUint8(offsetPlusOne + i));
   }}
   const remainingBytesValue = dataView64.getBigUint64(0, true);
@@ -1458,7 +1458,7 @@ fn write_size_calculation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "for (let i = 0; i < oldPayload.length; ++i) {{")?;
+                writeln!(buffer, "for (let i = 0; i < oldPayload.length; i += 1) {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1491,7 +1491,7 @@ fn write_size_calculation<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "const oldPayload = payload;")?;
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "for (let i = 0; i < oldPayload.length; ++i) {{")?;
+                writeln!(buffer, "for (let i = 0; i < oldPayload.length; i += 1) {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "const payload = oldPayload[i];")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1757,7 +1757,7 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation + 1)?;
             writeln!(buffer, "const buffer = new Uint8Array(payload);")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; ++i) {{")?;
+            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; i += 1) {{")?;
             write_indentation(buffer, indentation + 2)?;
             writeln!(buffer, "dataView.setUint8(offset + i, buffer[i]);")?;
             write_indentation(buffer, indentation + 1)?;
@@ -1804,7 +1804,7 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation + 1)?;
             writeln!(buffer, "const buffer = textEncoder.encode(payload);")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; ++i) {{")?;
+            writeln!(buffer, "for (let i = 0; i < buffer.byteLength; i += 1) {{")?;
             write_indentation(buffer, indentation + 2)?;
             writeln!(buffer, "dataView.setUint8(offset + i, buffer[i]);")?;
             write_indentation(buffer, indentation + 1)?;

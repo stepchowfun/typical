@@ -43,7 +43,7 @@ function varintSizeFromFirstByte(firstByte: number): number {
   let trailingZeros = 0;
 
   while (trailingZeros < 8 && (firstByte & 1) !== 1) {
-    ++trailingZeros;
+    trailingZeros += 1;
     firstByte >>= 1;
   }
 
@@ -133,7 +133,7 @@ function deserializeVarint(
 
   const offsetPlusOne = offset + 1;
   dataView64.setBigUint64(0, 0n, true);
-  for (let i = 0; i < sizeMinusOne; ++i) {
+  for (let i = 0; i < sizeMinusOne; i += 1) {
     dataView64.setUint8(i, dataView.getUint8(offsetPlusOne + i));
   }
   const remainingBytesValue = dataView64.getBigUint64(0, true);
@@ -732,7 +732,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(payload);
@@ -748,7 +748,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -764,7 +764,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 1;
@@ -780,7 +780,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = payload.byteLength;
@@ -796,7 +796,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = textEncoder.encode(payload).byteLength;
@@ -812,7 +812,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -828,7 +828,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -844,7 +844,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
@@ -866,7 +866,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 8 * payload.length;
@@ -882,13 +882,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(payload);
@@ -908,13 +908,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -934,13 +934,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = 1;
@@ -960,13 +960,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = payload.byteLength;
@@ -986,13 +986,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = textEncoder.encode(payload).byteLength;
@@ -1012,13 +1012,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -1038,13 +1038,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -1166,7 +1166,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(payload);
@@ -1182,7 +1182,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -1198,7 +1198,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 1;
@@ -1214,7 +1214,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = payload.byteLength;
@@ -1230,7 +1230,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = textEncoder.encode(payload).byteLength;
@@ -1246,7 +1246,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -1262,7 +1262,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -1278,7 +1278,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
@@ -1300,7 +1300,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 8 * payload.length;
@@ -1316,13 +1316,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(payload);
@@ -1342,13 +1342,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -1368,13 +1368,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = 1;
@@ -1394,13 +1394,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = payload.byteLength;
@@ -1420,13 +1420,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = textEncoder.encode(payload).byteLength;
@@ -1446,13 +1446,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -1472,13 +1472,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -1647,7 +1647,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -1667,7 +1667,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -1687,7 +1687,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -1707,7 +1707,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -1727,7 +1727,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -1747,7 +1747,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -1767,7 +1767,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -1787,7 +1787,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -1813,7 +1813,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -1833,13 +1833,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -1863,13 +1863,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -1893,13 +1893,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -1923,13 +1923,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -1953,13 +1953,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -1983,13 +1983,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -2013,13 +2013,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -2136,7 +2136,7 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
             const buffer = new Uint8Array(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -2149,7 +2149,7 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -2216,7 +2216,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(payload);
@@ -2242,7 +2242,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -2268,7 +2268,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 1;
@@ -2294,7 +2294,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = payload.byteLength;
@@ -2310,7 +2310,7 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = new Uint8Array(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
+                for (let i = 0; i < buffer.byteLength; i += 1) {
                   dataView.setUint8(offset + i, buffer[i]);
                 }
                 offset += buffer.byteLength;
@@ -2324,7 +2324,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = textEncoder.encode(payload).byteLength;
@@ -2340,7 +2340,7 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = textEncoder.encode(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
+                for (let i = 0; i < buffer.byteLength; i += 1) {
                   dataView.setUint8(offset + i, buffer[i]);
                 }
                 offset += buffer.byteLength;
@@ -2354,7 +2354,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -2378,7 +2378,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -2402,7 +2402,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
@@ -2441,7 +2441,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 8 * payload.length;
@@ -2472,13 +2472,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(payload);
@@ -2497,7 +2497,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(payload);
@@ -2525,13 +2525,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -2550,7 +2550,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -2578,13 +2578,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = 1;
@@ -2603,7 +2603,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = 1;
@@ -2631,13 +2631,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = payload.byteLength;
@@ -2656,7 +2656,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = payload.byteLength;
@@ -2672,7 +2672,7 @@ export namespace Comprehensive {
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
                     const buffer = new Uint8Array(payload);
-                    for (let i = 0; i < buffer.byteLength; ++i) {
+                    for (let i = 0; i < buffer.byteLength; i += 1) {
                       dataView.setUint8(offset + i, buffer[i]);
                     }
                     offset += buffer.byteLength;
@@ -2688,13 +2688,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = textEncoder.encode(payload).byteLength;
@@ -2713,7 +2713,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = textEncoder.encode(payload).byteLength;
@@ -2729,7 +2729,7 @@ export namespace Comprehensive {
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
                     const buffer = textEncoder.encode(payload);
-                    for (let i = 0; i < buffer.byteLength; ++i) {
+                    for (let i = 0; i < buffer.byteLength; i += 1) {
                       dataView.setUint8(offset + i, buffer[i]);
                     }
                     offset += buffer.byteLength;
@@ -2745,13 +2745,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -2770,7 +2770,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -2796,13 +2796,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -2821,7 +2821,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -2933,7 +2933,7 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
           {
             const buffer = new Uint8Array(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -2946,7 +2946,7 @@ export namespace Comprehensive {
           offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -3013,7 +3013,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(payload);
@@ -3039,7 +3039,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -3065,7 +3065,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 1;
@@ -3091,7 +3091,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = payload.byteLength;
@@ -3107,7 +3107,7 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = new Uint8Array(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
+                for (let i = 0; i < buffer.byteLength; i += 1) {
                   dataView.setUint8(offset + i, buffer[i]);
                 }
                 offset += buffer.byteLength;
@@ -3121,7 +3121,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = textEncoder.encode(payload).byteLength;
@@ -3137,7 +3137,7 @@ export namespace Comprehensive {
               offset = serializeVarint(dataView, offset, BigInt(payloadSize));
               {
                 const buffer = textEncoder.encode(payload);
-                for (let i = 0; i < buffer.byteLength; ++i) {
+                for (let i = 0; i < buffer.byteLength; i += 1) {
                   dataView.setUint8(offset + i, buffer[i]);
                 }
                 offset += buffer.byteLength;
@@ -3151,7 +3151,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -3175,7 +3175,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -3199,7 +3199,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
@@ -3238,7 +3238,7 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               payloadSize = 8 * payload.length;
@@ -3269,13 +3269,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(payload);
@@ -3294,7 +3294,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(payload);
@@ -3322,13 +3322,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -3347,7 +3347,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -3375,13 +3375,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = 1;
@@ -3400,7 +3400,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = 1;
@@ -3428,13 +3428,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = payload.byteLength;
@@ -3453,7 +3453,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = payload.byteLength;
@@ -3469,7 +3469,7 @@ export namespace Comprehensive {
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
                     const buffer = new Uint8Array(payload);
-                    for (let i = 0; i < buffer.byteLength; ++i) {
+                    for (let i = 0; i < buffer.byteLength; i += 1) {
                       dataView.setUint8(offset + i, buffer[i]);
                     }
                     offset += buffer.byteLength;
@@ -3485,13 +3485,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = textEncoder.encode(payload).byteLength;
@@ -3510,7 +3510,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = textEncoder.encode(payload).byteLength;
@@ -3526,7 +3526,7 @@ export namespace Comprehensive {
                   offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                   {
                     const buffer = textEncoder.encode(payload);
-                    for (let i = 0; i < buffer.byteLength; ++i) {
+                    for (let i = 0; i < buffer.byteLength; i += 1) {
                       dataView.setUint8(offset + i, buffer[i]);
                     }
                     offset += buffer.byteLength;
@@ -3542,13 +3542,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -3567,7 +3567,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -3593,13 +3593,13 @@ export namespace Comprehensive {
           {
             let arraySize = 0;
             const oldPayload = payload;
-            for (let i = 0; i < oldPayload.length; ++i) {
+            for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadSize = 0;
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -3618,7 +3618,7 @@ export namespace Comprehensive {
               {
                 let arraySize = 0;
                 const oldPayload = payload;
-                for (let i = 0; i < oldPayload.length; ++i) {
+                for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadSize = 0;
                   payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -3741,7 +3741,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
               const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -3756,7 +3756,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -3833,7 +3833,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -3861,7 +3861,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -3889,7 +3889,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -3917,7 +3917,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -3933,7 +3933,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -3949,7 +3949,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -3965,7 +3965,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -3981,7 +3981,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -4007,7 +4007,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -4033,7 +4033,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -4074,7 +4074,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -4107,13 +4107,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -4132,7 +4132,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -4162,13 +4162,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -4187,7 +4187,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -4217,13 +4217,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -4242,7 +4242,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -4272,13 +4272,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -4297,7 +4297,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -4313,7 +4313,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -4331,13 +4331,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -4356,7 +4356,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -4372,7 +4372,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -4390,13 +4390,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -4415,7 +4415,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -4443,13 +4443,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -4468,7 +4468,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -8246,7 +8246,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -8261,7 +8261,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -8276,7 +8276,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -8291,7 +8291,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -8306,7 +8306,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -8321,7 +8321,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -8336,7 +8336,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -8351,7 +8351,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -8372,7 +8372,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -8387,13 +8387,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -8412,13 +8412,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -8437,13 +8437,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -8462,13 +8462,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -8487,13 +8487,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -8512,13 +8512,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -8537,13 +8537,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -8653,7 +8653,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -8668,7 +8668,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -8683,7 +8683,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -8698,7 +8698,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -8713,7 +8713,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -8728,7 +8728,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -8743,7 +8743,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -8758,7 +8758,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -8779,7 +8779,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -8794,13 +8794,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -8819,13 +8819,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -8844,13 +8844,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -8869,13 +8869,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -8894,13 +8894,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -8919,13 +8919,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -8944,13 +8944,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -9060,7 +9060,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -9075,7 +9075,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -9090,7 +9090,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -9105,7 +9105,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -9120,7 +9120,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -9135,7 +9135,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -9150,7 +9150,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -9165,7 +9165,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -9186,7 +9186,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -9201,13 +9201,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -9226,13 +9226,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -9251,13 +9251,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -9276,13 +9276,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -9301,13 +9301,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -9326,13 +9326,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -9351,13 +9351,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -9475,7 +9475,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
               const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -9488,7 +9488,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -9555,7 +9555,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -9581,7 +9581,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -9607,7 +9607,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -9633,7 +9633,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -9649,7 +9649,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -9663,7 +9663,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -9679,7 +9679,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -9693,7 +9693,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -9717,7 +9717,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -9741,7 +9741,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -9780,7 +9780,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -9811,13 +9811,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -9836,7 +9836,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -9864,13 +9864,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -9889,7 +9889,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -9917,13 +9917,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -9942,7 +9942,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -9970,13 +9970,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -9995,7 +9995,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -10011,7 +10011,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -10027,13 +10027,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -10052,7 +10052,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -10068,7 +10068,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -10084,13 +10084,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -10109,7 +10109,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -10135,13 +10135,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -10160,7 +10160,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -10277,7 +10277,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
             {
               const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -10291,7 +10291,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -10363,7 +10363,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -10390,7 +10390,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -10417,7 +10417,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -10444,7 +10444,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -10460,7 +10460,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -10475,7 +10475,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -10491,7 +10491,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -10506,7 +10506,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -10531,7 +10531,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -10556,7 +10556,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -10596,7 +10596,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -10628,13 +10628,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -10653,7 +10653,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -10682,13 +10682,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -10707,7 +10707,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -10736,13 +10736,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -10761,7 +10761,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -10790,13 +10790,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -10815,7 +10815,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -10831,7 +10831,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -10848,13 +10848,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -10873,7 +10873,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -10889,7 +10889,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -10906,13 +10906,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -10931,7 +10931,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -10958,13 +10958,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -10983,7 +10983,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -11101,7 +11101,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
               const buffer = new Uint8Array(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -11115,7 +11115,7 @@ export namespace Comprehensive {
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -11187,7 +11187,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(payload);
@@ -11214,7 +11214,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -11241,7 +11241,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 1;
@@ -11268,7 +11268,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = payload.byteLength;
@@ -11284,7 +11284,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = new Uint8Array(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -11299,7 +11299,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = textEncoder.encode(payload).byteLength;
@@ -11315,7 +11315,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                 {
                   const buffer = textEncoder.encode(payload);
-                  for (let i = 0; i < buffer.byteLength; ++i) {
+                  for (let i = 0; i < buffer.byteLength; i += 1) {
                     dataView.setUint8(offset + i, buffer[i]);
                   }
                   offset += buffer.byteLength;
@@ -11330,7 +11330,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -11355,7 +11355,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -11380,7 +11380,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
@@ -11420,7 +11420,7 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 payloadSize = 8 * payload.length;
@@ -11452,13 +11452,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -11477,7 +11477,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(payload);
@@ -11506,13 +11506,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -11531,7 +11531,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = varintSizeFromValue(zigzagEncode(payload));
@@ -11560,13 +11560,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -11585,7 +11585,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = 1;
@@ -11614,13 +11614,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -11639,7 +11639,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = payload.byteLength;
@@ -11655,7 +11655,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = new Uint8Array(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -11672,13 +11672,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -11697,7 +11697,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = textEncoder.encode(payload).byteLength;
@@ -11713,7 +11713,7 @@ export namespace Comprehensive {
                     offset = serializeVarint(dataView, offset, BigInt(payloadSize));
                     {
                       const buffer = textEncoder.encode(payload);
-                      for (let i = 0; i < buffer.byteLength; ++i) {
+                      for (let i = 0; i < buffer.byteLength; i += 1) {
                         dataView.setUint8(offset + i, buffer[i]);
                       }
                       offset += buffer.byteLength;
@@ -11730,13 +11730,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -11755,7 +11755,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Comprehensive.Types.LocalStruct.size(payload);
@@ -11782,13 +11782,13 @@ export namespace Comprehensive {
             {
               let arraySize = 0;
               const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; ++i) {
+              for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadSize = 0;
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -11807,7 +11807,7 @@ export namespace Comprehensive {
                 {
                   let arraySize = 0;
                   const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; ++i) {
+                  for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadSize = 0;
                     payloadSize = Degenerate.Types.EmptyStruct.size(payload);
@@ -15920,7 +15920,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -15933,7 +15933,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -15947,7 +15947,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -15961,7 +15961,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -15974,7 +15974,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -15988,7 +15988,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16002,7 +16002,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -16015,7 +16015,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -16029,7 +16029,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16418,7 +16418,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16431,7 +16431,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16445,7 +16445,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16458,7 +16458,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16472,7 +16472,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16486,7 +16486,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16499,7 +16499,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16513,7 +16513,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -16969,7 +16969,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -16982,7 +16982,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -16995,7 +16995,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -17008,7 +17008,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -17021,7 +17021,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -17034,7 +17034,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -17047,7 +17047,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -17060,7 +17060,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -17074,7 +17074,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17089,7 +17089,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17104,7 +17104,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17119,7 +17119,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17522,7 +17522,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17535,7 +17535,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17548,7 +17548,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17562,7 +17562,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17576,7 +17576,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17590,7 +17590,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17604,7 +17604,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17618,7 +17618,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17632,7 +17632,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17646,7 +17646,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
@@ -17980,7 +17980,7 @@ export namespace SchemaEvolution {
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
             const buffer = textEncoder.encode(payload);
-            for (let i = 0; i < buffer.byteLength; ++i) {
+            for (let i = 0; i < buffer.byteLength; i += 1) {
               dataView.setUint8(offset + i, buffer[i]);
             }
             offset += buffer.byteLength;
@@ -18090,7 +18090,7 @@ export namespace SchemaEvolution {
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
               const buffer = textEncoder.encode(payload);
-              for (let i = 0; i < buffer.byteLength; ++i) {
+              for (let i = 0; i < buffer.byteLength; i += 1) {
                 dataView.setUint8(offset + i, buffer[i]);
               }
               offset += buffer.byteLength;
