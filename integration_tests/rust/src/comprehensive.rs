@@ -11,6 +11,7 @@ use {
 
 const F64_TEST_VALUES: &[f64] = &[
     0.0,
+    -0.0,
     PI,
     f64::EPSILON,
     f64::INFINITY,
