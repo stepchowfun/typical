@@ -34,10 +34,11 @@ fn read_from_file() -> io::Result<()> {
     println!("subject: {}", request.subject);
     println!("body: {}", request.body);
 
-    remove_file(FILE_PATH)
+    Ok(())
 }
 
 fn main() -> io::Result<()> {
     write_to_file()?;
-    read_from_file()
+    read_from_file()?;
+    remove_file(FILE_PATH)
 }

@@ -29,9 +29,8 @@ function readFromFile() {
   console.log('to:', request.to);
   console.log('subject:', request.subject);
   console.log('body:', request.body);
-
-  unlinkSync(filePath);
 }
 
 writeToFile();
 readFromFile();
+unlinkSync(filePath);
