@@ -84,9 +84,9 @@ export default function run(): void {
       mRequired: s64TestValues,
       nRequired: [false, true, false],
       oRequired: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       pRequired: ['', '=8 bytes', 'Hello, World!'],
       qRequired: [{}, {}, {}],
@@ -116,15 +116,12 @@ export default function run(): void {
       wRequired: [[], [false], [false, true], [false, true, false]],
       xRequired: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       yRequired: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
@@ -145,9 +142,9 @@ export default function run(): void {
       mAsymmetric: s64TestValues,
       nAsymmetric: [false, true, false],
       oAsymmetric: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
       qAsymmetric: [{}, {}, {}],
@@ -177,15 +174,12 @@ export default function run(): void {
       wAsymmetric: [[], [false], [false, true], [false, true, false]],
       xAsymmetric: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       yAsymmetric: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
@@ -243,9 +237,9 @@ export default function run(): void {
       mRequired: s64TestValues,
       nRequired: [false, true, false],
       oRequired: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       pRequired: ['', '=8 bytes', 'Hello, World!'],
       qRequired: [{}, {}, {}],
@@ -275,15 +269,12 @@ export default function run(): void {
       wRequired: [[], [false], [false, true], [false, true, false]],
       xRequired: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       yRequired: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
@@ -304,9 +295,9 @@ export default function run(): void {
       mAsymmetric: s64TestValues,
       nAsymmetric: [false, true, false],
       oAsymmetric: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
       qAsymmetric: [{}, {}, {}],
@@ -336,15 +327,12 @@ export default function run(): void {
       wAsymmetric: [[], [false], [false, true], [false, true, false]],
       xAsymmetric: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       yAsymmetric: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
@@ -365,9 +353,9 @@ export default function run(): void {
       mOptional: s64TestValues,
       nOptional: [false, true, false],
       oOptional: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       pOptional: ['', '=8 bytes', 'Hello, World!'],
       qOptional: [{}, {}, {}],
@@ -397,15 +385,12 @@ export default function run(): void {
       wOptional: [[], [false], [false, true], [false, true, false]],
       xOptional: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       yOptional: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
@@ -817,7 +802,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'oRequired',
-      oRequired: [new Uint8Array([0, 42, 255]).buffer],
+      oRequired: [new Uint8Array([]).buffer],
     },
   );
 
@@ -828,8 +813,8 @@ export default function run(): void {
     {
       $field: 'oRequired',
       oRequired: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
       ],
     },
   );
@@ -841,9 +826,9 @@ export default function run(): void {
     {
       $field: 'oRequired',
       oRequired: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
     },
   );
@@ -1294,7 +1279,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'xRequired',
-      xRequired: [[new Uint8Array([0, 42, 255]).buffer]],
+      xRequired: [[new Uint8Array([]).buffer]],
     },
   );
 
@@ -1316,9 +1301,9 @@ export default function run(): void {
       $field: 'xRequired',
       xRequired: [
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
     },
@@ -1332,15 +1317,12 @@ export default function run(): void {
       $field: 'xRequired',
       xRequired: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
     },
@@ -2128,12 +2110,12 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'oAsymmetric',
-      oAsymmetric: [new Uint8Array([0, 42, 255]).buffer],
+      oAsymmetric: [new Uint8Array([]).buffer],
       $fallback,
     },
     {
       $field: 'oAsymmetric',
-      oAsymmetric: [new Uint8Array([0, 42, 255]).buffer],
+      oAsymmetric: [new Uint8Array([]).buffer],
     },
   );
 
@@ -2144,16 +2126,16 @@ export default function run(): void {
     {
       $field: 'oAsymmetric',
       oAsymmetric: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
       ],
       $fallback,
     },
     {
       $field: 'oAsymmetric',
       oAsymmetric: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
       ],
     },
   );
@@ -2165,18 +2147,18 @@ export default function run(): void {
     {
       $field: 'oAsymmetric',
       oAsymmetric: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       $fallback,
     },
     {
       $field: 'oAsymmetric',
       oAsymmetric: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
     },
   );
@@ -2847,12 +2829,12 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'xAsymmetric',
-      xAsymmetric: [[new Uint8Array([0, 42, 255]).buffer]],
+      xAsymmetric: [[new Uint8Array([]).buffer]],
       $fallback,
     },
     {
       $field: 'xAsymmetric',
-      xAsymmetric: [[new Uint8Array([0, 42, 255]).buffer]],
+      xAsymmetric: [[new Uint8Array([]).buffer]],
     },
   );
 
@@ -2879,9 +2861,9 @@ export default function run(): void {
       $field: 'xAsymmetric',
       xAsymmetric: [
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       $fallback,
@@ -2890,9 +2872,9 @@ export default function run(): void {
       $field: 'xAsymmetric',
       xAsymmetric: [
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
     },
@@ -2906,15 +2888,12 @@ export default function run(): void {
       $field: 'xAsymmetric',
       xAsymmetric: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       $fallback,
@@ -2923,15 +2902,12 @@ export default function run(): void {
       $field: 'xAsymmetric',
       xAsymmetric: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
     },
@@ -3657,7 +3633,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'oOptional',
-      oOptional: [new Uint8Array([0, 42, 255]).buffer],
+      oOptional: [new Uint8Array([]).buffer],
       $fallback,
     },
   );
@@ -3669,8 +3645,8 @@ export default function run(): void {
     {
       $field: 'oOptional',
       oOptional: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
       ],
       $fallback,
     },
@@ -3683,9 +3659,9 @@ export default function run(): void {
     {
       $field: 'oOptional',
       oOptional: [
+        new Uint8Array([]).buffer,
         new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([1, 43, 254]).buffer,
-        new Uint8Array([2, 44, 253]).buffer,
+        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
       $fallback,
     },
@@ -4181,7 +4157,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'xOptional',
-      xOptional: [[new Uint8Array([0, 42, 255]).buffer]],
+      xOptional: [[new Uint8Array([]).buffer]],
       $fallback,
     },
   );
@@ -4205,9 +4181,9 @@ export default function run(): void {
       $field: 'xOptional',
       xOptional: [
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       $fallback,
@@ -4222,15 +4198,12 @@ export default function run(): void {
       $field: 'xOptional',
       xOptional: [
         [],
-        [new Uint8Array([0, 42, 255]).buffer],
+        [new Uint8Array([]).buffer],
+        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
         [
+          new Uint8Array([]).buffer,
           new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-        ],
-        [
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([1, 43, 254]).buffer,
-          new Uint8Array([2, 44, 253]).buffer,
+          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
       $fallback,
