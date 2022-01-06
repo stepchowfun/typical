@@ -20,13 +20,11 @@ function readFromFile() {
   const fileContents = readFileSync(filePath);
   const request = Types.SendEmailRequest.deserialize(
     new DataView(
-      fileContents.buffer.slice(
-        fileContents.byteOffset,
-        fileContents.byteOffset + fileContents.byteLength,
-      ),
+      fileContents.buffer,
+      fileContents.byteOffset,
+      fileContents.byteLength,
     ),
-    0,
-  )[1];
+  );
 
   console.log('to:', request.to);
   console.log('subject:', request.subject);

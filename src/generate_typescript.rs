@@ -769,18 +769,15 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function deserialize(")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "dataView: DataView,")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "offset: number,")?;
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "): [number, ")?;
+                write!(buffer, "export function deserialize(dataView: DataView): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, "] {{")?;
+                writeln!(buffer, " {{")?;
                 if !declaration.fields.is_empty() {
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "const dataViewAlias = dataView;")?;
+                    writeln!(buffer)?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "let offset = 0;")?;
                     writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     write!(buffer, "let ")?;
@@ -905,22 +902,16 @@ fn write_schema<T: Write>(
                     }
                 }
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return [")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "offset,")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "{{")?;
+                writeln!(buffer, "return {{")?;
                 for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 4)?;
+                    write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     write!(buffer, ": $")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     writeln!(buffer, ",")?;
                 }
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "];")?;
+                writeln!(buffer, "}};")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
@@ -1118,17 +1109,14 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function deserialize(")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "dataView: DataView,")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "offset: number,")?;
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "): [number, ")?;
+                write!(buffer, "export function deserialize(dataView: DataView): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, "] {{")?;
+                writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "const dataViewAlias = dataView;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "let offset = 0;")?;
                 writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "while (true) {{")?;
@@ -1173,41 +1161,43 @@ fn write_schema<T: Write>(
                         schema::Rule::Asymmetric | schema::Rule::Required => {}
                         schema::Rule::Optional => {
                             write_indentation(buffer, indentation + 5)?;
-                            writeln!(
-                                buffer,
-                                "const [newNewOffset, $fallback] = \
-                                    deserialize(dataViewAlias, offset);",
-                            )?;
+                            writeln!(buffer, "const $fallback = deserialize(")?;
+                            write_indentation(buffer, indentation + 6)?;
+                            writeln!(buffer, "new DataView(")?;
+                            write_indentation(buffer, indentation + 7)?;
+                            writeln!(buffer, "dataViewAlias.buffer,")?;
+                            write_indentation(buffer, indentation + 7)?;
+                            writeln!(buffer, "dataViewAlias.byteOffset + offset,")?;
+                            write_indentation(buffer, indentation + 7)?;
+                            writeln!(buffer, "dataViewAlias.byteLength - offset,")?;
+                            write_indentation(buffer, indentation + 6)?;
+                            writeln!(buffer, "),")?;
                             write_indentation(buffer, indentation + 5)?;
-                            writeln!(buffer, "offset = newNewOffset;")?;
+                            writeln!(buffer, ");")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "offset = dataViewAlias.byteLength;")?;
                         }
                     }
                     write_indentation(buffer, indentation + 5)?;
-                    writeln!(buffer, "return [")?;
+                    writeln!(buffer, "return {{")?;
                     write_indentation(buffer, indentation + 6)?;
-                    writeln!(buffer, "dataViewAlias.byteLength,")?;
-                    write_indentation(buffer, indentation + 6)?;
-                    writeln!(buffer, "{{")?;
-                    write_indentation(buffer, indentation + 7)?;
                     write!(buffer, "$field: '")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     writeln!(buffer, "',")?;
                     if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                        write_indentation(buffer, indentation + 7)?;
+                        write_indentation(buffer, indentation + 6)?;
                         write_identifier(buffer, &field.name, Camel, None)?;
                         writeln!(buffer, ": payload,")?;
                     }
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {}
                         schema::Rule::Optional => {
-                            write_indentation(buffer, indentation + 7)?;
+                            write_indentation(buffer, indentation + 6)?;
                             writeln!(buffer, "$fallback,")?;
                         }
                     }
-                    write_indentation(buffer, indentation + 6)?;
-                    writeln!(buffer, "}},")?;
                     write_indentation(buffer, indentation + 5)?;
-                    writeln!(buffer, "];")?;
+                    writeln!(buffer, "}};")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -1918,6 +1908,7 @@ fn write_u64_serialization_invocation<T: Write>(
 //   on being able to mutate the `payload` from a recursive call.
 // - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String`, then `dataView` is consumed to
 //   the end.
+// - If `type_variant` is `Custom`, then `offset` must be 0.
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
@@ -2122,11 +2113,11 @@ fn write_deserialization_invocation<T: Write>(
         }
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "let payload;")?;
-            write_indentation(buffer, indentation)?;
-            write!(buffer, "[offset, payload] = ")?;
+            write!(buffer, "let payload = ")?;
             write_custom_type(buffer, imports, namespace, import, name, None)?;
-            writeln!(buffer, ".deserialize(dataView, offset);")
+            writeln!(buffer, ".deserialize(dataView);")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "offset = dataView.byteLength;")
         }
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;

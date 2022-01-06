@@ -15,7 +15,7 @@ try {
 export function assertMatch<T, U>(
   size: (value: T) => number,
   serialize: (dataView: DataView, offset: number, value: T) => number,
-  deserialize: (dataView: DataView, offset: number) => [number, U],
+  deserialize: (dataView: DataView) => U,
   actual: T,
   expected: U,
 ): void {
@@ -37,18 +37,17 @@ export function assertMatch<T, U>(
 
   console.log('Size of the serialized value:', arrayBuffer.byteLength);
 
-  const [numBytesRead, replica] = deserialize(dataView, 0);
+  const replica = deserialize(dataView);
 
   console.log('Value deserialized from those bytes:', replica);
 
-  deepStrictEqual(numBytesRead, numBytesWritten);
   deepStrictEqual(replica, expected);
 }
 
 export function assertRoundTrip<U, T extends U>(
   size: (value: T) => number,
   serialize: (dataView: DataView, offset: number, value: T) => number,
-  deserialize: (dataView: DataView, offset: number) => [number, U],
+  deserialize: (dataView: DataView) => U,
   value: T,
 ): void {
   assertMatch(size, serialize, deserialize, value, value);
