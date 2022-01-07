@@ -6494,7 +6494,6 @@ pub mod comprehensive {
                         56 => {
                             let payload = ();
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AOptional(fallback));
                         }
                         57 => {
@@ -6506,7 +6505,6 @@ pub mod comprehensive {
                                 f64::from_le_bytes(buffer)
                             };
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::BOptional(payload, fallback));
                         }
                         58 => {
@@ -6520,7 +6518,6 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::COptional(payload, fallback));
                         }
                         59 => {
@@ -6535,7 +6532,6 @@ pub mod comprehensive {
                             };
                             let payload = super::super::zigzag_decode(payload);
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::DOptional(payload, fallback));
                         }
                         60 => {
@@ -6550,14 +6546,12 @@ pub mod comprehensive {
                             };
                             let payload = payload != 0_u64;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::EOptional(payload, fallback));
                         }
                         61 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::FOptional(payload, fallback));
                         }
                         62 => {
@@ -6568,19 +6562,16 @@ pub mod comprehensive {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::GOptional(payload, fallback));
                         }
                         63 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::HOptional(payload, fallback));
                         }
                         64 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::IOptional(payload, fallback));
                         }
                         65 => {
@@ -6595,7 +6586,6 @@ pub mod comprehensive {
                             };
                             let payload = vec![(); payload as usize];
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::JOptional(payload, fallback));
                         }
                         66 => {
@@ -6618,7 +6608,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::KOptional(payload, fallback));
                         }
                         67 => {
@@ -6639,7 +6628,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::LOptional(payload, fallback));
                         }
                         68 => {
@@ -6661,7 +6649,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::MOptional(payload, fallback));
                         }
                         69 => {
@@ -6683,7 +6670,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::NOptional(payload, fallback));
                         }
                         70 => {
@@ -6706,7 +6692,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::OOptional(payload, fallback));
                         }
                         71 => {
@@ -6733,7 +6718,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::POptional(payload, fallback));
                         }
                         72 => {
@@ -6755,7 +6739,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::QOptional(payload, fallback));
                         }
                         73 => {
@@ -6777,7 +6760,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ROptional(payload, fallback));
                         }
                         74 => {
@@ -6800,7 +6782,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::SOptional(payload, fallback));
                         }
                         75 => {
@@ -6839,7 +6820,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::TOptional(payload, fallback));
                         }
                         76 => {
@@ -6876,7 +6856,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::UOptional(payload, fallback));
                         }
                         77 => {
@@ -6914,7 +6893,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::VOptional(payload, fallback));
                         }
                         78 => {
@@ -6952,7 +6930,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::WOptional(payload, fallback));
                         }
                         79 => {
@@ -6991,7 +6968,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::XOptional(payload, fallback));
                         }
                         80 => {
@@ -7034,7 +7010,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::YOptional(payload, fallback));
                         }
                         81 => {
@@ -7072,7 +7047,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::ZOptional(payload, fallback));
                         }
                         82 => {
@@ -7110,7 +7084,6 @@ pub mod comprehensive {
                                 });
                             }
                             let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(BarIn::AaOptional(payload, fallback));
                         }
                         _ => {
@@ -7868,7 +7841,6 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::AsymmetricToOptional(payload, fallback));
                         }
                         8 => {
@@ -7899,7 +7871,6 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
                         }
                         12 => {
@@ -7915,7 +7886,6 @@ pub mod schema_evolution {
                         14 => {
                             let payload = ();
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::NonexistentToOptional(fallback));
                         }
                         _ => {
@@ -8541,7 +8511,6 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
                         }
                         9 => {
@@ -8552,7 +8521,6 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
                         }
                         10 => {
@@ -8563,7 +8531,6 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
                         }
                         11 => {
@@ -8574,7 +8541,6 @@ pub mod schema_evolution {
                                 |result| Ok(result.to_owned()),
                             )?;
                             let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            super::super::finish(&mut *reader)?;
                             return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
                         }
                         _ => {
