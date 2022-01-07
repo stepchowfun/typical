@@ -219,16 +219,16 @@ function fieldHeaderSize(
 ): number {
   switch (payloadSize) {
     case 0:
-      return varintSizeFromValue((index << 2n) | BigInt(0b00));
+      return varintSizeFromValue(index << 2n);
     case 8:
-      return varintSizeFromValue((index << 2n) | BigInt(0b01));
+      return varintSizeFromValue((index << 2n) | 1n);
     default:
       if (integerEncoded) {
-        return varintSizeFromValue((index << 2n) | BigInt(0b10));
+        return varintSizeFromValue((index << 2n) | 2n);
       }
 
       return (
-        varintSizeFromValue((index << 2n) | BigInt(0b11)) +
+        varintSizeFromValue((index << 2n) | 3n) +
         varintSizeFromValue(BigInt(payloadSize))
       );
   }
@@ -243,19 +243,15 @@ function serializeFieldHeader(
 ): number {
   switch (payloadSize) {
     case 0:
-      return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b00));
+      return serializeVarint(dataView, offset, index << 2n);
     case 8:
-      return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b01));
+      return serializeVarint(dataView, offset, (index << 2n) | 1n);
     default:
       if (integerEncoded) {
-        return serializeVarint(dataView, offset, (index << 2n) | BigInt(0b10));
+        return serializeVarint(dataView, offset, (index << 2n) | 2n);
       }
 
-      offset = serializeVarint(
-        dataView,
-        offset,
-        (index << 2n) | BigInt(0b11),
-      );
+      offset = serializeVarint(dataView, offset, (index << 2n) | 3n);
 
       return serializeVarint(dataView, offset, BigInt(payloadSize));
   }
