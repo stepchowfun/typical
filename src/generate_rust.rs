@@ -1032,9 +1032,6 @@ fn write_schema<T: Write>(
                             write_supers(buffer, indentation)?;
                             writeln!(buffer, "Deserialize>::deserialize(&mut *reader)?);")?;
                             write_indentation(buffer, indentation + 5)?;
-                            write_supers(buffer, indentation)?;
-                            writeln!(buffer, "finish(&mut *reader)?;")?;
-                            write_indentation(buffer, indentation + 5)?;
                             write!(buffer, "return Ok(")?;
                             write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                             write!(buffer, "::")?;

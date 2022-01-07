@@ -262,30 +262,21 @@ function deserializeFieldHeader(
   offset: number,
 ): [number, bigint, number] {
   const [newOffset, tag] = deserializeVarint(dataView, offset);
-  offset = newOffset;
 
   const index = tag >> 2n;
 
-  let size;
   switch (tag & 3n) {
     case 0n:
-      size = 0;
-      break;
+      return [newOffset, index, 0];
     case 1n:
-      size = 8;
-      break;
+      return [newOffset, index, 8];
     case 2n:
-      size = varintSizeFromFirstByte(dataView.getUint8(offset));
-      break;
+      return [newOffset, index, varintSizeFromFirstByte(dataView.getUint8(newOffset))];
     default: {
-      const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
-      offset = newNewOffset;
-      size = Number(sizeValue);
-      break;
+      const [newNewOffset, sizeValue] = deserializeVarint(dataView, newOffset);
+      return [newNewOffset, index, Number(sizeValue)];
     }
   }
-
-  return [offset, index, size];
 }
 
 const textEncoder = new TextEncoder();
@@ -12103,7 +12094,6 @@ export namespace Comprehensive {
               const oldOffset = offset;
               offset = 0;
               let payload = null;
-              offset += oldOffset;
               return {
                 $field: 'aRequired',
               };
@@ -12128,7 +12118,6 @@ export namespace Comprehensive {
                     break;
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'bRequired',
                 bRequired: payload,
@@ -12157,7 +12146,6 @@ export namespace Comprehensive {
                     break;
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'cRequired',
                 cRequired: payload,
@@ -12187,7 +12175,6 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
-              offset += oldOffset;
               return {
                 $field: 'dRequired',
                 dRequired: payload,
@@ -12224,7 +12211,6 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
-              offset += oldOffset;
               return {
                 $field: 'eRequired',
                 eRequired: payload,
@@ -12243,7 +12229,6 @@ export namespace Comprehensive {
                 dataView.byteOffset + dataView.byteLength,
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'fRequired',
                 fRequired: payload,
@@ -12265,7 +12250,6 @@ export namespace Comprehensive {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'gRequired',
                 gRequired: payload,
@@ -12281,7 +12265,6 @@ export namespace Comprehensive {
               offset = 0;
               let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'hRequired',
                 hRequired: payload,
@@ -12297,7 +12280,6 @@ export namespace Comprehensive {
               offset = 0;
               let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'iRequired',
                 iRequired: payload,
@@ -12334,7 +12316,6 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
-              offset += oldOffset;
               return {
                 $field: 'jRequired',
                 jRequired: payload,
@@ -12367,7 +12348,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'kRequired',
                 kRequired: payload,
@@ -12400,7 +12380,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'lRequired',
                 lRequired: payload,
@@ -12434,7 +12413,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'mRequired',
                 mRequired: payload,
@@ -12475,7 +12453,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'nRequired',
                 nRequired: payload,
@@ -12522,7 +12499,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'oRequired',
                 oRequired: payload,
@@ -12572,7 +12548,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'pRequired',
                 pRequired: payload,
@@ -12616,7 +12591,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'qRequired',
                 qRequired: payload,
@@ -12660,7 +12634,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'rRequired',
                 rRequired: payload,
@@ -12712,7 +12685,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'sRequired',
                 sRequired: payload,
@@ -12773,7 +12745,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'tRequired',
                 tRequired: payload,
@@ -12834,7 +12805,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'uRequired',
                 uRequired: payload,
@@ -12896,7 +12866,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'vRequired',
                 vRequired: payload,
@@ -12965,7 +12934,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'wRequired',
                 wRequired: payload,
@@ -13040,7 +13008,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'xRequired',
                 xRequired: payload,
@@ -13118,7 +13085,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'yRequired',
                 yRequired: payload,
@@ -13190,7 +13156,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'zRequired',
                 zRequired: payload,
@@ -13262,7 +13227,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'aaRequired',
                 aaRequired: payload,
@@ -13277,7 +13241,6 @@ export namespace Comprehensive {
               const oldOffset = offset;
               offset = 0;
               let payload = null;
-              offset += oldOffset;
               return {
                 $field: 'aAsymmetric',
               };
@@ -13302,7 +13265,6 @@ export namespace Comprehensive {
                     break;
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'bAsymmetric',
                 bAsymmetric: payload,
@@ -13331,7 +13293,6 @@ export namespace Comprehensive {
                     break;
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'cAsymmetric',
                 cAsymmetric: payload,
@@ -13361,7 +13322,6 @@ export namespace Comprehensive {
                 }
               }
               payload = zigzagDecode(payload);
-              offset += oldOffset;
               return {
                 $field: 'dAsymmetric',
                 dAsymmetric: payload,
@@ -13398,7 +13358,6 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
-              offset += oldOffset;
               return {
                 $field: 'eAsymmetric',
                 eAsymmetric: payload,
@@ -13417,7 +13376,6 @@ export namespace Comprehensive {
                 dataView.byteOffset + dataView.byteLength,
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'fAsymmetric',
                 fAsymmetric: payload,
@@ -13439,7 +13397,6 @@ export namespace Comprehensive {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'gAsymmetric',
                 gAsymmetric: payload,
@@ -13455,7 +13412,6 @@ export namespace Comprehensive {
               offset = 0;
               let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'hAsymmetric',
                 hAsymmetric: payload,
@@ -13471,7 +13427,6 @@ export namespace Comprehensive {
               offset = 0;
               let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'iAsymmetric',
                 iAsymmetric: payload,
@@ -13508,7 +13463,6 @@ export namespace Comprehensive {
                 }
                 payload = newPayload;
               }
-              offset += oldOffset;
               return {
                 $field: 'jAsymmetric',
                 jAsymmetric: payload,
@@ -13541,7 +13495,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'kAsymmetric',
                 kAsymmetric: payload,
@@ -13574,7 +13527,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'lAsymmetric',
                 lAsymmetric: payload,
@@ -13608,7 +13560,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'mAsymmetric',
                 mAsymmetric: payload,
@@ -13649,7 +13600,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'nAsymmetric',
                 nAsymmetric: payload,
@@ -13696,7 +13646,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'oAsymmetric',
                 oAsymmetric: payload,
@@ -13746,7 +13695,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'pAsymmetric',
                 pAsymmetric: payload,
@@ -13790,7 +13738,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'qAsymmetric',
                 qAsymmetric: payload,
@@ -13834,7 +13781,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'rAsymmetric',
                 rAsymmetric: payload,
@@ -13886,7 +13832,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'sAsymmetric',
                 sAsymmetric: payload,
@@ -13947,7 +13892,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'tAsymmetric',
                 tAsymmetric: payload,
@@ -14008,7 +13952,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'uAsymmetric',
                 uAsymmetric: payload,
@@ -14070,7 +14013,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'vAsymmetric',
                 vAsymmetric: payload,
@@ -14139,7 +14081,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'wAsymmetric',
                 wAsymmetric: payload,
@@ -14214,7 +14155,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'xAsymmetric',
                 xAsymmetric: payload,
@@ -14292,7 +14232,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'yAsymmetric',
                 yAsymmetric: payload,
@@ -14364,7 +14303,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'zAsymmetric',
                 zAsymmetric: payload,
@@ -14436,7 +14374,6 @@ export namespace Comprehensive {
                   }
                 }
               }
-              offset += oldOffset;
               return {
                 $field: 'aaAsymmetric',
                 aaAsymmetric: payload,
@@ -14459,7 +14396,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'aOptional',
                 $fallback,
@@ -14493,7 +14429,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'bOptional',
                 bOptional: payload,
@@ -14531,7 +14466,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'cOptional',
                 cOptional: payload,
@@ -14570,7 +14504,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'dOptional',
                 dOptional: payload,
@@ -14616,7 +14549,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'eOptional',
                 eOptional: payload,
@@ -14644,7 +14576,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'fOptional',
                 fOptional: payload,
@@ -14675,7 +14606,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'gOptional',
                 gOptional: payload,
@@ -14700,7 +14630,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'hOptional',
                 hOptional: payload,
@@ -14725,7 +14654,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'iOptional',
                 iOptional: payload,
@@ -14771,7 +14699,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'jOptional',
                 jOptional: payload,
@@ -14813,7 +14740,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'kOptional',
                 kOptional: payload,
@@ -14855,7 +14781,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'lOptional',
                 lOptional: payload,
@@ -14898,7 +14823,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'mOptional',
                 mOptional: payload,
@@ -14948,7 +14872,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'nOptional',
                 nOptional: payload,
@@ -15004,7 +14927,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'oOptional',
                 oOptional: payload,
@@ -15063,7 +14985,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'pOptional',
                 pOptional: payload,
@@ -15116,7 +15037,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'qOptional',
                 qOptional: payload,
@@ -15169,7 +15089,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'rOptional',
                 rOptional: payload,
@@ -15230,7 +15149,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'sOptional',
                 sOptional: payload,
@@ -15300,7 +15218,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'tOptional',
                 tOptional: payload,
@@ -15370,7 +15287,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'uOptional',
                 uOptional: payload,
@@ -15441,7 +15357,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'vOptional',
                 vOptional: payload,
@@ -15519,7 +15434,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'wOptional',
                 wOptional: payload,
@@ -15603,7 +15517,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'xOptional',
                 xOptional: payload,
@@ -15690,7 +15603,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'yOptional',
                 yOptional: payload,
@@ -15771,7 +15683,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'zOptional',
                 zOptional: payload,
@@ -15852,7 +15763,6 @@ export namespace Comprehensive {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'aaOptional',
                 aaOptional: payload,
@@ -16780,7 +16690,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'requiredToRequired',
                 requiredToRequired: payload,
@@ -16802,7 +16711,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'requiredToAsymmetric',
                 requiredToAsymmetric: payload,
@@ -16824,7 +16732,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'asymmetricToRequired',
                 asymmetricToRequired: payload,
@@ -16846,7 +16753,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'asymmetricToAsymmetric',
                 asymmetricToAsymmetric: payload,
@@ -16876,7 +16782,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'asymmetricToOptional',
                 asymmetricToOptional: payload,
@@ -16899,7 +16804,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'optionalToRequired',
                 optionalToRequired: payload,
@@ -16921,7 +16825,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'optionalToAsymmetric',
                 optionalToAsymmetric: payload,
@@ -16951,7 +16854,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'optionalToOptional',
                 optionalToOptional: payload,
@@ -16967,7 +16869,6 @@ export namespace SchemaEvolution {
               const oldOffset = offset;
               offset = 0;
               let payload = null;
-              offset += oldOffset;
               return {
                 $field: 'nonexistentToRequired',
               };
@@ -16981,7 +16882,6 @@ export namespace SchemaEvolution {
               const oldOffset = offset;
               offset = 0;
               let payload = null;
-              offset += oldOffset;
               return {
                 $field: 'nonexistentToAsymmetric',
               };
@@ -17003,7 +16903,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'nonexistentToOptional',
                 $fallback,
@@ -17939,7 +17838,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'requiredToRequired',
                 requiredToRequired: payload,
@@ -17961,7 +17859,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'requiredToAsymmetric',
                 requiredToAsymmetric: payload,
@@ -17983,7 +17880,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'asymmetricToRequired',
                 asymmetricToRequired: payload,
@@ -18005,7 +17901,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'asymmetricToAsymmetric',
                 asymmetricToAsymmetric: payload,
@@ -18027,7 +17922,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'asymmetricToOptional',
                 asymmetricToOptional: payload,
@@ -18049,7 +17943,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'asymmetricToNonexistent',
                 asymmetricToNonexistent: payload,
@@ -18079,7 +17972,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'optionalToRequired',
                 optionalToRequired: payload,
@@ -18110,7 +18002,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'optionalToAsymmetric',
                 optionalToAsymmetric: payload,
@@ -18141,7 +18032,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'optionalToOptional',
                 optionalToOptional: payload,
@@ -18172,7 +18062,6 @@ export namespace SchemaEvolution {
                   dataViewAlias.byteLength - offset,
                 ),
               );
-              offset = dataViewAlias.byteLength;
               return {
                 $field: 'optionalToNonexistent',
                 optionalToNonexistent: payload,
@@ -18377,7 +18266,6 @@ export namespace SchemaEvolution {
                 ),
               );
               offset = dataView.byteLength;
-              offset += oldOffset;
               return {
                 $field: 'x',
                 x: payload,

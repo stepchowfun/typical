@@ -413,30 +413,21 @@ function deserializeFieldHeader(
   offset: number,
 ): [number, bigint, number] {{
   const [newOffset, tag] = deserializeVarint(dataView, offset);
-  offset = newOffset;
 
   const index = tag >> 2n;
 
-  let size;
   switch (tag & 3n) {{
     case 0n:
-      size = 0;
-      break;
+      return [newOffset, index, 0];
     case 1n:
-      size = 8;
-      break;
+      return [newOffset, index, 8];
     case 2n:
-      size = varintSizeFromFirstByte(dataView.getUint8(offset));
-      break;
+      return [newOffset, index, varintSizeFromFirstByte(dataView.getUint8(newOffset))];
     default: {{
-      const [newNewOffset, sizeValue] = deserializeVarint(dataView, offset);
-      offset = newNewOffset;
-      size = Number(sizeValue);
-      break;
+      const [newNewOffset, sizeValue] = deserializeVarint(dataView, newOffset);
+      return [newNewOffset, index, Number(sizeValue)];
     }}
   }}
-
-  return [offset, index, size];
 }}
 
 const textEncoder = new TextEncoder();
@@ -1151,11 +1142,11 @@ fn write_schema<T: Write>(
                         &field.r#type.variant,
                         true,
                     )?;
-                    write_indentation(buffer, indentation + 5)?;
-                    writeln!(buffer, "offset += oldOffset;")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {}
                         schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 5)?;
+                            writeln!(buffer, "offset += oldOffset;")?;
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, "const $fallback = deserialize(")?;
                             write_indentation(buffer, indentation + 6)?;
@@ -1170,8 +1161,6 @@ fn write_schema<T: Write>(
                             writeln!(buffer, "),")?;
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, ");")?;
-                            write_indentation(buffer, indentation + 5)?;
-                            writeln!(buffer, "offset = dataViewAlias.byteLength;")?;
                         }
                     }
                     write_indentation(buffer, indentation + 5)?;
