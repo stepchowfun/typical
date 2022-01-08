@@ -109,10 +109,38 @@ tasks:
       # Delete the "hello world" code.
       rm -rf src
 
+  repository:
+    description: Import the repository.
+    dependencies:
+      - fetch_crates
+    input_paths:
+      - .
+    excluded_input_paths:
+      - .git
+
+      # [tag:excluded_input_paths] Keep this in sync with [ref:gitignore].
+      - artifacts
+      - examples/rust/target
+      - examples/typescript/dist
+      - examples/typescript/generated
+      - examples/typescript/node_modules
+      - benchmarks/rust/target
+      - benchmarks/typescript/dist
+      - benchmarks/typescript/generated
+      - benchmarks/typescript/node_modules
+      - integration_tests/rust/target
+      - integration_tests/typescript-node/dist
+      - integration_tests/typescript-node/generated
+      - integration_tests/typescript-node/node_modules
+      - integration_tests/typescript-web/dist
+      - integration_tests/typescript-web/generated
+      - integration_tests/typescript-web/node_modules
+      - target/
+
   build:
     description: Build the binary in non-release mode.
     dependencies:
-      - fetch_crates
+      - repository
     input_paths:
       - src
     command: |
@@ -122,7 +150,7 @@ tasks:
   test_units:
     description: Run the unit test suite.
     dependencies:
-      - build
+      - repository
     input_paths:
       - integration_tests/types
       - test_data
@@ -135,20 +163,12 @@ tasks:
     description: Run integration tests for the Rust code generator.
     dependencies:
       - build
-    input_paths:
-      - examples/rust
-      - integration_tests/rust
-      - integration_tests/types
-      - test_data/omnifile
-    excluded_input_paths:
-      - examples/rust/target
-      - integration_tests/rust/target
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
       # Validate and run the example project and the integration test.
-      for SCENARIO in examples/rust integration_tests/rust; do
+      for SCENARIO in benchmarks/rust examples/rust integration_tests/rust; do
         (
           cd "$SCENARIO" && \
           cargo-offline check && \
@@ -165,28 +185,13 @@ tasks:
     description: Run integration tests for the TypeScript code generator.
     dependencies:
       - build
-    input_paths:
-      - examples/typescript
-      - integration_tests/types
-      - integration_tests/typescript-node
-      - integration_tests/typescript-web
-      - test_data/omnifile
-    excluded_input_paths:
-      - examples/typescript/dist
-      - examples/typescript/generated
-      - examples/typescript/node_modules
-      - integration_tests/typescript-node/dist
-      - integration_tests/typescript-node/generated
-      - integration_tests/typescript-node/node_modules
-      - integration_tests/typescript-web/dist
-      - integration_tests/typescript-web/generated
-      - integration_tests/typescript-web/node_modules
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
       # Validate and run the example project and the integration test.
       for SCENARIO in \
+        benchmarks/typescript \
         examples/typescript \
         integration_tests/typescript-node \
         integration_tests/typescript-web
@@ -201,25 +206,6 @@ tasks:
     description: Run the linters.
     dependencies:
       - build
-    input_paths:
-      - .
-    excluded_input_paths:
-      - .git
-
-      # [tag:excluded_input_paths] Keep this in sync with [ref:gitignore].
-      - artifacts
-      - examples/rust/target
-      - examples/typescript/dist
-      - examples/typescript/generated
-      - examples/typescript/node_modules
-      - integration_tests/rust/target
-      - integration_tests/typescript-node/dist
-      - integration_tests/typescript-node/generated
-      - integration_tests/typescript-node/node_modules
-      - integration_tests/typescript-web/dist
-      - integration_tests/typescript-web/generated
-      - integration_tests/typescript-web/node_modules
-      - target/
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
@@ -256,7 +242,9 @@ tasks:
       fi
 
       # Check schema formatting with Typical.
+      typical format --check benchmarks/types.t
       typical format --check examples/rust/types.t
+      typical format --check examples/typescript/types.t
       typical format --check integration_tests/types/types.t
 
   run:
@@ -271,28 +259,14 @@ tasks:
     description: Format the source code.
     dependencies:
       - build
-    input_paths:
-      - examples/rust
-      - examples/typescript
-      - integration_tests/rust
-      - integration_tests/types
-      - integration_tests/typescript-node
-      - integration_tests/typescript-web
-      - src
-    excluded_input_paths:
-      - examples/rust/target
-      - examples/typescript/dist
-      - examples/typescript/generated
-      - examples/typescript/node_modules
-      - integration_tests/rust/target
-      - integration_tests/typescript-node/dist
-      - integration_tests/typescript-node/generated
-      - integration_tests/typescript-node/node_modules
-      - integration_tests/typescript-web/dist
-      - integration_tests/typescript-web/generated
-      - integration_tests/typescript-web/node_modules
     output_paths:
+      - benchmarks/rust/src
+      - benchmarks/types.t
+      - benchmarks/typescript/src
+      - examples/rust/src
       - examples/rust/types.t
+      - examples/typescript/src
+      - examples/typescript/types.t
       - integration_tests/rust/src
       - integration_tests/types
       - integration_tests/typescript-node/src
@@ -303,7 +277,9 @@ tasks:
       export PATH="$PWD/target/debug:$PATH"
 
       # Format schemas with Typical.
+      typical format benchmarks/types.t
       typical format examples/rust/types.t
+      typical format examples/typescript/types.t
       typical format integration_tests/types/types.t
 
       # Format the code with Rustfmt. We temporarily convert macro invocations into function calls
@@ -313,6 +289,8 @@ tasks:
       rg '_\(' --type rust --files-with-matches src | xargs sed -i 's/_(/!(/g'
 
       # Format the examples and integration tests.
+      (cd benchmarks/rust && cargo fmt)
+      (cd benchmarks/typescript && npm ci && npm run format)
       (cd examples/rust && cargo fmt)
       (cd examples/typescript && npm ci && npm run format)
       (cd integration_tests/rust && cargo fmt)

@@ -1,0 +1,22 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "main": "typical generate ../types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
+    "dev": "(cd ../.. && cargo run -- generate benchmarks/types.t --typescript benchmarks/typescript/generated/types.ts) && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
+    "lint": "eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
+    "format": "prettier --config .prettierrc.js --ignore-path .ignore --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.6",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
+    "prettier": "2.4.1",
+    "typescript": "^4.4.3"
+  }
+}
