@@ -1,0 +1,195 @@
+#![deny(clippy::all, clippy::pedantic, warnings)]
+
+mod types;
+
+use {
+    std::{f64::consts::PI, io, time::Instant},
+    types::{
+        types::{ChoiceOut, MessageIn, MessageOut, StructOut},
+        Deserialize, Serialize,
+    },
+};
+
+const ITERATIONS: usize = 1_000_000;
+
+const F64_TEST_VALUES: &[f64] = &[
+    0.0,
+    -0.0,
+    PI,
+    f64::EPSILON,
+    f64::INFINITY,
+    f64::MAX,
+    f64::MIN,
+    5e-324_f64,        // Smallest positive (subnormal) value
+    f64::MIN_POSITIVE, // Smallest possible normal value
+    f64::NAN,
+    f64::NEG_INFINITY,
+];
+
+const U64_TEST_VALUES: &[u64] = &[
+    u64::MIN,
+    127,
+    128,
+    16_511,
+    16_512,
+    2_113_663,
+    2_113_664,
+    270_549_119,
+    270_549_120,
+    34_630_287_487,
+    34_630_287_488,
+    4_432_676_798_591,
+    4_432_676_798_592,
+    567_382_630_219_903,
+    567_382_630_219_904,
+    72_624_976_668_147_839,
+    72_624_976_668_147_840,
+    u64::MAX,
+];
+
+const S64_TEST_VALUES: &[i64] = &[
+    0,
+    -64,
+    64,
+    -8_256,
+    8_256,
+    -1_056_832,
+    1_056_832,
+    -135_274_560,
+    135_274_560,
+    -17_315_143_744,
+    17_315_143_744,
+    -2_216_338_399_296,
+    2_216_338_399_296,
+    -283_691_315_109_952,
+    283_691_315_109_952,
+    -36_312_488_334_073_920,
+    36_312_488_334_073_920,
+    i64::MIN,
+    i64::MAX,
+];
+
+#[allow(clippy::too_many_lines)]
+fn main() -> io::Result<()> {
+    let message = MessageOut {
+        a: (),
+        b: PI,
+        c: u64::MAX,
+        d: i64::MAX,
+        e: true,
+        f: vec![0, 42, 255],
+        g: "Hello, World!".to_owned(),
+        h: StructOut {},
+        i: ChoiceOut::X("Hello, World!".to_owned()),
+        j: vec![(), (), ()],
+        k: F64_TEST_VALUES.to_owned(),
+        l: U64_TEST_VALUES.to_owned(),
+        m: S64_TEST_VALUES.to_owned(),
+        n: vec![false, true, false],
+        o: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
+        p: vec![
+            "".to_owned(),
+            "=8 bytes".to_owned(),
+            "Hello, World!".to_owned(),
+        ],
+        q: vec![StructOut {}, StructOut {}, StructOut {}],
+        r: vec![
+            ChoiceOut::X("Hello, World!".to_owned()),
+            ChoiceOut::X("Hello, World!".to_owned()),
+            ChoiceOut::X("Hello, World!".to_owned()),
+        ],
+        s: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
+        t: vec![
+            vec![],
+            vec![0.0],
+            vec![0.0, PI],
+            vec![0.0, PI, f64::EPSILON],
+            F64_TEST_VALUES.to_owned(),
+        ],
+        u: vec![
+            vec![],
+            vec![u64::MIN],
+            vec![u64::MIN, 256],
+            vec![u64::MIN, 256, u64::MAX],
+            U64_TEST_VALUES.to_owned(),
+        ],
+        v: vec![
+            vec![],
+            vec![i64::MIN],
+            vec![i64::MIN, 0],
+            vec![i64::MIN, 0, i64::MAX],
+            S64_TEST_VALUES.to_owned(),
+        ],
+        w: vec![
+            vec![],
+            vec![false],
+            vec![false, true],
+            vec![false, true, false],
+        ],
+        x: vec![
+            vec![],
+            vec![vec![]],
+            vec![vec![], vec![0, 42, 255]],
+            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
+        ],
+        y: vec![
+            vec!["".to_owned()],
+            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![
+                "".to_owned(),
+                "=8 bytes".to_owned(),
+                "Hello, World!".to_owned(),
+            ],
+        ],
+        z: vec![
+            vec![],
+            vec![StructOut {}],
+            vec![StructOut {}, StructOut {}],
+            vec![StructOut {}, StructOut {}, StructOut {}],
+        ],
+        aa: vec![
+            vec![],
+            vec![ChoiceOut::X("Hello, World!".to_owned())],
+            vec![
+                ChoiceOut::X("Hello, World!".to_owned()),
+                ChoiceOut::X("Hello, World!".to_owned()),
+            ],
+            vec![
+                ChoiceOut::X("Hello, World!".to_owned()),
+                ChoiceOut::X("Hello, World!".to_owned()),
+                ChoiceOut::X("Hello, World!".to_owned()),
+            ],
+        ],
+    };
+
+    let message_size = message.size();
+    let mut buffer = Vec::<u8>::new();
+    buffer.reserve(message_size * ITERATIONS);
+
+    let serialization_instant = Instant::now();
+
+    for _ in 0..ITERATIONS {
+        message.serialize(&mut buffer)?;
+    }
+
+    println!(
+        "Serialization duration: {:?}",
+        serialization_instant.elapsed()
+    );
+
+    println!("Wrote {} bytes.", buffer.len());
+
+    let deserialization_instant = Instant::now();
+
+    for i in 0..ITERATIONS {
+        let offset = message_size * i;
+        MessageIn::deserialize(&mut &buffer[offset..offset + message_size])?;
+    }
+
+    println!(
+        "Deserialization duration: {:?}",
+        deserialization_instant.elapsed()
+    );
+
+    Ok(())
+}
