@@ -168,21 +168,29 @@ tasks:
     input_paths:
       - examples/typescript
       - integration_tests/types
-      - integration_tests/typescript
+      - integration_tests/typescript-node
+      - integration_tests/typescript-web
       - test_data/omnifile
     excluded_input_paths:
       - examples/typescript/dist
       - examples/typescript/generated
       - examples/typescript/node_modules
-      - integration_tests/typescript/dist
-      - integration_tests/typescript/generated
-      - integration_tests/typescript/node_modules
+      - integration_tests/typescript-node/dist
+      - integration_tests/typescript-node/generated
+      - integration_tests/typescript-node/node_modules
+      - integration_tests/typescript-web/dist
+      - integration_tests/typescript-web/generated
+      - integration_tests/typescript-web/node_modules
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
       # Validate and run the example project and the integration test.
-      for SCENARIO in examples/typescript integration_tests/typescript; do
+      for SCENARIO in \
+        examples/typescript \
+        integration_tests/typescript-node \
+        integration_tests/typescript-web
+      do
         (cd "$SCENARIO" && npm ci && npm run main && npm run lint)
       done
 
@@ -205,9 +213,12 @@ tasks:
       - examples/typescript/generated
       - examples/typescript/node_modules
       - integration_tests/rust/target
-      - integration_tests/typescript/dist
-      - integration_tests/typescript/generated
-      - integration_tests/typescript/node_modules
+      - integration_tests/typescript-node/dist
+      - integration_tests/typescript-node/generated
+      - integration_tests/typescript-node/node_modules
+      - integration_tests/typescript-web/dist
+      - integration_tests/typescript-web/generated
+      - integration_tests/typescript-web/node_modules
       - target/
     command: |
       # Add Typical to `$PATH`.
@@ -265,7 +276,8 @@ tasks:
       - examples/typescript
       - integration_tests/rust
       - integration_tests/types
-      - integration_tests/typescript
+      - integration_tests/typescript-node
+      - integration_tests/typescript-web
       - src
     excluded_input_paths:
       - examples/rust/target
@@ -273,14 +285,18 @@ tasks:
       - examples/typescript/generated
       - examples/typescript/node_modules
       - integration_tests/rust/target
-      - integration_tests/typescript/dist
-      - integration_tests/typescript/generated
-      - integration_tests/typescript/node_modules
+      - integration_tests/typescript-node/dist
+      - integration_tests/typescript-node/generated
+      - integration_tests/typescript-node/node_modules
+      - integration_tests/typescript-web/dist
+      - integration_tests/typescript-web/generated
+      - integration_tests/typescript-web/node_modules
     output_paths:
       - examples/rust/types.t
       - integration_tests/rust/src
       - integration_tests/types
-      - integration_tests/typescript/src
+      - integration_tests/typescript-node/src
+      - integration_tests/typescript-web/src
       - src
     command: |
       # Add Typical to `$PATH`.
@@ -300,7 +316,8 @@ tasks:
       (cd examples/rust && cargo fmt)
       (cd examples/typescript && npm ci && npm run format)
       (cd integration_tests/rust && cargo fmt)
-      (cd integration_tests/typescript && npm ci && npm run format)
+      (cd integration_tests/typescript-node && npm ci && npm run format)
+      (cd integration_tests/typescript-web && npm ci && npm run format)
 
   release:
     description: Build and output the release binaries for Linux.

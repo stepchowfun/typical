@@ -3,6 +3,8 @@
 
 /* eslint-disable */
 
+const fieldsMissingErrorMessage = 'Struct missing one or more required field(s).';
+
 export function unreachable(x: never): never {
   return x;
 }
@@ -364,7 +366,7 @@ export namespace CircularDependency {
           }
 
           if ($x === undefined) {
-            throw new Error('Struct missing one or more field(s).');
+            throw new Error(fieldsMissingErrorMessage);
           }
 
           return {
@@ -8005,7 +8007,7 @@ export namespace Comprehensive {
         }
 
         if ($aRequired === undefined || $bRequired === undefined || $cRequired === undefined || $dRequired === undefined || $eRequired === undefined || $fRequired === undefined || $gRequired === undefined || $hRequired === undefined || $iRequired === undefined || $jRequired === undefined || $kRequired === undefined || $lRequired === undefined || $mRequired === undefined || $nRequired === undefined || $oRequired === undefined || $pRequired === undefined || $qRequired === undefined || $rRequired === undefined || $sRequired === undefined || $tRequired === undefined || $uRequired === undefined || $vRequired === undefined || $wRequired === undefined || $xRequired === undefined || $yRequired === undefined || $zRequired === undefined || $aaRequired === undefined) {
-          throw new Error('Struct missing one or more field(s).');
+          throw new Error(fieldsMissingErrorMessage);
         }
 
         return {
@@ -16385,7 +16387,7 @@ export namespace SchemaEvolution {
         }
 
         if ($requiredToRequired === undefined || $asymmetricToRequired === undefined || $optionalToRequired === undefined) {
-          throw new Error('Struct missing one or more field(s).');
+          throw new Error(fieldsMissingErrorMessage);
         }
 
         return {
@@ -17524,7 +17526,7 @@ export namespace SchemaEvolution {
         }
 
         if ($requiredToRequired === undefined || $requiredToAsymmetric === undefined || $requiredToOptional === undefined || $requiredToNonexistent === undefined) {
-          throw new Error('Struct missing one or more field(s).');
+          throw new Error(fieldsMissingErrorMessage);
         }
 
         return {
@@ -18176,7 +18178,7 @@ export namespace SchemaEvolution {
         }
 
         if ($x === undefined) {
-          throw new Error('Struct missing one or more field(s).');
+          throw new Error(fieldsMissingErrorMessage);
         }
 
         return {
