@@ -11,7 +11,7 @@ use {
 };
 
 const PATHOLOGICAL_ITERATIONS: usize = 1_000_000;
-const MASSIVE_STRING_SIZE: usize = 1_073_741_824; // 1 GiB
+const MASSIVE_STRING_SIZE: usize = 400_000_000;
 
 const F64_TEST_VALUES: &[f64] = &[
     0.0,

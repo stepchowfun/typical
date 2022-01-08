@@ -1,6 +1,6 @@
 import { Types } from '../generated/types';
 
-const pathologicalIterations = 30_000;
+const pathologicalIterations = 15_000;
 const massiveStringSize = 400_000_000;
 
 const u64Min = 0n;
