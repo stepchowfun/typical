@@ -154,7 +154,7 @@ pub fn generate(
 
 /* eslint-disable */
 
-const fieldsMissingErrorMessage = 'Struct missing one or more required field(s).';
+const missingFieldsErrorMessage = 'Struct missing one or more required field(s).';
 
 export function unreachable(x: never): never {{
   return x;
@@ -881,7 +881,7 @@ fn write_schema<T: Write>(
                         }
                         writeln!(buffer, ") {{")?;
                         write_indentation(buffer, indentation + 3)?;
-                        writeln!(buffer, "throw new Error(fieldsMissingErrorMessage);")?;
+                        writeln!(buffer, "throw new Error(missingFieldsErrorMessage);")?;
                         write_indentation(buffer, indentation + 2)?;
                         writeln!(buffer, "}}")?;
                         writeln!(buffer)?;
