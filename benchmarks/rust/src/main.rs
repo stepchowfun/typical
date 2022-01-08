@@ -5,12 +5,13 @@ mod types;
 use {
     std::{f64::consts::PI, io, time::Instant},
     types::{
-        types::{ChoiceOut, MessageIn, MessageOut, StructOut},
+        types::{ChoiceOut, MessageIn, MessageOut, StructIn, StructOut},
         Deserialize, Serialize,
     },
 };
 
-const ITERATIONS: usize = 1_000_000;
+const PATHOLOGICAL_ITERATIONS: usize = 1_000_000;
+const MASSIVE_STRING_SIZE: usize = 1_073_741_824; // 1 GiB
 
 const F64_TEST_VALUES: &[f64] = &[
     0.0,
@@ -69,106 +70,16 @@ const S64_TEST_VALUES: &[i64] = &[
     i64::MAX,
 ];
 
-#[allow(clippy::too_many_lines)]
-fn main() -> io::Result<()> {
-    let message = MessageOut {
-        a: (),
-        b: PI,
-        c: u64::MAX,
-        d: i64::MAX,
-        e: true,
-        f: vec![0, 42, 255],
-        g: "Hello, World!".to_owned(),
-        h: StructOut {},
-        i: ChoiceOut::X("Hello, World!".to_owned()),
-        j: vec![(), (), ()],
-        k: F64_TEST_VALUES.to_owned(),
-        l: U64_TEST_VALUES.to_owned(),
-        m: S64_TEST_VALUES.to_owned(),
-        n: vec![false, true, false],
-        o: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
-        p: vec![
-            "".to_owned(),
-            "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
-        ],
-        q: vec![StructOut {}, StructOut {}, StructOut {}],
-        r: vec![
-            ChoiceOut::X("Hello, World!".to_owned()),
-            ChoiceOut::X("Hello, World!".to_owned()),
-            ChoiceOut::X("Hello, World!".to_owned()),
-        ],
-        s: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
-        t: vec![
-            vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
-            F64_TEST_VALUES.to_owned(),
-        ],
-        u: vec![
-            vec![],
-            vec![u64::MIN],
-            vec![u64::MIN, 256],
-            vec![u64::MIN, 256, u64::MAX],
-            U64_TEST_VALUES.to_owned(),
-        ],
-        v: vec![
-            vec![],
-            vec![i64::MIN],
-            vec![i64::MIN, 0],
-            vec![i64::MIN, 0, i64::MAX],
-            S64_TEST_VALUES.to_owned(),
-        ],
-        w: vec![
-            vec![],
-            vec![false],
-            vec![false, true],
-            vec![false, true, false],
-        ],
-        x: vec![
-            vec![],
-            vec![vec![]],
-            vec![vec![], vec![0, 42, 255]],
-            vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
-        ],
-        y: vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
-            vec![
-                "".to_owned(),
-                "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
-            ],
-        ],
-        z: vec![
-            vec![],
-            vec![StructOut {}],
-            vec![StructOut {}, StructOut {}],
-            vec![StructOut {}, StructOut {}, StructOut {}],
-        ],
-        aa: vec![
-            vec![],
-            vec![ChoiceOut::X("Hello, World!".to_owned())],
-            vec![
-                ChoiceOut::X("Hello, World!".to_owned()),
-                ChoiceOut::X("Hello, World!".to_owned()),
-            ],
-            vec![
-                ChoiceOut::X("Hello, World!".to_owned()),
-                ChoiceOut::X("Hello, World!".to_owned()),
-                ChoiceOut::X("Hello, World!".to_owned()),
-            ],
-        ],
-    };
-
+fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io::Result<()> {
     let message_size = message.size();
     let mut buffer = Vec::<u8>::new();
-    buffer.reserve(message_size * ITERATIONS);
+    buffer.reserve(message_size);
+
+    println!("Message size: {}", message_size);
 
     let serialization_instant = Instant::now();
 
-    for _ in 0..ITERATIONS {
+    for _ in 0..iterations {
         message.serialize(&mut buffer)?;
     }
 
@@ -181,9 +92,9 @@ fn main() -> io::Result<()> {
 
     let deserialization_instant = Instant::now();
 
-    for i in 0..ITERATIONS {
+    for i in 0..iterations {
         let offset = message_size * i;
-        MessageIn::deserialize(&mut &buffer[offset..offset + message_size])?;
+        U::deserialize(&mut &buffer[offset..offset + message_size])?;
     }
 
     println!(
@@ -192,4 +103,144 @@ fn main() -> io::Result<()> {
     );
 
     Ok(())
+}
+
+#[allow(clippy::too_many_lines)]
+fn main() -> io::Result<()> {
+    println!("Pathological message test.");
+
+    benchmark::<MessageOut, MessageIn>(
+        &MessageOut {
+            a: (),
+            b: PI,
+            c: u64::MAX,
+            d: i64::MAX,
+            e: true,
+            f: vec![0, 42, 255],
+            g: "Hello, World!".to_owned(),
+            h: StructOut {
+                x: "Hello, World!".to_owned(),
+            },
+            i: ChoiceOut::X("Hello, World!".to_owned()),
+            j: vec![(), (), ()],
+            k: F64_TEST_VALUES.to_owned(),
+            l: U64_TEST_VALUES.to_owned(),
+            m: S64_TEST_VALUES.to_owned(),
+            n: vec![false, true, false],
+            o: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
+            p: vec![
+                "".to_owned(),
+                "=8 bytes".to_owned(),
+                "Hello, World!".to_owned(),
+            ],
+            q: vec![
+                StructOut {
+                    x: "Hello, World!".to_owned(),
+                },
+                StructOut {
+                    x: "Hello, World!".to_owned(),
+                },
+                StructOut {
+                    x: "Hello, World!".to_owned(),
+                },
+            ],
+            r: vec![
+                ChoiceOut::X("Hello, World!".to_owned()),
+                ChoiceOut::X("Hello, World!".to_owned()),
+                ChoiceOut::X("Hello, World!".to_owned()),
+            ],
+            s: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
+            t: vec![
+                vec![],
+                vec![0.0],
+                vec![0.0, PI],
+                vec![0.0, PI, f64::EPSILON],
+                F64_TEST_VALUES.to_owned(),
+            ],
+            u: vec![
+                vec![],
+                vec![u64::MIN],
+                vec![u64::MIN, 256],
+                vec![u64::MIN, 256, u64::MAX],
+                U64_TEST_VALUES.to_owned(),
+            ],
+            v: vec![
+                vec![],
+                vec![i64::MIN],
+                vec![i64::MIN, 0],
+                vec![i64::MIN, 0, i64::MAX],
+                S64_TEST_VALUES.to_owned(),
+            ],
+            w: vec![
+                vec![],
+                vec![false],
+                vec![false, true],
+                vec![false, true, false],
+            ],
+            x: vec![
+                vec![],
+                vec![vec![]],
+                vec![vec![], vec![0, 42, 255]],
+                vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
+            ],
+            y: vec![
+                vec!["".to_owned()],
+                vec!["".to_owned(), "=8 bytes".to_owned()],
+                vec![
+                    "".to_owned(),
+                    "=8 bytes".to_owned(),
+                    "Hello, World!".to_owned(),
+                ],
+            ],
+            z: vec![
+                vec![],
+                vec![StructOut {
+                    x: "Hello, World!".to_owned(),
+                }],
+                vec![
+                    StructOut {
+                        x: "Hello, World!".to_owned(),
+                    },
+                    StructOut {
+                        x: "Hello, World!".to_owned(),
+                    },
+                ],
+                vec![
+                    StructOut {
+                        x: "Hello, World!".to_owned(),
+                    },
+                    StructOut {
+                        x: "Hello, World!".to_owned(),
+                    },
+                    StructOut {
+                        x: "Hello, World!".to_owned(),
+                    },
+                ],
+            ],
+            aa: vec![
+                vec![],
+                vec![ChoiceOut::X("Hello, World!".to_owned())],
+                vec![
+                    ChoiceOut::X("Hello, World!".to_owned()),
+                    ChoiceOut::X("Hello, World!".to_owned()),
+                ],
+                vec![
+                    ChoiceOut::X("Hello, World!".to_owned()),
+                    ChoiceOut::X("Hello, World!".to_owned()),
+                    ChoiceOut::X("Hello, World!".to_owned()),
+                ],
+            ],
+        },
+        PATHOLOGICAL_ITERATIONS,
+    )?;
+
+    println!();
+    println!("Massive message test.");
+
+    benchmark::<StructOut, StructIn>(
+        &StructOut {
+            x: "a".repeat(MASSIVE_STRING_SIZE),
+        },
+        1,
+    )
 }

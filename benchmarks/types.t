@@ -1,4 +1,5 @@
 struct Struct {
+    x: String = 0
 }
 
 choice Choice {
