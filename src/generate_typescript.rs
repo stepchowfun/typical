@@ -154,8 +154,6 @@ pub fn generate(
 
 /* eslint-disable */
 
-const missingFieldsErrorMessage = 'Struct missing one or more required field(s).';
-
 export function unreachable(x: never): never {{
   return x;
 }}
@@ -216,8 +214,6 @@ function varintSizeFromFirstByte(firstByte: number): number {{
 
   return trailingZeros + 1;
 }}
-
-const dataView64 = new DataView(new ArrayBuffer(8));
 
 function serializeVarint(
   dataView: DataView,
@@ -432,6 +428,8 @@ function deserializeFieldHeader(
   }}
 }}
 
+const missingFieldsErrorMessage = 'Struct missing one or more required field(s).';
+const dataView64 = new DataView(new ArrayBuffer(8));
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();",
             typical_version,
