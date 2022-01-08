@@ -94,6 +94,19 @@ use std::{{
     mem::transmute,
 }};
 
+pub trait Serialize {{
+    fn size(&self) -> usize;
+
+    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
+}}
+
+pub trait Deserialize {{
+    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
+    where
+        Self: Sized,
+        T: BufRead;
+}}
+
 fn zigzag_encode(value: i64) -> u64 {{
     unsafe {{ transmute::<i64, u64>(value >> 63) ^ transmute::<i64, u64>(value << 1) }}
 }}
@@ -312,19 +325,6 @@ fn finish<T: BufRead>(reader: &mut T) -> io::Result<()> {{
         let buffer_size = buffer.len();
         reader.consume(buffer_size);
     }}
-}}
-
-pub trait Serialize {{
-    fn size(&self) -> usize;
-
-    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
-}}
-
-pub trait Deserialize {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead;
 }}",
             typical_version,
         )
