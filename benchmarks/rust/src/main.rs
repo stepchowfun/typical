@@ -10,8 +10,8 @@ use {
     },
 };
 
-const PATHOLOGICAL_ITERATIONS: usize = 1_000_000;
-const MASSIVE_STRING_SIZE: usize = 400_000_000;
+const PATHOLOGICAL_ITERATIONS: usize = 300_000;
+const MASSIVE_STRING_SIZE: usize = 800_000_000;
 
 const F64_TEST_VALUES: &[f64] = &[
     0.0,
@@ -70,6 +70,7 @@ const S64_TEST_VALUES: &[i64] = &[
     i64::MAX,
 ];
 
+#[allow(clippy::cast_precision_loss)]
 fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io::Result<()> {
     let message_size = message.size();
     let mut buffer = Vec::<u8>::new();
@@ -83,12 +84,14 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
         message.serialize(&mut buffer)?;
     }
 
-    println!(
-        "Serialization duration: {:?}",
-        serialization_instant.elapsed()
-    );
+    let serialization_duration = serialization_instant.elapsed();
 
     println!("Wrote {} bytes.", buffer.len());
+    println!("Serialization duration: {:?}", serialization_duration);
+    println!(
+        "Serialization rate: {} bytes/second",
+        (buffer.len() as f64) / serialization_duration.as_secs_f64()
+    );
 
     let deserialization_instant = Instant::now();
 
@@ -97,9 +100,12 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
         U::deserialize(&mut &buffer[offset..offset + message_size])?;
     }
 
+    let deserialization_duration = deserialization_instant.elapsed();
+
+    println!("Deserialization duration: {:?}", deserialization_duration);
     println!(
-        "Deserialization duration: {:?}",
-        deserialization_instant.elapsed()
+        "Deserialization rate: {} bytes/second",
+        (buffer.len() as f64) / deserialization_duration.as_secs_f64()
     );
 
     Ok(())
@@ -107,6 +113,16 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
 
 #[allow(clippy::too_many_lines)]
 fn main() -> io::Result<()> {
+    println!("Massive message test.");
+
+    benchmark::<StructOut, StructIn>(
+        &StructOut {
+            x: "a".repeat(MASSIVE_STRING_SIZE),
+        },
+        1,
+    )?;
+
+    println!();
     println!("Pathological message test.");
 
     benchmark::<MessageOut, MessageIn>(
@@ -232,15 +248,5 @@ fn main() -> io::Result<()> {
             ],
         },
         PATHOLOGICAL_ITERATIONS,
-    )?;
-
-    println!();
-    println!("Massive message test.");
-
-    benchmark::<StructOut, StructIn>(
-        &StructOut {
-            x: "a".repeat(MASSIVE_STRING_SIZE),
-        },
-        1,
     )
 }

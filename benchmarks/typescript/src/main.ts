@@ -1,7 +1,8 @@
+import { hrtime } from 'process';
 import { Types } from '../generated/types';
 
-const pathologicalIterations = 15_000;
-const massiveStringSize = 400_000_000;
+const pathologicalIterations = 5_000;
+const massiveStringSize = 200_000_000;
 
 const u64Min = 0n;
 const u64Max = 18_446_744_073_709_551_615n;
@@ -79,7 +80,7 @@ function benchmark<T, U>(
 
   console.log('Message size:', messageSize);
 
-  console.time('Serialization duration');
+  const serializationInstant = hrtime();
 
   for (
     let offset = 0;
@@ -89,19 +90,47 @@ function benchmark<T, U>(
     // All the work happens in the "increment" step of the `for` loop.
   }
 
-  console.timeEnd('Serialization duration');
+  const serializationDurationParts = hrtime(serializationInstant);
+  const serializationDuration =
+    serializationDurationParts[0] +
+    serializationDurationParts[1] / 1_000_000_000;
 
   console.log(`Wrote ${arrayBufferSize} bytes.`);
+  console.log(`Serialization duration: ${serializationDuration}s`);
+  console.log(
+    `Serialization rate: ${
+      arrayBufferSize / serializationDuration
+    } bytes/second`,
+  );
 
-  console.time('Deserialization duration');
+  const deserializationInstant = hrtime();
 
   for (let offset = 0; offset < arrayBufferSize; offset += messageSize) {
     const dataView = new DataView(arrayBuffer, offset, messageSize);
     deserialize(dataView);
   }
 
-  console.timeEnd('Deserialization duration');
+  const deserializationDurationParts = hrtime(deserializationInstant);
+  const deserializationDuration =
+    deserializationDurationParts[0] +
+    deserializationDurationParts[1] / 1_000_000_000;
+  console.log(`Deserialization duration: ${deserializationDuration}s`);
+  console.log(
+    `Deserialization rate: ${
+      arrayBufferSize / deserializationDuration
+    } bytes/second`,
+  );
 }
+
+console.log('Massive message test.');
+
+benchmark(
+  Types.Struct.size,
+  Types.Struct.serialize,
+  Types.Struct.deserialize,
+  { x: 'a'.repeat(massiveStringSize) },
+  1,
+);
 
 console.log();
 console.log('Pathological message test.');
@@ -180,14 +209,4 @@ benchmark(
     ],
   },
   pathologicalIterations,
-);
-
-console.log('Massive message test.');
-
-benchmark(
-  Types.Struct.size,
-  Types.Struct.serialize,
-  Types.Struct.deserialize,
-  { x: 'a'.repeat(massiveStringSize) },
-  1,
 );
