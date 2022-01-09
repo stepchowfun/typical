@@ -616,7 +616,7 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
 
 Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer takes 1-9 bytes to encode, but `U64` and `S64` fields only take 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode of the field header.
 
-### Benchmarks
+## Benchmarks
 
 We have coarse-grained benchmarks for each code generator [here](https://github.com/stepchowfun/typical/tree/main/benchmarks).
 
