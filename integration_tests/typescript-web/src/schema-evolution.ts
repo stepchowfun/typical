@@ -119,6 +119,7 @@ function choiceTestCases(
 export default function run(): void {
   assertMatch(
     SchemaEvolution.Before.ExampleStruct.atlas,
+    SchemaEvolution.Before.ExampleStruct.serializeIntoDataView,
     SchemaEvolution.Before.ExampleStruct.serialize,
     SchemaEvolution.After.ExampleStruct.deserialize,
     {
@@ -152,6 +153,7 @@ export default function run(): void {
 
   assertMatch(
     SchemaEvolution.Before.ExampleStruct.atlas,
+    SchemaEvolution.Before.ExampleStruct.serializeIntoDataView,
     SchemaEvolution.Before.ExampleStruct.serialize,
     SchemaEvolution.After.ExampleStruct.deserialize,
     {
@@ -207,6 +209,7 @@ export default function run(): void {
 
         assertMatch(
           SchemaEvolution.Before.ExampleChoice.atlas,
+          SchemaEvolution.Before.ExampleChoice.serializeIntoDataView,
           SchemaEvolution.Before.ExampleChoice.serialize,
           SchemaEvolution.After.ExampleChoice.deserialize,
           before,
@@ -220,6 +223,7 @@ export default function run(): void {
 
   assertMatch(
     SchemaEvolution.Types.SingletonStruct.atlas,
+    SchemaEvolution.Types.SingletonStruct.serializeIntoDataView,
     SchemaEvolution.Types.SingletonStruct.serialize,
     SchemaEvolution.Types.SingletonChoice.deserialize,
     {
@@ -233,6 +237,7 @@ export default function run(): void {
 
   assertMatch(
     SchemaEvolution.Types.SingletonChoice.atlas,
+    SchemaEvolution.Types.SingletonChoice.serializeIntoDataView,
     SchemaEvolution.Types.SingletonChoice.serialize,
     SchemaEvolution.Types.SingletonStruct.deserialize,
     {

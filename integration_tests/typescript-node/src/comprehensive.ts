@@ -66,6 +66,7 @@ const s64TestValues: bigint[] = [
 export default function run(): void {
   assertRoundTrip(
     Comprehensive.Types.Foo.atlas,
+    Comprehensive.Types.Foo.serializeIntoDataView,
     Comprehensive.Types.Foo.serialize,
     Comprehensive.Types.Foo.deserialize,
     {
@@ -219,6 +220,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Foo.atlas,
+    Comprehensive.Types.Foo.serializeIntoDataView,
     Comprehensive.Types.Foo.serialize,
     Comprehensive.Types.Foo.deserialize,
     {
@@ -403,6 +405,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -413,6 +416,7 @@ export default function run(): void {
   f64TestValues.forEach((bRequired) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -425,6 +429,7 @@ export default function run(): void {
   u64TestValues.forEach((cRequired) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -437,6 +442,7 @@ export default function run(): void {
   s64TestValues.forEach((dRequired) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -448,6 +454,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -458,6 +465,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -468,6 +476,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -478,6 +487,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -488,6 +498,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -498,6 +509,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -508,6 +520,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -518,6 +531,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -528,6 +542,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -538,6 +553,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -548,6 +564,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -558,6 +575,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -568,6 +586,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -578,6 +597,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -588,6 +608,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -598,6 +619,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -608,6 +630,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -618,6 +641,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -628,6 +652,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -638,6 +663,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -648,6 +674,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -658,6 +685,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -668,6 +696,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -678,6 +707,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -688,6 +718,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -698,6 +729,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -708,6 +740,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -718,6 +751,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -728,6 +762,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -738,6 +773,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -748,6 +784,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -758,6 +795,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -768,6 +806,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -778,6 +817,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -788,6 +828,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -798,6 +839,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -808,6 +850,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -821,6 +864,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -835,6 +879,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -845,6 +890,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -855,6 +901,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -865,6 +912,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -875,6 +923,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -885,6 +934,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -895,6 +945,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -905,6 +956,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -915,6 +967,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -925,6 +978,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -935,6 +989,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -945,6 +1000,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -955,6 +1011,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -965,6 +1022,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -975,6 +1033,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -985,6 +1044,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -995,6 +1055,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1005,6 +1066,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1015,6 +1077,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1025,6 +1088,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1035,6 +1099,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1045,6 +1110,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1055,6 +1121,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1065,6 +1132,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1075,6 +1143,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1085,6 +1154,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1095,6 +1165,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1105,6 +1176,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1115,6 +1187,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1125,6 +1198,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1135,6 +1209,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1145,6 +1220,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1155,6 +1231,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1165,6 +1242,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1175,6 +1253,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1185,6 +1264,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1195,6 +1275,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1205,6 +1286,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1215,6 +1297,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1225,6 +1308,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1235,6 +1319,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1245,6 +1330,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1255,6 +1341,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1265,6 +1352,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1275,6 +1363,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1285,6 +1374,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1295,6 +1385,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1311,6 +1402,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1330,6 +1422,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1340,6 +1433,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1350,6 +1444,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1360,6 +1455,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1370,6 +1466,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1380,6 +1477,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1395,6 +1493,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1405,6 +1504,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1415,6 +1515,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1425,6 +1526,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1435,6 +1537,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1445,6 +1548,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1455,6 +1559,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1465,6 +1570,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1475,6 +1581,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1485,6 +1592,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1495,6 +1603,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1505,6 +1614,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1517,6 +1627,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1531,6 +1642,7 @@ export default function run(): void {
   f64TestValues.forEach((bAsymmetric) => {
     assertMatch(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -1548,6 +1660,7 @@ export default function run(): void {
   u64TestValues.forEach((cAsymmetric) => {
     assertMatch(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -1565,6 +1678,7 @@ export default function run(): void {
   s64TestValues.forEach((dAsymmetric) => {
     assertMatch(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -1581,6 +1695,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1596,6 +1711,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1611,6 +1727,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1626,6 +1743,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1641,6 +1759,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1656,6 +1775,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1671,6 +1791,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1686,6 +1807,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1701,6 +1823,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1716,6 +1839,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1731,6 +1855,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1746,6 +1871,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1761,6 +1887,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1776,6 +1903,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1791,6 +1919,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1806,6 +1935,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1821,6 +1951,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1836,6 +1967,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1851,6 +1983,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1866,6 +1999,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1881,6 +2015,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1896,6 +2031,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1911,6 +2047,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1926,6 +2063,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1941,6 +2079,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1956,6 +2095,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1971,6 +2111,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -1986,6 +2127,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2001,6 +2143,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2016,6 +2159,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2031,6 +2175,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2046,6 +2191,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2061,6 +2207,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2076,6 +2223,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2091,6 +2239,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2106,6 +2255,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2121,6 +2271,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2142,6 +2293,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2165,6 +2317,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2180,6 +2333,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2195,6 +2349,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2210,6 +2365,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2225,6 +2381,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2240,6 +2397,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2255,6 +2413,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2270,6 +2429,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2285,6 +2445,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2300,6 +2461,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2315,6 +2477,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2330,6 +2493,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2345,6 +2509,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2360,6 +2525,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2375,6 +2541,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2390,6 +2557,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2405,6 +2573,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2420,6 +2589,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2435,6 +2605,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2450,6 +2621,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2465,6 +2637,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2480,6 +2653,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2495,6 +2669,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2510,6 +2685,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2525,6 +2701,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2540,6 +2717,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2555,6 +2733,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2570,6 +2749,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2585,6 +2765,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2600,6 +2781,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2615,6 +2797,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2630,6 +2813,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2645,6 +2829,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2660,6 +2845,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2675,6 +2861,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2690,6 +2877,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2705,6 +2893,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2720,6 +2909,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2735,6 +2925,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2750,6 +2941,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2765,6 +2957,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2780,6 +2973,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2795,6 +2989,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2810,6 +3005,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2825,6 +3021,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2840,6 +3037,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2855,6 +3053,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2882,6 +3081,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2915,6 +3115,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2930,6 +3131,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2945,6 +3147,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2960,6 +3163,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2975,6 +3179,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -2990,6 +3195,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3015,6 +3221,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3030,6 +3237,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3045,6 +3253,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3060,6 +3269,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3075,6 +3285,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3090,6 +3301,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3105,6 +3317,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3120,6 +3333,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3135,6 +3349,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3150,6 +3365,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3165,6 +3381,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3180,6 +3397,7 @@ export default function run(): void {
 
   assertMatch(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3195,6 +3413,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3206,6 +3425,7 @@ export default function run(): void {
   f64TestValues.forEach((bOptional) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -3219,6 +3439,7 @@ export default function run(): void {
   u64TestValues.forEach((cOptional) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -3232,6 +3453,7 @@ export default function run(): void {
   s64TestValues.forEach((dOptional) => {
     assertRoundTrip(
       Comprehensive.Types.Bar.atlas,
+      Comprehensive.Types.Bar.serializeIntoDataView,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
       {
@@ -3244,6 +3466,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3255,6 +3478,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3266,6 +3490,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3277,6 +3502,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3288,6 +3514,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3299,6 +3526,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3310,6 +3538,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3321,6 +3550,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3332,6 +3562,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3343,6 +3574,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3354,6 +3586,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3365,6 +3598,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3376,6 +3610,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3387,6 +3622,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3398,6 +3634,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3409,6 +3646,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3420,6 +3658,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3431,6 +3670,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3442,6 +3682,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3453,6 +3694,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3464,6 +3706,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3475,6 +3718,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3486,6 +3730,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3497,6 +3742,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3508,6 +3754,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3519,6 +3766,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3530,6 +3778,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3541,6 +3790,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3552,6 +3802,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3563,6 +3814,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3574,6 +3826,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3585,6 +3838,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3596,6 +3850,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3607,6 +3862,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3618,6 +3874,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3629,6 +3886,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3640,6 +3898,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3654,6 +3913,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3669,6 +3929,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3680,6 +3941,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3691,6 +3953,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3702,6 +3965,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3713,6 +3977,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3724,6 +3989,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3735,6 +4001,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3746,6 +4013,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3757,6 +4025,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3768,6 +4037,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3779,6 +4049,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3790,6 +4061,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3801,6 +4073,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3812,6 +4085,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3823,6 +4097,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3834,6 +4109,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3845,6 +4121,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3856,6 +4133,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3867,6 +4145,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3878,6 +4157,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3889,6 +4169,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3900,6 +4181,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3911,6 +4193,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3922,6 +4205,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3933,6 +4217,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3944,6 +4229,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3955,6 +4241,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3966,6 +4253,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3977,6 +4265,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3988,6 +4277,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -3999,6 +4289,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4010,6 +4301,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4021,6 +4313,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4032,6 +4325,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4043,6 +4337,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4054,6 +4349,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4065,6 +4361,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4076,6 +4373,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4087,6 +4385,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4098,6 +4397,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4109,6 +4409,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4120,6 +4421,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4131,6 +4433,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4142,6 +4445,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4153,6 +4457,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4164,6 +4469,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4175,6 +4481,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4192,6 +4499,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4212,6 +4520,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4223,6 +4532,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4234,6 +4544,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4245,6 +4556,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4256,6 +4568,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4267,6 +4580,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4283,6 +4597,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4294,6 +4609,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4305,6 +4621,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4316,6 +4633,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4327,6 +4645,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4338,6 +4657,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4349,6 +4669,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4360,6 +4681,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4371,6 +4693,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4382,6 +4705,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4393,6 +4717,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
@@ -4404,6 +4729,7 @@ export default function run(): void {
 
   assertRoundTrip(
     Comprehensive.Types.Bar.atlas,
+    Comprehensive.Types.Bar.serializeIntoDataView,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {

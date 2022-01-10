@@ -13,26 +13,26 @@ use {
     },
 };
 
-const FILE_PATH: &str = "/tmp/request";
+const FILE_PATH: &str = "/tmp/message";
 
 fn write_to_file() -> io::Result<()> {
-    let request = SendEmailRequestOut {
+    let message = SendEmailRequestOut {
         to: "typical@example.com".to_owned(),
         subject: "I love Typical!".to_owned(),
         body: "It makes serialization easy and safe.".to_owned(),
     };
 
     let mut file = BufWriter::new(File::create(FILE_PATH)?);
-    request.serialize(&mut file)
+    message.serialize(&mut file)
 }
 
 fn read_from_file() -> io::Result<()> {
     let mut file = BufReader::new(File::open(FILE_PATH)?);
-    let request = SendEmailRequestIn::deserialize(&mut file)?;
+    let message = SendEmailRequestIn::deserialize(&mut file)?;
 
-    println!("to: {}", request.to);
-    println!("subject: {}", request.subject);
-    println!("body: {}", request.body);
+    println!("to: {}", message.to);
+    println!("subject: {}", message.subject);
+    println!("body: {}", message.body);
 
     Ok(())
 }

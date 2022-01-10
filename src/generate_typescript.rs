@@ -607,7 +607,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, " {{")?;
 
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function atlas(value: ")?;
+                write!(buffer, "export function atlas(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
@@ -637,7 +637,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "let payloadAtlas;")?;
                     write_indentation(buffer, indentation + 3)?;
-                    write!(buffer, "const payload = value.")?;
+                    write!(buffer, "const payload = message.")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     writeln!(buffer, ";")?;
                     match field.rule {
@@ -708,13 +708,13 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function serialize(")?;
+                writeln!(buffer, "export function serializeIntoDataView(")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "dataView: DataView,")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "offset: number,")?;
                 write_indentation(buffer, indentation + 2)?;
-                write!(buffer, "value: ")?;
+                write!(buffer, "message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, ",")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -728,7 +728,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "{{")?;
                     write_indentation(buffer, indentation + 3)?;
-                    write!(buffer, "const payload = value.")?;
+                    write!(buffer, "const payload = message.")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     writeln!(buffer, ";")?;
                     write_indentation(buffer, indentation + 3)?;
@@ -796,6 +796,10 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "return offset;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
 
                 writeln!(buffer)?;
 
@@ -946,13 +950,13 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function outToIn(value: ")?;
+                write!(buffer, "export function outToIn(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return value;")?;
+                writeln!(buffer, "return message;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
@@ -1002,16 +1006,16 @@ fn write_schema<T: Write>(
                 writeln!(buffer, " {{")?;
 
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function atlas(value: ")?;
+                write!(buffer, "export function atlas(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 if declaration.fields.is_empty() {
-                    writeln!(buffer, "return unreachable(value);")?;
+                    writeln!(buffer, "return unreachable(message);")?;
                 } else {
-                    writeln!(buffer, "switch (value.$field) {{")?;
+                    writeln!(buffer, "switch (message.$field) {{")?;
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "case '")?;
@@ -1023,7 +1027,7 @@ fn write_schema<T: Write>(
                         if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
                             writeln!(buffer, "const payload = null;")?;
                         } else {
-                            write!(buffer, "const payload = value.")?;
+                            write!(buffer, "const payload = message.")?;
                             write_identifier(buffer, &field.name, Camel, None)?;
                             writeln!(buffer, ";")?;
                         }
@@ -1042,7 +1046,10 @@ fn write_schema<T: Write>(
                         write_indentation(buffer, indentation + 4)?;
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {
-                                writeln!(buffer, "const fallbackAtlas = atlas(value.$fallback);")?;
+                                writeln!(
+                                    buffer,
+                                    "const fallbackAtlas = atlas(message.$fallback);",
+                                )?;
                                 write_indentation(buffer, indentation + 4)?;
                                 write!(buffer, "return {{ $field: '")?;
                                 write_identifier(buffer, &field.name, Camel, None)?;
@@ -1082,7 +1089,7 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "default:")?;
                     write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "return unreachable(value);")?;
+                    writeln!(buffer, "return unreachable(message);")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -1092,13 +1099,13 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function serialize(")?;
+                writeln!(buffer, "export function serializeIntoDataView(")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "dataView: DataView,")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "offset: number,")?;
                 write_indentation(buffer, indentation + 2)?;
-                write!(buffer, "value: ")?;
+                write!(buffer, "message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, ",")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1109,10 +1116,10 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "): number {{")?;
                 write_indentation(buffer, indentation + 2)?;
                 if declaration.fields.is_empty() {
-                    writeln!(buffer, "return unreachable(value);")?;
+                    writeln!(buffer, "return unreachable(message);")?;
                 } else {
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "switch (value.$field) {{")?;
+                    writeln!(buffer, "switch (message.$field) {{")?;
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "case '")?;
@@ -1124,7 +1131,7 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 4)?;
                             writeln!(buffer, "const payloadAtlas = 0;")?;
                         } else {
-                            write!(buffer, "const payload = value.")?;
+                            write!(buffer, "const payload = message.")?;
                             write_identifier(buffer, &field.name, Camel, None)?;
                             writeln!(buffer, ";")?;
                             write_indentation(buffer, indentation + 4)?;
@@ -1157,8 +1164,8 @@ fn write_schema<T: Write>(
                                 write_indentation(buffer, indentation + 4)?;
                                 writeln!(
                                     buffer,
-                                    "offset = serialize(dataView, offset, value.$fallback, \
-                                        (atlas as any).$fallback);",
+                                    "offset = serializeIntoDataView(dataView, offset, \
+                                        message.$fallback, (atlas as any).$fallback);",
                                 )?;
                             }
                             schema::Rule::Required => {}
@@ -1171,12 +1178,16 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "default:")?;
                     write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "return unreachable(value);")?;
+                    writeln!(buffer, "return unreachable(message);")?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
 
                 writeln!(buffer)?;
 
@@ -1287,13 +1298,13 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function outToIn(value: ")?;
+                write!(buffer, "export function outToIn(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return value;")?;
+                writeln!(buffer, "return message;")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
@@ -1432,6 +1443,37 @@ fn write_choice<T: Write>(
     writeln!(buffer, ";")?;
 
     Ok(())
+}
+
+// Write the function to serialize a message.
+fn write_serialize_function<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+    name: &Identifier,
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    write!(buffer, "export function serialize(message: ")?;
+    write_identifier(buffer, name, Pascal, Some(Out))?;
+    writeln!(buffer, "): ArrayBuffer {{")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "const messageAtlas = atlas(message);")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(
+        buffer,
+        "const arrayBuffer = \
+        new ArrayBuffer((messageAtlas as {{ $size: number }}).$size);",
+    )?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "const dataView = new DataView(arrayBuffer);")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(
+        buffer,
+        "serializeIntoDataView(dataView, 0, message, messageAtlas);",
+    )?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "return arrayBuffer;")?;
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "}}")
 }
 
 // Write a type.
@@ -1972,7 +2014,7 @@ fn write_serialization_invocation<T: Write>(
             write_custom_type(buffer, imports, namespace, import, name, None)?;
             writeln!(
                 buffer,
-                ".serialize(dataView, offset, payload, payloadAtlas);",
+                ".serializeIntoDataView(dataView, offset, payload, payloadAtlas);",
             )
         }
         schema::TypeVariant::F64 => {

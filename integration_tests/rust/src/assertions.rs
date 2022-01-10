@@ -18,7 +18,7 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     actual: &T,
     expected: &U,
 ) -> io::Result<()> {
-    println!("Value to be serialized: {:?}", actual);
+    println!("Message to be serialized: {:?}", actual);
 
     let size = actual.size();
     println!("Expected size of the serialized value: {:?}", size);
@@ -41,7 +41,7 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
 
     let mut slice = buffer.as_slice();
     let replica = U::deserialize(&mut slice)?;
-    println!("Value deserialized from those bytes: {:?}", replica);
+    println!("Message deserialized from those bytes: {:?}", replica);
 
     if !slice.is_empty() {
         return Err(Error::new(

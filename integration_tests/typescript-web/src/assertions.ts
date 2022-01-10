@@ -1,8 +1,8 @@
 import { isEqual } from 'lodash';
 import { sha256 } from 'js-sha256';
 
-// The "omnifile" records the bytes of every value serialized by the exported functions below. It's
-// used to validate that the TypeScript code generator encodes data identically to other code
+// The "omnifile" records the bytes of every message serialized by the exported functions below.
+// It's used to validate that the TypeScript code generator encodes data identically to other code
 // generators.
 const omnifileHash =
   '15fbfc488b07fba7e273903c3198a983fe8a131c4d692ce80aa0c149194db83f';
@@ -18,46 +18,73 @@ function deepStrictEqual<T, U>(x: T, y: U): void {
 }
 
 export function assertMatch<T, U, V extends { $size: number }>(
-  atlas: (value: T) => V,
-  serialize: (dataView: DataView, offset: number, value: T, atlas: V) => number,
+  atlas: (message: T) => V,
+  serializeIntoDataView: (
+    dataView: DataView,
+    offset: number,
+    message: T,
+    atlas: V,
+  ) => number,
+  serialize: (message: T) => ArrayBuffer,
   deserialize: (dataView: DataView) => U,
   actual: T,
   expected: U,
 ): void {
-  console.log('Value to be serialized:', actual);
+  console.log('Message to be serialized:', actual);
 
   const actualAtlas = atlas(actual);
   const actualSize = actualAtlas.$size;
-  console.log('Expected size of the serialized value:', actualSize);
+  console.log('Expected size of the serialized message:', actualSize);
 
   const arrayBuffer = new ArrayBuffer(actualSize);
   const dataView = new DataView(arrayBuffer);
-
-  const numBytesWritten = serialize(dataView, 0, actual, actualAtlas);
+  const numBytesWritten = serializeIntoDataView(
+    dataView,
+    0,
+    actual,
+    actualAtlas,
+  );
   deepStrictEqual(numBytesWritten, actualSize);
   deepStrictEqual(arrayBuffer.byteLength, numBytesWritten);
-
   console.log('Bytes from serialization:', arrayBuffer);
-  console.log('Size of the serialized value:', arrayBuffer.byteLength);
+  console.log('Size of the serialized message:', arrayBuffer.byteLength);
 
   const typedArray = new Uint8Array(arrayBuffer);
   omnifileArray.set(typedArray, omnifileOffset);
   omnifileOffset += arrayBuffer.byteLength;
 
   const replica = deserialize(dataView);
-
-  console.log('Value deserialized from those bytes:', replica);
-
   deepStrictEqual(replica, expected);
+  console.log('Message deserialized from those bytes:', replica);
+
+  const arrayBufferReplica = serialize(actual);
+  const dataViewReplica = new DataView(arrayBufferReplica);
+  deepStrictEqual(dataViewReplica.byteLength, dataView.byteLength);
+  for (let i = 0; i < dataViewReplica.byteLength; i += 1) {
+    deepStrictEqual(dataViewReplica.getUint8(i), dataView.getUint8(i));
+  }
 }
 
 export function assertRoundTrip<U, T extends U, V extends { $size: number }>(
-  atlas: (value: T) => V,
-  serialize: (dataView: DataView, offset: number, value: T, atlas: V) => number,
+  atlas: (message: T) => V,
+  serializeIntoDataView: (
+    dataView: DataView,
+    offset: number,
+    message: T,
+    atlas: V,
+  ) => number,
+  serialize: (message: T) => ArrayBuffer,
   deserialize: (dataView: DataView) => U,
-  value: T,
+  message: T,
 ): void {
-  assertMatch(atlas, serialize, deserialize, value, value);
+  assertMatch(
+    atlas,
+    serializeIntoDataView,
+    serialize,
+    deserialize,
+    message,
+    message,
+  );
 }
 
 export function verifyOmnifile(): void {

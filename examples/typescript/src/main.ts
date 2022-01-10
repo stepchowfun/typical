@@ -1,24 +1,22 @@
 import { readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { Types } from '../generated/types';
 
-const filePath = '/tmp/request';
+const filePath = '/tmp/message';
 
 function writeToFile() {
-  const request = {
+  const message = {
     to: 'typical@example.com',
     subject: 'I love Typical!',
     body: 'It makes serialization easy and safe.',
   };
 
-  const requestAtlas = Types.SendEmailRequest.atlas(request);
-  const dataView = new DataView(new ArrayBuffer(requestAtlas.$size));
-  Types.SendEmailRequest.serialize(dataView, 0, request, requestAtlas);
-  writeFileSync(filePath, dataView);
+  const arrayBuffer = Types.SendEmailRequest.serialize(message);
+  writeFileSync(filePath, new DataView(arrayBuffer));
 }
 
 function readFromFile() {
   const fileContents = readFileSync(filePath);
-  const request = Types.SendEmailRequest.deserialize(
+  const message = Types.SendEmailRequest.deserialize(
     new DataView(
       fileContents.buffer,
       fileContents.byteOffset,
@@ -26,9 +24,9 @@ function readFromFile() {
     ),
   );
 
-  console.log('to:', request.to);
-  console.log('subject:', request.subject);
-  console.log('body:', request.body);
+  console.log('to:', message.to);
+  console.log('subject:', message.subject);
+  console.log('body:', message.body);
 }
 
 writeToFile();
