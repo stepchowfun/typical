@@ -299,6 +299,26 @@ export namespace CircularDependency {
       };
 
       export namespace StructFromBelow {
+        export function serialize(message: StructFromBelowOut): ArrayBuffer {
+          const messageAtlas = atlas(message);
+          const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+          const dataView = new DataView(arrayBuffer);
+          serializeUnsafe(dataView, 0, message, messageAtlas);
+          return arrayBuffer;
+        }
+
+        export function deserialize(dataView: DataView): StructFromBelowIn | Error {
+          try {
+            return deserializeUnsafe(dataView);
+          } catch (e) {
+            return e as Error;
+          }
+        }
+
+        export function outToIn(message: StructFromBelowOut): StructFromBelowIn {
+          return message;
+        }
+
         export function atlas(message: StructFromBelowOut): StructFromBelowAtlas {
           let $size = 0;
 
@@ -319,7 +339,7 @@ export namespace CircularDependency {
           };
         }
 
-        export function serializeIntoDataView(
+        export function serializeUnsafe(
           dataView: DataView,
           offset: number,
           message: StructFromBelowOut,
@@ -330,21 +350,13 @@ export namespace CircularDependency {
             const payloadAtlas = atlas.x;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-            offset = CircularDependency.Types.StructFromAbove.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+            offset = CircularDependency.Types.StructFromAbove.serializeUnsafe(dataView, offset, payload, payloadAtlas);
           }
 
           return offset;
         }
 
-        export function serialize(message: StructFromBelowOut): ArrayBuffer {
-          const messageAtlas = atlas(message);
-          const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-          const dataView = new DataView(arrayBuffer);
-          serializeIntoDataView(dataView, 0, message, messageAtlas);
-          return arrayBuffer;
-        }
-
-        export function deserialize(dataView: DataView): StructFromBelowIn {
+        export function deserializeUnsafe(dataView: DataView): StructFromBelowIn {
           const dataViewAlias = dataView;
 
           let offset = 0;
@@ -373,7 +385,7 @@ export namespace CircularDependency {
                 );
                 const oldOffset = offset;
                 offset = 0;
-                let payload = CircularDependency.Types.StructFromAbove.deserialize(dataView);
+                let payload = CircularDependency.Types.StructFromAbove.deserializeUnsafe(dataView);
                 offset = dataView.byteLength;
                 offset += oldOffset;
                 $x = payload;
@@ -393,10 +405,6 @@ export namespace CircularDependency {
             x: $x,
           };
         }
-
-        export function outToIn(message: StructFromBelowOut): StructFromBelowIn {
-          return message;
-        }
       }
     }
   }
@@ -413,6 +421,26 @@ export namespace CircularDependency {
     };
 
     export namespace StructFromAbove {
+      export function serialize(message: StructFromAboveOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): StructFromAboveIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: StructFromAboveOut): StructFromAboveIn {
+        return message;
+      }
+
       export function atlas(message: StructFromAboveOut): StructFromAboveAtlas {
         let $size = 0;
 
@@ -421,7 +449,7 @@ export namespace CircularDependency {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: StructFromAboveOut,
@@ -430,15 +458,7 @@ export namespace CircularDependency {
         return offset;
       }
 
-      export function serialize(message: StructFromAboveOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): StructFromAboveIn {
+      export function deserializeUnsafe(dataView: DataView): StructFromAboveIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -465,10 +485,6 @@ export namespace CircularDependency {
 
         return {
         };
-      }
-
-      export function outToIn(message: StructFromAboveOut): StructFromAboveIn {
-        return message;
       }
     }
   }
@@ -487,6 +503,26 @@ export namespace Comprehensive {
     };
 
     export namespace LocalStruct {
+      export function serialize(message: LocalStructOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): LocalStructIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: LocalStructOut): LocalStructIn {
+        return message;
+      }
+
       export function atlas(message: LocalStructOut): LocalStructAtlas {
         let $size = 0;
 
@@ -495,7 +531,7 @@ export namespace Comprehensive {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: LocalStructOut,
@@ -504,15 +540,7 @@ export namespace Comprehensive {
         return offset;
       }
 
-      export function serialize(message: LocalStructOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): LocalStructIn {
+      export function deserializeUnsafe(dataView: DataView): LocalStructIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -539,10 +567,6 @@ export namespace Comprehensive {
 
         return {
         };
-      }
-
-      export function outToIn(message: LocalStructOut): LocalStructIn {
-        return message;
       }
     }
 
@@ -800,6 +824,26 @@ export namespace Comprehensive {
     };
 
     export namespace Foo {
+      export function serialize(message: FooOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): FooIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: FooOut): FooIn {
+        return message;
+      }
+
       export function atlas(message: FooOut): FooAtlas {
         let $size = 0;
 
@@ -2694,7 +2738,7 @@ export namespace Comprehensive {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: FooOut,
@@ -2804,7 +2848,7 @@ export namespace Comprehensive {
           const payloadAtlas = atlas.hRequired;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
           offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-          offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+          offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
         }
 
         {
@@ -2812,7 +2856,7 @@ export namespace Comprehensive {
           const payloadAtlas = atlas.iRequired;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
           offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-          offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+          offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
         }
 
         {
@@ -2960,7 +3004,7 @@ export namespace Comprehensive {
               const payload = oldPayload[i];
               const payloadAtlas = oldPayloadAtlas.$elements[i];
               offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-              offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+              offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
             }
           }
         }
@@ -2977,7 +3021,7 @@ export namespace Comprehensive {
               const payload = oldPayload[i];
               const payloadAtlas = oldPayloadAtlas.$elements[i];
               offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-              offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+              offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
             }
           }
         }
@@ -3192,7 +3236,7 @@ export namespace Comprehensive {
                   const payload = oldPayload[i];
                   const payloadAtlas = oldPayloadAtlas.$elements[i];
                   offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                  offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                  offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                 }
               }
             }
@@ -3218,7 +3262,7 @@ export namespace Comprehensive {
                   const payload = oldPayload[i];
                   const payloadAtlas = oldPayloadAtlas.$elements[i];
                   offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                  offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                  offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                 }
               }
             }
@@ -3329,7 +3373,7 @@ export namespace Comprehensive {
           const payloadAtlas = atlas.hAsymmetric;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
           offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
-          offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+          offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
         }
 
         {
@@ -3337,7 +3381,7 @@ export namespace Comprehensive {
           const payloadAtlas = atlas.iAsymmetric;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
           offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
-          offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+          offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
         }
 
         {
@@ -3485,7 +3529,7 @@ export namespace Comprehensive {
               const payload = oldPayload[i];
               const payloadAtlas = oldPayloadAtlas.$elements[i];
               offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-              offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+              offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
             }
           }
         }
@@ -3502,7 +3546,7 @@ export namespace Comprehensive {
               const payload = oldPayload[i];
               const payloadAtlas = oldPayloadAtlas.$elements[i];
               offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-              offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+              offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
             }
           }
         }
@@ -3717,7 +3761,7 @@ export namespace Comprehensive {
                   const payload = oldPayload[i];
                   const payloadAtlas = oldPayloadAtlas.$elements[i];
                   offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                  offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                  offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                 }
               }
             }
@@ -3743,7 +3787,7 @@ export namespace Comprehensive {
                   const payload = oldPayload[i];
                   const payloadAtlas = oldPayloadAtlas.$elements[i];
                   offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                  offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                  offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                 }
               }
             }
@@ -3869,7 +3913,7 @@ export namespace Comprehensive {
           if (payload !== undefined && payloadAtlas !== undefined) {
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+            offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
           }
         }
 
@@ -3879,7 +3923,7 @@ export namespace Comprehensive {
           if (payload !== undefined && payloadAtlas !== undefined) {
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+            offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
           }
         }
 
@@ -4043,7 +4087,7 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
           }
@@ -4062,7 +4106,7 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
           }
@@ -4293,7 +4337,7 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
@@ -4321,7 +4365,7 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
@@ -4332,15 +4376,7 @@ export namespace Comprehensive {
         return offset;
       }
 
-      export function serialize(message: FooOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): FooIn {
+      export function deserializeUnsafe(dataView: DataView): FooIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -4533,7 +4569,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
               $hRequired = payload;
@@ -4547,7 +4583,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
               $iRequired = payload;
@@ -4845,7 +4881,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -4887,7 +4923,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -5396,7 +5432,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -5466,7 +5502,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -5654,7 +5690,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
               $hAsymmetric = payload;
@@ -5668,7 +5704,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
               $iAsymmetric = payload;
@@ -5966,7 +6002,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -6008,7 +6044,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -6517,7 +6553,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -6587,7 +6623,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -6775,7 +6811,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
               $hOptional = payload;
@@ -6789,7 +6825,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
               $iOptional = payload;
@@ -7087,7 +7123,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -7129,7 +7165,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -7638,7 +7674,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -7708,7 +7744,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -7817,10 +7853,6 @@ export namespace Comprehensive {
           zOptional: $zOptional,
           aaOptional: $aaOptional,
         };
-      }
-
-      export function outToIn(message: FooOut): FooIn {
-        return message;
       }
     }
 
@@ -8074,6 +8106,26 @@ export namespace Comprehensive {
       | { $field: 'aaOptional'; aaOptional: Degenerate.Types.EmptyStructIn[][]; $fallback: BarIn };
 
     export namespace Bar {
+      export function serialize(message: BarOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): BarIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: BarOut): BarIn {
+        return message;
+      }
+
       export function atlas(message: BarOut): BarAtlas {
         switch (message.$field) {
           case 'aRequired': {
@@ -9668,7 +9720,7 @@ export namespace Comprehensive {
         }
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: BarOut,
@@ -9779,7 +9831,7 @@ export namespace Comprehensive {
             const payloadAtlas = (atlas as any).hRequired;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+            offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
             return offset;
           }
           case 'iRequired': {
@@ -9787,7 +9839,7 @@ export namespace Comprehensive {
             const payloadAtlas = (atlas as any).iRequired;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+            offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
             return offset;
           }
           case 'jRequired': {
@@ -9935,7 +9987,7 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
             return offset;
@@ -9952,7 +10004,7 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
             return offset;
@@ -10167,7 +10219,7 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
@@ -10193,7 +10245,7 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
@@ -10205,7 +10257,7 @@ export namespace Comprehensive {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'bAsymmetric': {
@@ -10217,7 +10269,7 @@ export namespace Comprehensive {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'cAsymmetric': {
@@ -10234,7 +10286,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'dAsymmetric': {
@@ -10251,7 +10303,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'eAsymmetric': {
@@ -10268,7 +10320,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'fAsymmetric': {
@@ -10286,7 +10338,7 @@ export namespace Comprehensive {
               targetBuffer.set(sourceBuffer, offset);
               offset += sourceBuffer.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'gAsymmetric': {
@@ -10303,7 +10355,7 @@ export namespace Comprehensive {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'hAsymmetric': {
@@ -10311,8 +10363,8 @@ export namespace Comprehensive {
             const payloadAtlas = (atlas as any).hAsymmetric;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'iAsymmetric': {
@@ -10320,8 +10372,8 @@ export namespace Comprehensive {
             const payloadAtlas = (atlas as any).iAsymmetric;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'jAsymmetric': {
@@ -10338,7 +10390,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'kAsymmetric': {
@@ -10354,7 +10406,7 @@ export namespace Comprehensive {
                 offset += 8;
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'lAsymmetric': {
@@ -10372,7 +10424,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'mAsymmetric': {
@@ -10390,7 +10442,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'nAsymmetric': {
@@ -10408,7 +10460,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'oAsymmetric': {
@@ -10435,7 +10487,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'pAsymmetric': {
@@ -10461,7 +10513,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'qAsymmetric': {
@@ -10476,10 +10528,10 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'rAsymmetric': {
@@ -10494,10 +10546,10 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'sAsymmetric': {
@@ -10518,7 +10570,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'tAsymmetric': {
@@ -10543,7 +10595,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'uAsymmetric': {
@@ -10570,7 +10622,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'vAsymmetric': {
@@ -10597,7 +10649,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'wAsymmetric': {
@@ -10624,7 +10676,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'xAsymmetric': {
@@ -10660,7 +10712,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'yAsymmetric': {
@@ -10695,7 +10747,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'zAsymmetric': {
@@ -10717,12 +10769,12 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'aaAsymmetric': {
@@ -10744,12 +10796,12 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'aOptional': {
@@ -10757,7 +10809,7 @@ export namespace Comprehensive {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'bOptional': {
@@ -10769,7 +10821,7 @@ export namespace Comprehensive {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'cOptional': {
@@ -10786,7 +10838,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'dOptional': {
@@ -10803,7 +10855,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'eOptional': {
@@ -10820,7 +10872,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'fOptional': {
@@ -10838,7 +10890,7 @@ export namespace Comprehensive {
               targetBuffer.set(sourceBuffer, offset);
               offset += sourceBuffer.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'gOptional': {
@@ -10855,7 +10907,7 @@ export namespace Comprehensive {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'hOptional': {
@@ -10863,8 +10915,8 @@ export namespace Comprehensive {
             const payloadAtlas = (atlas as any).hOptional;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'iOptional': {
@@ -10872,8 +10924,8 @@ export namespace Comprehensive {
             const payloadAtlas = (atlas as any).iOptional;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'jOptional': {
@@ -10890,7 +10942,7 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'kOptional': {
@@ -10906,7 +10958,7 @@ export namespace Comprehensive {
                 offset += 8;
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'lOptional': {
@@ -10924,7 +10976,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'mOptional': {
@@ -10942,7 +10994,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'nOptional': {
@@ -10960,7 +11012,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'oOptional': {
@@ -10987,7 +11039,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'pOptional': {
@@ -11013,7 +11065,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'qOptional': {
@@ -11028,10 +11080,10 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'rOptional': {
@@ -11046,10 +11098,10 @@ export namespace Comprehensive {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
                 offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'sOptional': {
@@ -11070,7 +11122,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'tOptional': {
@@ -11095,7 +11147,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'uOptional': {
@@ -11122,7 +11174,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'vOptional': {
@@ -11149,7 +11201,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'wOptional': {
@@ -11176,7 +11228,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'xOptional': {
@@ -11212,7 +11264,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'yOptional': {
@@ -11247,7 +11299,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'zOptional': {
@@ -11269,12 +11321,12 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Comprehensive.Types.LocalStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'aaOptional': {
@@ -11296,12 +11348,12 @@ export namespace Comprehensive {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
                     offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeIntoDataView(dataView, offset, payload, payloadAtlas);
+                    offset = Degenerate.Types.EmptyStruct.serializeUnsafe(dataView, offset, payload, payloadAtlas);
                   }
                 }
               }
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           default:
@@ -11309,15 +11361,7 @@ export namespace Comprehensive {
         }
       }
 
-      export function serialize(message: BarOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): BarIn {
+      export function deserializeUnsafe(dataView: DataView): BarIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -11505,7 +11549,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               return {
                 $field: 'hRequired',
@@ -11520,7 +11564,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               return {
                 $field: 'iRequired',
@@ -11826,7 +11870,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -11869,7 +11913,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -12386,7 +12430,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -12457,7 +12501,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -12652,7 +12696,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               return {
                 $field: 'hAsymmetric',
@@ -12667,7 +12711,7 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               return {
                 $field: 'iAsymmetric',
@@ -12973,7 +13017,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -13016,7 +13060,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -13533,7 +13577,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -13604,7 +13648,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -13631,7 +13675,7 @@ export namespace Comprehensive {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13664,7 +13708,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13701,7 +13745,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13739,7 +13783,7 @@ export namespace Comprehensive {
               }
               payload = zigzagDecode(payload);
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13784,7 +13828,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13811,7 +13855,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13841,7 +13885,7 @@ export namespace Comprehensive {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13862,10 +13906,10 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+              let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13886,10 +13930,10 @@ export namespace Comprehensive {
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+              let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13934,7 +13978,7 @@ export namespace Comprehensive {
                 payload = newPayload;
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -13975,7 +14019,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14016,7 +14060,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14058,7 +14102,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14107,7 +14151,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14162,7 +14206,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14220,7 +14264,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14264,7 +14308,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                    let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -14272,7 +14316,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14316,7 +14360,7 @@ export namespace Comprehensive {
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                    let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                     offset = dataView.byteLength;
                     offset += oldOffset;
                     payloadAlias.push(payload);
@@ -14324,7 +14368,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14384,7 +14428,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14453,7 +14497,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14522,7 +14566,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14592,7 +14636,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14669,7 +14713,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14752,7 +14796,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14838,7 +14882,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14905,7 +14949,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Comprehensive.Types.LocalStruct.deserialize(dataView);
+                          let payload = Comprehensive.Types.LocalStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -14918,7 +14962,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -14985,7 +15029,7 @@ export namespace Comprehensive {
                           );
                           const oldOffset = offset;
                           offset = 0;
-                          let payload = Degenerate.Types.EmptyStruct.deserialize(dataView);
+                          let payload = Degenerate.Types.EmptyStruct.deserializeUnsafe(dataView);
                           offset = dataView.byteLength;
                           offset += oldOffset;
                           payloadAlias.push(payload);
@@ -14998,7 +15042,7 @@ export namespace Comprehensive {
                 }
               }
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -15017,10 +15061,6 @@ export namespace Comprehensive {
           }
         }
       }
-
-      export function outToIn(message: BarOut): BarIn {
-        return message;
-      }
     }
   }
 }
@@ -15038,6 +15078,26 @@ export namespace Degenerate {
     };
 
     export namespace EmptyStruct {
+      export function serialize(message: EmptyStructOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): EmptyStructIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: EmptyStructOut): EmptyStructIn {
+        return message;
+      }
+
       export function atlas(message: EmptyStructOut): EmptyStructAtlas {
         let $size = 0;
 
@@ -15046,7 +15106,7 @@ export namespace Degenerate {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: EmptyStructOut,
@@ -15055,15 +15115,7 @@ export namespace Degenerate {
         return offset;
       }
 
-      export function serialize(message: EmptyStructOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): EmptyStructIn {
+      export function deserializeUnsafe(dataView: DataView): EmptyStructIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -15091,10 +15143,6 @@ export namespace Degenerate {
         return {
         };
       }
-
-      export function outToIn(message: EmptyStructOut): EmptyStructIn {
-        return message;
-      }
     }
 
     export type EmptyChoiceAtlas = never;
@@ -15104,11 +15152,31 @@ export namespace Degenerate {
     export type EmptyChoiceIn = never;
 
     export namespace EmptyChoice {
+      export function serialize(message: EmptyChoiceOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): EmptyChoiceIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: EmptyChoiceOut): EmptyChoiceIn {
+        return message;
+      }
+
       export function atlas(message: EmptyChoiceOut): EmptyChoiceAtlas {
         return unreachable(message);
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: EmptyChoiceOut,
@@ -15117,15 +15185,7 @@ export namespace Degenerate {
         return unreachable(message);
       }
 
-      export function serialize(message: EmptyChoiceOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): EmptyChoiceIn {
+      export function deserializeUnsafe(dataView: DataView): EmptyChoiceIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -15140,10 +15200,6 @@ export namespace Degenerate {
               break;
           }
         }
-      }
-
-      export function outToIn(message: EmptyChoiceOut): EmptyChoiceIn {
-        return message;
       }
     }
   }
@@ -15195,6 +15251,26 @@ export namespace SchemaEvolution {
     };
 
     export namespace ExampleStruct {
+      export function serialize(message: ExampleStructOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): ExampleStructIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: ExampleStructOut): ExampleStructIn {
+        return message;
+      }
+
       export function atlas(message: ExampleStructOut): ExampleStructAtlas {
         let $size = 0;
 
@@ -15331,7 +15407,7 @@ export namespace SchemaEvolution {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: ExampleStructOut,
@@ -15506,15 +15582,7 @@ export namespace SchemaEvolution {
         return offset;
       }
 
-      export function serialize(message: ExampleStructOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): ExampleStructIn {
+      export function deserializeUnsafe(dataView: DataView): ExampleStructIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -15765,10 +15833,6 @@ export namespace SchemaEvolution {
           nonexistentToOptional: $nonexistentToOptional,
         };
       }
-
-      export function outToIn(message: ExampleStructOut): ExampleStructIn {
-        return message;
-      }
     }
 
     export type ExampleChoiceAtlas =
@@ -15811,6 +15875,26 @@ export namespace SchemaEvolution {
       | { $field: 'nonexistentToOptional'; $fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
+      export function serialize(message: ExampleChoiceOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): ExampleChoiceIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: ExampleChoiceOut): ExampleChoiceIn {
+        return message;
+      }
+
       export function atlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
         switch (message.$field) {
           case 'requiredToRequired': {
@@ -15902,7 +15986,7 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: ExampleChoiceOut,
@@ -15939,7 +16023,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'asymmetricToRequired': {
@@ -15972,7 +16056,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'asymmetricToOptional': {
@@ -15989,7 +16073,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'optionalToRequired': {
@@ -16022,7 +16106,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'optionalToOptional': {
@@ -16039,7 +16123,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'nonexistentToRequired': {
@@ -16054,7 +16138,7 @@ export namespace SchemaEvolution {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'nonexistentToOptional': {
@@ -16062,7 +16146,7 @@ export namespace SchemaEvolution {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           default:
@@ -16070,15 +16154,7 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function serialize(message: ExampleChoiceOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): ExampleChoiceIn {
+      export function deserializeUnsafe(dataView: DataView): ExampleChoiceIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -16189,7 +16265,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -16261,7 +16337,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -16310,7 +16386,7 @@ export namespace SchemaEvolution {
               offset = 0;
               let payload = null;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -16327,10 +16403,6 @@ export namespace SchemaEvolution {
               break;
           }
         }
-      }
-
-      export function outToIn(message: ExampleChoiceOut): ExampleChoiceIn {
-        return message;
       }
     }
   }
@@ -16383,6 +16455,26 @@ export namespace SchemaEvolution {
     };
 
     export namespace ExampleStruct {
+      export function serialize(message: ExampleStructOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): ExampleStructIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: ExampleStructOut): ExampleStructIn {
+        return message;
+      }
+
       export function atlas(message: ExampleStructOut): ExampleStructAtlas {
         let $size = 0;
 
@@ -16529,7 +16621,7 @@ export namespace SchemaEvolution {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: ExampleStructOut,
@@ -16738,15 +16830,7 @@ export namespace SchemaEvolution {
         return offset;
       }
 
-      export function serialize(message: ExampleStructOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): ExampleStructIn {
+      export function deserializeUnsafe(dataView: DataView): ExampleStructIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -17032,10 +17116,6 @@ export namespace SchemaEvolution {
           optionalToNonexistent: $optionalToNonexistent,
         };
       }
-
-      export function outToIn(message: ExampleStructOut): ExampleStructIn {
-        return message;
-      }
     }
 
     export type ExampleChoiceAtlas =
@@ -17075,6 +17155,26 @@ export namespace SchemaEvolution {
       | { $field: 'optionalToNonexistent'; optionalToNonexistent: string; $fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
+      export function serialize(message: ExampleChoiceOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): ExampleChoiceIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: ExampleChoiceOut): ExampleChoiceIn {
+        return message;
+      }
+
       export function atlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
         switch (message.$field) {
           case 'requiredToRequired': {
@@ -17160,7 +17260,7 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: ExampleChoiceOut,
@@ -17213,7 +17313,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'asymmetricToAsymmetric': {
@@ -17230,7 +17330,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'asymmetricToOptional': {
@@ -17247,7 +17347,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'asymmetricToNonexistent': {
@@ -17264,7 +17364,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'optionalToRequired': {
@@ -17281,7 +17381,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'optionalToAsymmetric': {
@@ -17298,7 +17398,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'optionalToOptional': {
@@ -17315,7 +17415,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           case 'optionalToNonexistent': {
@@ -17332,7 +17432,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
           }
           default:
@@ -17340,15 +17440,7 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function serialize(message: ExampleChoiceOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): ExampleChoiceIn {
+      export function deserializeUnsafe(dataView: DataView): ExampleChoiceIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -17501,7 +17593,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -17531,7 +17623,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -17561,7 +17653,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -17591,7 +17683,7 @@ export namespace SchemaEvolution {
               );
               offset = dataView.byteLength;
               offset += oldOffset;
-              const $fallback = deserialize(
+              const $fallback = deserializeUnsafe(
                 new DataView(
                   dataViewAlias.buffer,
                   dataViewAlias.byteOffset + offset,
@@ -17609,10 +17701,6 @@ export namespace SchemaEvolution {
               break;
           }
         }
-      }
-
-      export function outToIn(message: ExampleChoiceOut): ExampleChoiceIn {
-        return message;
       }
     }
   }
@@ -17632,6 +17720,26 @@ export namespace SchemaEvolution {
     };
 
     export namespace SingletonStruct {
+      export function serialize(message: SingletonStructOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): SingletonStructIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: SingletonStructOut): SingletonStructIn {
+        return message;
+      }
+
       export function atlas(message: SingletonStructOut): SingletonStructAtlas {
         let $size = 0;
 
@@ -17652,7 +17760,7 @@ export namespace SchemaEvolution {
         };
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: SingletonStructOut,
@@ -17677,15 +17785,7 @@ export namespace SchemaEvolution {
         return offset;
       }
 
-      export function serialize(message: SingletonStructOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): SingletonStructIn {
+      export function deserializeUnsafe(dataView: DataView): SingletonStructIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -17740,10 +17840,6 @@ export namespace SchemaEvolution {
           x: $x,
         };
       }
-
-      export function outToIn(message: SingletonStructOut): SingletonStructIn {
-        return message;
-      }
     }
 
     export type SingletonChoiceAtlas =
@@ -17758,6 +17854,26 @@ export namespace SchemaEvolution {
       | { $field: never };
 
     export namespace SingletonChoice {
+      export function serialize(message: SingletonChoiceOut): ArrayBuffer {
+        const messageAtlas = atlas(message);
+        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const dataView = new DataView(arrayBuffer);
+        serializeUnsafe(dataView, 0, message, messageAtlas);
+        return arrayBuffer;
+      }
+
+      export function deserialize(dataView: DataView): SingletonChoiceIn | Error {
+        try {
+          return deserializeUnsafe(dataView);
+        } catch (e) {
+          return e as Error;
+        }
+      }
+
+      export function outToIn(message: SingletonChoiceOut): SingletonChoiceIn {
+        return message;
+      }
+
       export function atlas(message: SingletonChoiceOut): SingletonChoiceAtlas {
         switch (message.$field) {
           case 'x': {
@@ -17772,7 +17888,7 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function serializeIntoDataView(
+      export function serializeUnsafe(
         dataView: DataView,
         offset: number,
         message: SingletonChoiceOut,
@@ -17800,15 +17916,7 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function serialize(message: SingletonChoiceOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeIntoDataView(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
-      }
-
-      export function deserialize(dataView: DataView): SingletonChoiceIn {
+      export function deserializeUnsafe(dataView: DataView): SingletonChoiceIn {
         const dataViewAlias = dataView;
 
         let offset = 0;
@@ -17844,10 +17952,6 @@ export namespace SchemaEvolution {
               break;
           }
         }
-      }
-
-      export function outToIn(message: SingletonChoiceOut): SingletonChoiceIn {
-        return message;
       }
     }
   }

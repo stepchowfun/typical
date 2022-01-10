@@ -606,6 +606,27 @@ fn write_schema<T: Write>(
                 write_identifier(buffer, &declaration.name, Pascal, None)?;
                 writeln!(buffer, " {{")?;
 
+                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
+
+                writeln!(buffer)?;
+
+                write_deserialize_function(buffer, indentation + 1, &declaration.name)?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "export function outToIn(message: ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                write!(buffer, "): ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "return message;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function atlas(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
@@ -707,8 +728,10 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
+                // This function is "unsafe" in the sense that it can throw an error if
+                // `dataView` isn't big enough or if `atlas` has incorrect values.
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function serializeIntoDataView(")?;
+                writeln!(buffer, "export function serializeUnsafe(")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "dataView: DataView,")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -798,12 +821,13 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
-                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
-
-                writeln!(buffer)?;
-
+                // This function is "unsafe" in the sense that it will throw an error to signify
+                // a deserialization failure.
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function deserialize(dataView: DataView): ")?;
+                write!(
+                    buffer,
+                    "export function deserializeUnsafe(dataView: DataView): ",
+                )?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -948,19 +972,6 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
-                writeln!(buffer)?;
-
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function outToIn(message: ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
-                write!(buffer, "): ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return message;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
             }
@@ -1005,6 +1016,27 @@ fn write_schema<T: Write>(
                 write!(buffer, "export namespace ")?;
                 write_identifier(buffer, &declaration.name, Pascal, None)?;
                 writeln!(buffer, " {{")?;
+
+                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
+
+                writeln!(buffer)?;
+
+                write_deserialize_function(buffer, indentation + 1, &declaration.name)?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "export function outToIn(message: ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                write!(buffer, "): ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "return message;")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function atlas(message: ")?;
@@ -1099,8 +1131,10 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
+                // This function is "unsafe" in the sense that it can throw an error if
+                // `dataView` isn't big enough or if `atlas` has incorrect values.
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function serializeIntoDataView(")?;
+                writeln!(buffer, "export function serializeUnsafe(")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "dataView: DataView,")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1164,7 +1198,7 @@ fn write_schema<T: Write>(
                                 write_indentation(buffer, indentation + 4)?;
                                 writeln!(
                                     buffer,
-                                    "offset = serializeIntoDataView(dataView, offset, \
+                                    "offset = serializeUnsafe(dataView, offset, \
                                         message.$fallback, (atlas as any).$fallback);",
                                 )?;
                             }
@@ -1187,12 +1221,13 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
-                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
-
-                writeln!(buffer)?;
-
+                // This function is "unsafe" in the sense that it will throw an error to signify
+                // a deserialization failure.
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function deserialize(dataView: DataView): ")?;
+                write!(
+                    buffer,
+                    "export function deserializeUnsafe(dataView: DataView): ",
+                )?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1245,7 +1280,7 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 5)?;
                             writeln!(buffer, "offset += oldOffset;")?;
                             write_indentation(buffer, indentation + 5)?;
-                            writeln!(buffer, "const $fallback = deserialize(")?;
+                            writeln!(buffer, "const $fallback = deserializeUnsafe(")?;
                             write_indentation(buffer, indentation + 6)?;
                             writeln!(buffer, "new DataView(")?;
                             write_indentation(buffer, indentation + 7)?;
@@ -1296,18 +1331,6 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
 
-                writeln!(buffer)?;
-
-                write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function outToIn(message: ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
-                write!(buffer, "): ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return message;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
             }
@@ -1469,10 +1492,34 @@ fn write_serialize_function<T: Write>(
     write_indentation(buffer, indentation + 1)?;
     writeln!(
         buffer,
-        "serializeIntoDataView(dataView, 0, message, messageAtlas);",
+        "serializeUnsafe(dataView, 0, message, messageAtlas);",
     )?;
     write_indentation(buffer, indentation + 1)?;
     writeln!(buffer, "return arrayBuffer;")?;
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "}}")
+}
+
+// Write the function to deserialize a message.
+fn write_deserialize_function<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+    name: &Identifier,
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    write!(buffer, "export function deserialize(dataView: DataView): ")?;
+    write_identifier(buffer, name, Pascal, Some(In))?;
+    writeln!(buffer, " | Error {{")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "try {{")?;
+    write_indentation(buffer, indentation + 2)?;
+    writeln!(buffer, "return deserializeUnsafe(dataView);")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "}} catch (e) {{")?;
+    write_indentation(buffer, indentation + 2)?;
+    writeln!(buffer, "return e as Error;")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "}}")?;
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "}}")
 }
@@ -2012,7 +2059,7 @@ fn write_serialization_invocation<T: Write>(
             write_custom_type(buffer, imports, namespace, import, name, None)?;
             writeln!(
                 buffer,
-                ".serializeIntoDataView(dataView, offset, payload, payloadAtlas);",
+                ".serializeUnsafe(dataView, offset, payload, payloadAtlas);",
             )
         }
         schema::TypeVariant::F64 => {
@@ -2330,7 +2377,7 @@ fn write_deserialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             write!(buffer, "let payload = ")?;
             write_custom_type(buffer, imports, namespace, import, name, None)?;
-            writeln!(buffer, ".deserialize(dataView);")?;
+            writeln!(buffer, ".deserializeUnsafe(dataView);")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "offset = dataView.byteLength;")
         }

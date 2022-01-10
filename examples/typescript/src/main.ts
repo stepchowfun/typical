@@ -24,6 +24,10 @@ function readFromFile() {
     ),
   );
 
+  if (message instanceof Error) {
+    throw message;
+  }
+
   console.log('to:', message.to);
   console.log('subject:', message.subject);
   console.log('body:', message.body);
