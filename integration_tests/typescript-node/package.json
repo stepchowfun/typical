@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "integration-tests",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

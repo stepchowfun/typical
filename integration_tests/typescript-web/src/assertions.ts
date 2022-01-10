@@ -19,7 +19,7 @@ function deepStrictEqual<T, U>(x: T, y: U): void {
 
 export function assertMatch<T, U, V extends { $size: number }>(
   atlas: (message: T) => V,
-  serializeIntoDataView: (
+  serializeUnsafe: (
     dataView: DataView,
     offset: number,
     message: T,
@@ -38,12 +38,7 @@ export function assertMatch<T, U, V extends { $size: number }>(
 
   const arrayBuffer = new ArrayBuffer(actualSize);
   const dataView = new DataView(arrayBuffer);
-  const numBytesWritten = serializeIntoDataView(
-    dataView,
-    0,
-    actual,
-    actualAtlas,
-  );
+  const numBytesWritten = serializeUnsafe(dataView, 0, actual, actualAtlas);
   deepStrictEqual(numBytesWritten, actualSize);
   deepStrictEqual(arrayBuffer.byteLength, numBytesWritten);
   console.log('Bytes from serialization:', arrayBuffer);
@@ -67,7 +62,7 @@ export function assertMatch<T, U, V extends { $size: number }>(
 
 export function assertRoundTrip<U, T extends U, V extends { $size: number }>(
   atlas: (message: T) => V,
-  serializeIntoDataView: (
+  serializeUnsafe: (
     dataView: DataView,
     offset: number,
     message: T,
@@ -77,14 +72,7 @@ export function assertRoundTrip<U, T extends U, V extends { $size: number }>(
   deserialize: (dataView: DataView) => U,
   message: T,
 ): void {
-  assertMatch(
-    atlas,
-    serializeIntoDataView,
-    serialize,
-    deserialize,
-    message,
-    message,
-  );
+  assertMatch(atlas, serializeUnsafe, serialize, deserialize, message, message);
 }
 
 export function verifyOmnifile(): void {

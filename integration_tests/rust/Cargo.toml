@@ -1,5 +1,5 @@
 [package]
-name = "example"
+name = "integration-tests"
 version = "0.1.0"
 authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
 edition = "2018"
