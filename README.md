@@ -496,18 +496,17 @@ Every language has its own patterns and idiosyncrasies. The sections below conta
 - The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
 
   ```typescript
-  switch (shape.$field) {
-    case 'square':
-      area = shape.square.sideLength * shape.square.sideLength;
-      break;
-    case 'rectangle':
-      area = shape.rectangle.width * shape.rectangle.height;
-      break;
-    case 'circle':
-      area = Math.PI * shape.circle.radius * shape.circle.radius;
-      break;
-    default:
-      area = unreachable(shape);
+  function area(shape: ShapeIn): number {
+    switch (shape.$field) {
+      case 'square':
+        return shape.square.sideLength * shape.square.sideLength;
+      case 'rectangle':
+        return shape.rectangle.width * shape.rectangle.height;
+      case 'circle':
+        return Math.PI * shape.circle.radius * shape.circle.radius;
+      default:
+        return unreachable(shape);
+    }
   }
   ```
 
