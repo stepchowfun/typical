@@ -325,7 +325,6 @@ export namespace CircularDependency {
           message: StructFromBelowOut,
           atlas: StructFromBelowAtlas,
         ): number {
-
           {
             const payload = message.x;
             const payloadAtlas = atlas.x;
@@ -354,6 +353,7 @@ export namespace CircularDependency {
 
           while (true) {
             let index, payloadSize;
+
             try {
               [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
             } catch (e) {
@@ -363,6 +363,7 @@ export namespace CircularDependency {
                 throw e;
               }
             }
+
             switch (index) {
               case 0n: {
                 const dataView = new DataView(
@@ -426,7 +427,6 @@ export namespace CircularDependency {
         message: StructFromAboveOut,
         atlas: StructFromAboveAtlas,
       ): number {
-
         return offset;
       }
 
@@ -445,6 +445,7 @@ export namespace CircularDependency {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -454,6 +455,7 @@ export namespace CircularDependency {
               throw e;
             }
           }
+
           switch (index) {
             default:
               offset += payloadSize;
@@ -499,7 +501,6 @@ export namespace Comprehensive {
         message: LocalStructOut,
         atlas: LocalStructAtlas,
       ): number {
-
         return offset;
       }
 
@@ -518,6 +519,7 @@ export namespace Comprehensive {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -527,6 +529,7 @@ export namespace Comprehensive {
               throw e;
             }
           }
+
           switch (index) {
             default:
               offset += payloadSize;
@@ -551,7 +554,7 @@ export namespace Comprehensive {
       dRequired: number;
       eRequired: number;
       fRequired: number;
-      gRequired: number;
+      gRequired: Uint8Array;
       hRequired: Comprehensive.Types.LocalStructAtlas;
       iRequired: Degenerate.Types.EmptyStructAtlas;
       jRequired: number;
@@ -560,7 +563,7 @@ export namespace Comprehensive {
       mRequired: number;
       nRequired: number;
       oRequired: { $size: number; $elements: number[] };
-      pRequired: { $size: number; $elements: number[] };
+      pRequired: { $size: number; $elements: Uint8Array[] };
       qRequired: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
       rRequired: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
       sRequired: { $size: number; $elements: number[] };
@@ -569,7 +572,7 @@ export namespace Comprehensive {
       vRequired: { $size: number; $elements: number[] };
       wRequired: { $size: number; $elements: number[] };
       xRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] };
-      yRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] };
+      yRequired: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
       zRequired: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
       aaRequired: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
       aAsymmetric: number;
@@ -578,7 +581,7 @@ export namespace Comprehensive {
       dAsymmetric: number;
       eAsymmetric: number;
       fAsymmetric: number;
-      gAsymmetric: number;
+      gAsymmetric: Uint8Array;
       hAsymmetric: Comprehensive.Types.LocalStructAtlas;
       iAsymmetric: Degenerate.Types.EmptyStructAtlas;
       jAsymmetric: number;
@@ -587,7 +590,7 @@ export namespace Comprehensive {
       mAsymmetric: number;
       nAsymmetric: number;
       oAsymmetric: { $size: number; $elements: number[] };
-      pAsymmetric: { $size: number; $elements: number[] };
+      pAsymmetric: { $size: number; $elements: Uint8Array[] };
       qAsymmetric: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
       rAsymmetric: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
       sAsymmetric: { $size: number; $elements: number[] };
@@ -596,7 +599,7 @@ export namespace Comprehensive {
       vAsymmetric: { $size: number; $elements: number[] };
       wAsymmetric: { $size: number; $elements: number[] };
       xAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] };
-      yAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] };
+      yAsymmetric: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
       zAsymmetric: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
       aaAsymmetric: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
       aOptional?: number;
@@ -605,7 +608,7 @@ export namespace Comprehensive {
       dOptional?: number;
       eOptional?: number;
       fOptional?: number;
-      gOptional?: number;
+      gOptional?: Uint8Array;
       hOptional?: Comprehensive.Types.LocalStructAtlas;
       iOptional?: Degenerate.Types.EmptyStructAtlas;
       jOptional?: number;
@@ -614,7 +617,7 @@ export namespace Comprehensive {
       mOptional?: number;
       nOptional?: number;
       oOptional?: { $size: number; $elements: number[] };
-      pOptional?: { $size: number; $elements: number[] };
+      pOptional?: { $size: number; $elements: Uint8Array[] };
       qOptional?: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
       rOptional?: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
       sOptional?: { $size: number; $elements: number[] };
@@ -623,7 +626,7 @@ export namespace Comprehensive {
       vOptional?: { $size: number; $elements: number[] };
       wOptional?: { $size: number; $elements: number[] };
       xOptional?: { $size: number; $elements: { $size: number; $elements: number[] }[] };
-      yOptional?: { $size: number; $elements: { $size: number; $elements: number[] }[] };
+      yOptional?: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
       zOptional?: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
       aaOptional?: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
     };
@@ -882,9 +885,9 @@ export namespace Comprehensive {
         {
           let payloadAtlas;
           const payload = message.gRequired;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $gRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
 
@@ -1025,9 +1028,9 @@ export namespace Comprehensive {
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
-              payloadAtlas = textEncoder.encode(payload).byteLength;
+              payloadAtlas = textEncoder.encode(payload);
               $elements.push(payloadAtlas);
-              const payloadSize = payloadAtlas;
+              const payloadSize = payloadAtlas.byteLength;
               $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
             payloadAtlas = { $size, $elements };
@@ -1279,9 +1282,9 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
-                  payloadAtlas = textEncoder.encode(payload).byteLength;
+                  payloadAtlas = textEncoder.encode(payload);
                   $elements.push(payloadAtlas);
-                  const payloadSize = payloadAtlas;
+                  const payloadSize = payloadAtlas.byteLength;
                   $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadAtlas = { $size, $elements };
@@ -1447,9 +1450,9 @@ export namespace Comprehensive {
         {
           let payloadAtlas;
           const payload = message.gAsymmetric;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $gAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(34n, payloadSize, false) + payloadSize;
         }
 
@@ -1590,9 +1593,9 @@ export namespace Comprehensive {
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
-              payloadAtlas = textEncoder.encode(payload).byteLength;
+              payloadAtlas = textEncoder.encode(payload);
               $elements.push(payloadAtlas);
-              const payloadSize = payloadAtlas;
+              const payloadSize = payloadAtlas.byteLength;
               $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
             payloadAtlas = { $size, $elements };
@@ -1844,9 +1847,9 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
-                  payloadAtlas = textEncoder.encode(payload).byteLength;
+                  payloadAtlas = textEncoder.encode(payload);
                   $elements.push(payloadAtlas);
-                  const payloadSize = payloadAtlas;
+                  const payloadSize = payloadAtlas.byteLength;
                   $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
                 payloadAtlas = { $size, $elements };
@@ -2039,9 +2042,9 @@ export namespace Comprehensive {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $gOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(62n, payloadSize, false) + payloadSize;
           }
         }
@@ -2218,9 +2221,9 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload).byteLength;
+                payloadAtlas = textEncoder.encode(payload);
                 $elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
+                const payloadSize = payloadAtlas.byteLength;
                 $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadAtlas = { $size, $elements };
@@ -2508,9 +2511,9 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload).byteLength;
+                    payloadAtlas = textEncoder.encode(payload);
                     $elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
+                    const payloadSize = payloadAtlas.byteLength;
                     $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadAtlas = { $size, $elements };
@@ -2697,7 +2700,6 @@ export namespace Comprehensive {
         message: FooOut,
         atlas: FooAtlas,
       ): number {
-
         {
           const payload = message.aRequired;
           const payloadAtlas = atlas.aRequired;
@@ -2784,17 +2786,16 @@ export namespace Comprehensive {
         {
           const payload = message.gRequired;
           const payloadAtlas = atlas.gRequired;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -2933,16 +2934,15 @@ export namespace Comprehensive {
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               const payloadAtlas = oldPayloadAtlas.$elements[i];
-              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
               {
-                const sourceBuffer = textEncoder.encode(payload);
                 const targetBuffer = new Uint8Array(
                   dataView.buffer,
                   dataView.byteOffset,
                   dataView.byteLength,
                 );
-                targetBuffer.set(sourceBuffer, offset);
-                offset += sourceBuffer.byteLength;
+                targetBuffer.set(payloadAtlas, offset);
+                offset += payloadAtlas.byteLength;
               }
             }
           }
@@ -3157,16 +3157,15 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   const payloadAtlas = oldPayloadAtlas.$elements[i];
-                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                   {
-                    const sourceBuffer = textEncoder.encode(payload);
                     const targetBuffer = new Uint8Array(
                       dataView.buffer,
                       dataView.byteOffset,
                       dataView.byteLength,
                     );
-                    targetBuffer.set(sourceBuffer, offset);
-                    offset += sourceBuffer.byteLength;
+                    targetBuffer.set(payloadAtlas, offset);
+                    offset += payloadAtlas.byteLength;
                   }
                 }
               }
@@ -3312,17 +3311,16 @@ export namespace Comprehensive {
         {
           const payload = message.gAsymmetric;
           const payloadAtlas = atlas.gAsymmetric;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -3461,16 +3459,15 @@ export namespace Comprehensive {
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               const payloadAtlas = oldPayloadAtlas.$elements[i];
-              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
               {
-                const sourceBuffer = textEncoder.encode(payload);
                 const targetBuffer = new Uint8Array(
                   dataView.buffer,
                   dataView.byteOffset,
                   dataView.byteLength,
                 );
-                targetBuffer.set(sourceBuffer, offset);
-                offset += sourceBuffer.byteLength;
+                targetBuffer.set(payloadAtlas, offset);
+                offset += payloadAtlas.byteLength;
               }
             }
           }
@@ -3685,16 +3682,15 @@ export namespace Comprehensive {
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   const payloadAtlas = oldPayloadAtlas.$elements[i];
-                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                   {
-                    const sourceBuffer = textEncoder.encode(payload);
                     const targetBuffer = new Uint8Array(
                       dataView.buffer,
                       dataView.byteOffset,
                       dataView.byteLength,
                     );
-                    targetBuffer.set(sourceBuffer, offset);
-                    offset += sourceBuffer.byteLength;
+                    targetBuffer.set(payloadAtlas, offset);
+                    offset += payloadAtlas.byteLength;
                   }
                 }
               }
@@ -3853,17 +3849,16 @@ export namespace Comprehensive {
           const payload = message.gOptional;
           const payloadAtlas = atlas.gOptional;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -4020,16 +4015,15 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                 {
-                  const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
                     dataView.buffer,
                     dataView.byteOffset,
                     dataView.byteLength,
                   );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
+                  targetBuffer.set(payloadAtlas, offset);
+                  offset += payloadAtlas.byteLength;
                 }
               }
             }
@@ -4262,16 +4256,15 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                     {
-                      const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
                         dataView.buffer,
                         dataView.byteOffset,
                         dataView.byteLength,
                       );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
+                      targetBuffer.set(payloadAtlas, offset);
+                      offset += payloadAtlas.byteLength;
                     }
                   }
                 }
@@ -4356,6 +4349,7 @@ export namespace Comprehensive {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -4365,6 +4359,7 @@ export namespace Comprehensive {
               throw e;
             }
           }
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -7836,7 +7831,7 @@ export namespace Comprehensive {
       | { $field: 'dRequired'; $size: number; dRequired: number }
       | { $field: 'eRequired'; $size: number; eRequired: number }
       | { $field: 'fRequired'; $size: number; fRequired: number }
-      | { $field: 'gRequired'; $size: number; gRequired: number }
+      | { $field: 'gRequired'; $size: number; gRequired: Uint8Array }
       | { $field: 'hRequired'; $size: number; hRequired: Comprehensive.Types.LocalStructAtlas }
       | { $field: 'iRequired'; $size: number; iRequired: Degenerate.Types.EmptyStructAtlas }
       | { $field: 'jRequired'; $size: number; jRequired: number }
@@ -7845,7 +7840,7 @@ export namespace Comprehensive {
       | { $field: 'mRequired'; $size: number; mRequired: number }
       | { $field: 'nRequired'; $size: number; nRequired: number }
       | { $field: 'oRequired'; $size: number; oRequired: { $size: number; $elements: number[] } }
-      | { $field: 'pRequired'; $size: number; pRequired: { $size: number; $elements: number[] } }
+      | { $field: 'pRequired'; $size: number; pRequired: { $size: number; $elements: Uint8Array[] } }
       | { $field: 'qRequired'; $size: number; qRequired: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] } }
       | { $field: 'rRequired'; $size: number; rRequired: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] } }
       | { $field: 'sRequired'; $size: number; sRequired: { $size: number; $elements: number[] } }
@@ -7854,7 +7849,7 @@ export namespace Comprehensive {
       | { $field: 'vRequired'; $size: number; vRequired: { $size: number; $elements: number[] } }
       | { $field: 'wRequired'; $size: number; wRequired: { $size: number; $elements: number[] } }
       | { $field: 'xRequired'; $size: number; xRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] } }
-      | { $field: 'yRequired'; $size: number; yRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] } }
+      | { $field: 'yRequired'; $size: number; yRequired: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] } }
       | { $field: 'zRequired'; $size: number; zRequired: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] } }
       | { $field: 'aaRequired'; $size: number; aaRequired: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] } }
       | { $field: 'aAsymmetric'; $size: number; aAsymmetric: number; $fallback: BarAtlas }
@@ -7863,7 +7858,7 @@ export namespace Comprehensive {
       | { $field: 'dAsymmetric'; $size: number; dAsymmetric: number; $fallback: BarAtlas }
       | { $field: 'eAsymmetric'; $size: number; eAsymmetric: number; $fallback: BarAtlas }
       | { $field: 'fAsymmetric'; $size: number; fAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'gAsymmetric'; $size: number; gAsymmetric: number; $fallback: BarAtlas }
+      | { $field: 'gAsymmetric'; $size: number; gAsymmetric: Uint8Array; $fallback: BarAtlas }
       | { $field: 'hAsymmetric'; $size: number; hAsymmetric: Comprehensive.Types.LocalStructAtlas; $fallback: BarAtlas }
       | { $field: 'iAsymmetric'; $size: number; iAsymmetric: Degenerate.Types.EmptyStructAtlas; $fallback: BarAtlas }
       | { $field: 'jAsymmetric'; $size: number; jAsymmetric: number; $fallback: BarAtlas }
@@ -7872,7 +7867,7 @@ export namespace Comprehensive {
       | { $field: 'mAsymmetric'; $size: number; mAsymmetric: number; $fallback: BarAtlas }
       | { $field: 'nAsymmetric'; $size: number; nAsymmetric: number; $fallback: BarAtlas }
       | { $field: 'oAsymmetric'; $size: number; oAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'pAsymmetric'; $size: number; pAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $field: 'pAsymmetric'; $size: number; pAsymmetric: { $size: number; $elements: Uint8Array[] }; $fallback: BarAtlas }
       | { $field: 'qAsymmetric'; $size: number; qAsymmetric: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }; $fallback: BarAtlas }
       | { $field: 'rAsymmetric'; $size: number; rAsymmetric: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }; $fallback: BarAtlas }
       | { $field: 'sAsymmetric'; $size: number; sAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
@@ -7881,7 +7876,7 @@ export namespace Comprehensive {
       | { $field: 'vAsymmetric'; $size: number; vAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
       | { $field: 'wAsymmetric'; $size: number; wAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
       | { $field: 'xAsymmetric'; $size: number; xAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
-      | { $field: 'yAsymmetric'; $size: number; yAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
+      | { $field: 'yAsymmetric'; $size: number; yAsymmetric: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] }; $fallback: BarAtlas }
       | { $field: 'zAsymmetric'; $size: number; zAsymmetric: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] }; $fallback: BarAtlas }
       | { $field: 'aaAsymmetric'; $size: number; aaAsymmetric: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] }; $fallback: BarAtlas }
       | { $field: 'aOptional'; $size: number; aOptional: number; $fallback: BarAtlas }
@@ -7890,7 +7885,7 @@ export namespace Comprehensive {
       | { $field: 'dOptional'; $size: number; dOptional: number; $fallback: BarAtlas }
       | { $field: 'eOptional'; $size: number; eOptional: number; $fallback: BarAtlas }
       | { $field: 'fOptional'; $size: number; fOptional: number; $fallback: BarAtlas }
-      | { $field: 'gOptional'; $size: number; gOptional: number; $fallback: BarAtlas }
+      | { $field: 'gOptional'; $size: number; gOptional: Uint8Array; $fallback: BarAtlas }
       | { $field: 'hOptional'; $size: number; hOptional: Comprehensive.Types.LocalStructAtlas; $fallback: BarAtlas }
       | { $field: 'iOptional'; $size: number; iOptional: Degenerate.Types.EmptyStructAtlas; $fallback: BarAtlas }
       | { $field: 'jOptional'; $size: number; jOptional: number; $fallback: BarAtlas }
@@ -7899,7 +7894,7 @@ export namespace Comprehensive {
       | { $field: 'mOptional'; $size: number; mOptional: number; $fallback: BarAtlas }
       | { $field: 'nOptional'; $size: number; nOptional: number; $fallback: BarAtlas }
       | { $field: 'oOptional'; $size: number; oOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'pOptional'; $size: number; pOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $field: 'pOptional'; $size: number; pOptional: { $size: number; $elements: Uint8Array[] }; $fallback: BarAtlas }
       | { $field: 'qOptional'; $size: number; qOptional: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }; $fallback: BarAtlas }
       | { $field: 'rOptional'; $size: number; rOptional: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }; $fallback: BarAtlas }
       | { $field: 'sOptional'; $size: number; sOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
@@ -7908,7 +7903,7 @@ export namespace Comprehensive {
       | { $field: 'vOptional'; $size: number; vOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
       | { $field: 'wOptional'; $size: number; wOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
       | { $field: 'xOptional'; $size: number; xOptional: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
-      | { $field: 'yOptional'; $size: number; yOptional: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
+      | { $field: 'yOptional'; $size: number; yOptional: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] }; $fallback: BarAtlas }
       | { $field: 'zOptional'; $size: number; zOptional: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] }; $fallback: BarAtlas }
       | { $field: 'aaOptional'; $size: number; aaOptional: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] }; $fallback: BarAtlas };
 
@@ -8149,8 +8144,8 @@ export namespace Comprehensive {
           case 'gRequired': {
             let payloadAtlas;
             const payload = message.gRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'gRequired', $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize, gRequired: payloadAtlas };
           }
           case 'hRequired': {
@@ -8274,9 +8269,9 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload).byteLength;
+                payloadAtlas = textEncoder.encode(payload);
                 $elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
+                const payloadSize = payloadAtlas.byteLength;
                 $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadAtlas = { $size, $elements };
@@ -8510,9 +8505,9 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload).byteLength;
+                    payloadAtlas = textEncoder.encode(payload);
                     $elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
+                    const payloadSize = payloadAtlas.byteLength;
                     $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadAtlas = { $size, $elements };
@@ -8666,8 +8661,8 @@ export namespace Comprehensive {
           case 'gAsymmetric': {
             let payloadAtlas;
             const payload = message.gAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'gAsymmetric', $size: fieldHeaderSize(34n, payloadSize, false) + payloadSize + fallbackAtlas.$size, gAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
           }
@@ -8800,9 +8795,9 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload).byteLength;
+                payloadAtlas = textEncoder.encode(payload);
                 $elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
+                const payloadSize = payloadAtlas.byteLength;
                 $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadAtlas = { $size, $elements };
@@ -9045,9 +9040,9 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload).byteLength;
+                    payloadAtlas = textEncoder.encode(payload);
                     $elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
+                    const payloadSize = payloadAtlas.byteLength;
                     $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadAtlas = { $size, $elements };
@@ -9204,8 +9199,8 @@ export namespace Comprehensive {
           case 'gOptional': {
             let payloadAtlas;
             const payload = message.gOptional;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'gOptional', $size: fieldHeaderSize(62n, payloadSize, false) + payloadSize + fallbackAtlas.$size, gOptional: payloadAtlas, $fallback: fallbackAtlas };
           }
@@ -9338,9 +9333,9 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload).byteLength;
+                payloadAtlas = textEncoder.encode(payload);
                 $elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
+                const payloadSize = payloadAtlas.byteLength;
                 $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
               payloadAtlas = { $size, $elements };
@@ -9583,9 +9578,9 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload).byteLength;
+                    payloadAtlas = textEncoder.encode(payload);
                     $elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
+                    const payloadSize = payloadAtlas.byteLength;
                     $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
                   payloadAtlas = { $size, $elements };
@@ -9679,7 +9674,7 @@ export namespace Comprehensive {
         message: BarOut,
         atlas: BarAtlas,
       ): number {
-                switch (message.$field) {
+        switch (message.$field) {
           case 'aRequired': {
             const payload = null;
             const payloadAtlas = 0;
@@ -9766,17 +9761,16 @@ export namespace Comprehensive {
           case 'gRequired': {
             const payload = message.gRequired;
             const payloadAtlas = (atlas as any).gRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
@@ -9915,16 +9909,15 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                 {
-                  const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
                     dataView.buffer,
                     dataView.byteOffset,
                     dataView.byteLength,
                   );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
+                  targetBuffer.set(payloadAtlas, offset);
+                  offset += payloadAtlas.byteLength;
                 }
               }
             }
@@ -10139,16 +10132,15 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                     {
-                      const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
                         dataView.buffer,
                         dataView.byteOffset,
                         dataView.byteLength,
                       );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
+                      targetBuffer.set(payloadAtlas, offset);
+                      offset += payloadAtlas.byteLength;
                     }
                   }
                 }
@@ -10300,17 +10292,16 @@ export namespace Comprehensive {
           case 'gAsymmetric': {
             const payload = message.gAsymmetric;
             const payloadAtlas = (atlas as any).gAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -10458,16 +10449,15 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                 {
-                  const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
                     dataView.buffer,
                     dataView.byteOffset,
                     dataView.byteLength,
                   );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
+                  targetBuffer.set(payloadAtlas, offset);
+                  offset += payloadAtlas.byteLength;
                 }
               }
             }
@@ -10691,16 +10681,15 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                     {
-                      const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
                         dataView.buffer,
                         dataView.byteOffset,
                         dataView.byteLength,
                       );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
+                      targetBuffer.set(payloadAtlas, offset);
+                      offset += payloadAtlas.byteLength;
                     }
                   }
                 }
@@ -10855,17 +10844,16 @@ export namespace Comprehensive {
           case 'gOptional': {
             const payload = message.gOptional;
             const payloadAtlas = (atlas as any).gOptional;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -11013,16 +11001,15 @@ export namespace Comprehensive {
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                 {
-                  const sourceBuffer = textEncoder.encode(payload);
                   const targetBuffer = new Uint8Array(
                     dataView.buffer,
                     dataView.byteOffset,
                     dataView.byteLength,
                   );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
+                  targetBuffer.set(payloadAtlas, offset);
+                  offset += payloadAtlas.byteLength;
                 }
               }
             }
@@ -11246,16 +11233,15 @@ export namespace Comprehensive {
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
                     {
-                      const sourceBuffer = textEncoder.encode(payload);
                       const targetBuffer = new Uint8Array(
                         dataView.buffer,
                         dataView.byteOffset,
                         dataView.byteLength,
                       );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
+                      targetBuffer.set(payloadAtlas, offset);
+                      offset += payloadAtlas.byteLength;
                     }
                   }
                 }
@@ -11339,6 +11325,7 @@ export namespace Comprehensive {
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -15065,7 +15052,6 @@ export namespace Degenerate {
         message: EmptyStructOut,
         atlas: EmptyStructAtlas,
       ): number {
-
         return offset;
       }
 
@@ -15084,6 +15070,7 @@ export namespace Degenerate {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -15093,6 +15080,7 @@ export namespace Degenerate {
               throw e;
             }
           }
+
           switch (index) {
             default:
               offset += payloadSize;
@@ -15145,6 +15133,7 @@ export namespace Degenerate {
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
+
           switch (index) {
             default:
               offset += payloadSize;
@@ -15164,15 +15153,15 @@ export namespace SchemaEvolution {
   export namespace After {
     export type ExampleStructAtlas = {
       $size: number;
-      requiredToRequired: number;
-      requiredToAsymmetric: number;
-      requiredToOptional?: number;
-      asymmetricToRequired: number;
-      asymmetricToAsymmetric: number;
-      asymmetricToOptional?: number;
-      optionalToRequired: number;
-      optionalToAsymmetric: number;
-      optionalToOptional?: number;
+      requiredToRequired: Uint8Array;
+      requiredToAsymmetric: Uint8Array;
+      requiredToOptional?: Uint8Array;
+      asymmetricToRequired: Uint8Array;
+      asymmetricToAsymmetric: Uint8Array;
+      asymmetricToOptional?: Uint8Array;
+      optionalToRequired: Uint8Array;
+      optionalToAsymmetric: Uint8Array;
+      optionalToOptional?: Uint8Array;
       nonexistentToAsymmetric: number;
       nonexistentToOptional?: number;
     };
@@ -15214,18 +15203,18 @@ export namespace SchemaEvolution {
         {
           let payloadAtlas;
           const payload = message.requiredToRequired;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $requiredToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.requiredToAsymmetric;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $requiredToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
 
@@ -15235,9 +15224,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $requiredToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
           }
         }
@@ -15245,18 +15234,18 @@ export namespace SchemaEvolution {
         {
           let payloadAtlas;
           const payload = message.asymmetricToRequired;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $asymmetricToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.asymmetricToAsymmetric;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $asymmetricToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
 
@@ -15266,9 +15255,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $asymmetricToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
           }
         }
@@ -15276,18 +15265,18 @@ export namespace SchemaEvolution {
         {
           let payloadAtlas;
           const payload = message.optionalToRequired;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $optionalToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.optionalToAsymmetric;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $optionalToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
 
@@ -15297,9 +15286,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $optionalToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
         }
@@ -15348,38 +15337,35 @@ export namespace SchemaEvolution {
         message: ExampleStructOut,
         atlas: ExampleStructAtlas,
       ): number {
-
         {
           const payload = message.requiredToRequired;
           const payloadAtlas = atlas.requiredToRequired;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.requiredToAsymmetric;
           const payloadAtlas = atlas.requiredToAsymmetric;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -15387,17 +15373,16 @@ export namespace SchemaEvolution {
           const payload = message.requiredToOptional;
           const payloadAtlas = atlas.requiredToOptional;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -15405,34 +15390,32 @@ export namespace SchemaEvolution {
         {
           const payload = message.asymmetricToRequired;
           const payloadAtlas = atlas.asymmetricToRequired;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.asymmetricToAsymmetric;
           const payloadAtlas = atlas.asymmetricToAsymmetric;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -15440,17 +15423,16 @@ export namespace SchemaEvolution {
           const payload = message.asymmetricToOptional;
           const payloadAtlas = atlas.asymmetricToOptional;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -15458,34 +15440,32 @@ export namespace SchemaEvolution {
         {
           const payload = message.optionalToRequired;
           const payloadAtlas = atlas.optionalToRequired;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.optionalToAsymmetric;
           const payloadAtlas = atlas.optionalToAsymmetric;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -15493,17 +15473,16 @@ export namespace SchemaEvolution {
           const payload = message.optionalToOptional;
           const payloadAtlas = atlas.optionalToOptional;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -15544,6 +15523,7 @@ export namespace SchemaEvolution {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -15553,6 +15533,7 @@ export namespace SchemaEvolution {
               throw e;
             }
           }
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -15791,14 +15772,14 @@ export namespace SchemaEvolution {
     }
 
     export type ExampleChoiceAtlas =
-      | { $field: 'requiredToRequired'; $size: number; requiredToRequired: number }
-      | { $field: 'requiredToAsymmetric'; $size: number; requiredToAsymmetric: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToRequired'; $size: number; asymmetricToRequired: number }
-      | { $field: 'asymmetricToAsymmetric'; $size: number; asymmetricToAsymmetric: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToOptional'; $size: number; asymmetricToOptional: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToRequired'; $size: number; optionalToRequired: number }
-      | { $field: 'optionalToAsymmetric'; $size: number; optionalToAsymmetric: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToOptional'; $size: number; optionalToOptional: number; $fallback: ExampleChoiceAtlas }
+      | { $field: 'requiredToRequired'; $size: number; requiredToRequired: Uint8Array }
+      | { $field: 'requiredToAsymmetric'; $size: number; requiredToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'asymmetricToRequired'; $size: number; asymmetricToRequired: Uint8Array }
+      | { $field: 'asymmetricToAsymmetric'; $size: number; asymmetricToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'asymmetricToOptional'; $size: number; asymmetricToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'optionalToRequired'; $size: number; optionalToRequired: Uint8Array }
+      | { $field: 'optionalToAsymmetric'; $size: number; optionalToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'optionalToOptional'; $size: number; optionalToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
       | { $field: 'nonexistentToRequired'; $size: number; nonexistentToRequired: number }
       | { $field: 'nonexistentToAsymmetric'; $size: number; nonexistentToAsymmetric: number; $fallback: ExampleChoiceAtlas }
       | { $field: 'nonexistentToOptional'; $size: number; nonexistentToOptional: number; $fallback: ExampleChoiceAtlas };
@@ -15835,61 +15816,61 @@ export namespace SchemaEvolution {
           case 'requiredToRequired': {
             let payloadAtlas;
             const payload = message.requiredToRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'requiredToRequired', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, requiredToRequired: payloadAtlas };
           }
           case 'requiredToAsymmetric': {
             let payloadAtlas;
             const payload = message.requiredToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'requiredToAsymmetric', $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize + fallbackAtlas.$size, requiredToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'asymmetricToRequired': {
             let payloadAtlas;
             const payload = message.asymmetricToRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'asymmetricToRequired', $size: fieldHeaderSize(4n, payloadSize, false) + payloadSize, asymmetricToRequired: payloadAtlas };
           }
           case 'asymmetricToAsymmetric': {
             let payloadAtlas;
             const payload = message.asymmetricToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'asymmetricToAsymmetric', $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'asymmetricToOptional': {
             let payloadAtlas;
             const payload = message.asymmetricToOptional;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'asymmetricToOptional', $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToOptional: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'optionalToRequired': {
             let payloadAtlas;
             const payload = message.optionalToRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'optionalToRequired', $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize, optionalToRequired: payloadAtlas };
           }
           case 'optionalToAsymmetric': {
             let payloadAtlas;
             const payload = message.optionalToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'optionalToAsymmetric', $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'optionalToOptional': {
             let payloadAtlas;
             const payload = message.optionalToOptional;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'optionalToOptional', $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToOptional: payloadAtlas, $fallback: fallbackAtlas };
           }
@@ -15927,38 +15908,36 @@ export namespace SchemaEvolution {
         message: ExampleChoiceOut,
         atlas: ExampleChoiceAtlas,
       ): number {
-                switch (message.$field) {
+        switch (message.$field) {
           case 'requiredToRequired': {
             const payload = message.requiredToRequired;
             const payloadAtlas = (atlas as any).requiredToRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
           case 'requiredToAsymmetric': {
             const payload = message.requiredToAsymmetric;
             const payloadAtlas = (atlas as any).requiredToAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -15966,34 +15945,32 @@ export namespace SchemaEvolution {
           case 'asymmetricToRequired': {
             const payload = message.asymmetricToRequired;
             const payloadAtlas = (atlas as any).asymmetricToRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
           case 'asymmetricToAsymmetric': {
             const payload = message.asymmetricToAsymmetric;
             const payloadAtlas = (atlas as any).asymmetricToAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -16001,17 +15978,16 @@ export namespace SchemaEvolution {
           case 'asymmetricToOptional': {
             const payload = message.asymmetricToOptional;
             const payloadAtlas = (atlas as any).asymmetricToOptional;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -16019,34 +15995,32 @@ export namespace SchemaEvolution {
           case 'optionalToRequired': {
             const payload = message.optionalToRequired;
             const payloadAtlas = (atlas as any).optionalToRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
           case 'optionalToAsymmetric': {
             const payload = message.optionalToAsymmetric;
             const payloadAtlas = (atlas as any).optionalToAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -16054,17 +16028,16 @@ export namespace SchemaEvolution {
           case 'optionalToOptional': {
             const payload = message.optionalToOptional;
             const payloadAtlas = (atlas as any).optionalToOptional;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -16113,6 +16086,7 @@ export namespace SchemaEvolution {
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -16364,18 +16338,18 @@ export namespace SchemaEvolution {
   export namespace Before {
     export type ExampleStructAtlas = {
       $size: number;
-      requiredToRequired: number;
-      requiredToAsymmetric: number;
-      requiredToOptional: number;
-      requiredToNonexistent: number;
-      asymmetricToRequired: number;
-      asymmetricToAsymmetric: number;
-      asymmetricToOptional: number;
-      asymmetricToNonexistent: number;
-      optionalToRequired?: number;
-      optionalToAsymmetric?: number;
-      optionalToOptional?: number;
-      optionalToNonexistent?: number;
+      requiredToRequired: Uint8Array;
+      requiredToAsymmetric: Uint8Array;
+      requiredToOptional: Uint8Array;
+      requiredToNonexistent: Uint8Array;
+      asymmetricToRequired: Uint8Array;
+      asymmetricToAsymmetric: Uint8Array;
+      asymmetricToOptional: Uint8Array;
+      asymmetricToNonexistent: Uint8Array;
+      optionalToRequired?: Uint8Array;
+      optionalToAsymmetric?: Uint8Array;
+      optionalToOptional?: Uint8Array;
+      optionalToNonexistent?: Uint8Array;
     };
 
     export type ExampleStructOut = {
@@ -16417,72 +16391,72 @@ export namespace SchemaEvolution {
         {
           let payloadAtlas;
           const payload = message.requiredToRequired;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $requiredToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.requiredToAsymmetric;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $requiredToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.requiredToOptional;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $requiredToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.requiredToNonexistent;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $requiredToNonexistent = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.asymmetricToRequired;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $asymmetricToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.asymmetricToAsymmetric;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $asymmetricToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.asymmetricToOptional;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $asymmetricToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.asymmetricToNonexistent;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $asymmetricToNonexistent = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
         }
 
@@ -16492,9 +16466,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $optionalToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
         }
@@ -16505,9 +16479,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $optionalToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
           }
         }
@@ -16518,9 +16492,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $optionalToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
         }
@@ -16531,9 +16505,9 @@ export namespace SchemaEvolution {
           if (payload === undefined) {
             payloadAtlas = 0;
           } else {
-            payloadAtlas = textEncoder.encode(payload).byteLength;
+            payloadAtlas = textEncoder.encode(payload);
           $optionalToNonexistent = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
           }
         }
@@ -16561,140 +16535,131 @@ export namespace SchemaEvolution {
         message: ExampleStructOut,
         atlas: ExampleStructAtlas,
       ): number {
-
         {
           const payload = message.requiredToRequired;
           const payloadAtlas = atlas.requiredToRequired;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.requiredToAsymmetric;
           const payloadAtlas = atlas.requiredToAsymmetric;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.requiredToOptional;
           const payloadAtlas = atlas.requiredToOptional;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.requiredToNonexistent;
           const payloadAtlas = atlas.requiredToNonexistent;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.asymmetricToRequired;
           const payloadAtlas = atlas.asymmetricToRequired;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.asymmetricToAsymmetric;
           const payloadAtlas = atlas.asymmetricToAsymmetric;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.asymmetricToOptional;
           const payloadAtlas = atlas.asymmetricToOptional;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
         {
           const payload = message.asymmetricToNonexistent;
           const payloadAtlas = atlas.asymmetricToNonexistent;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -16702,17 +16667,16 @@ export namespace SchemaEvolution {
           const payload = message.optionalToRequired;
           const payloadAtlas = atlas.optionalToRequired;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -16721,17 +16685,16 @@ export namespace SchemaEvolution {
           const payload = message.optionalToAsymmetric;
           const payloadAtlas = atlas.optionalToAsymmetric;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -16740,17 +16703,16 @@ export namespace SchemaEvolution {
           const payload = message.optionalToOptional;
           const payloadAtlas = atlas.optionalToOptional;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -16759,17 +16721,16 @@ export namespace SchemaEvolution {
           const payload = message.optionalToNonexistent;
           const payloadAtlas = atlas.optionalToNonexistent;
           if (payload !== undefined && payloadAtlas !== undefined) {
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
           }
         }
@@ -16794,6 +16755,7 @@ export namespace SchemaEvolution {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -16803,6 +16765,7 @@ export namespace SchemaEvolution {
               throw e;
             }
           }
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -17076,16 +17039,16 @@ export namespace SchemaEvolution {
     }
 
     export type ExampleChoiceAtlas =
-      | { $field: 'requiredToRequired'; $size: number; requiredToRequired: number }
-      | { $field: 'requiredToAsymmetric'; $size: number; requiredToAsymmetric: number }
-      | { $field: 'asymmetricToRequired'; $size: number; asymmetricToRequired: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToAsymmetric'; $size: number; asymmetricToAsymmetric: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToOptional'; $size: number; asymmetricToOptional: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToNonexistent'; $size: number; asymmetricToNonexistent: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToRequired'; $size: number; optionalToRequired: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToAsymmetric'; $size: number; optionalToAsymmetric: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToOptional'; $size: number; optionalToOptional: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToNonexistent'; $size: number; optionalToNonexistent: number; $fallback: ExampleChoiceAtlas };
+      | { $field: 'requiredToRequired'; $size: number; requiredToRequired: Uint8Array }
+      | { $field: 'requiredToAsymmetric'; $size: number; requiredToAsymmetric: Uint8Array }
+      | { $field: 'asymmetricToRequired'; $size: number; asymmetricToRequired: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'asymmetricToAsymmetric'; $size: number; asymmetricToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'asymmetricToOptional'; $size: number; asymmetricToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'asymmetricToNonexistent'; $size: number; asymmetricToNonexistent: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'optionalToRequired'; $size: number; optionalToRequired: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'optionalToAsymmetric'; $size: number; optionalToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'optionalToOptional'; $size: number; optionalToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $field: 'optionalToNonexistent'; $size: number; optionalToNonexistent: Uint8Array; $fallback: ExampleChoiceAtlas };
 
     export type ExampleChoiceOut =
       | { $field: 'requiredToRequired'; requiredToRequired: string }
@@ -17117,78 +17080,78 @@ export namespace SchemaEvolution {
           case 'requiredToRequired': {
             let payloadAtlas;
             const payload = message.requiredToRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'requiredToRequired', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, requiredToRequired: payloadAtlas };
           }
           case 'requiredToAsymmetric': {
             let payloadAtlas;
             const payload = message.requiredToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'requiredToAsymmetric', $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize, requiredToAsymmetric: payloadAtlas };
           }
           case 'asymmetricToRequired': {
             let payloadAtlas;
             const payload = message.asymmetricToRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'asymmetricToRequired', $size: fieldHeaderSize(4n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToRequired: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'asymmetricToAsymmetric': {
             let payloadAtlas;
             const payload = message.asymmetricToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'asymmetricToAsymmetric', $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'asymmetricToOptional': {
             let payloadAtlas;
             const payload = message.asymmetricToOptional;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'asymmetricToOptional', $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToOptional: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'asymmetricToNonexistent': {
             let payloadAtlas;
             const payload = message.asymmetricToNonexistent;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'asymmetricToNonexistent', $size: fieldHeaderSize(7n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToNonexistent: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'optionalToRequired': {
             let payloadAtlas;
             const payload = message.optionalToRequired;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'optionalToRequired', $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToRequired: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'optionalToAsymmetric': {
             let payloadAtlas;
             const payload = message.optionalToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'optionalToAsymmetric', $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'optionalToOptional': {
             let payloadAtlas;
             const payload = message.optionalToOptional;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'optionalToOptional', $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToOptional: payloadAtlas, $fallback: fallbackAtlas };
           }
           case 'optionalToNonexistent': {
             let payloadAtlas;
             const payload = message.optionalToNonexistent;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             const fallbackAtlas = atlas(message.$fallback);
             return { $field: 'optionalToNonexistent', $size: fieldHeaderSize(11n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToNonexistent: payloadAtlas, $fallback: fallbackAtlas };
           }
@@ -17203,55 +17166,52 @@ export namespace SchemaEvolution {
         message: ExampleChoiceOut,
         atlas: ExampleChoiceAtlas,
       ): number {
-                switch (message.$field) {
+        switch (message.$field) {
           case 'requiredToRequired': {
             const payload = message.requiredToRequired;
             const payloadAtlas = (atlas as any).requiredToRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
           case 'requiredToAsymmetric': {
             const payload = message.requiredToAsymmetric;
             const payloadAtlas = (atlas as any).requiredToAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
           case 'asymmetricToRequired': {
             const payload = message.asymmetricToRequired;
             const payloadAtlas = (atlas as any).asymmetricToRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17259,17 +17219,16 @@ export namespace SchemaEvolution {
           case 'asymmetricToAsymmetric': {
             const payload = message.asymmetricToAsymmetric;
             const payloadAtlas = (atlas as any).asymmetricToAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17277,17 +17236,16 @@ export namespace SchemaEvolution {
           case 'asymmetricToOptional': {
             const payload = message.asymmetricToOptional;
             const payloadAtlas = (atlas as any).asymmetricToOptional;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17295,17 +17253,16 @@ export namespace SchemaEvolution {
           case 'asymmetricToNonexistent': {
             const payload = message.asymmetricToNonexistent;
             const payloadAtlas = (atlas as any).asymmetricToNonexistent;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17313,17 +17270,16 @@ export namespace SchemaEvolution {
           case 'optionalToRequired': {
             const payload = message.optionalToRequired;
             const payloadAtlas = (atlas as any).optionalToRequired;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17331,17 +17287,16 @@ export namespace SchemaEvolution {
           case 'optionalToAsymmetric': {
             const payload = message.optionalToAsymmetric;
             const payloadAtlas = (atlas as any).optionalToAsymmetric;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17349,17 +17304,16 @@ export namespace SchemaEvolution {
           case 'optionalToOptional': {
             const payload = message.optionalToOptional;
             const payloadAtlas = (atlas as any).optionalToOptional;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17367,17 +17321,16 @@ export namespace SchemaEvolution {
           case 'optionalToNonexistent': {
             const payload = message.optionalToNonexistent;
             const payloadAtlas = (atlas as any).optionalToNonexistent;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             offset = serializeIntoDataView(dataView, offset, message.$fallback, (atlas as any).$fallback);
             return offset;
@@ -17403,6 +17356,7 @@ export namespace SchemaEvolution {
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -17666,7 +17620,7 @@ export namespace SchemaEvolution {
   export namespace Types {
     export type SingletonStructAtlas = {
       $size: number;
-      x: number;
+      x: Uint8Array;
     };
 
     export type SingletonStructOut = {
@@ -17686,9 +17640,9 @@ export namespace SchemaEvolution {
         {
           let payloadAtlas;
           const payload = message.x;
-          payloadAtlas = textEncoder.encode(payload).byteLength;
+          payloadAtlas = textEncoder.encode(payload);
           $x = payloadAtlas;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
@@ -17704,21 +17658,19 @@ export namespace SchemaEvolution {
         message: SingletonStructOut,
         atlas: SingletonStructAtlas,
       ): number {
-
         {
           const payload = message.x;
           const payloadAtlas = atlas.x;
-          const payloadSize = payloadAtlas;
+          const payloadSize = payloadAtlas.byteLength;
           offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
           {
-            const sourceBuffer = textEncoder.encode(payload);
             const targetBuffer = new Uint8Array(
               dataView.buffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
-            targetBuffer.set(sourceBuffer, offset);
-            offset += sourceBuffer.byteLength;
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
         }
 
@@ -17742,6 +17694,7 @@ export namespace SchemaEvolution {
 
         while (true) {
           let index, payloadSize;
+
           try {
             [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           } catch (e) {
@@ -17751,6 +17704,7 @@ export namespace SchemaEvolution {
               throw e;
             }
           }
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
@@ -17793,7 +17747,7 @@ export namespace SchemaEvolution {
     }
 
     export type SingletonChoiceAtlas =
-      | { $field: 'x'; $size: number; x: number };
+      | { $field: 'x'; $size: number; x: Uint8Array };
 
     export type SingletonChoiceOut =
       | { $field: 'x'; x: string }
@@ -17809,8 +17763,8 @@ export namespace SchemaEvolution {
           case 'x': {
             let payloadAtlas;
             const payload = message.x;
-            payloadAtlas = textEncoder.encode(payload).byteLength;
-            const payloadSize = payloadAtlas;
+            payloadAtlas = textEncoder.encode(payload);
+            const payloadSize = payloadAtlas.byteLength;
             return { $field: 'x', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, x: payloadAtlas };
           }
           default:
@@ -17824,21 +17778,20 @@ export namespace SchemaEvolution {
         message: SingletonChoiceOut,
         atlas: SingletonChoiceAtlas,
       ): number {
-                switch (message.$field) {
+        switch (message.$field) {
           case 'x': {
             const payload = message.x;
             const payloadAtlas = (atlas as any).x;
-            const payloadSize = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
-              const sourceBuffer = textEncoder.encode(payload);
               const targetBuffer = new Uint8Array(
                 dataView.buffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
+              targetBuffer.set(payloadAtlas, offset);
+              offset += payloadAtlas.byteLength;
             }
             return offset;
           }
@@ -17863,6 +17816,7 @@ export namespace SchemaEvolution {
         while (true) {
           const [newOffset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
           offset = newOffset;
+
           switch (index) {
             case 0n: {
               const dataView = new DataView(
