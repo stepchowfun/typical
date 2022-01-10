@@ -724,7 +724,6 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "): number {{")?;
                 for field in &declaration.fields {
-                    writeln!(buffer)?;
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "{{")?;
                     write_indentation(buffer, indentation + 3)?;
@@ -790,8 +789,8 @@ fn write_schema<T: Write>(
                     }
                     write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "}}")?;
+                    writeln!(buffer)?;
                 }
-                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "return offset;")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -833,6 +832,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "while (true) {{")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "let index, payloadSize;")?;
+                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "try {{")?;
                 write_indentation(buffer, indentation + 4)?;
@@ -855,6 +855,7 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "switch (index) {{")?;
                 for field in &declaration.fields {
@@ -1118,7 +1119,6 @@ fn write_schema<T: Write>(
                 if declaration.fields.is_empty() {
                     writeln!(buffer, "return unreachable(message);")?;
                 } else {
-                    write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "switch (message.$field) {{")?;
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 3)?;
@@ -1211,6 +1211,7 @@ fn write_schema<T: Write>(
                 )?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "offset = newOffset;")?;
+                writeln!(buffer)?;
                 write_indentation(buffer, indentation + 3)?;
                 writeln!(buffer, "switch (index) {{")?;
                 for field in &declaration.fields {
@@ -1540,7 +1541,7 @@ fn write_type<T: Write>(
         },
         schema::TypeVariant::String => match direction {
             Direction::Atlas => {
-                write!(buffer, "number")?;
+                write!(buffer, "Uint8Array")?;
             }
             Direction::In | Direction::Out => {
                 write!(buffer, "string")?;
@@ -1769,10 +1770,7 @@ fn write_atlas_calculation<T: Write>(
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
-            writeln!(
-                buffer,
-                "payloadAtlas = textEncoder.encode(payload).byteLength;",
-            )
+            writeln!(buffer, "payloadAtlas = textEncoder.encode(payload);")
         }
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
@@ -1877,13 +1875,13 @@ fn write_atlas_lookup<T: Write>(
         | schema::TypeVariant::F64
         | schema::TypeVariant::S64
         | schema::TypeVariant::U64
-        | schema::TypeVariant::String
         | schema::TypeVariant::Unit => write!(buffer, "payloadAtlas"),
         schema::TypeVariant::Custom(_, _) => {
             // The type assertion is needed for singleton choices and empty choices, which are
             // special cases due to the nature of TypeScript's type system.
             write!(buffer, "(payloadAtlas as {{ $size: number }}).$size")
         }
+        schema::TypeVariant::String => write!(buffer, "payloadAtlas.byteLength"),
     }
 }
 
@@ -2048,8 +2046,6 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "{{")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "const sourceBuffer = textEncoder.encode(payload);")?;
-            write_indentation(buffer, indentation + 1)?;
             writeln!(buffer, "const targetBuffer = new Uint8Array(")?;
             write_indentation(buffer, indentation + 2)?;
             writeln!(buffer, "dataView.buffer,")?;
@@ -2060,9 +2056,9 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation + 1)?;
             writeln!(buffer, ");")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "targetBuffer.set(sourceBuffer, offset);")?;
+            writeln!(buffer, "targetBuffer.set(payloadAtlas, offset);")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "offset += sourceBuffer.byteLength;")?;
+            writeln!(buffer, "offset += payloadAtlas.byteLength;")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "}}")
         }

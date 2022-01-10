@@ -2,7 +2,7 @@ import { hrtime } from 'process';
 import { Types } from '../generated/types';
 
 const pathologicalIterations = 5_000;
-const massiveStringSize = 200_000_000;
+const massiveStringSize = 500_000_000;
 
 const u64Min = 0n;
 const u64Max = 18_446_744_073_709_551_615n;
