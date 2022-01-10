@@ -118,7 +118,7 @@ function choiceTestCases(
 
 export default function run(): void {
   assertMatch(
-    SchemaEvolution.Before.ExampleStruct.size,
+    SchemaEvolution.Before.ExampleStruct.atlas,
     SchemaEvolution.Before.ExampleStruct.serialize,
     SchemaEvolution.After.ExampleStruct.deserialize,
     {
@@ -151,7 +151,7 @@ export default function run(): void {
   );
 
   assertMatch(
-    SchemaEvolution.Before.ExampleStruct.size,
+    SchemaEvolution.Before.ExampleStruct.atlas,
     SchemaEvolution.Before.ExampleStruct.serialize,
     SchemaEvolution.After.ExampleStruct.deserialize,
     {
@@ -206,7 +206,7 @@ export default function run(): void {
         const [before, after] = tests[k];
 
         assertMatch(
-          SchemaEvolution.Before.ExampleChoice.size,
+          SchemaEvolution.Before.ExampleChoice.atlas,
           SchemaEvolution.Before.ExampleChoice.serialize,
           SchemaEvolution.After.ExampleChoice.deserialize,
           before,
@@ -219,7 +219,7 @@ export default function run(): void {
   console.log();
 
   assertMatch(
-    SchemaEvolution.Types.SingletonStruct.size,
+    SchemaEvolution.Types.SingletonStruct.atlas,
     SchemaEvolution.Types.SingletonStruct.serialize,
     SchemaEvolution.Types.SingletonChoice.deserialize,
     {
@@ -232,7 +232,7 @@ export default function run(): void {
   );
 
   assertMatch(
-    SchemaEvolution.Types.SingletonChoice.size,
+    SchemaEvolution.Types.SingletonChoice.atlas,
     SchemaEvolution.Types.SingletonChoice.serialize,
     SchemaEvolution.Types.SingletonStruct.deserialize,
     {

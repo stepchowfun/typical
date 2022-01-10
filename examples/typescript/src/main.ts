@@ -10,9 +10,9 @@ function writeToFile() {
     body: 'It makes serialization easy and safe.',
   };
 
-  const requestSize = Types.SendEmailRequest.size(request);
-  const dataView = new DataView(new ArrayBuffer(requestSize));
-  Types.SendEmailRequest.serialize(dataView, 0, request);
+  const requestAtlas = Types.SendEmailRequest.atlas(request);
+  const dataView = new DataView(new ArrayBuffer(requestAtlas.$size));
+  Types.SendEmailRequest.serialize(dataView, 0, request, requestAtlas);
   writeFileSync(filePath, dataView);
 }
 
