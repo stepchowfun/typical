@@ -320,7 +320,7 @@ export namespace CircularDependency {
         }
 
         export function atlas(message: StructFromBelowOut): StructFromBelowAtlas {
-          let $size = 0;
+          let size = 0;
 
           let $x;
 
@@ -330,11 +330,11 @@ export namespace CircularDependency {
             payloadAtlas = CircularDependency.Types.StructFromAbove.atlas(payload);
             $x = payloadAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
-            $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+            size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
           }
 
           return {
-            $size,
+            $size: size,
             x: $x,
           };
         }
@@ -442,10 +442,10 @@ export namespace CircularDependency {
       }
 
       export function atlas(message: StructFromAboveOut): StructFromAboveAtlas {
-        let $size = 0;
+        let size = 0;
 
         return {
-          $size,
+          $size: size,
         };
       }
 
@@ -524,10 +524,10 @@ export namespace Comprehensive {
       }
 
       export function atlas(message: LocalStructOut): LocalStructAtlas {
-        let $size = 0;
+        let size = 0;
 
         return {
-          $size,
+          $size: size,
         };
       }
 
@@ -845,7 +845,7 @@ export namespace Comprehensive {
       }
 
       export function atlas(message: FooOut): FooAtlas {
-        let $size = 0;
+        let size = 0;
 
         let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
 
@@ -855,7 +855,7 @@ export namespace Comprehensive {
           payloadAtlas = 0;
           $aRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -868,7 +868,7 @@ export namespace Comprehensive {
           }
           $bRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -883,7 +883,7 @@ export namespace Comprehensive {
           }
           $cRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
+          size += fieldHeaderSize(2n, payloadSize, true) + payloadSize;
         }
 
         {
@@ -901,7 +901,7 @@ export namespace Comprehensive {
           }
           $dRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
+          size += fieldHeaderSize(3n, payloadSize, true) + payloadSize;
         }
 
         {
@@ -914,7 +914,7 @@ export namespace Comprehensive {
           }
           $eRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
+          size += fieldHeaderSize(4n, payloadSize, true) + payloadSize;
         }
 
         {
@@ -923,7 +923,7 @@ export namespace Comprehensive {
           payloadAtlas = payload.byteLength;
           $fRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -932,7 +932,7 @@ export namespace Comprehensive {
           payloadAtlas = textEncoder.encode(payload);
           $gRequired = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -941,7 +941,7 @@ export namespace Comprehensive {
           payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
           $hRequired = payloadAtlas;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
-          $size += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -950,7 +950,7 @@ export namespace Comprehensive {
           payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
           $iRequired = payloadAtlas;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
-          $size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -971,7 +971,7 @@ export namespace Comprehensive {
           }
           $jRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -980,7 +980,7 @@ export namespace Comprehensive {
           payloadAtlas = 8 * payload.length;
           $kRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -999,7 +999,7 @@ export namespace Comprehensive {
           }
           $lRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1018,7 +1018,7 @@ export namespace Comprehensive {
           }
           $mRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(12n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1037,103 +1037,103 @@ export namespace Comprehensive {
           }
           $nRequired = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.oRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = payload.byteLength;
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $oRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.pRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = textEncoder.encode(payload);
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.byteLength;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $pRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(15n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.qRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = (payloadAtlas as { $size: number }).$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $qRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(16n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.rRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = (payloadAtlas as { $size: number }).$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $rRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(17n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.sRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1145,45 +1145,45 @@ export namespace Comprehensive {
                   payloadAtlas = varintSizeFromValue(payload);
                 }
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $sRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(18n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.tRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = 8 * payload.length;
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $tRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(19n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(19n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.uRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1199,23 +1199,23 @@ export namespace Comprehensive {
                 }
                 payloadAtlas = arraySize;
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $uRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(20n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(20n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.vRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1231,23 +1231,23 @@ export namespace Comprehensive {
                 }
                 payloadAtlas = arraySize;
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $vRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(21n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.wRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1263,155 +1263,155 @@ export namespace Comprehensive {
                 }
                 payloadAtlas = arraySize;
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $wRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(22n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.xRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = payload.byteLength;
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = payloadAtlas;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $xRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(23n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.yRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = textEncoder.encode(payload);
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = payloadAtlas.byteLength;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $yRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(24n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.zRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = (payloadAtlas as { $size: number }).$size;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $zRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(25n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.aaRequired;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = (payloadAtlas as { $size: number }).$size;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $aaRequired = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(26n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1420,7 +1420,7 @@ export namespace Comprehensive {
           payloadAtlas = 0;
           $aAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(28n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1433,7 +1433,7 @@ export namespace Comprehensive {
           }
           $bAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(29n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1448,7 +1448,7 @@ export namespace Comprehensive {
           }
           $cAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(30n, payloadSize, true) + payloadSize;
+          size += fieldHeaderSize(30n, payloadSize, true) + payloadSize;
         }
 
         {
@@ -1466,7 +1466,7 @@ export namespace Comprehensive {
           }
           $dAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(31n, payloadSize, true) + payloadSize;
+          size += fieldHeaderSize(31n, payloadSize, true) + payloadSize;
         }
 
         {
@@ -1479,7 +1479,7 @@ export namespace Comprehensive {
           }
           $eAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(32n, payloadSize, true) + payloadSize;
+          size += fieldHeaderSize(32n, payloadSize, true) + payloadSize;
         }
 
         {
@@ -1488,7 +1488,7 @@ export namespace Comprehensive {
           payloadAtlas = payload.byteLength;
           $fAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(33n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1497,7 +1497,7 @@ export namespace Comprehensive {
           payloadAtlas = textEncoder.encode(payload);
           $gAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(34n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(34n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1506,7 +1506,7 @@ export namespace Comprehensive {
           payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
           $hAsymmetric = payloadAtlas;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
-          $size += fieldHeaderSize(35n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(35n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1515,7 +1515,7 @@ export namespace Comprehensive {
           payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
           $iAsymmetric = payloadAtlas;
           const payloadSize = (payloadAtlas as { $size: number }).$size;
-          $size += fieldHeaderSize(36n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(36n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1536,7 +1536,7 @@ export namespace Comprehensive {
           }
           $jAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(37n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1545,7 +1545,7 @@ export namespace Comprehensive {
           payloadAtlas = 8 * payload.length;
           $kAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(38n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1564,7 +1564,7 @@ export namespace Comprehensive {
           }
           $lAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(39n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1583,7 +1583,7 @@ export namespace Comprehensive {
           }
           $mAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(40n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -1602,103 +1602,103 @@ export namespace Comprehensive {
           }
           $nAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(41n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.oAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = payload.byteLength;
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $oAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(42n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.pAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = textEncoder.encode(payload);
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.byteLength;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $pAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(43n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.qAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = (payloadAtlas as { $size: number }).$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $qAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(44n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.rAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = (payloadAtlas as { $size: number }).$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $rAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(45n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.sAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1710,45 +1710,45 @@ export namespace Comprehensive {
                   payloadAtlas = varintSizeFromValue(payload);
                 }
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $sAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(46n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.tAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               payloadAtlas = 8 * payload.length;
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $tAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(47n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(47n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.uAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1764,23 +1764,23 @@ export namespace Comprehensive {
                 }
                 payloadAtlas = arraySize;
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $uAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(48n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(48n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.vAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1796,23 +1796,23 @@ export namespace Comprehensive {
                 }
                 payloadAtlas = arraySize;
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $vAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(49n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(49n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.wAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
@@ -1828,193 +1828,187 @@ export namespace Comprehensive {
                 }
                 payloadAtlas = arraySize;
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $wAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(50n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(50n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.xAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = payload.byteLength;
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = payloadAtlas;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $xAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(51n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(51n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.yAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = textEncoder.encode(payload);
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = payloadAtlas.byteLength;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $yAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(52n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(52n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.zAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = (payloadAtlas as { $size: number }).$size;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $zAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(53n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(53n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.aaAsymmetric;
           {
-            let $size = 0;
-            let $elements = [];
+            let size = 0;
+            let elements = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
               let payloadAtlas;
               {
-                let $size = 0;
-                let $elements = [];
+                let size = 0;
+                let elements = [];
                 const oldPayload = payload;
                 for (let i = 0; i < oldPayload.length; i += 1) {
                   const payload = oldPayload[i];
                   let payloadAtlas;
                   payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                  $elements.push(payloadAtlas);
+                  elements.push(payloadAtlas);
                   const payloadSize = (payloadAtlas as { $size: number }).$size;
-                  $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                 }
-                payloadAtlas = { $size, $elements };
+                payloadAtlas = { $size: size, $elements: elements };
               }
-              $elements.push(payloadAtlas);
+              elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.$size;
-              $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
             }
-            payloadAtlas = { $size, $elements };
+            payloadAtlas = { $size: size, $elements: elements };
           }
           $aaAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(54n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(54n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.aOptional;
-          if (payload === undefined) {
+          if (payload !== undefined) {
             payloadAtlas = 0;
-          } else {
-            payloadAtlas = 0;
-          $aOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(56n, payloadSize, false) + payloadSize;
+            $aOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(56n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.bOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             if (Object.is(payload, 0)) {
               payloadAtlas = 0;
             } else {
               payloadAtlas = 8;
             }
-          $bOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(57n, payloadSize, false) + payloadSize;
+            $bOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(57n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.cOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             if (payload === 0n) {
               payloadAtlas = 0;
             } else if (payload < 567_382_630_219_904n) {
@@ -2022,18 +2016,16 @@ export namespace Comprehensive {
             } else {
               payloadAtlas = 8;
             }
-          $cOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(58n, payloadSize, true) + payloadSize;
+            $cOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(58n, payloadSize, true) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.dOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
               const zigzag = zigzagEncode(payload);
               if (zigzag === 0n) {
@@ -2044,87 +2036,75 @@ export namespace Comprehensive {
                 payloadAtlas = 8;
               }
             }
-          $dOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(59n, payloadSize, true) + payloadSize;
+            $dOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(59n, payloadSize, true) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.eOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             if (payload) {
               payloadAtlas = 1;
             } else {
               payloadAtlas = 0;
             }
-          $eOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(60n, payloadSize, true) + payloadSize;
+            $eOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(60n, payloadSize, true) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.fOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = payload.byteLength;
-          $fOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(61n, payloadSize, false) + payloadSize;
+            $fOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(61n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.gOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $gOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(62n, payloadSize, false) + payloadSize;
+            $gOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(62n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.hOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-          $hOptional = payloadAtlas;
-          const payloadSize = (payloadAtlas as { $size: number }).$size;
-          $size += fieldHeaderSize(63n, payloadSize, false) + payloadSize;
+            $hOptional = payloadAtlas;
+            const payloadSize = (payloadAtlas as { $size: number }).$size;
+            size += fieldHeaderSize(63n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.iOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-          $iOptional = payloadAtlas;
-          const payloadSize = (payloadAtlas as { $size: number }).$size;
-          $size += fieldHeaderSize(64n, payloadSize, false) + payloadSize;
+            $iOptional = payloadAtlas;
+            const payloadSize = (payloadAtlas as { $size: number }).$size;
+            size += fieldHeaderSize(64n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.jOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
               const oldPayload = payload;
               {
@@ -2138,31 +2118,27 @@ export namespace Comprehensive {
                 }
               }
             }
-          $jOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(65n, payloadSize, false) + payloadSize;
+            $jOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(65n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.kOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = 8 * payload.length;
-          $kOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(66n, payloadSize, false) + payloadSize;
+            $kOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(66n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.lOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -2174,18 +2150,16 @@ export namespace Comprehensive {
               }
               payloadAtlas = arraySize;
             }
-          $lOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(67n, payloadSize, false) + payloadSize;
+            $lOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(67n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.mOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -2197,18 +2171,16 @@ export namespace Comprehensive {
               }
               payloadAtlas = arraySize;
             }
-          $mOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(68n, payloadSize, false) + payloadSize;
+            $mOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(68n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.nOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
               let arraySize = 0;
               const oldPayload = payload;
@@ -2220,125 +2192,115 @@ export namespace Comprehensive {
               }
               payloadAtlas = arraySize;
             }
-          $nOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(69n, payloadSize, false) + payloadSize;
+            $nOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(69n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.oOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = payload.byteLength;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $oOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(70n, payloadSize, false) + payloadSize;
+            $oOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(70n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.pOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = textEncoder.encode(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.byteLength;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $pOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(71n, payloadSize, false) + payloadSize;
+            $pOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(71n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.qOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $qOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(72n, payloadSize, false) + payloadSize;
+            $qOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(72n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.rOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $rOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(73n, payloadSize, false) + payloadSize;
+            $rOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(73n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.sOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -2350,53 +2312,49 @@ export namespace Comprehensive {
                     payloadAtlas = varintSizeFromValue(payload);
                   }
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $sOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(74n, payloadSize, false) + payloadSize;
+            $sOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(74n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.tOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = 8 * payload.length;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $tOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(75n, payloadSize, false) + payloadSize;
+            $tOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(75n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.uOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -2412,27 +2370,25 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $uOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(76n, payloadSize, false) + payloadSize;
+            $uOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(76n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.vOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -2448,27 +2404,25 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $vOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(77n, payloadSize, false) + payloadSize;
+            $vOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(77n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.wOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -2484,176 +2438,168 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $wOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(78n, payloadSize, false) + payloadSize;
+            $wOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(78n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.xOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = payload.byteLength;
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $xOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(79n, payloadSize, false) + payloadSize;
+            $xOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(79n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.yOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = textEncoder.encode(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas.byteLength;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $yOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(80n, payloadSize, false) + payloadSize;
+            $yOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(80n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.zOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $zOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(81n, payloadSize, false) + payloadSize;
+            $zOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(81n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.aaOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
-          $aaOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.$size;
-          $size += fieldHeaderSize(82n, payloadSize, false) + payloadSize;
+            $aaOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.$size;
+            size += fieldHeaderSize(82n, payloadSize, false) + payloadSize;
           }
         }
 
         return {
-          $size,
+          $size: size,
           aRequired: $aRequired,
           bRequired: $bRequired,
           cRequired: $cRequired,
@@ -8295,18 +8241,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.oRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = payload.byteLength;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'oRequired', $size: fieldHeaderSize(14n, payloadSize, false) + payloadSize, oRequired: payloadAtlas };
@@ -8315,18 +8261,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.pRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = textEncoder.encode(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.byteLength;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'pRequired', $size: fieldHeaderSize(15n, payloadSize, false) + payloadSize, pRequired: payloadAtlas };
@@ -8335,18 +8281,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.qRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'qRequired', $size: fieldHeaderSize(16n, payloadSize, false) + payloadSize, qRequired: payloadAtlas };
@@ -8355,18 +8301,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.rRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'rRequired', $size: fieldHeaderSize(17n, payloadSize, false) + payloadSize, rRequired: payloadAtlas };
@@ -8375,8 +8321,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.sRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -8388,11 +8334,11 @@ export namespace Comprehensive {
                     payloadAtlas = varintSizeFromValue(payload);
                   }
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'sRequired', $size: fieldHeaderSize(18n, payloadSize, false) + payloadSize, sRequired: payloadAtlas };
@@ -8401,18 +8347,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.tRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = 8 * payload.length;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'tRequired', $size: fieldHeaderSize(19n, payloadSize, false) + payloadSize, tRequired: payloadAtlas };
@@ -8421,8 +8367,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.uRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -8438,11 +8384,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'uRequired', $size: fieldHeaderSize(20n, payloadSize, false) + payloadSize, uRequired: payloadAtlas };
@@ -8451,8 +8397,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.vRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -8468,11 +8414,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'vRequired', $size: fieldHeaderSize(21n, payloadSize, false) + payloadSize, vRequired: payloadAtlas };
@@ -8481,8 +8427,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.wRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -8498,11 +8444,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'wRequired', $size: fieldHeaderSize(22n, payloadSize, false) + payloadSize, wRequired: payloadAtlas };
@@ -8511,31 +8457,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.xRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = payload.byteLength;
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'xRequired', $size: fieldHeaderSize(23n, payloadSize, false) + payloadSize, xRequired: payloadAtlas };
@@ -8544,31 +8490,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.yRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = textEncoder.encode(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas.byteLength;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'yRequired', $size: fieldHeaderSize(24n, payloadSize, false) + payloadSize, yRequired: payloadAtlas };
@@ -8577,31 +8523,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.zRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'zRequired', $size: fieldHeaderSize(25n, payloadSize, false) + payloadSize, zRequired: payloadAtlas };
@@ -8610,31 +8556,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.aaRequired;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             return { $field: 'aaRequired', $size: fieldHeaderSize(26n, payloadSize, false) + payloadSize, aaRequired: payloadAtlas };
@@ -8820,18 +8766,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.oAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = payload.byteLength;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8841,18 +8787,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.pAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = textEncoder.encode(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.byteLength;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8862,18 +8808,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.qAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8883,18 +8829,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.rAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8904,8 +8850,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.sAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -8917,11 +8863,11 @@ export namespace Comprehensive {
                     payloadAtlas = varintSizeFromValue(payload);
                   }
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8931,18 +8877,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.tAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = 8 * payload.length;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8952,8 +8898,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.uAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -8969,11 +8915,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -8983,8 +8929,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.vAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -9000,11 +8946,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9014,8 +8960,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.wAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -9031,11 +8977,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9045,31 +8991,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.xAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = payload.byteLength;
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9079,31 +9025,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.yAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = textEncoder.encode(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas.byteLength;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9113,31 +9059,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.zAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9147,31 +9093,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.aaAsymmetric;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9358,18 +9304,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.oOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = payload.byteLength;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9379,18 +9325,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.pOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = textEncoder.encode(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.byteLength;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9400,18 +9346,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.qOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9421,18 +9367,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.rOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = (payloadAtlas as { $size: number }).$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9442,8 +9388,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.sOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -9455,11 +9401,11 @@ export namespace Comprehensive {
                     payloadAtlas = varintSizeFromValue(payload);
                   }
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9469,18 +9415,18 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.tOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 payloadAtlas = 8 * payload.length;
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9490,8 +9436,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.uOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -9507,11 +9453,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9521,8 +9467,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.vOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -9538,11 +9484,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9552,8 +9498,8 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.wOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
@@ -9569,11 +9515,11 @@ export namespace Comprehensive {
                   }
                   payloadAtlas = arraySize;
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9583,31 +9529,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.xOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = payload.byteLength;
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9617,31 +9563,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.yOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = textEncoder.encode(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = payloadAtlas.byteLength;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9651,31 +9597,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.zOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -9685,31 +9631,31 @@ export namespace Comprehensive {
             let payloadAtlas;
             const payload = message.aaOptional;
             {
-              let $size = 0;
-              let $elements = [];
+              let size = 0;
+              let elements = [];
               const oldPayload = payload;
               for (let i = 0; i < oldPayload.length; i += 1) {
                 const payload = oldPayload[i];
                 let payloadAtlas;
                 {
-                  let $size = 0;
-                  let $elements = [];
+                  let size = 0;
+                  let elements = [];
                   const oldPayload = payload;
                   for (let i = 0; i < oldPayload.length; i += 1) {
                     const payload = oldPayload[i];
                     let payloadAtlas;
                     payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    $elements.push(payloadAtlas);
+                    elements.push(payloadAtlas);
                     const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
                   }
-                  payloadAtlas = { $size, $elements };
+                  payloadAtlas = { $size: size, $elements: elements };
                 }
-                $elements.push(payloadAtlas);
+                elements.push(payloadAtlas);
                 const payloadSize = payloadAtlas.$size;
-                $size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
               }
-              payloadAtlas = { $size, $elements };
+              payloadAtlas = { $size: size, $elements: elements };
             }
             const payloadSize = payloadAtlas.$size;
             const fallbackAtlas = atlas(message.$fallback);
@@ -15099,10 +15045,10 @@ export namespace Degenerate {
       }
 
       export function atlas(message: EmptyStructOut): EmptyStructAtlas {
-        let $size = 0;
+        let size = 0;
 
         return {
-          $size,
+          $size: size,
         };
       }
 
@@ -15272,7 +15218,7 @@ export namespace SchemaEvolution {
       }
 
       export function atlas(message: ExampleStructOut): ExampleStructAtlas {
-        let $size = 0;
+        let size = 0;
 
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $nonexistentToAsymmetric, $nonexistentToOptional;
 
@@ -15282,7 +15228,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $requiredToRequired = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -15291,19 +15237,17 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $requiredToAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.requiredToOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $requiredToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
+            $requiredToOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
           }
         }
 
@@ -15313,7 +15257,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $asymmetricToRequired = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -15322,19 +15266,17 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $asymmetricToAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.asymmetricToOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $asymmetricToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+            $asymmetricToOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
           }
         }
 
@@ -15344,7 +15286,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $optionalToRequired = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -15353,19 +15295,17 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $optionalToAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.optionalToOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $optionalToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+            $optionalToOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
         }
 
@@ -15375,24 +15315,22 @@ export namespace SchemaEvolution {
           payloadAtlas = 0;
           $nonexistentToAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(13n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.nonexistentToOptional;
-          if (payload === undefined) {
+          if (payload !== undefined) {
             payloadAtlas = 0;
-          } else {
-            payloadAtlas = 0;
-          $nonexistentToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas;
-          $size += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
+            $nonexistentToOptional = payloadAtlas;
+            const payloadSize = payloadAtlas;
+            size += fieldHeaderSize(14n, payloadSize, false) + payloadSize;
           }
         }
 
         return {
-          $size,
+          $size: size,
           requiredToRequired: $requiredToRequired,
           requiredToAsymmetric: $requiredToAsymmetric,
           requiredToOptional: $requiredToOptional,
@@ -16476,7 +16414,7 @@ export namespace SchemaEvolution {
       }
 
       export function atlas(message: ExampleStructOut): ExampleStructAtlas {
-        let $size = 0;
+        let size = 0;
 
         let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
 
@@ -16486,7 +16424,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $requiredToRequired = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16495,7 +16433,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $requiredToAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(1n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16504,7 +16442,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $requiredToOptional = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(2n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16513,7 +16451,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $requiredToNonexistent = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(3n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16522,7 +16460,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $asymmetricToRequired = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(4n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16531,7 +16469,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $asymmetricToAsymmetric = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(5n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16540,7 +16478,7 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $asymmetricToOptional = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(6n, payloadSize, false) + payloadSize;
         }
 
         {
@@ -16549,63 +16487,55 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $asymmetricToNonexistent = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(7n, payloadSize, false) + payloadSize;
         }
 
         {
           let payloadAtlas;
           const payload = message.optionalToRequired;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $optionalToRequired = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
+            $optionalToRequired = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(8n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.optionalToAsymmetric;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $optionalToAsymmetric = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
+            $optionalToAsymmetric = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(9n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.optionalToOptional;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $optionalToOptional = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
+            $optionalToOptional = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(10n, payloadSize, false) + payloadSize;
           }
         }
 
         {
           let payloadAtlas;
           const payload = message.optionalToNonexistent;
-          if (payload === undefined) {
-            payloadAtlas = 0;
-          } else {
+          if (payload !== undefined) {
             payloadAtlas = textEncoder.encode(payload);
-          $optionalToNonexistent = payloadAtlas;
-          const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
+            $optionalToNonexistent = payloadAtlas;
+            const payloadSize = payloadAtlas.byteLength;
+            size += fieldHeaderSize(11n, payloadSize, false) + payloadSize;
           }
         }
 
         return {
-          $size,
+          $size: size,
           requiredToRequired: $requiredToRequired,
           requiredToAsymmetric: $requiredToAsymmetric,
           requiredToOptional: $requiredToOptional,
@@ -17741,7 +17671,7 @@ export namespace SchemaEvolution {
       }
 
       export function atlas(message: SingletonStructOut): SingletonStructAtlas {
-        let $size = 0;
+        let size = 0;
 
         let $x;
 
@@ -17751,11 +17681,11 @@ export namespace SchemaEvolution {
           payloadAtlas = textEncoder.encode(payload);
           $x = payloadAtlas;
           const payloadSize = payloadAtlas.byteLength;
-          $size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
+          size += fieldHeaderSize(0n, payloadSize, false) + payloadSize;
         }
 
         return {
-          $size,
+          $size: size,
           x: $x,
         };
       }
