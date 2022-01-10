@@ -67,8 +67,13 @@ const s64TestValues: bigint[] = [
 ];
 
 function benchmark<T, U, V extends { $size: number }>(
-  atlas: (value: T) => V,
-  serialize: (dataView: DataView, offset: number, value: T, atlas: V) => number,
+  atlas: (message: T) => V,
+  serializeIntoDataView: (
+    dataView: DataView,
+    offset: number,
+    message: T,
+    atlas: V,
+  ) => number,
   deserialize: (dataView: DataView) => U,
   message: T,
   iterations: number,
@@ -86,7 +91,12 @@ function benchmark<T, U, V extends { $size: number }>(
   for (
     let offset = 0;
     offset < arrayBufferSize;
-    offset = serialize(serializationDataView, offset, message, messageAtlas)
+    offset = serializeIntoDataView(
+      serializationDataView,
+      offset,
+      message,
+      messageAtlas,
+    )
   ) {
     // All the work happens in the "increment" step of the `for` loop.
   }
@@ -127,7 +137,7 @@ console.log('Massive message test.');
 
 benchmark(
   Types.Struct.atlas,
-  Types.Struct.serialize,
+  Types.Struct.serializeIntoDataView,
   Types.Struct.deserialize,
   { x: 'a'.repeat(massiveStringSize) },
   1,
@@ -138,7 +148,7 @@ console.log('Pathological message test.');
 
 benchmark(
   Types.Message.atlas,
-  Types.Message.serialize,
+  Types.Message.serializeIntoDataView,
   Types.Message.deserialize,
   {
     a: null,

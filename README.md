@@ -78,25 +78,25 @@ It's not necessary to set up an automated build system to use Typical, but we re
 With the code generated in the previous section, let's write a simple program to construct a message and serialize it to a file. We'll use Rust for this example:
 
 ```rust
-let request = SendEmailRequestOut {
+let message = SendEmailRequestOut {
     to: "typical@example.com".to_owned(),
     subject: "I love Typical!".to_owned(),
     body: "It makes serialization easy and safe.".to_owned(),
 };
 
-let mut file = BufWriter::new(File::create("/tmp/request")?);
-request.serialize(&mut file)?;
+let mut file = BufWriter::new(File::create("/tmp/message")?);
+message.serialize(&mut file)?;
 ```
 
 Another program could read the file and deserialize the message as follows:
 
 ```rust
-let mut file = BufReader::new(File::open("/tmp/request")?);
-let request = SendEmailRequestIn::deserialize(&mut file)?;
+let mut file = BufReader::new(File::open("/tmp/message")?);
+let message = SendEmailRequestIn::deserialize(&mut file)?;
 
-println!("to: {}", request.to);
-println!("subject: {}", request.subject);
-println!("body: {}", request.body);
+println!("to: {}", message.to);
+println!("subject: {}", message.subject);
+println!("body: {}", message.body);
 ```
 
 The full code for this example can be found [here](https://github.com/stepchowfun/typical/tree/main/examples/rust/src/main.rs). The TypeScript version is [here](https://github.com/stepchowfun/typical/blob/main/examples/typescript/src/main.ts).
