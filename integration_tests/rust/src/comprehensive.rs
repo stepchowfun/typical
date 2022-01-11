@@ -75,7 +75,7 @@ pub fn run() -> io::Result<()> {
         d_required: i64::MAX,
         e_required: true,
         f_required: vec![0, 42, 255],
-        g_required: "Hello, World!".to_owned(),
+        g_required: "Hello, \u{5e78}\u{798f}!".to_owned(),
         h_required: LocalStructOut {},
         i_required: EmptyStructOut {},
         j_required: vec![(), (), ()],
@@ -87,7 +87,7 @@ pub fn run() -> io::Result<()> {
         p_required: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
         q_required: vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
         r_required: vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
@@ -131,7 +131,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ],
         z_required: vec![
@@ -152,7 +152,7 @@ pub fn run() -> io::Result<()> {
         d_asymmetric: i64::MAX,
         e_asymmetric: true,
         f_asymmetric: vec![0, 42, 255],
-        g_asymmetric: "Hello, World!".to_owned(),
+        g_asymmetric: "Hello, \u{5e78}\u{798f}!".to_owned(),
         h_asymmetric: LocalStructOut {},
         i_asymmetric: EmptyStructOut {},
         j_asymmetric: vec![(), (), ()],
@@ -164,7 +164,7 @@ pub fn run() -> io::Result<()> {
         p_asymmetric: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
         q_asymmetric: vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
         r_asymmetric: vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
@@ -208,7 +208,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ],
         z_asymmetric: vec![
@@ -261,7 +261,7 @@ pub fn run() -> io::Result<()> {
         d_required: i64::MAX,
         e_required: true,
         f_required: vec![0, 42, 255],
-        g_required: "Hello, World!".to_owned(),
+        g_required: "Hello, \u{5e78}\u{798f}!".to_owned(),
         h_required: LocalStructOut {},
         i_required: EmptyStructOut {},
         j_required: vec![(), (), ()],
@@ -273,7 +273,7 @@ pub fn run() -> io::Result<()> {
         p_required: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
         q_required: vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
         r_required: vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
@@ -317,7 +317,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ],
         z_required: vec![
@@ -338,7 +338,7 @@ pub fn run() -> io::Result<()> {
         d_asymmetric: i64::MAX,
         e_asymmetric: true,
         f_asymmetric: vec![0, 42, 255],
-        g_asymmetric: "Hello, World!".to_owned(),
+        g_asymmetric: "Hello, \u{5e78}\u{798f}!".to_owned(),
         h_asymmetric: LocalStructOut {},
         i_asymmetric: EmptyStructOut {},
         j_asymmetric: vec![(), (), ()],
@@ -350,7 +350,7 @@ pub fn run() -> io::Result<()> {
         p_asymmetric: vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
         q_asymmetric: vec![LocalStructOut {}, LocalStructOut {}, LocalStructOut {}],
         r_asymmetric: vec![EmptyStructOut {}, EmptyStructOut {}, EmptyStructOut {}],
@@ -394,7 +394,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ],
         z_asymmetric: vec![
@@ -415,7 +415,7 @@ pub fn run() -> io::Result<()> {
         d_optional: Some(i64::MAX),
         e_optional: Some(true),
         f_optional: Some(vec![0, 42, 255]),
-        g_optional: Some("Hello, World!".to_owned()),
+        g_optional: Some("Hello, \u{5e78}\u{798f}!".to_owned()),
         h_optional: Some(LocalStructOut {}),
         i_optional: Some(EmptyStructOut {}),
         j_optional: Some(vec![(), (), ()]),
@@ -427,7 +427,7 @@ pub fn run() -> io::Result<()> {
         p_optional: Some(vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ]),
         q_optional: Some(vec![
             LocalStructOut {},
@@ -479,7 +479,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ]),
         z_optional: Some(vec![
@@ -522,7 +522,7 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("".to_owned()))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("=8 bytes".to_owned()))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("Hello, World!".to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("Hello, \u{5e78}\u{798f}!".to_owned()))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::HRequired(LocalStructOut {}))?;
 
@@ -574,7 +574,7 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![
         "".to_owned(),
         "=8 bytes".to_owned(),
-        "Hello, World!".to_owned(),
+        "Hello, \u{5e78}\u{798f}!".to_owned(),
     ]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::QRequired(vec![]))?;
@@ -684,7 +684,7 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![
         "".to_owned(),
         "=8 bytes".to_owned(),
-        "Hello, World!".to_owned(),
+        "Hello, \u{5e78}\u{798f}!".to_owned(),
     ]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![
         vec![],
@@ -693,7 +693,7 @@ pub fn run() -> io::Result<()> {
         vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
     ]))?;
 
@@ -777,7 +777,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GAsymmetric(
-        "Hello, World!".to_owned(),
+        "Hello, \u{5e78}\u{798f}!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
@@ -897,7 +897,7 @@ pub fn run() -> io::Result<()> {
         vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
         Box::new(fallback.clone()),
     ))?;
@@ -1104,7 +1104,7 @@ pub fn run() -> io::Result<()> {
         vec![vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ]],
         Box::new(fallback.clone()),
     ))?;
@@ -1116,7 +1116,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ],
         Box::new(fallback.clone()),
@@ -1221,7 +1221,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GOptional(
-        "Hello, World!".to_owned(),
+        "Hello, \u{5e78}\u{798f}!".to_owned(),
         Box::new(fallback.clone()),
     ))?;
 
@@ -1338,7 +1338,7 @@ pub fn run() -> io::Result<()> {
         vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
         Box::new(fallback.clone()),
     ))?;
@@ -1545,7 +1545,7 @@ pub fn run() -> io::Result<()> {
         vec![vec![
             "".to_owned(),
             "=8 bytes".to_owned(),
-            "Hello, World!".to_owned(),
+            "Hello, \u{5e78}\u{798f}!".to_owned(),
         ]],
         Box::new(fallback.clone()),
     ))?;
@@ -1557,7 +1557,7 @@ pub fn run() -> io::Result<()> {
             vec![
                 "".to_owned(),
                 "=8 bytes".to_owned(),
-                "Hello, World!".to_owned(),
+                "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
         ],
         Box::new(fallback.clone()),

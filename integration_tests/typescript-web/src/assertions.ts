@@ -5,7 +5,7 @@ import { sha256 } from 'js-sha256';
 // It's used to validate that the TypeScript code generator encodes data identically to other code
 // generators.
 const omnifileHash =
-  '15fbfc488b07fba7e273903c3198a983fe8a131c4d692ce80aa0c149194db83f';
+  '4412923bab04f5cb20585434ee4569012c7f1518864a15227e2f0c02d5630b75';
 const omnifileBuffer = new ArrayBuffer(80_305);
 const omnifileArray = new Uint8Array(omnifileBuffer);
 let omnifileOffset = 0;

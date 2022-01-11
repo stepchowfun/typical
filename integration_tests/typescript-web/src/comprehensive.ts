@@ -76,7 +76,7 @@ export default function run(): void {
       dRequired: s64Max,
       eRequired: true,
       fRequired: new Uint8Array([0, 42, 255]).buffer,
-      gRequired: 'Hello, World!',
+      gRequired: 'Hello, 幸福!',
       hRequired: {},
       iRequired: {},
       jRequired: [null, null, null],
@@ -89,7 +89,7 @@ export default function run(): void {
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
-      pRequired: ['', '=8 bytes', 'Hello, World!'],
+      pRequired: ['', '=8 bytes', 'Hello, 幸福!'],
       qRequired: [{}, {}, {}],
       rRequired: [{}, {}, {}],
       sRequired: [[], [null], [null, null], [null, null, null]],
@@ -125,7 +125,7 @@ export default function run(): void {
           new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
-      yRequired: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      yRequired: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       zRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
       aaRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
       aAsymmetric: null,
@@ -134,7 +134,7 @@ export default function run(): void {
       dAsymmetric: s64Max,
       eAsymmetric: true,
       fAsymmetric: new Uint8Array([0, 42, 255]).buffer,
-      gAsymmetric: 'Hello, World!',
+      gAsymmetric: 'Hello, 幸福!',
       hAsymmetric: {},
       iAsymmetric: {},
       jAsymmetric: [null, null, null],
@@ -147,7 +147,7 @@ export default function run(): void {
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
-      pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
+      pAsymmetric: ['', '=8 bytes', 'Hello, 幸福!'],
       qAsymmetric: [{}, {}, {}],
       rAsymmetric: [{}, {}, {}],
       sAsymmetric: [[], [null], [null, null], [null, null, null]],
@@ -183,7 +183,7 @@ export default function run(): void {
           new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
-      yAsymmetric: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      yAsymmetric: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       zAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
       aaAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
       aOptional: undefined,
@@ -230,7 +230,7 @@ export default function run(): void {
       dRequired: s64Max,
       eRequired: true,
       fRequired: new Uint8Array([0, 42, 255]).buffer,
-      gRequired: 'Hello, World!',
+      gRequired: 'Hello, 幸福!',
       hRequired: {},
       iRequired: {},
       jRequired: [null, null, null],
@@ -243,7 +243,7 @@ export default function run(): void {
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
-      pRequired: ['', '=8 bytes', 'Hello, World!'],
+      pRequired: ['', '=8 bytes', 'Hello, 幸福!'],
       qRequired: [{}, {}, {}],
       rRequired: [{}, {}, {}],
       sRequired: [[], [null], [null, null], [null, null, null]],
@@ -279,7 +279,7 @@ export default function run(): void {
           new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
-      yRequired: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      yRequired: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       zRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
       aaRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
       aAsymmetric: null,
@@ -288,7 +288,7 @@ export default function run(): void {
       dAsymmetric: s64Max,
       eAsymmetric: true,
       fAsymmetric: new Uint8Array([0, 42, 255]).buffer,
-      gAsymmetric: 'Hello, World!',
+      gAsymmetric: 'Hello, 幸福!',
       hAsymmetric: {},
       iAsymmetric: {},
       jAsymmetric: [null, null, null],
@@ -301,7 +301,7 @@ export default function run(): void {
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
-      pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
+      pAsymmetric: ['', '=8 bytes', 'Hello, 幸福!'],
       qAsymmetric: [{}, {}, {}],
       rAsymmetric: [{}, {}, {}],
       sAsymmetric: [[], [null], [null, null], [null, null, null]],
@@ -337,7 +337,7 @@ export default function run(): void {
           new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
-      yAsymmetric: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      yAsymmetric: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       zAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
       aaAsymmetric: [[], [{}], [{}, {}], [{}, {}, {}]],
       aOptional: null,
@@ -346,7 +346,7 @@ export default function run(): void {
       dOptional: s64Max,
       eOptional: true,
       fOptional: new Uint8Array([0, 42, 255]).buffer,
-      gOptional: 'Hello, World!',
+      gOptional: 'Hello, 幸福!',
       hOptional: {},
       iOptional: {},
       jOptional: [null, null, null],
@@ -359,7 +359,7 @@ export default function run(): void {
         new Uint8Array([0, 42, 255]).buffer,
         new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
-      pOptional: ['', '=8 bytes', 'Hello, World!'],
+      pOptional: ['', '=8 bytes', 'Hello, 幸福!'],
       qOptional: [{}, {}, {}],
       rOptional: [{}, {}, {}],
       sOptional: [[], [null], [null, null], [null, null, null]],
@@ -395,7 +395,7 @@ export default function run(): void {
           new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
         ],
       ],
-      yOptional: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, World!']],
+      yOptional: [[''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       zOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
       aaOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
     },
@@ -547,7 +547,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'gRequired',
-      gRequired: 'Hello, World!',
+      gRequired: 'Hello, 幸福!',
     },
   );
 
@@ -917,7 +917,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'pRequired',
-      pRequired: ['', '=8 bytes', 'Hello, World!'],
+      pRequired: ['', '=8 bytes', 'Hello, 幸福!'],
     },
   );
 
@@ -1471,7 +1471,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'yRequired',
-      yRequired: [['', '=8 bytes', 'Hello, World!']],
+      yRequired: [['', '=8 bytes', 'Hello, 幸福!']],
     },
   );
 
@@ -1482,12 +1482,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'yRequired',
-      yRequired: [
-        [],
-        [''],
-        ['', '=8 bytes'],
-        ['', '=8 bytes', 'Hello, World!'],
-      ],
+      yRequired: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
     },
   );
 
@@ -1828,12 +1823,12 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'gAsymmetric',
-      gAsymmetric: 'Hello, World!',
+      gAsymmetric: 'Hello, 幸福!',
       $fallback,
     },
     {
       $field: 'gAsymmetric',
-      gAsymmetric: 'Hello, World!',
+      gAsymmetric: 'Hello, 幸福!',
     },
   );
 
@@ -2370,12 +2365,12 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'pAsymmetric',
-      pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
+      pAsymmetric: ['', '=8 bytes', 'Hello, 幸福!'],
       $fallback,
     },
     {
       $field: 'pAsymmetric',
-      pAsymmetric: ['', '=8 bytes', 'Hello, World!'],
+      pAsymmetric: ['', '=8 bytes', 'Hello, 幸福!'],
     },
   );
 
@@ -3184,12 +3179,12 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'yAsymmetric',
-      yAsymmetric: [['', '=8 bytes', 'Hello, World!']],
+      yAsymmetric: [['', '=8 bytes', 'Hello, 幸福!']],
       $fallback,
     },
     {
       $field: 'yAsymmetric',
-      yAsymmetric: [['', '=8 bytes', 'Hello, World!']],
+      yAsymmetric: [['', '=8 bytes', 'Hello, 幸福!']],
     },
   );
 
@@ -3204,7 +3199,7 @@ export default function run(): void {
         [],
         [''],
         ['', '=8 bytes'],
-        ['', '=8 bytes', 'Hello, World!'],
+        ['', '=8 bytes', 'Hello, 幸福!'],
       ],
       $fallback,
     },
@@ -3214,7 +3209,7 @@ export default function run(): void {
         [],
         [''],
         ['', '=8 bytes'],
-        ['', '=8 bytes', 'Hello, World!'],
+        ['', '=8 bytes', 'Hello, 幸福!'],
       ],
     },
   );
@@ -3567,7 +3562,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'gOptional',
-      gOptional: 'Hello, World!',
+      gOptional: 'Hello, 幸福!',
       $fallback,
     },
   );
@@ -3970,7 +3965,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'pOptional',
-      pOptional: ['', '=8 bytes', 'Hello, World!'],
+      pOptional: ['', '=8 bytes', 'Hello, 幸福!'],
       $fallback,
     },
   );
@@ -4573,7 +4568,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'yOptional',
-      yOptional: [['', '=8 bytes', 'Hello, World!']],
+      yOptional: [['', '=8 bytes', 'Hello, 幸福!']],
       $fallback,
     },
   );
@@ -4585,12 +4580,7 @@ export default function run(): void {
     Comprehensive.Types.Bar.deserialize,
     {
       $field: 'yOptional',
-      yOptional: [
-        [],
-        [''],
-        ['', '=8 bytes'],
-        ['', '=8 bytes', 'Hello, World!'],
-      ],
+      yOptional: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       $fallback,
     },
   );
