@@ -485,15 +485,13 @@ Every language has its own patterns and idiosyncrasies. The sections below conta
 ### Rust
 
 - The generated code is self-contained in that it only depends on the Rust standard library.
-- Typical's `Unit` type maps to `()`. However, fields of type `Unit` in choices map to nullary constructors (e.g., `Foo` rather than `Foo(())`) for ergonomic reasons.
 
 ### JavaScript and TypeScript
 
 - The generated code is self-contained in that it only depends on JavaScript's standard built-in objects. It can run in the browser or with Node.js.
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
 - Typical's integer types map to `bigint` rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
-- For extra safety, the generated `serialize`, `deserialize`, and `outToIn` functions are designed not to throw exceptions. When given well-typed arguments, the `serialize` and `outToIn` functions can only fail if memory is exhausted. The `deserialize` function can return an `Error` to signal failure, and TypeScript will require the caller to acknowledge that possibility.
-- Structs map straightforwardly to objects, as one would expect. Empty choices map to TypeScript's `never` type. Non-empty choices map to objects with a `$field` property indicating which field was set, a property for the field itself (unless the type of the field is `Unit`, in which case the property is omitted for ergonomic reasons), and, for optional or asymmetric fields, a `$fallback` property for the fallback object.
+- For extra safety, the generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
 - The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
 
   ```typescript
