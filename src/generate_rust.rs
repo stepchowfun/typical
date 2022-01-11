@@ -95,6 +95,8 @@ use std::{{
     mem::transmute,
 }};
 
+const MISSING_FIELDS_ERROR_MESSAGE: &str = \"Struct missing one or more required field(s).\";
+
 pub trait Serialize {{
     fn size(&self) -> usize;
 
@@ -638,7 +640,8 @@ fn write_schema<T: Write>(
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "::std::io::ErrorKind::InvalidData,")?;
                     write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "\"Struct missing one or more field(s).\",")?;
+                    write_supers(buffer, indentation)?;
+                    writeln!(buffer, "MISSING_FIELDS_ERROR_MESSAGE,")?;
                     write_indentation(buffer, indentation + 3)?;
                     writeln!(buffer, "));")?;
                     write_indentation(buffer, indentation + 2)?;

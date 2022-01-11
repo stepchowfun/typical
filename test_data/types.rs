@@ -7,6 +7,8 @@ use std::{
     mem::transmute,
 };
 
+const MISSING_FIELDS_ERROR_MESSAGE: &str = "Struct missing one or more required field(s).";
+
 pub trait Serialize {
     fn size(&self) -> usize;
 
@@ -306,7 +308,7 @@ pub mod circular_dependency {
                     if _x.is_none() {
                         return Err(::std::io::Error::new(
                             ::std::io::ErrorKind::InvalidData,
-                            "Struct missing one or more field(s).",
+                            super::super::super::MISSING_FIELDS_ERROR_MESSAGE,
                         ));
                     }
 
@@ -470,7 +472,7 @@ pub mod circular_dependency {
                     || _fallback.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
-                        "Struct missing one or more field(s).",
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
                     ));
                 }
 
@@ -2755,7 +2757,7 @@ pub mod comprehensive {
                     || _aa_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
-                        "Struct missing one or more field(s).",
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
                     ));
                 }
 
@@ -7902,7 +7904,7 @@ pub mod schema_evolution {
                     || _optional_to_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
-                        "Struct missing one or more field(s).",
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
                     ));
                 }
 
@@ -8620,7 +8622,7 @@ pub mod schema_evolution {
                     || _required_to_nonexistent.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
-                        "Struct missing one or more field(s).",
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
                     ));
                 }
 
@@ -9197,7 +9199,7 @@ pub mod schema_evolution {
                 if _x.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
-                        "Struct missing one or more field(s).",
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
                     ));
                 }
 
