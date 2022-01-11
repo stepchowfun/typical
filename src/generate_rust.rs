@@ -44,11 +44,12 @@ use CaseConvention::{Pascal, Snake};
 // This enum is used to distinguish between the ingress and egress versions of a type.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Direction {
+    Atlas,
     In,
     Out,
 }
 
-use Direction::{In, Out};
+use Direction::{Atlas, In, Out};
 
 // Generate Rust code from a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
@@ -449,7 +450,7 @@ fn write_schema<T: Write>(
     // Construct a map from import name to namespace.
     let mut imports = BTreeMap::new();
     for (name, import) in &schema.imports {
-        // The unwrap is safe due to [ref:namespace_populated].
+        // The `unwrap` is safe due to [ref:namespace_populated].
         imports.insert(name.clone(), import.namespace.clone().unwrap());
     }
 
@@ -458,6 +459,18 @@ fn write_schema<T: Write>(
     while let Some(declaration) = iter.next() {
         match &declaration.variant {
             schema::DeclarationVariant::Struct => {
+                write_struct(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &declaration.name,
+                    &declaration.fields,
+                    Atlas,
+                )?;
+
+                writeln!(buffer)?;
+
                 write_struct(
                     buffer,
                     indentation,
@@ -488,105 +501,9 @@ fn write_schema<T: Write>(
                 write!(buffer, "Serialize for ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "fn size(&self) -> usize {{")?;
-                if declaration.fields.is_empty() {
-                    write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "0")?;
-                }
-                for (i, field) in declaration.fields.iter().enumerate() {
-                    let is_first = i == 0;
-                    let is_last = i == declaration.fields.len() - 1;
-                    if is_first {
-                        write_indentation(buffer, indentation + 2)?;
-                    }
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Required => {
-                            writeln!(buffer, "({{")?;
-                            write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "let payload = &self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ";")?;
-                        }
-                        schema::Rule::Optional => {
-                            write!(buffer, "self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ".as_ref().map_or(0, |payload| {{")?;
-                        }
-                    }
-                    write_indentation(buffer, indentation + 3)?;
-                    write!(buffer, "let payload_size = ")?;
-                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
-                    writeln!(buffer, ";")?;
-                    write_indentation(buffer, indentation + 3)?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(
-                        buffer,
-                        "field_header_size({}_u64, payload_size, {}) + payload_size",
-                        field.index,
-                        integer_encoded(&field.r#type),
-                    )?;
-                    write_indentation(buffer, indentation + 2)?;
-                    write!(buffer, "}})")?;
-                    if is_last {
-                        writeln!(buffer)?;
-                    } else {
-                        write!(buffer, " + ")?;
-                    }
-                }
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                write_size_function(buffer, indentation + 1)?;
                 writeln!(buffer)?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> \
-                        ::std::io::Result<()> {{",
-                )?;
-                for field in &declaration.fields {
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Required => {
-                            write_indentation(buffer, indentation + 2)?;
-                            writeln!(buffer, "{{")?;
-                            write_indentation(buffer, indentation + 3)?;
-                            write!(buffer, "let payload = &self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, ";")?;
-                        }
-                        schema::Rule::Optional => {
-                            write_indentation(buffer, indentation + 2)?;
-                            write!(buffer, "if let Some(payload) = &self.")?;
-                            write_identifier(buffer, &field.name, Snake, None)?;
-                            writeln!(buffer, " {{")?;
-                        }
-                    }
-                    write_indentation(buffer, indentation + 3)?;
-                    write!(buffer, "let payload_size = ")?;
-                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
-                    writeln!(buffer, ";")?;
-                    write_indentation(buffer, indentation + 3)?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(
-                        buffer,
-                        "serialize_field_header(writer, {}_u64, payload_size, {})?;",
-                        field.index,
-                        integer_encoded(&field.r#type),
-                    )?;
-                    write_serialization_invocation(
-                        buffer,
-                        indentation + 3,
-                        indentation,
-                        &field.r#type.variant,
-                        true,
-                    )?;
-                    write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "}}")?;
-                    writeln!(buffer)?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "Ok(())")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                write_serialize_function(buffer, indentation + 1)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
 
@@ -614,9 +531,9 @@ fn write_schema<T: Write>(
                 if !&declaration.fields.is_empty() {
                     for field in &declaration.fields {
                         write_indentation(buffer, indentation + 2)?;
-                        write!(buffer, "let mut ")?;
+                        write!(buffer, "let mut _")?;
                         write_identifier(buffer, &field.name, Snake, None)?;
-                        write!(buffer, "_field: Option<")?;
+                        write!(buffer, ": Option<")?;
                         write_type(buffer, &imports, namespace, &field.r#type.variant, In)?;
                         writeln!(buffer, "> = None;")?;
                     }
@@ -671,8 +588,9 @@ fn write_schema<T: Write>(
                         true,
                     )?;
                     write_indentation(buffer, indentation + 5)?;
+                    write!(buffer, "_")?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    writeln!(buffer, "_field.get_or_insert(payload);")?;
+                    writeln!(buffer, ".get_or_insert(payload);")?;
                     write_indentation(buffer, indentation + 4)?;
                     writeln!(buffer, "}}")?;
                 }
@@ -688,6 +606,8 @@ fn write_schema<T: Write>(
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "}}")?;
                 writeln!(buffer)?;
+                // The logic below ensures that all required fields have been parsed.
+                // [tag:required_fields_present]
                 if declaration.fields.iter().any(|field| match field.rule {
                     schema::Rule::Asymmetric | schema::Rule::Optional => false,
                     schema::Rule::Required => true,
@@ -702,10 +622,13 @@ fn write_schema<T: Write>(
                                 if first {
                                     first = false;
                                 } else {
-                                    write!(buffer, " || ")?;
+                                    writeln!(buffer)?;
+                                    write_indentation(buffer, indentation + 3)?;
+                                    write!(buffer, "|| ")?;
                                 }
+                                write!(buffer, "_")?;
                                 write_identifier(buffer, &field.name, Snake, None)?;
-                                write!(buffer, "_field.is_none()")?;
+                                write!(buffer, ".is_none()")?;
                             }
                         }
                     }
@@ -729,12 +652,12 @@ fn write_schema<T: Write>(
                 for field in &declaration.fields {
                     write_indentation(buffer, indentation + 3)?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ": ")?;
+                    write!(buffer, ": _")?;
                     write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, "_field")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Optional => {}
                         schema::Rule::Required => {
+                            // This `unwrap` is safe due to [ref:required_fields_present].
                             write!(buffer, ".unwrap()")?;
                         }
                     }
@@ -800,8 +723,205 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "pub fn atlas(&self) -> ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, " {{")?;
+                if !&declaration.fields.is_empty() {
+                    for field in &declaration.fields {
+                        write_indentation(buffer, indentation + 2)?;
+                        write!(buffer, "let _")?;
+                        write_identifier(buffer, &field.name, Snake, None)?;
+                        match field.rule {
+                            schema::Rule::Asymmetric | schema::Rule::Required => {
+                                write!(buffer, " = {{ let payload = &self.")?;
+                                write_identifier(buffer, &field.name, Snake, None)?;
+                                write!(buffer, "; ")?;
+                                write_atlas_calculation(
+                                    buffer,
+                                    indentation,
+                                    &field.r#type.variant,
+                                    true,
+                                )?;
+                                writeln!(buffer, " }};")?;
+                            }
+                            schema::Rule::Optional => {
+                                write!(buffer, " = self.")?;
+                                write_identifier(buffer, &field.name, Snake, None)?;
+                                write!(buffer, ".as_ref().map(|payload| ")?;
+                                write_atlas_calculation(
+                                    buffer,
+                                    indentation,
+                                    &field.r#type.variant,
+                                    true,
+                                )?;
+                                writeln!(buffer, ");")?;
+                            }
+                        }
+                    }
+                    writeln!(buffer)?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                write!(buffer, "_size:")?;
+                if declaration.fields.is_empty() {
+                    write!(buffer, " 0")?;
+                }
+                let mut first = true;
+                for field in &declaration.fields {
+                    writeln!(buffer)?;
+                    write_indentation(buffer, indentation + 4)?;
+                    if first {
+                        first = false;
+                    } else {
+                        write!(buffer, "+ ")?;
+                    }
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
+                            write!(buffer, "{{ let payload_atlas = &_")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, "; let payload_size = ")?;
+                        }
+                        schema::Rule::Optional => {
+                            write!(buffer, "_")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(
+                                buffer,
+                                ".as_ref().map_or(0_usize, |payload_atlas| {{ let payload_size = ",
+                            )?;
+                        }
+                    }
+                    write_atlas_lookup(buffer, &field.r#type.variant)?;
+                    write!(buffer, "; ")?;
+                    write_supers(buffer, indentation)?;
+                    write!(
+                        buffer,
+                        "field_header_size({}_u64, payload_size, {}) + payload_size }}",
+                        field.index,
+                        integer_encoded(&field.r#type),
+                    )?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {}
+                        schema::Rule::Optional => {
+                            write!(buffer, ")")?;
+                        }
+                    }
+                }
+                writeln!(buffer, ",")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ": _")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    writeln!(buffer, ",")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "pub fn serialize_with_atlas<T: ::std::io::Write>(")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "&self,")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "writer: &mut T,")?;
+                write_indentation(buffer, indentation + 2)?;
+                write!(buffer, "atlas: &")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, ",")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, ") -> ::std::io::Result<()> {{")?;
+                for field in &declaration.fields {
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
+                            write_indentation(buffer, indentation + 2)?;
+                            writeln!(buffer, "{{")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            write!(buffer, "let payload = &self.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ";")?;
+                            write_indentation(buffer, indentation + 3)?;
+                            write!(buffer, "let payload_atlas = &atlas.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ";")?;
+                        }
+                        schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 2)?;
+                            write!(
+                                buffer,
+                                "if let (Some(payload), Some(payload_atlas)) = (&self.",
+                            )?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            write!(buffer, ", &atlas.")?;
+                            write_identifier(buffer, &field.name, Snake, None)?;
+                            writeln!(buffer, ") {{")?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 3)?;
+                    write_supers(buffer, indentation)?;
+                    write!(
+                        buffer,
+                        "serialize_field_header(writer, {}_u64, ",
+                        field.index,
+                    )?;
+                    write_atlas_lookup(buffer, &field.r#type.variant)?;
+                    writeln!(buffer, ", {})?;", integer_encoded(&field.r#type))?;
+                    write_serialization_invocation(
+                        buffer,
+                        indentation + 3,
+                        indentation,
+                        &field.r#type.variant,
+                        true,
+                    )?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                    writeln!(buffer)?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "Ok(())")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "pub fn size(&self) -> usize {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "self._size")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
             }
             schema::DeclarationVariant::Choice => {
+                write_choice(
+                    buffer,
+                    indentation,
+                    &imports,
+                    namespace,
+                    &declaration.name,
+                    &declaration.fields,
+                    Atlas,
+                )?;
+
+                writeln!(buffer)?;
+
                 write_choice(
                     buffer,
                     indentation,
@@ -832,130 +952,9 @@ fn write_schema<T: Write>(
                 write!(buffer, "Serialize for ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "fn size(&self) -> usize {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
-                // https://github.com/rust-lang/rust/issues/78123.
-                writeln!(buffer, "match *self {{")?;
-                for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
-                    write!(buffer, "::")?;
-                    write_identifier(buffer, &field.name, Pascal, None)?;
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Optional => {
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, "(ref fallback) => {{")?;
-                            } else {
-                                writeln!(buffer, "(ref payload, ref fallback) => {{")?;
-                            }
-                        }
-                        schema::Rule::Required => {
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, " => {{")?;
-                            } else {
-                                writeln!(buffer, "(ref payload) => {{")?;
-                            }
-                        }
-                    }
-                    write_indentation(buffer, indentation + 4)?;
-                    write!(buffer, "let payload_size = ")?;
-                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
-                    writeln!(buffer, ";")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(
-                        buffer,
-                        "field_header_size({}_u64, payload_size, {}) +",
-                        field.index,
-                        integer_encoded(&field.r#type),
-                    )?;
-                    write_indentation(buffer, indentation + 5)?;
-                    write!(buffer, "payload_size")?;
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Optional => {
-                            writeln!(buffer, " +")?;
-                            write_indentation(buffer, indentation + 5)?;
-                            writeln!(buffer, "fallback.size()")?;
-                        }
-                        schema::Rule::Required => {
-                            writeln!(buffer)?;
-                        }
-                    }
-                    write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "}}")?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                write_size_function(buffer, indentation + 1)?;
                 writeln!(buffer)?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> \
-                        ::std::io::Result<()> {{",
-                )?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
-                for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
-                    write!(buffer, "::")?;
-                    write_identifier(buffer, &field.name, Pascal, None)?;
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Optional => {
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, "(ref fallback) => {{")?;
-                            } else {
-                                writeln!(buffer, "(ref payload, ref fallback) => {{")?;
-                            }
-                        }
-                        schema::Rule::Required => {
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, " => {{")?;
-                            } else {
-                                writeln!(buffer, "(ref payload) => {{")?;
-                            }
-                        }
-                    }
-                    write_indentation(buffer, indentation + 4)?;
-                    write!(buffer, "let payload_size = ")?;
-                    write_size_calculation(buffer, indentation, &field.r#type.variant, true)?;
-                    writeln!(buffer, ";")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(
-                        buffer,
-                        "serialize_field_header(writer, {}_u64, payload_size, {})?;",
-                        field.index,
-                        integer_encoded(&field.r#type),
-                    )?;
-                    write_serialization_invocation(
-                        buffer,
-                        indentation + 4,
-                        indentation,
-                        &field.r#type.variant,
-                        true,
-                    )?;
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Optional => {
-                            write_indentation(buffer, indentation + 4)?;
-                            writeln!(buffer, "fallback.serialize(writer)")?;
-                        }
-                        schema::Rule::Required => {
-                            write_indentation(buffer, indentation + 4)?;
-                            writeln!(buffer, "Ok(())")?;
-                        }
-                    }
-                    write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "}}")?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                write_serialize_function(buffer, indentation + 1)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
 
@@ -1127,6 +1126,218 @@ fn write_schema<T: Write>(
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                write!(buffer, "pub fn atlas(&self) -> ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                // [tag:empty_enum_ref_match] We match on `self*` instead of `self` due to
+                // https://github.com/rust-lang/rust/issues/78123.
+                writeln!(buffer, "match *self {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(ref fallback) => {{")?;
+                                write_indentation(buffer, indentation + 4)?;
+                                writeln!(buffer, "let payload = &();")?;
+                            } else {
+                                writeln!(buffer, "(ref payload, ref fallback) => {{")?;
+                            }
+                        }
+                        schema::Rule::Required => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, " => {{")?;
+                                write_indentation(buffer, indentation + 4)?;
+                                writeln!(buffer, "let payload = &();")?;
+                            } else {
+                                writeln!(buffer, "(ref payload) => {{")?;
+                            }
+                        }
+                    }
+                    write_indentation(buffer, indentation + 4)?;
+                    write!(buffer, "let payload_atlas = ")?;
+                    write_atlas_calculation(buffer, indentation, &field.r#type.variant, true)?;
+                    writeln!(buffer, ";")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    write!(
+                        buffer,
+                        "let payload_size = {{ let payload_atlas = &payload_atlas; ",
+                    )?;
+                    write_atlas_lookup(buffer, &field.r#type.variant)?;
+                    writeln!(buffer, " }};")?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 4)?;
+                            writeln!(buffer, "let fallback_atlas = fallback.atlas();")?;
+                            write_indentation(buffer, indentation + 4)?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            write!(buffer, "(")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(
+                                buffer,
+                                "field_header_size({}_u64, payload_size, {}) + \
+                                    payload_size + fallback_atlas.size(), \
+                                    payload_atlas, Box::new(fallback_atlas))",
+                                field.index,
+                                integer_encoded(&field.r#type),
+                            )?;
+                        }
+                        schema::Rule::Required => {
+                            write_indentation(buffer, indentation + 4)?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            write!(buffer, "(")?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(
+                                buffer,
+                                "field_header_size({}_u64, payload_size, {}) + payload_size, \
+                                    payload_atlas)",
+                                field.index,
+                                integer_encoded(&field.r#type),
+                            )?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "pub fn serialize_with_atlas<T: ::std::io::Write>(")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "&self,")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "writer: &mut T,")?;
+                write_indentation(buffer, indentation + 2)?;
+                write!(buffer, "atlas: &")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, ",")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, ") -> ::std::io::Result<()> {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "match (self, atlas) {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write!(buffer, "(")?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                write!(buffer, "(fallback), ")?;
+                            } else {
+                                write!(buffer, "(payload, fallback), ")?;
+                            }
+                        }
+                        schema::Rule::Required => {
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                write!(buffer, ", ")?;
+                            } else {
+                                write!(buffer, "(payload), ")?;
+                            }
+                        }
+                    }
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            writeln!(buffer, "(_, payload_atlas, fallback_atlas)) => {{")?;
+                        }
+                        schema::Rule::Required => {
+                            writeln!(buffer, "(_, payload_atlas)) => {{")?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 4)?;
+                    write_supers(buffer, indentation)?;
+                    write!(
+                        buffer,
+                        "serialize_field_header(writer, {}_u64, ",
+                        field.index,
+                    )?;
+                    write_atlas_lookup(buffer, &field.r#type.variant)?;
+                    writeln!(buffer, ", {})?;", integer_encoded(&field.r#type))?;
+                    write_serialization_invocation(
+                        buffer,
+                        indentation + 4,
+                        indentation,
+                        &field.r#type.variant,
+                        true,
+                    )?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 4)?;
+                            writeln!(
+                                buffer,
+                                "fallback.serialize_with_atlas(writer, fallback_atlas)",
+                            )?;
+                        }
+                        schema::Rule::Required => {
+                            write_indentation(buffer, indentation + 4)?;
+                            writeln!(buffer, "Ok(())")?;
+                        }
+                    }
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "(_, _) => panic!(),")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "pub fn size(&self) -> usize {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "match *self {{")?; // [ref:empty_enum_ref_match]
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                    write!(buffer, "::")?;
+                    write_identifier(buffer, &field.name, Pascal, None)?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {
+                            writeln!(buffer, "(ref size, _, _) => *size,")?;
+                        }
+                        schema::Rule::Required => {
+                            writeln!(buffer, "(ref size, _) => *size,")?;
+                        }
+                    }
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
             }
         }
 
@@ -1155,6 +1366,14 @@ fn write_struct<T: Write>(
     write_identifier(buffer, name, Pascal, Some(direction))?;
     writeln!(buffer, " {{")?;
 
+    match direction {
+        Direction::Atlas => {
+            write_indentation(buffer, indentation + 1)?;
+            writeln!(buffer, "pub _size: usize,")?;
+        }
+        Direction::In | Direction::Out => {}
+    }
+
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
         write!(buffer, "pub ")?;
@@ -1162,10 +1381,10 @@ fn write_struct<T: Write>(
         write!(buffer, ": ")?;
         match field.rule {
             schema::Rule::Asymmetric => match direction {
+                Direction::Atlas | Direction::Out => {}
                 Direction::In => {
                     write!(buffer, "Option<")?;
                 }
-                Direction::Out => {}
             },
             schema::Rule::Optional => {
                 write!(buffer, "Option<")?;
@@ -1175,10 +1394,10 @@ fn write_struct<T: Write>(
         write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         match field.rule {
             schema::Rule::Asymmetric => match direction {
+                Direction::Atlas | Direction::Out => {}
                 Direction::In => {
                     write!(buffer, ">")?;
                 }
-                Direction::Out => {}
             },
             schema::Rule::Optional => {
                 write!(buffer, ">")?;
@@ -1214,37 +1433,93 @@ fn write_choice<T: Write>(
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
         write_identifier(buffer, &field.name, Pascal, None)?;
+
+        let size = match direction {
+            Direction::Atlas => true,
+            Direction::In | Direction::Out => false,
+        };
+
+        let payload = match direction {
+            Direction::Atlas => true,
+            Direction::In | Direction::Out => {
+                !matches!(field.r#type.variant, schema::TypeVariant::Unit)
+            }
+        };
+
         let fallback = match field.rule {
             schema::Rule::Asymmetric => match direction {
+                Direction::Atlas | Direction::Out => true,
                 Direction::In => false,
-                Direction::Out => true,
             },
             schema::Rule::Optional => true,
             schema::Rule::Required => false,
         };
-        if fallback {
-            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                write!(buffer, "(Box<")?;
-            } else {
-                write!(buffer, "(")?;
-                write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
-                write!(buffer, ", Box<")?;
-            }
-            write_identifier(buffer, name, Pascal, Some(direction))?;
-            writeln!(buffer, ">),")?;
-        } else if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-            writeln!(buffer, ",")?;
-        } else {
+
+        if size || payload || fallback {
             write!(buffer, "(")?;
-            write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
-            writeln!(buffer, "),")?;
         }
+
+        if size {
+            write!(buffer, "usize")?;
+
+            if payload || fallback {
+                write!(buffer, ", ")?;
+            }
+        }
+
+        if payload {
+            write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
+
+            if fallback {
+                write!(buffer, ", ")?;
+            }
+        }
+
+        if fallback {
+            write!(buffer, "Box<")?;
+            write_identifier(buffer, name, Pascal, Some(direction))?;
+            write!(buffer, ">")?;
+        }
+
+        if size || payload || fallback {
+            write!(buffer, ")")?;
+        }
+
+        writeln!(buffer, ",")?;
     }
 
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "}}")?;
 
     Ok(())
+}
+
+fn write_size_function<T: Write>(buffer: &mut T, indentation: usize) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "fn size(&self) -> usize {{")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "self.atlas().size()")?;
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "}}")
+}
+
+// Write the function to serialize a message.
+fn write_serialize_function<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    writeln!(
+        buffer,
+        "fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> \
+            ::std::io::Result<()> {{",
+    )?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "let atlas = self.atlas();")?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "self.serialize_with_atlas(writer, &atlas)")?;
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "}}")
 }
 
 // Write a type.
@@ -1256,17 +1531,46 @@ fn write_type<T: Write>(
     direction: Direction,
 ) -> Result<(), fmt::Error> {
     match type_variant {
-        schema::TypeVariant::Array(inner_type) => {
-            write!(buffer, "Vec<")?;
-            write_type(buffer, imports, namespace, &inner_type.variant, direction)?;
-            write!(buffer, ">")?;
-        }
-        schema::TypeVariant::Bool => {
-            write!(buffer, "bool")?;
-        }
-        schema::TypeVariant::Bytes => {
-            write!(buffer, "Vec<u8>")?;
-        }
+        schema::TypeVariant::Array(inner_type) => match direction {
+            Direction::Atlas => match &inner_type.variant {
+                schema::TypeVariant::Array(_)
+                | schema::TypeVariant::Bytes
+                | schema::TypeVariant::Custom(_, _)
+                | schema::TypeVariant::String => {
+                    write!(buffer, "(usize, Vec<")?;
+                    write_type(buffer, imports, namespace, &inner_type.variant, direction)?;
+                    write!(buffer, ">)")?;
+                }
+                schema::TypeVariant::Bool
+                | schema::TypeVariant::F64
+                | schema::TypeVariant::S64
+                | schema::TypeVariant::U64
+                | schema::TypeVariant::Unit => {
+                    write!(buffer, "usize")?;
+                }
+            },
+            Direction::In | Direction::Out => {
+                write!(buffer, "Vec<")?;
+                write_type(buffer, imports, namespace, &inner_type.variant, direction)?;
+                write!(buffer, ">")?;
+            }
+        },
+        schema::TypeVariant::Bool => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "bool")?;
+            }
+        },
+        schema::TypeVariant::Bytes => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "Vec<u8>")?;
+            }
+        },
         schema::TypeVariant::Custom(import, name) => {
             let type_namespace = schema::Namespace {
                 components: import.as_ref().map_or_else(
@@ -1287,21 +1591,46 @@ fn write_type<T: Write>(
 
             write_identifier(buffer, name, Pascal, Some(direction))?;
         }
-        schema::TypeVariant::F64 => {
-            write!(buffer, "f64")?;
-        }
-        schema::TypeVariant::S64 => {
-            write!(buffer, "i64")?;
-        }
-        schema::TypeVariant::String => {
-            write!(buffer, "String")?;
-        }
-        schema::TypeVariant::U64 => {
-            write!(buffer, "u64")?;
-        }
-        schema::TypeVariant::Unit => {
-            write!(buffer, "()")?;
-        }
+        schema::TypeVariant::F64 => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "f64")?;
+            }
+        },
+        schema::TypeVariant::S64 => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "i64")?;
+            }
+        },
+        schema::TypeVariant::String => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "String")?;
+            }
+        },
+        schema::TypeVariant::U64 => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "u64")?;
+            }
+        },
+        schema::TypeVariant::Unit => match direction {
+            Direction::Atlas => {
+                write!(buffer, "usize")?;
+            }
+            Direction::In | Direction::Out => {
+                write!(buffer, "()")?;
+            }
+        },
     }
 
     Ok(())
@@ -1319,6 +1648,7 @@ fn write_identifier<T: Write>(
         |suffix| {
             identifier.join(
                 &match suffix {
+                    Direction::Atlas => "Atlas",
                     Direction::In => "In",
                     Direction::Out => "Out",
                 }
@@ -1365,7 +1695,7 @@ fn write_supers<T: Write>(buffer: &mut T, count: usize) -> Result<(), fmt::Error
 // Write the logic to convert a message from one type to another.
 //
 // Context variables:
-// - `writer` (in and out)
+// - `*writer` (in and out)
 fn write_into_invocation<T: Write>(
     buffer: &mut T,
     type_variant: &schema::TypeVariant,
@@ -1397,11 +1727,11 @@ fn write_into_invocation<T: Write>(
     }
 }
 
-// Write the logic to invoke the size calculation logic for a value.
+// Write the logic to compute the encoded size of a value.
 //
 // Context variables:
-// - `payload` (in)
-fn write_size_calculation<T: Write>(
+// - `*payload` (in)
+fn write_atlas_calculation<T: Write>(
     buffer: &mut T,
     supers: usize,
     type_variant: &schema::TypeVariant,
@@ -1415,21 +1745,24 @@ fn write_size_calculation<T: Write>(
             | schema::TypeVariant::Bytes
             | schema::TypeVariant::Custom(_, _)
             | schema::TypeVariant::String => {
+                write!(buffer, "{{ let atlases = payload.iter().map(|payload| ")?;
+                write_atlas_calculation(buffer, supers, &inner_type.variant, false)?;
                 write!(
                     buffer,
-                    "payload.iter().fold(0_usize, |x, payload| {{ let payload_size = ",
+                    ").collect::<Vec<_>>(); (atlases.iter().fold(0_usize, \
+                    |x, payload_atlas| {{ let atlas_size = ",
                 )?;
-                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
+                write_atlas_lookup(buffer, &inner_type.variant)?;
                 write!(buffer, "; x + ")?;
                 write_supers(buffer, supers)?;
                 write!(
                     buffer,
-                    "varint_size_from_value(payload_size as u64) + payload_size }})",
+                    "varint_size_from_value(atlas_size as u64) + atlas_size }}), atlases) }}",
                 )?;
             }
             schema::TypeVariant::Bool | schema::TypeVariant::S64 | schema::TypeVariant::U64 => {
                 write!(buffer, "payload.iter().fold(0_usize, |x, payload| x + ")?;
-                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
+                write_atlas_calculation(buffer, supers, &inner_type.variant, false)?;
                 write!(buffer, ")")?;
             }
             schema::TypeVariant::F64 => {
@@ -1437,7 +1770,7 @@ fn write_size_calculation<T: Write>(
             }
             schema::TypeVariant::Unit => {
                 write!(buffer, "{{ let payload = &(payload.len() as u64); ")?;
-                write_size_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
+                write_atlas_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
                 write!(buffer, " }}")?;
             }
         },
@@ -1452,7 +1785,7 @@ fn write_size_calculation<T: Write>(
             write!(buffer, "payload.len()")?;
         }
         schema::TypeVariant::Custom(_, _) => {
-            write!(buffer, "payload.size()")?;
+            write!(buffer, "payload.atlas()")?;
         }
         schema::TypeVariant::F64 => {
             if is_field {
@@ -1468,7 +1801,7 @@ fn write_size_calculation<T: Write>(
             write!(buffer, "{{ let zigzag = ")?;
             write_supers(buffer, supers)?;
             write!(buffer, "zigzag_encode(*payload); let payload = &zigzag; ")?;
-            write_size_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
+            write_atlas_calculation(buffer, supers, &schema::TypeVariant::U64, is_field)?;
             write!(buffer, " }}")?;
         }
         schema::TypeVariant::U64 => {
@@ -1497,11 +1830,47 @@ fn write_size_calculation<T: Write>(
     write!(buffer, ")")
 }
 
+// Write the logic to look up the encoded size of a value from its atlas.
+//
+// Context variables:
+// - `*payload_atlas` (in)
+fn write_atlas_lookup<T: Write>(
+    buffer: &mut T,
+    type_variant: &schema::TypeVariant,
+) -> Result<(), fmt::Error> {
+    match type_variant {
+        schema::TypeVariant::Array(inner_type) => match &inner_type.variant {
+            schema::TypeVariant::Array(_)
+            | schema::TypeVariant::Bytes
+            | schema::TypeVariant::Custom(_, _)
+            | schema::TypeVariant::String => write!(buffer, "payload_atlas.0"),
+            schema::TypeVariant::Bool
+            | schema::TypeVariant::F64
+            | schema::TypeVariant::S64
+            | schema::TypeVariant::U64
+            | schema::TypeVariant::Unit => write!(buffer, "*payload_atlas"),
+        },
+        schema::TypeVariant::Bool
+        | schema::TypeVariant::Bytes
+        | schema::TypeVariant::F64
+        | schema::TypeVariant::S64
+        | schema::TypeVariant::String
+        | schema::TypeVariant::U64
+        | schema::TypeVariant::Unit => write!(buffer, "*payload_atlas"),
+        schema::TypeVariant::Custom(_, _) => write!(buffer, "payload_atlas.size()"),
+    }
+}
+
 // Write the logic to invoke the serialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `payload` (in)
-// - `writer` (in and out)
+// - `*payload_atlas` (in)
+// - `*payload` (in)
+// - `*writer` (in and out)
+//
+// Additional notes:
+// - If `is_field` is unset and `type_variant` is `Bool`, `S64`, `U64`, or `F64`, then
+//   `payload_atlas` is never read.
 #[allow(clippy::too_many_lines)]
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
@@ -1517,11 +1886,15 @@ fn write_serialization_invocation<T: Write>(
             | schema::TypeVariant::Custom(_, _)
             | schema::TypeVariant::String => {
                 write_indentation(buffer, indentation)?;
-                writeln!(buffer, "for payload in payload {{")?;
+                writeln!(
+                    buffer,
+                    "for (payload, payload_atlas) in \
+                            payload.iter().zip(payload_atlas.1.iter()) {{",
+                )?;
                 write_indentation(buffer, indentation + 1)?;
                 write_supers(buffer, supers)?;
                 write!(buffer, "serialize_varint(")?;
-                write_size_calculation(buffer, supers, &inner_type.variant, false)?;
+                write_atlas_lookup(buffer, &inner_type.variant)?;
                 writeln!(buffer, " as u64, writer)?;")?;
                 write_serialization_invocation(
                     buffer,
@@ -1574,7 +1947,10 @@ fn write_serialization_invocation<T: Write>(
         }
         schema::TypeVariant::Custom(_, _) => {
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "payload.serialize(writer)?;")
+            writeln!(
+                buffer,
+                "payload.serialize_with_atlas(writer, payload_atlas)?;",
+            )
         }
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
@@ -1620,7 +1996,7 @@ fn write_serialization_invocation<T: Write>(
 //
 // Context variables:
 // - `varint` (in)
-// - `writer` (in and out)
+// - `*writer` (in and out)
 fn write_u64_serialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1658,8 +2034,8 @@ fn write_u64_serialization_invocation<T: Write>(
 // - `sub_reader` (in and out)
 //
 // Additional notes:
-// - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String`, then `sub_reader` is consumed to
-//   the end.
+// - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String` and the encoded data is well-
+//   formed, then `sub_reader` is consumed to the end.
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,

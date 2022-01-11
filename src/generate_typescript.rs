@@ -556,7 +556,7 @@ fn write_schema<T: Write>(
     // Construct a map from import name to namespace.
     let mut imports = BTreeMap::new();
     for (name, import) in &schema.imports {
-        // The unwrap is safe due to [ref:namespace_populated].
+        // The `unwrap` is safe due to [ref:namespace_populated].
         imports.insert(name.clone(), import.namespace.clone().unwrap());
     }
 
@@ -605,6 +605,15 @@ fn write_schema<T: Write>(
                 write!(buffer, "export namespace ")?;
                 write_identifier(buffer, &declaration.name, Pascal, None)?;
                 writeln!(buffer, " {{")?;
+
+                write_size_function(
+                    buffer,
+                    indentation + 1,
+                    &declaration.name,
+                    &declaration.fields,
+                )?;
+
+                writeln!(buffer)?;
 
                 write_serialize_function(buffer, indentation + 1, &declaration.name)?;
 
@@ -724,7 +733,7 @@ fn write_schema<T: Write>(
                 // This function is "unsafe" in the sense that it can throw an error if
                 // `dataView` isn't big enough or if `atlas` has incorrect values.
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function serializeUnsafe(")?;
+                writeln!(buffer, "export function serializeWithAtlasUnsafe(")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "dataView: DataView,")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -921,7 +930,9 @@ fn write_schema<T: Write>(
                                 if first {
                                     first = false;
                                 } else {
-                                    write!(buffer, " || ")?;
+                                    writeln!(buffer)?;
+                                    write_indentation(buffer, indentation + 3)?;
+                                    write!(buffer, "|| ")?;
                                 }
                                 write!(buffer, "$")?;
                                 write_identifier(buffer, &field.name, Camel, None)?;
@@ -994,6 +1005,15 @@ fn write_schema<T: Write>(
                 write!(buffer, "export namespace ")?;
                 write_identifier(buffer, &declaration.name, Pascal, None)?;
                 writeln!(buffer, " {{")?;
+
+                write_size_function(
+                    buffer,
+                    indentation + 1,
+                    &declaration.name,
+                    &declaration.fields,
+                )?;
+
+                writeln!(buffer)?;
 
                 write_serialize_function(buffer, indentation + 1, &declaration.name)?;
 
@@ -1112,7 +1132,7 @@ fn write_schema<T: Write>(
                 // This function is "unsafe" in the sense that it can throw an error if
                 // `dataView` isn't big enough or if `atlas` has incorrect values.
                 write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "export function serializeUnsafe(")?;
+                writeln!(buffer, "export function serializeWithAtlasUnsafe(")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "dataView: DataView,")?;
                 write_indentation(buffer, indentation + 2)?;
@@ -1176,7 +1196,7 @@ fn write_schema<T: Write>(
                                 write_indentation(buffer, indentation + 4)?;
                                 writeln!(
                                     buffer,
-                                    "offset = serializeUnsafe(dataView, offset, \
+                                    "offset = serializeWithAtlasUnsafe(dataView, offset, \
                                         message.$fallback, (atlas as any).$fallback);",
                                 )?;
                             }
@@ -1447,6 +1467,27 @@ fn write_choice<T: Write>(
     Ok(())
 }
 
+// Write the function to calculate the size of a message.
+fn write_size_function<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+    name: &Identifier,
+    fields: &[schema::Field],
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    write!(buffer, "export function size(message: ")?;
+    write_identifier(buffer, name, Pascal, Some(Out))?;
+    writeln!(buffer, "): number {{")?;
+    write_indentation(buffer, indentation + 1)?;
+    if fields.is_empty() {
+        writeln!(buffer, "return 0;")?;
+    } else {
+        writeln!(buffer, "return atlas(message).$size;")?;
+    }
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "}}")
+}
+
 // Write the function to serialize a message.
 fn write_serialize_function<T: Write>(
     buffer: &mut T,
@@ -1470,7 +1511,7 @@ fn write_serialize_function<T: Write>(
     write_indentation(buffer, indentation + 1)?;
     writeln!(
         buffer,
-        "serializeUnsafe(dataView, 0, message, messageAtlas);",
+        "serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);",
     )?;
     write_indentation(buffer, indentation + 1)?;
     writeln!(buffer, "return arrayBuffer;")?;
@@ -2040,7 +2081,7 @@ fn write_serialization_invocation<T: Write>(
             write_custom_type(buffer, imports, namespace, import, name, None)?;
             writeln!(
                 buffer,
-                ".serializeUnsafe(dataView, offset, payload, payloadAtlas);",
+                ".serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);",
             )
         }
         schema::TypeVariant::F64 => {
@@ -2149,8 +2190,8 @@ fn write_u64_serialization_invocation<T: Write>(
 // Additional notes:
 // - This function introduces the `payload` variable with `let` rather than `const`, since it relies
 //   on being able to mutate the `payload` from a recursive call.
-// - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String`, then `dataView` is consumed to
-//   the end.
+// - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String` and the encoded data is well-
+//   formed, then `dataView` is consumed to the end.
 // - If `type_variant` is `Custom`, then `offset` must be 0.
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(

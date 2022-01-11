@@ -23,8 +23,7 @@ function terminalOut<T>(x: T): Degenerate.Types.EmptyStructOut {
 
 export default function run(): void {
   assertRoundTrip(
-    Degenerate.Types.EmptyStruct.atlas,
-    Degenerate.Types.EmptyStruct.serializeUnsafe,
+    Degenerate.Types.EmptyStruct.size,
     Degenerate.Types.EmptyStruct.serialize,
     Degenerate.Types.EmptyStruct.deserialize,
     {},

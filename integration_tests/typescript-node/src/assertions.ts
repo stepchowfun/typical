@@ -12,14 +12,8 @@ try {
   // Attempting to delete the file will fail if the file doesn't exist. This is harmless.
 }
 
-export function assertMatch<T, U, V extends { $size: number }>(
-  atlas: (message: T) => V,
-  serializeUnsafe: (
-    dataView: DataView,
-    offset: number,
-    message: T,
-    atlas: V,
-  ) => number,
+export function assertMatch<T, U>(
+  size: (message: T) => number,
   serialize: (message: T) => ArrayBuffer,
   deserialize: (dataView: DataView) => U,
   actual: T,
@@ -27,15 +21,12 @@ export function assertMatch<T, U, V extends { $size: number }>(
 ): void {
   console.log('Message to be serialized:', actual);
 
-  const actualAtlas = atlas(actual);
-  const actualSize = actualAtlas.$size;
+  const actualSize = size(actual);
   console.log('Expected size of the serialized message:', actualSize);
 
-  const arrayBuffer = new ArrayBuffer(actualSize);
+  const arrayBuffer = serialize(actual);
   const dataView = new DataView(arrayBuffer);
-  const numBytesWritten = serializeUnsafe(dataView, 0, actual, actualAtlas);
-  deepStrictEqual(numBytesWritten, actualSize);
-  deepStrictEqual(arrayBuffer.byteLength, numBytesWritten);
+  deepStrictEqual(arrayBuffer.byteLength, actualSize);
   console.log('Bytes from serialization:', arrayBuffer);
   console.log('Size of the serialized message:', arrayBuffer.byteLength);
 
@@ -44,26 +35,13 @@ export function assertMatch<T, U, V extends { $size: number }>(
   const replica = deserialize(dataView);
   deepStrictEqual(replica, expected);
   console.log('Message deserialized from those bytes:', replica);
-
-  const arrayBufferReplica = serialize(actual);
-  const dataViewReplica = new DataView(arrayBufferReplica);
-  deepStrictEqual(dataViewReplica.byteLength, dataView.byteLength);
-  for (let i = 0; i < dataViewReplica.byteLength; i += 1) {
-    deepStrictEqual(dataViewReplica.getUint8(i), dataView.getUint8(i));
-  }
 }
 
-export function assertRoundTrip<U, T extends U, V extends { $size: number }>(
-  atlas: (message: T) => V,
-  serializeUnsafe: (
-    dataView: DataView,
-    offset: number,
-    message: T,
-    atlas: V,
-  ) => number,
+export function assertRoundTrip<U, T extends U>(
+  size: (message: T) => number,
   serialize: (message: T) => ArrayBuffer,
   deserialize: (dataView: DataView) => U,
   message: T,
 ): void {
-  assertMatch(atlas, serializeUnsafe, serialize, deserialize, message, message);
+  assertMatch(size, serialize, deserialize, message, message);
 }

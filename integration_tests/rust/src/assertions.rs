@@ -26,7 +26,6 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     let mut buffer = Vec::<u8>::new();
     actual.serialize(&mut buffer)?;
     println!("Bytes from serialization: {:?}", buffer);
-
     println!("Size of the serialized value: {:?}", buffer.len());
     if buffer.len() != size {
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));

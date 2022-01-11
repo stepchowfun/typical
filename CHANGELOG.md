@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2022-01-11
+
+### Changed
+- The generated Rust code now uses an asymptotically more efficient serialization algorithm. The binary encoding is unchanged.
+- The generated TypeScript code now exports a `size` function for computing the expected size of a message on the wire.
+- Identifiers are no longer allowed to begin with underscores to allow code generators to use underscore-prefixed names without worrying about colliding with user-defined fields.
+
 ## [0.8.7] - 2022-01-10
 
 ### Fixed
@@ -28,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.3] - 2022-01-09
 
 ### Changed
-- The generated TypeScript code now uses a more efficient serialization algorithm. The binary encoding is unchanged.
+- The generated TypeScript code now uses an asymptotically more efficient serialization algorithm. The binary encoding is unchanged.
 
 ## [0.8.2] - 2022-01-08
 
