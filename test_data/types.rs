@@ -244,6 +244,12 @@ pub mod circular_dependency {
     pub mod dependency {
         pub mod types {
             #[derive(Clone, Debug)]
+            pub struct StructFromBelowAtlas {
+                pub _size: usize,
+                pub x: super::super::types::StructFromAboveAtlas,
+            }
+
+            #[derive(Clone, Debug)]
             pub struct StructFromBelowOut {
                 pub x: super::super::types::StructFromAboveOut,
             }
@@ -255,22 +261,12 @@ pub mod circular_dependency {
 
             impl super::super::super::Serialize for StructFromBelowOut {
                 fn size(&self) -> usize {
-                    ({
-                        let payload = &self.x;
-                        let payload_size = (payload.size());
-                        super::super::super::field_header_size(0_u64, payload_size, false) + payload_size
-                    })
+                    self.atlas().size()
                 }
 
                 fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                    {
-                        let payload = &self.x;
-                        let payload_size = (payload.size());
-                        super::super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                    }
-
-                    Ok(())
+                    let atlas = self.atlas();
+                    self.serialize_with_atlas(writer, &atlas)
                 }
             }
 
@@ -280,7 +276,7 @@ pub mod circular_dependency {
                     Self: Sized,
                     T: ::std::io::BufRead,
                 {
-                    let mut x_field: Option<super::super::types::StructFromAboveIn> = None;
+                    let mut _x: Option<super::super::types::StructFromAboveIn> = None;
 
                     loop {
                         let (index, payload_size) = match super::super::super::deserialize_field_header(&mut *reader) {
@@ -299,7 +295,7 @@ pub mod circular_dependency {
                         match index {
                             0 => {
                                 let payload = <super::super::types::StructFromAboveIn as super::super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                x_field.get_or_insert(payload);
+                                _x.get_or_insert(payload);
                             }
                             _ => {
                                 super::super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -307,7 +303,7 @@ pub mod circular_dependency {
                         }
                     }
 
-                    if x_field.is_none() {
+                    if _x.is_none() {
                         return Err(::std::io::Error::new(
                             ::std::io::ErrorKind::InvalidData,
                             "Struct missing one or more field(s).",
@@ -315,7 +311,7 @@ pub mod circular_dependency {
                     }
 
                     Ok(StructFromBelowIn {
-                        x: x_field.unwrap(),
+                        x: _x.unwrap(),
                     })
                 }
             }
@@ -327,25 +323,76 @@ pub mod circular_dependency {
                     }
                 }
             }
+
+            impl StructFromBelowOut {
+                pub fn atlas(&self) -> StructFromBelowAtlas {
+                    let _x = { let payload = &self.x; (payload.atlas()) };
+
+                    StructFromBelowAtlas {
+                        _size:
+                            { let payload_atlas = &_x; let payload_size = payload_atlas.size(); super::super::super::field_header_size(0_u64, payload_size, false) + payload_size },
+                        x: _x,
+                    }
+                }
+
+                pub fn serialize_with_atlas<T: ::std::io::Write>(
+                    &self,
+                    writer: &mut T,
+                    atlas: &StructFromBelowAtlas,
+                ) -> ::std::io::Result<()> {
+                    {
+                        let payload = &self.x;
+                        let payload_atlas = &atlas.x;
+                        super::super::super::serialize_field_header(writer, 0_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+
+                    Ok(())
+                }
+            }
+
+            impl StructFromBelowAtlas {
+                pub fn size(&self) -> usize {
+                    self._size
+                }
+            }
         }
     }
 
     pub mod types {
         #[derive(Clone, Debug)]
+        pub struct StructFromAboveAtlas {
+            pub _size: usize,
+            pub field: usize,
+            pub size: usize,
+            pub elements: usize,
+            pub fallback: usize,
+        }
+
+        #[derive(Clone, Debug)]
         pub struct StructFromAboveOut {
+            pub field: String,
+            pub size: String,
+            pub elements: String,
+            pub fallback: String,
         }
 
         #[derive(Clone, Debug)]
         pub struct StructFromAboveIn {
+            pub field: String,
+            pub size: String,
+            pub elements: String,
+            pub fallback: String,
         }
 
         impl super::super::Serialize for StructFromAboveOut {
             fn size(&self) -> usize {
-                0
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -355,6 +402,11 @@ pub mod circular_dependency {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
+                let mut _field: Option<String> = None;
+                let mut _size: Option<String> = None;
+                let mut _elements: Option<String> = None;
+                let mut _fallback: Option<String> = None;
+
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
                         Ok(header) => header,
@@ -370,13 +422,63 @@ pub mod circular_dependency {
                     let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
 
                     match index {
+                        0 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            _field.get_or_insert(payload);
+                        }
+                        1 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            _size.get_or_insert(payload);
+                        }
+                        2 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            _elements.get_or_insert(payload);
+                        }
+                        3 => {
+                            let mut buffer = vec![];
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
+                            let payload = std::str::from_utf8(&buffer).map_or_else(
+                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
+                                |result| Ok(result.to_owned()),
+                            )?;
+                            _fallback.get_or_insert(payload);
+                        }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
                         }
                     }
                 }
 
+                if _field.is_none()
+                    || _size.is_none()
+                    || _elements.is_none()
+                    || _fallback.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        "Struct missing one or more field(s).",
+                    ));
+                }
+
                 Ok(StructFromAboveIn {
+                    field: _field.unwrap(),
+                    size: _size.unwrap(),
+                    elements: _elements.unwrap(),
+                    fallback: _fallback.unwrap(),
                 })
             }
         }
@@ -384,7 +486,74 @@ pub mod circular_dependency {
         impl From<StructFromAboveOut> for StructFromAboveIn {
             fn from(message: StructFromAboveOut) -> Self {
                 StructFromAboveIn {
+                    field: message.field.into(),
+                    size: message.size.into(),
+                    elements: message.elements.into(),
+                    fallback: message.fallback.into(),
                 }
+            }
+        }
+
+        impl StructFromAboveOut {
+            pub fn atlas(&self) -> StructFromAboveAtlas {
+                let _field = { let payload = &self.field; (payload.len()) };
+                let _size = { let payload = &self.size; (payload.len()) };
+                let _elements = { let payload = &self.elements; (payload.len()) };
+                let _fallback = { let payload = &self.fallback; (payload.len()) };
+
+                StructFromAboveAtlas {
+                    _size:
+                        { let payload_atlas = &_field; let payload_size = *payload_atlas; super::super::field_header_size(0_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_size; let payload_size = *payload_atlas; super::super::field_header_size(1_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_elements; let payload_size = *payload_atlas; super::super::field_header_size(2_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_fallback; let payload_size = *payload_atlas; super::super::field_header_size(3_u64, payload_size, false) + payload_size },
+                    field: _field,
+                    size: _size,
+                    elements: _elements,
+                    fallback: _fallback,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &StructFromAboveAtlas,
+            ) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.field;
+                    let payload_atlas = &atlas.field;
+                    super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.size;
+                    let payload_atlas = &atlas.size;
+                    super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.elements;
+                    let payload_atlas = &atlas.elements;
+                    super::super::serialize_field_header(writer, 2_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.fallback;
+                    let payload_atlas = &atlas.fallback;
+                    super::super::serialize_field_header(writer, 3_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                Ok(())
+            }
+        }
+
+        impl StructFromAboveAtlas {
+            pub fn size(&self) -> usize {
+                self._size
             }
         }
     }
@@ -392,6 +561,11 @@ pub mod circular_dependency {
 
 pub mod comprehensive {
     pub mod types {
+        #[derive(Clone, Debug)]
+        pub struct LocalStructAtlas {
+            pub _size: usize,
+        }
+
         #[derive(Clone, Debug)]
         pub struct LocalStructOut {
         }
@@ -402,11 +576,12 @@ pub mod comprehensive {
 
         impl super::super::Serialize for LocalStructOut {
             fn size(&self) -> usize {
-                0
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -447,6 +622,114 @@ pub mod comprehensive {
                 LocalStructIn {
                 }
             }
+        }
+
+        impl LocalStructOut {
+            pub fn atlas(&self) -> LocalStructAtlas {
+                LocalStructAtlas {
+                    _size: 0,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &LocalStructAtlas,
+            ) -> ::std::io::Result<()> {
+                Ok(())
+            }
+        }
+
+        impl LocalStructAtlas {
+            pub fn size(&self) -> usize {
+                self._size
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub struct FooAtlas {
+            pub _size: usize,
+            pub a_required: usize,
+            pub b_required: usize,
+            pub c_required: usize,
+            pub d_required: usize,
+            pub e_required: usize,
+            pub f_required: usize,
+            pub g_required: usize,
+            pub h_required: LocalStructAtlas,
+            pub i_required: super::super::degenerate::types::EmptyStructAtlas,
+            pub j_required: usize,
+            pub k_required: usize,
+            pub l_required: usize,
+            pub m_required: usize,
+            pub n_required: usize,
+            pub o_required: (usize, Vec<usize>),
+            pub p_required: (usize, Vec<usize>),
+            pub q_required: (usize, Vec<LocalStructAtlas>),
+            pub r_required: (usize, Vec<super::super::degenerate::types::EmptyStructAtlas>),
+            pub s_required: (usize, Vec<usize>),
+            pub t_required: (usize, Vec<usize>),
+            pub u_required: (usize, Vec<usize>),
+            pub v_required: (usize, Vec<usize>),
+            pub w_required: (usize, Vec<usize>),
+            pub x_required: (usize, Vec<(usize, Vec<usize>)>),
+            pub y_required: (usize, Vec<(usize, Vec<usize>)>),
+            pub z_required: (usize, Vec<(usize, Vec<LocalStructAtlas>)>),
+            pub aa_required: (usize, Vec<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>),
+            pub a_asymmetric: usize,
+            pub b_asymmetric: usize,
+            pub c_asymmetric: usize,
+            pub d_asymmetric: usize,
+            pub e_asymmetric: usize,
+            pub f_asymmetric: usize,
+            pub g_asymmetric: usize,
+            pub h_asymmetric: LocalStructAtlas,
+            pub i_asymmetric: super::super::degenerate::types::EmptyStructAtlas,
+            pub j_asymmetric: usize,
+            pub k_asymmetric: usize,
+            pub l_asymmetric: usize,
+            pub m_asymmetric: usize,
+            pub n_asymmetric: usize,
+            pub o_asymmetric: (usize, Vec<usize>),
+            pub p_asymmetric: (usize, Vec<usize>),
+            pub q_asymmetric: (usize, Vec<LocalStructAtlas>),
+            pub r_asymmetric: (usize, Vec<super::super::degenerate::types::EmptyStructAtlas>),
+            pub s_asymmetric: (usize, Vec<usize>),
+            pub t_asymmetric: (usize, Vec<usize>),
+            pub u_asymmetric: (usize, Vec<usize>),
+            pub v_asymmetric: (usize, Vec<usize>),
+            pub w_asymmetric: (usize, Vec<usize>),
+            pub x_asymmetric: (usize, Vec<(usize, Vec<usize>)>),
+            pub y_asymmetric: (usize, Vec<(usize, Vec<usize>)>),
+            pub z_asymmetric: (usize, Vec<(usize, Vec<LocalStructAtlas>)>),
+            pub aa_asymmetric: (usize, Vec<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>),
+            pub a_optional: Option<usize>,
+            pub b_optional: Option<usize>,
+            pub c_optional: Option<usize>,
+            pub d_optional: Option<usize>,
+            pub e_optional: Option<usize>,
+            pub f_optional: Option<usize>,
+            pub g_optional: Option<usize>,
+            pub h_optional: Option<LocalStructAtlas>,
+            pub i_optional: Option<super::super::degenerate::types::EmptyStructAtlas>,
+            pub j_optional: Option<usize>,
+            pub k_optional: Option<usize>,
+            pub l_optional: Option<usize>,
+            pub m_optional: Option<usize>,
+            pub n_optional: Option<usize>,
+            pub o_optional: Option<(usize, Vec<usize>)>,
+            pub p_optional: Option<(usize, Vec<usize>)>,
+            pub q_optional: Option<(usize, Vec<LocalStructAtlas>)>,
+            pub r_optional: Option<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>,
+            pub s_optional: Option<(usize, Vec<usize>)>,
+            pub t_optional: Option<(usize, Vec<usize>)>,
+            pub u_optional: Option<(usize, Vec<usize>)>,
+            pub v_optional: Option<(usize, Vec<usize>)>,
+            pub w_optional: Option<(usize, Vec<usize>)>,
+            pub x_optional: Option<(usize, Vec<(usize, Vec<usize>)>)>,
+            pub y_optional: Option<(usize, Vec<(usize, Vec<usize>)>)>,
+            pub z_optional: Option<(usize, Vec<(usize, Vec<LocalStructAtlas>)>)>,
+            pub aa_optional: Option<(usize, Vec<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>)>,
         }
 
         #[derive(Clone, Debug)]
@@ -621,1199 +904,12 @@ pub mod comprehensive {
 
         impl super::super::Serialize for FooOut {
             fn size(&self) -> usize {
-                ({
-                    let payload = &self.a_required;
-                    let payload_size = (0_usize);
-                    super::super::field_header_size(0_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.b_required;
-                    let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                    super::super::field_header_size(1_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.c_required;
-                    let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                    super::super::field_header_size(2_u64, payload_size, true) + payload_size
-                }) + ({
-                    let payload = &self.d_required;
-                    let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::field_header_size(3_u64, payload_size, true) + payload_size
-                }) + ({
-                    let payload = &self.e_required;
-                    let payload_size = (if *payload { 1_usize } else { 0_usize });
-                    super::super::field_header_size(4_u64, payload_size, true) + payload_size
-                }) + ({
-                    let payload = &self.f_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(5_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.g_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(6_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.h_required;
-                    let payload_size = (payload.size());
-                    super::super::field_header_size(7_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.i_required;
-                    let payload_size = (payload.size());
-                    super::super::field_header_size(8_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.j_required;
-                    let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::field_header_size(9_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.k_required;
-                    let payload_size = (8_usize * payload.len());
-                    super::super::field_header_size(10_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.l_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                    super::super::field_header_size(11_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.m_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                    super::super::field_header_size(12_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.n_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                    super::super::field_header_size(13_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.o_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(14_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.p_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(15_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.q_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(16_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.r_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(17_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.s_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(18_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.t_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(19_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.u_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(20_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.v_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(21_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.w_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(22_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.x_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(23_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.y_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(24_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.z_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(25_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.aa_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(26_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.a_asymmetric;
-                    let payload_size = (0_usize);
-                    super::super::field_header_size(28_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.b_asymmetric;
-                    let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                    super::super::field_header_size(29_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.c_asymmetric;
-                    let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                    super::super::field_header_size(30_u64, payload_size, true) + payload_size
-                }) + ({
-                    let payload = &self.d_asymmetric;
-                    let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::field_header_size(31_u64, payload_size, true) + payload_size
-                }) + ({
-                    let payload = &self.e_asymmetric;
-                    let payload_size = (if *payload { 1_usize } else { 0_usize });
-                    super::super::field_header_size(32_u64, payload_size, true) + payload_size
-                }) + ({
-                    let payload = &self.f_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(33_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.g_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(34_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.h_asymmetric;
-                    let payload_size = (payload.size());
-                    super::super::field_header_size(35_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.i_asymmetric;
-                    let payload_size = (payload.size());
-                    super::super::field_header_size(36_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.j_asymmetric;
-                    let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::field_header_size(37_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.k_asymmetric;
-                    let payload_size = (8_usize * payload.len());
-                    super::super::field_header_size(38_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.l_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                    super::super::field_header_size(39_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.m_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                    super::super::field_header_size(40_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.n_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                    super::super::field_header_size(41_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.o_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(42_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.p_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(43_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.q_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(44_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.r_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(45_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.s_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(46_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.t_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(47_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.u_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(48_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.v_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(49_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.w_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(50_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.x_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(51_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.y_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(52_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.z_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(53_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.aa_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(54_u64, payload_size, false) + payload_size
-                }) + self.a_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (0_usize);
-                    super::super::field_header_size(56_u64, payload_size, false) + payload_size
-                }) + self.b_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                    super::super::field_header_size(57_u64, payload_size, false) + payload_size
-                }) + self.c_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                    super::super::field_header_size(58_u64, payload_size, true) + payload_size
-                }) + self.d_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::field_header_size(59_u64, payload_size, true) + payload_size
-                }) + self.e_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (if *payload { 1_usize } else { 0_usize });
-                    super::super::field_header_size(60_u64, payload_size, true) + payload_size
-                }) + self.f_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(61_u64, payload_size, false) + payload_size
-                }) + self.g_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(62_u64, payload_size, false) + payload_size
-                }) + self.h_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.size());
-                    super::super::field_header_size(63_u64, payload_size, false) + payload_size
-                }) + self.i_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.size());
-                    super::super::field_header_size(64_u64, payload_size, false) + payload_size
-                }) + self.j_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::field_header_size(65_u64, payload_size, false) + payload_size
-                }) + self.k_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (8_usize * payload.len());
-                    super::super::field_header_size(66_u64, payload_size, false) + payload_size
-                }) + self.l_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                    super::super::field_header_size(67_u64, payload_size, false) + payload_size
-                }) + self.m_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                    super::super::field_header_size(68_u64, payload_size, false) + payload_size
-                }) + self.n_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                    super::super::field_header_size(69_u64, payload_size, false) + payload_size
-                }) + self.o_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(70_u64, payload_size, false) + payload_size
-                }) + self.p_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(71_u64, payload_size, false) + payload_size
-                }) + self.q_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(72_u64, payload_size, false) + payload_size
-                }) + self.r_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(73_u64, payload_size, false) + payload_size
-                }) + self.s_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(74_u64, payload_size, false) + payload_size
-                }) + self.t_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(75_u64, payload_size, false) + payload_size
-                }) + self.u_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(76_u64, payload_size, false) + payload_size
-                }) + self.v_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(77_u64, payload_size, false) + payload_size
-                }) + self.w_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(78_u64, payload_size, false) + payload_size
-                }) + self.x_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(79_u64, payload_size, false) + payload_size
-                }) + self.y_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(80_u64, payload_size, false) + payload_size
-                }) + self.z_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(81_u64, payload_size, false) + payload_size
-                }) + self.aa_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::field_header_size(82_u64, payload_size, false) + payload_size
-                })
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                {
-                    let payload = &self.a_required;
-                    let payload_size = (0_usize);
-                    super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                }
-
-                {
-                    let payload = &self.b_required;
-                    let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                    super::super::serialize_field_header(writer, 1_u64, payload_size, false)?;
-                    if payload.to_bits() != 0_u64 {
-                        writer.write_all(&payload.to_le_bytes())?;
-                    }
-                }
-
-                {
-                    let payload = &self.c_required;
-                    let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                    super::super::serialize_field_header(writer, 2_u64, payload_size, true)?;
-                    {
-                        let varint = *payload;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.d_required;
-                    let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::serialize_field_header(writer, 3_u64, payload_size, true)?;
-                    {
-                        let varint = super::super::zigzag_encode(*payload);
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.e_required;
-                    let payload_size = (if *payload { 1_usize } else { 0_usize });
-                    super::super::serialize_field_header(writer, 4_u64, payload_size, true)?;
-                    {
-                        let varint = *payload as u64;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.f_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
-                    writer.write_all(payload)?;
-                }
-
-                {
-                    let payload = &self.g_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.h_required;
-                    let payload_size = (payload.size());
-                    super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
-                    payload.serialize(writer)?;
-                }
-
-                {
-                    let payload = &self.i_required;
-                    let payload_size = (payload.size());
-                    super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
-                    payload.serialize(writer)?;
-                }
-
-                {
-                    let payload = &self.j_required;
-                    let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
-                    {
-                        let varint = payload.len() as u64 as u64;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.k_required;
-                    let payload_size = (8_usize * payload.len());
-                    super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
-                    for payload in payload {
-                        writer.write_all(&payload.to_le_bytes())?;
-                    }
-                }
-
-                {
-                    let payload = &self.l_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                    super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = *payload;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.m_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                    super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = super::super::zigzag_encode(*payload);
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.n_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                    super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = *payload as u64;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.o_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.len()) as u64, writer)?;
-                        writer.write_all(payload)?;
-                    }
-                }
-
-                {
-                    let payload = &self.p_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 15_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.len()) as u64, writer)?;
-                        writer.write_all(payload.as_bytes())?;
-                    }
-                }
-
-                {
-                    let payload = &self.q_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 16_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.size()) as u64, writer)?;
-                        payload.serialize(writer)?;
-                    }
-                }
-
-                {
-                    let payload = &self.r_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 17_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.size()) as u64, writer)?;
-                        payload.serialize(writer)?;
-                    }
-                }
-
-                {
-                    let payload = &self.s_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 18_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint(({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }) as u64, writer)?;
-                        {
-                            let varint = payload.len() as u64 as u64;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.t_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 19_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((8_usize * payload.len()) as u64, writer)?;
-                        for payload in payload {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.u_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 20_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.v_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 21_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = super::super::zigzag_encode(*payload);
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.w_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 22_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (1_usize))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.x_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 23_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.y_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 24_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.z_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 25_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.aa_required;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 26_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.a_asymmetric;
-                    let payload_size = (0_usize);
-                    super::super::serialize_field_header(writer, 28_u64, payload_size, false)?;
-                }
-
-                {
-                    let payload = &self.b_asymmetric;
-                    let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                    super::super::serialize_field_header(writer, 29_u64, payload_size, false)?;
-                    if payload.to_bits() != 0_u64 {
-                        writer.write_all(&payload.to_le_bytes())?;
-                    }
-                }
-
-                {
-                    let payload = &self.c_asymmetric;
-                    let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                    super::super::serialize_field_header(writer, 30_u64, payload_size, true)?;
-                    {
-                        let varint = *payload;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.d_asymmetric;
-                    let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::serialize_field_header(writer, 31_u64, payload_size, true)?;
-                    {
-                        let varint = super::super::zigzag_encode(*payload);
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.e_asymmetric;
-                    let payload_size = (if *payload { 1_usize } else { 0_usize });
-                    super::super::serialize_field_header(writer, 32_u64, payload_size, true)?;
-                    {
-                        let varint = *payload as u64;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.f_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 33_u64, payload_size, false)?;
-                    writer.write_all(payload)?;
-                }
-
-                {
-                    let payload = &self.g_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 34_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.h_asymmetric;
-                    let payload_size = (payload.size());
-                    super::super::serialize_field_header(writer, 35_u64, payload_size, false)?;
-                    payload.serialize(writer)?;
-                }
-
-                {
-                    let payload = &self.i_asymmetric;
-                    let payload_size = (payload.size());
-                    super::super::serialize_field_header(writer, 36_u64, payload_size, false)?;
-                    payload.serialize(writer)?;
-                }
-
-                {
-                    let payload = &self.j_asymmetric;
-                    let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::serialize_field_header(writer, 37_u64, payload_size, false)?;
-                    {
-                        let varint = payload.len() as u64 as u64;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.k_asymmetric;
-                    let payload_size = (8_usize * payload.len());
-                    super::super::serialize_field_header(writer, 38_u64, payload_size, false)?;
-                    for payload in payload {
-                        writer.write_all(&payload.to_le_bytes())?;
-                    }
-                }
-
-                {
-                    let payload = &self.l_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                    super::super::serialize_field_header(writer, 39_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = *payload;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.m_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                    super::super::serialize_field_header(writer, 40_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = super::super::zigzag_encode(*payload);
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.n_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                    super::super::serialize_field_header(writer, 41_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = *payload as u64;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.o_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 42_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.len()) as u64, writer)?;
-                        writer.write_all(payload)?;
-                    }
-                }
-
-                {
-                    let payload = &self.p_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 43_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.len()) as u64, writer)?;
-                        writer.write_all(payload.as_bytes())?;
-                    }
-                }
-
-                {
-                    let payload = &self.q_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 44_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.size()) as u64, writer)?;
-                        payload.serialize(writer)?;
-                    }
-                }
-
-                {
-                    let payload = &self.r_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 45_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.size()) as u64, writer)?;
-                        payload.serialize(writer)?;
-                    }
-                }
-
-                {
-                    let payload = &self.s_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 46_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint(({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }) as u64, writer)?;
-                        {
-                            let varint = payload.len() as u64 as u64;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.t_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 47_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((8_usize * payload.len()) as u64, writer)?;
-                        for payload in payload {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.u_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 48_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.v_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 49_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = super::super::zigzag_encode(*payload);
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.w_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 50_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (1_usize))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.x_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 51_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.y_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 52_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.z_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 53_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                    }
-                }
-
-                {
-                    let payload = &self.aa_asymmetric;
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 54_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.a_optional {
-                    let payload_size = (0_usize);
-                    super::super::serialize_field_header(writer, 56_u64, payload_size, false)?;
-                }
-
-                if let Some(payload) = &self.b_optional {
-                    let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                    super::super::serialize_field_header(writer, 57_u64, payload_size, false)?;
-                    if payload.to_bits() != 0_u64 {
-                        writer.write_all(&payload.to_le_bytes())?;
-                    }
-                }
-
-                if let Some(payload) = &self.c_optional {
-                    let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                    super::super::serialize_field_header(writer, 58_u64, payload_size, true)?;
-                    {
-                        let varint = *payload;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.d_optional {
-                    let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::serialize_field_header(writer, 59_u64, payload_size, true)?;
-                    {
-                        let varint = super::super::zigzag_encode(*payload);
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.e_optional {
-                    let payload_size = (if *payload { 1_usize } else { 0_usize });
-                    super::super::serialize_field_header(writer, 60_u64, payload_size, true)?;
-                    {
-                        let varint = *payload as u64;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.f_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 61_u64, payload_size, false)?;
-                    writer.write_all(payload)?;
-                }
-
-                if let Some(payload) = &self.g_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 62_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.h_optional {
-                    let payload_size = (payload.size());
-                    super::super::serialize_field_header(writer, 63_u64, payload_size, false)?;
-                    payload.serialize(writer)?;
-                }
-
-                if let Some(payload) = &self.i_optional {
-                    let payload_size = (payload.size());
-                    super::super::serialize_field_header(writer, 64_u64, payload_size, false)?;
-                    payload.serialize(writer)?;
-                }
-
-                if let Some(payload) = &self.j_optional {
-                    let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                    super::super::serialize_field_header(writer, 65_u64, payload_size, false)?;
-                    {
-                        let varint = payload.len() as u64 as u64;
-                        match varint {
-                            0_u64 => {}
-                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.k_optional {
-                    let payload_size = (8_usize * payload.len());
-                    super::super::serialize_field_header(writer, 66_u64, payload_size, false)?;
-                    for payload in payload {
-                        writer.write_all(&payload.to_le_bytes())?;
-                    }
-                }
-
-                if let Some(payload) = &self.l_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                    super::super::serialize_field_header(writer, 67_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = *payload;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.m_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                    super::super::serialize_field_header(writer, 68_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = super::super::zigzag_encode(*payload);
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.n_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                    super::super::serialize_field_header(writer, 69_u64, payload_size, false)?;
-                    for payload in payload {
-                        {
-                            let varint = *payload as u64;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.o_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 70_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.len()) as u64, writer)?;
-                        writer.write_all(payload)?;
-                    }
-                }
-
-                if let Some(payload) = &self.p_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 71_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.len()) as u64, writer)?;
-                        writer.write_all(payload.as_bytes())?;
-                    }
-                }
-
-                if let Some(payload) = &self.q_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 72_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.size()) as u64, writer)?;
-                        payload.serialize(writer)?;
-                    }
-                }
-
-                if let Some(payload) = &self.r_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 73_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.size()) as u64, writer)?;
-                        payload.serialize(writer)?;
-                    }
-                }
-
-                if let Some(payload) = &self.s_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 74_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint(({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }) as u64, writer)?;
-                        {
-                            let varint = payload.len() as u64 as u64;
-                            super::super::serialize_varint(varint, writer)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.t_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 75_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((8_usize * payload.len()) as u64, writer)?;
-                        for payload in payload {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.u_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 76_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.v_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 77_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = super::super::zigzag_encode(*payload);
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.w_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 78_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (1_usize))) as u64, writer)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.x_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 79_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.y_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 80_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.z_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 81_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                    }
-                }
-
-                if let Some(payload) = &self.aa_optional {
-                    let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                    super::super::serialize_field_header(writer, 82_u64, payload_size, false)?;
-                    for payload in payload {
-                        super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                    }
-                }
-
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -1823,87 +919,87 @@ pub mod comprehensive {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut a_required_field: Option<()> = None;
-                let mut b_required_field: Option<f64> = None;
-                let mut c_required_field: Option<u64> = None;
-                let mut d_required_field: Option<i64> = None;
-                let mut e_required_field: Option<bool> = None;
-                let mut f_required_field: Option<Vec<u8>> = None;
-                let mut g_required_field: Option<String> = None;
-                let mut h_required_field: Option<LocalStructIn> = None;
-                let mut i_required_field: Option<super::super::degenerate::types::EmptyStructIn> = None;
-                let mut j_required_field: Option<Vec<()>> = None;
-                let mut k_required_field: Option<Vec<f64>> = None;
-                let mut l_required_field: Option<Vec<u64>> = None;
-                let mut m_required_field: Option<Vec<i64>> = None;
-                let mut n_required_field: Option<Vec<bool>> = None;
-                let mut o_required_field: Option<Vec<Vec<u8>>> = None;
-                let mut p_required_field: Option<Vec<String>> = None;
-                let mut q_required_field: Option<Vec<LocalStructIn>> = None;
-                let mut r_required_field: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
-                let mut s_required_field: Option<Vec<Vec<()>>> = None;
-                let mut t_required_field: Option<Vec<Vec<f64>>> = None;
-                let mut u_required_field: Option<Vec<Vec<u64>>> = None;
-                let mut v_required_field: Option<Vec<Vec<i64>>> = None;
-                let mut w_required_field: Option<Vec<Vec<bool>>> = None;
-                let mut x_required_field: Option<Vec<Vec<Vec<u8>>>> = None;
-                let mut y_required_field: Option<Vec<Vec<String>>> = None;
-                let mut z_required_field: Option<Vec<Vec<LocalStructIn>>> = None;
-                let mut aa_required_field: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
-                let mut a_asymmetric_field: Option<()> = None;
-                let mut b_asymmetric_field: Option<f64> = None;
-                let mut c_asymmetric_field: Option<u64> = None;
-                let mut d_asymmetric_field: Option<i64> = None;
-                let mut e_asymmetric_field: Option<bool> = None;
-                let mut f_asymmetric_field: Option<Vec<u8>> = None;
-                let mut g_asymmetric_field: Option<String> = None;
-                let mut h_asymmetric_field: Option<LocalStructIn> = None;
-                let mut i_asymmetric_field: Option<super::super::degenerate::types::EmptyStructIn> = None;
-                let mut j_asymmetric_field: Option<Vec<()>> = None;
-                let mut k_asymmetric_field: Option<Vec<f64>> = None;
-                let mut l_asymmetric_field: Option<Vec<u64>> = None;
-                let mut m_asymmetric_field: Option<Vec<i64>> = None;
-                let mut n_asymmetric_field: Option<Vec<bool>> = None;
-                let mut o_asymmetric_field: Option<Vec<Vec<u8>>> = None;
-                let mut p_asymmetric_field: Option<Vec<String>> = None;
-                let mut q_asymmetric_field: Option<Vec<LocalStructIn>> = None;
-                let mut r_asymmetric_field: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
-                let mut s_asymmetric_field: Option<Vec<Vec<()>>> = None;
-                let mut t_asymmetric_field: Option<Vec<Vec<f64>>> = None;
-                let mut u_asymmetric_field: Option<Vec<Vec<u64>>> = None;
-                let mut v_asymmetric_field: Option<Vec<Vec<i64>>> = None;
-                let mut w_asymmetric_field: Option<Vec<Vec<bool>>> = None;
-                let mut x_asymmetric_field: Option<Vec<Vec<Vec<u8>>>> = None;
-                let mut y_asymmetric_field: Option<Vec<Vec<String>>> = None;
-                let mut z_asymmetric_field: Option<Vec<Vec<LocalStructIn>>> = None;
-                let mut aa_asymmetric_field: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
-                let mut a_optional_field: Option<()> = None;
-                let mut b_optional_field: Option<f64> = None;
-                let mut c_optional_field: Option<u64> = None;
-                let mut d_optional_field: Option<i64> = None;
-                let mut e_optional_field: Option<bool> = None;
-                let mut f_optional_field: Option<Vec<u8>> = None;
-                let mut g_optional_field: Option<String> = None;
-                let mut h_optional_field: Option<LocalStructIn> = None;
-                let mut i_optional_field: Option<super::super::degenerate::types::EmptyStructIn> = None;
-                let mut j_optional_field: Option<Vec<()>> = None;
-                let mut k_optional_field: Option<Vec<f64>> = None;
-                let mut l_optional_field: Option<Vec<u64>> = None;
-                let mut m_optional_field: Option<Vec<i64>> = None;
-                let mut n_optional_field: Option<Vec<bool>> = None;
-                let mut o_optional_field: Option<Vec<Vec<u8>>> = None;
-                let mut p_optional_field: Option<Vec<String>> = None;
-                let mut q_optional_field: Option<Vec<LocalStructIn>> = None;
-                let mut r_optional_field: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
-                let mut s_optional_field: Option<Vec<Vec<()>>> = None;
-                let mut t_optional_field: Option<Vec<Vec<f64>>> = None;
-                let mut u_optional_field: Option<Vec<Vec<u64>>> = None;
-                let mut v_optional_field: Option<Vec<Vec<i64>>> = None;
-                let mut w_optional_field: Option<Vec<Vec<bool>>> = None;
-                let mut x_optional_field: Option<Vec<Vec<Vec<u8>>>> = None;
-                let mut y_optional_field: Option<Vec<Vec<String>>> = None;
-                let mut z_optional_field: Option<Vec<Vec<LocalStructIn>>> = None;
-                let mut aa_optional_field: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
+                let mut _a_required: Option<()> = None;
+                let mut _b_required: Option<f64> = None;
+                let mut _c_required: Option<u64> = None;
+                let mut _d_required: Option<i64> = None;
+                let mut _e_required: Option<bool> = None;
+                let mut _f_required: Option<Vec<u8>> = None;
+                let mut _g_required: Option<String> = None;
+                let mut _h_required: Option<LocalStructIn> = None;
+                let mut _i_required: Option<super::super::degenerate::types::EmptyStructIn> = None;
+                let mut _j_required: Option<Vec<()>> = None;
+                let mut _k_required: Option<Vec<f64>> = None;
+                let mut _l_required: Option<Vec<u64>> = None;
+                let mut _m_required: Option<Vec<i64>> = None;
+                let mut _n_required: Option<Vec<bool>> = None;
+                let mut _o_required: Option<Vec<Vec<u8>>> = None;
+                let mut _p_required: Option<Vec<String>> = None;
+                let mut _q_required: Option<Vec<LocalStructIn>> = None;
+                let mut _r_required: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
+                let mut _s_required: Option<Vec<Vec<()>>> = None;
+                let mut _t_required: Option<Vec<Vec<f64>>> = None;
+                let mut _u_required: Option<Vec<Vec<u64>>> = None;
+                let mut _v_required: Option<Vec<Vec<i64>>> = None;
+                let mut _w_required: Option<Vec<Vec<bool>>> = None;
+                let mut _x_required: Option<Vec<Vec<Vec<u8>>>> = None;
+                let mut _y_required: Option<Vec<Vec<String>>> = None;
+                let mut _z_required: Option<Vec<Vec<LocalStructIn>>> = None;
+                let mut _aa_required: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
+                let mut _a_asymmetric: Option<()> = None;
+                let mut _b_asymmetric: Option<f64> = None;
+                let mut _c_asymmetric: Option<u64> = None;
+                let mut _d_asymmetric: Option<i64> = None;
+                let mut _e_asymmetric: Option<bool> = None;
+                let mut _f_asymmetric: Option<Vec<u8>> = None;
+                let mut _g_asymmetric: Option<String> = None;
+                let mut _h_asymmetric: Option<LocalStructIn> = None;
+                let mut _i_asymmetric: Option<super::super::degenerate::types::EmptyStructIn> = None;
+                let mut _j_asymmetric: Option<Vec<()>> = None;
+                let mut _k_asymmetric: Option<Vec<f64>> = None;
+                let mut _l_asymmetric: Option<Vec<u64>> = None;
+                let mut _m_asymmetric: Option<Vec<i64>> = None;
+                let mut _n_asymmetric: Option<Vec<bool>> = None;
+                let mut _o_asymmetric: Option<Vec<Vec<u8>>> = None;
+                let mut _p_asymmetric: Option<Vec<String>> = None;
+                let mut _q_asymmetric: Option<Vec<LocalStructIn>> = None;
+                let mut _r_asymmetric: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
+                let mut _s_asymmetric: Option<Vec<Vec<()>>> = None;
+                let mut _t_asymmetric: Option<Vec<Vec<f64>>> = None;
+                let mut _u_asymmetric: Option<Vec<Vec<u64>>> = None;
+                let mut _v_asymmetric: Option<Vec<Vec<i64>>> = None;
+                let mut _w_asymmetric: Option<Vec<Vec<bool>>> = None;
+                let mut _x_asymmetric: Option<Vec<Vec<Vec<u8>>>> = None;
+                let mut _y_asymmetric: Option<Vec<Vec<String>>> = None;
+                let mut _z_asymmetric: Option<Vec<Vec<LocalStructIn>>> = None;
+                let mut _aa_asymmetric: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
+                let mut _a_optional: Option<()> = None;
+                let mut _b_optional: Option<f64> = None;
+                let mut _c_optional: Option<u64> = None;
+                let mut _d_optional: Option<i64> = None;
+                let mut _e_optional: Option<bool> = None;
+                let mut _f_optional: Option<Vec<u8>> = None;
+                let mut _g_optional: Option<String> = None;
+                let mut _h_optional: Option<LocalStructIn> = None;
+                let mut _i_optional: Option<super::super::degenerate::types::EmptyStructIn> = None;
+                let mut _j_optional: Option<Vec<()>> = None;
+                let mut _k_optional: Option<Vec<f64>> = None;
+                let mut _l_optional: Option<Vec<u64>> = None;
+                let mut _m_optional: Option<Vec<i64>> = None;
+                let mut _n_optional: Option<Vec<bool>> = None;
+                let mut _o_optional: Option<Vec<Vec<u8>>> = None;
+                let mut _p_optional: Option<Vec<String>> = None;
+                let mut _q_optional: Option<Vec<LocalStructIn>> = None;
+                let mut _r_optional: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
+                let mut _s_optional: Option<Vec<Vec<()>>> = None;
+                let mut _t_optional: Option<Vec<Vec<f64>>> = None;
+                let mut _u_optional: Option<Vec<Vec<u64>>> = None;
+                let mut _v_optional: Option<Vec<Vec<i64>>> = None;
+                let mut _w_optional: Option<Vec<Vec<bool>>> = None;
+                let mut _x_optional: Option<Vec<Vec<Vec<u8>>>> = None;
+                let mut _y_optional: Option<Vec<Vec<String>>> = None;
+                let mut _z_optional: Option<Vec<Vec<LocalStructIn>>> = None;
+                let mut _aa_optional: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
 
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
@@ -1922,7 +1018,7 @@ pub mod comprehensive {
                     match index {
                         0 => {
                             let payload = ();
-                            a_required_field.get_or_insert(payload);
+                            _a_required.get_or_insert(payload);
                         }
                         1 => {
                             let payload = if payload_size == 0_usize {
@@ -1932,7 +1028,7 @@ pub mod comprehensive {
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 f64::from_le_bytes(buffer)
                             };
-                            b_required_field.get_or_insert(payload);
+                            _b_required.get_or_insert(payload);
                         }
                         2 => {
                             let payload = match payload_size {
@@ -1944,7 +1040,7 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
-                            c_required_field.get_or_insert(payload);
+                            _c_required.get_or_insert(payload);
                         }
                         3 => {
                             let payload = match payload_size {
@@ -1957,7 +1053,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
-                            d_required_field.get_or_insert(payload);
+                            _d_required.get_or_insert(payload);
                         }
                         4 => {
                             let payload = match payload_size {
@@ -1970,12 +1066,12 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = payload != 0_u64;
-                            e_required_field.get_or_insert(payload);
+                            _e_required.get_or_insert(payload);
                         }
                         5 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            f_required_field.get_or_insert(payload);
+                            _f_required.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -1984,15 +1080,15 @@ pub mod comprehensive {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            g_required_field.get_or_insert(payload);
+                            _g_required.get_or_insert(payload);
                         }
                         7 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            h_required_field.get_or_insert(payload);
+                            _h_required.get_or_insert(payload);
                         }
                         8 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            i_required_field.get_or_insert(payload);
+                            _i_required.get_or_insert(payload);
                         }
                         9 => {
                             let payload = match payload_size {
@@ -2005,7 +1101,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = vec![(); payload as usize];
-                            j_required_field.get_or_insert(payload);
+                            _j_required.get_or_insert(payload);
                         }
                         10 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
@@ -2026,7 +1122,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            k_required_field.get_or_insert(payload);
+                            _k_required.get_or_insert(payload);
                         }
                         11 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
@@ -2045,7 +1141,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            l_required_field.get_or_insert(payload);
+                            _l_required.get_or_insert(payload);
                         }
                         12 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
@@ -2065,7 +1161,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            m_required_field.get_or_insert(payload);
+                            _m_required.get_or_insert(payload);
                         }
                         13 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
@@ -2085,7 +1181,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            n_required_field.get_or_insert(payload);
+                            _n_required.get_or_insert(payload);
                         }
                         14 => {
                             let mut payload = Vec::new();
@@ -2106,7 +1202,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            o_required_field.get_or_insert(payload);
+                            _o_required.get_or_insert(payload);
                         }
                         15 => {
                             let mut payload = Vec::new();
@@ -2131,7 +1227,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            p_required_field.get_or_insert(payload);
+                            _p_required.get_or_insert(payload);
                         }
                         16 => {
                             let mut payload = Vec::new();
@@ -2151,7 +1247,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            q_required_field.get_or_insert(payload);
+                            _q_required.get_or_insert(payload);
                         }
                         17 => {
                             let mut payload = Vec::new();
@@ -2171,7 +1267,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            r_required_field.get_or_insert(payload);
+                            _r_required.get_or_insert(payload);
                         }
                         18 => {
                             let mut payload = Vec::new();
@@ -2192,7 +1288,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            s_required_field.get_or_insert(payload);
+                            _s_required.get_or_insert(payload);
                         }
                         19 => {
                             let mut payload = Vec::new();
@@ -2229,7 +1325,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            t_required_field.get_or_insert(payload);
+                            _t_required.get_or_insert(payload);
                         }
                         20 => {
                             let mut payload = Vec::new();
@@ -2264,7 +1360,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            u_required_field.get_or_insert(payload);
+                            _u_required.get_or_insert(payload);
                         }
                         21 => {
                             let mut payload = Vec::new();
@@ -2300,7 +1396,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            v_required_field.get_or_insert(payload);
+                            _v_required.get_or_insert(payload);
                         }
                         22 => {
                             let mut payload = Vec::new();
@@ -2336,7 +1432,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            w_required_field.get_or_insert(payload);
+                            _w_required.get_or_insert(payload);
                         }
                         23 => {
                             let mut payload = Vec::new();
@@ -2373,7 +1469,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            x_required_field.get_or_insert(payload);
+                            _x_required.get_or_insert(payload);
                         }
                         24 => {
                             let mut payload = Vec::new();
@@ -2414,7 +1510,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            y_required_field.get_or_insert(payload);
+                            _y_required.get_or_insert(payload);
                         }
                         25 => {
                             let mut payload = Vec::new();
@@ -2450,7 +1546,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            z_required_field.get_or_insert(payload);
+                            _z_required.get_or_insert(payload);
                         }
                         26 => {
                             let mut payload = Vec::new();
@@ -2486,11 +1582,11 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            aa_required_field.get_or_insert(payload);
+                            _aa_required.get_or_insert(payload);
                         }
                         28 => {
                             let payload = ();
-                            a_asymmetric_field.get_or_insert(payload);
+                            _a_asymmetric.get_or_insert(payload);
                         }
                         29 => {
                             let payload = if payload_size == 0_usize {
@@ -2500,7 +1596,7 @@ pub mod comprehensive {
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 f64::from_le_bytes(buffer)
                             };
-                            b_asymmetric_field.get_or_insert(payload);
+                            _b_asymmetric.get_or_insert(payload);
                         }
                         30 => {
                             let payload = match payload_size {
@@ -2512,7 +1608,7 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
-                            c_asymmetric_field.get_or_insert(payload);
+                            _c_asymmetric.get_or_insert(payload);
                         }
                         31 => {
                             let payload = match payload_size {
@@ -2525,7 +1621,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
-                            d_asymmetric_field.get_or_insert(payload);
+                            _d_asymmetric.get_or_insert(payload);
                         }
                         32 => {
                             let payload = match payload_size {
@@ -2538,12 +1634,12 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = payload != 0_u64;
-                            e_asymmetric_field.get_or_insert(payload);
+                            _e_asymmetric.get_or_insert(payload);
                         }
                         33 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            f_asymmetric_field.get_or_insert(payload);
+                            _f_asymmetric.get_or_insert(payload);
                         }
                         34 => {
                             let mut buffer = vec![];
@@ -2552,15 +1648,15 @@ pub mod comprehensive {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            g_asymmetric_field.get_or_insert(payload);
+                            _g_asymmetric.get_or_insert(payload);
                         }
                         35 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            h_asymmetric_field.get_or_insert(payload);
+                            _h_asymmetric.get_or_insert(payload);
                         }
                         36 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            i_asymmetric_field.get_or_insert(payload);
+                            _i_asymmetric.get_or_insert(payload);
                         }
                         37 => {
                             let payload = match payload_size {
@@ -2573,7 +1669,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = vec![(); payload as usize];
-                            j_asymmetric_field.get_or_insert(payload);
+                            _j_asymmetric.get_or_insert(payload);
                         }
                         38 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
@@ -2594,7 +1690,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            k_asymmetric_field.get_or_insert(payload);
+                            _k_asymmetric.get_or_insert(payload);
                         }
                         39 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
@@ -2613,7 +1709,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            l_asymmetric_field.get_or_insert(payload);
+                            _l_asymmetric.get_or_insert(payload);
                         }
                         40 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
@@ -2633,7 +1729,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            m_asymmetric_field.get_or_insert(payload);
+                            _m_asymmetric.get_or_insert(payload);
                         }
                         41 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
@@ -2653,7 +1749,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            n_asymmetric_field.get_or_insert(payload);
+                            _n_asymmetric.get_or_insert(payload);
                         }
                         42 => {
                             let mut payload = Vec::new();
@@ -2674,7 +1770,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            o_asymmetric_field.get_or_insert(payload);
+                            _o_asymmetric.get_or_insert(payload);
                         }
                         43 => {
                             let mut payload = Vec::new();
@@ -2699,7 +1795,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            p_asymmetric_field.get_or_insert(payload);
+                            _p_asymmetric.get_or_insert(payload);
                         }
                         44 => {
                             let mut payload = Vec::new();
@@ -2719,7 +1815,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            q_asymmetric_field.get_or_insert(payload);
+                            _q_asymmetric.get_or_insert(payload);
                         }
                         45 => {
                             let mut payload = Vec::new();
@@ -2739,7 +1835,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            r_asymmetric_field.get_or_insert(payload);
+                            _r_asymmetric.get_or_insert(payload);
                         }
                         46 => {
                             let mut payload = Vec::new();
@@ -2760,7 +1856,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            s_asymmetric_field.get_or_insert(payload);
+                            _s_asymmetric.get_or_insert(payload);
                         }
                         47 => {
                             let mut payload = Vec::new();
@@ -2797,7 +1893,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            t_asymmetric_field.get_or_insert(payload);
+                            _t_asymmetric.get_or_insert(payload);
                         }
                         48 => {
                             let mut payload = Vec::new();
@@ -2832,7 +1928,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            u_asymmetric_field.get_or_insert(payload);
+                            _u_asymmetric.get_or_insert(payload);
                         }
                         49 => {
                             let mut payload = Vec::new();
@@ -2868,7 +1964,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            v_asymmetric_field.get_or_insert(payload);
+                            _v_asymmetric.get_or_insert(payload);
                         }
                         50 => {
                             let mut payload = Vec::new();
@@ -2904,7 +2000,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            w_asymmetric_field.get_or_insert(payload);
+                            _w_asymmetric.get_or_insert(payload);
                         }
                         51 => {
                             let mut payload = Vec::new();
@@ -2941,7 +2037,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            x_asymmetric_field.get_or_insert(payload);
+                            _x_asymmetric.get_or_insert(payload);
                         }
                         52 => {
                             let mut payload = Vec::new();
@@ -2982,7 +2078,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            y_asymmetric_field.get_or_insert(payload);
+                            _y_asymmetric.get_or_insert(payload);
                         }
                         53 => {
                             let mut payload = Vec::new();
@@ -3018,7 +2114,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            z_asymmetric_field.get_or_insert(payload);
+                            _z_asymmetric.get_or_insert(payload);
                         }
                         54 => {
                             let mut payload = Vec::new();
@@ -3054,11 +2150,11 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            aa_asymmetric_field.get_or_insert(payload);
+                            _aa_asymmetric.get_or_insert(payload);
                         }
                         56 => {
                             let payload = ();
-                            a_optional_field.get_or_insert(payload);
+                            _a_optional.get_or_insert(payload);
                         }
                         57 => {
                             let payload = if payload_size == 0_usize {
@@ -3068,7 +2164,7 @@ pub mod comprehensive {
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 f64::from_le_bytes(buffer)
                             };
-                            b_optional_field.get_or_insert(payload);
+                            _b_optional.get_or_insert(payload);
                         }
                         58 => {
                             let payload = match payload_size {
@@ -3080,7 +2176,7 @@ pub mod comprehensive {
                                 }
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
-                            c_optional_field.get_or_insert(payload);
+                            _c_optional.get_or_insert(payload);
                         }
                         59 => {
                             let payload = match payload_size {
@@ -3093,7 +2189,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = super::super::zigzag_decode(payload);
-                            d_optional_field.get_or_insert(payload);
+                            _d_optional.get_or_insert(payload);
                         }
                         60 => {
                             let payload = match payload_size {
@@ -3106,12 +2202,12 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = payload != 0_u64;
-                            e_optional_field.get_or_insert(payload);
+                            _e_optional.get_or_insert(payload);
                         }
                         61 => {
                             let mut payload = vec![];
                             ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            f_optional_field.get_or_insert(payload);
+                            _f_optional.get_or_insert(payload);
                         }
                         62 => {
                             let mut buffer = vec![];
@@ -3120,15 +2216,15 @@ pub mod comprehensive {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            g_optional_field.get_or_insert(payload);
+                            _g_optional.get_or_insert(payload);
                         }
                         63 => {
                             let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            h_optional_field.get_or_insert(payload);
+                            _h_optional.get_or_insert(payload);
                         }
                         64 => {
                             let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            i_optional_field.get_or_insert(payload);
+                            _i_optional.get_or_insert(payload);
                         }
                         65 => {
                             let payload = match payload_size {
@@ -3141,7 +2237,7 @@ pub mod comprehensive {
                                 _ => super::super::deserialize_varint(&mut sub_reader)?,
                             };
                             let payload = vec![(); payload as usize];
-                            j_optional_field.get_or_insert(payload);
+                            _j_optional.get_or_insert(payload);
                         }
                         66 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
@@ -3162,7 +2258,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            k_optional_field.get_or_insert(payload);
+                            _k_optional.get_or_insert(payload);
                         }
                         67 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
@@ -3181,7 +2277,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            l_optional_field.get_or_insert(payload);
+                            _l_optional.get_or_insert(payload);
                         }
                         68 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
@@ -3201,7 +2297,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            m_optional_field.get_or_insert(payload);
+                            _m_optional.get_or_insert(payload);
                         }
                         69 => {
                             fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
@@ -3221,7 +2317,7 @@ pub mod comprehensive {
                                     }
                                 });
                             }
-                            n_optional_field.get_or_insert(payload);
+                            _n_optional.get_or_insert(payload);
                         }
                         70 => {
                             let mut payload = Vec::new();
@@ -3242,7 +2338,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            o_optional_field.get_or_insert(payload);
+                            _o_optional.get_or_insert(payload);
                         }
                         71 => {
                             let mut payload = Vec::new();
@@ -3267,7 +2363,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            p_optional_field.get_or_insert(payload);
+                            _p_optional.get_or_insert(payload);
                         }
                         72 => {
                             let mut payload = Vec::new();
@@ -3287,7 +2383,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            q_optional_field.get_or_insert(payload);
+                            _q_optional.get_or_insert(payload);
                         }
                         73 => {
                             let mut payload = Vec::new();
@@ -3307,7 +2403,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            r_optional_field.get_or_insert(payload);
+                            _r_optional.get_or_insert(payload);
                         }
                         74 => {
                             let mut payload = Vec::new();
@@ -3328,7 +2424,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            s_optional_field.get_or_insert(payload);
+                            _s_optional.get_or_insert(payload);
                         }
                         75 => {
                             let mut payload = Vec::new();
@@ -3365,7 +2461,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            t_optional_field.get_or_insert(payload);
+                            _t_optional.get_or_insert(payload);
                         }
                         76 => {
                             let mut payload = Vec::new();
@@ -3400,7 +2496,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            u_optional_field.get_or_insert(payload);
+                            _u_optional.get_or_insert(payload);
                         }
                         77 => {
                             let mut payload = Vec::new();
@@ -3436,7 +2532,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            v_optional_field.get_or_insert(payload);
+                            _v_optional.get_or_insert(payload);
                         }
                         78 => {
                             let mut payload = Vec::new();
@@ -3472,7 +2568,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            w_optional_field.get_or_insert(payload);
+                            _w_optional.get_or_insert(payload);
                         }
                         79 => {
                             let mut payload = Vec::new();
@@ -3509,7 +2605,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            x_optional_field.get_or_insert(payload);
+                            _x_optional.get_or_insert(payload);
                         }
                         80 => {
                             let mut payload = Vec::new();
@@ -3550,7 +2646,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            y_optional_field.get_or_insert(payload);
+                            _y_optional.get_or_insert(payload);
                         }
                         81 => {
                             let mut payload = Vec::new();
@@ -3586,7 +2682,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            z_optional_field.get_or_insert(payload);
+                            _z_optional.get_or_insert(payload);
                         }
                         82 => {
                             let mut payload = Vec::new();
@@ -3622,7 +2718,7 @@ pub mod comprehensive {
                                     payload
                                 });
                             }
-                            aa_optional_field.get_or_insert(payload);
+                            _aa_optional.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -3630,7 +2726,33 @@ pub mod comprehensive {
                     }
                 }
 
-                if a_required_field.is_none() || b_required_field.is_none() || c_required_field.is_none() || d_required_field.is_none() || e_required_field.is_none() || f_required_field.is_none() || g_required_field.is_none() || h_required_field.is_none() || i_required_field.is_none() || j_required_field.is_none() || k_required_field.is_none() || l_required_field.is_none() || m_required_field.is_none() || n_required_field.is_none() || o_required_field.is_none() || p_required_field.is_none() || q_required_field.is_none() || r_required_field.is_none() || s_required_field.is_none() || t_required_field.is_none() || u_required_field.is_none() || v_required_field.is_none() || w_required_field.is_none() || x_required_field.is_none() || y_required_field.is_none() || z_required_field.is_none() || aa_required_field.is_none() {
+                if _a_required.is_none()
+                    || _b_required.is_none()
+                    || _c_required.is_none()
+                    || _d_required.is_none()
+                    || _e_required.is_none()
+                    || _f_required.is_none()
+                    || _g_required.is_none()
+                    || _h_required.is_none()
+                    || _i_required.is_none()
+                    || _j_required.is_none()
+                    || _k_required.is_none()
+                    || _l_required.is_none()
+                    || _m_required.is_none()
+                    || _n_required.is_none()
+                    || _o_required.is_none()
+                    || _p_required.is_none()
+                    || _q_required.is_none()
+                    || _r_required.is_none()
+                    || _s_required.is_none()
+                    || _t_required.is_none()
+                    || _u_required.is_none()
+                    || _v_required.is_none()
+                    || _w_required.is_none()
+                    || _x_required.is_none()
+                    || _y_required.is_none()
+                    || _z_required.is_none()
+                    || _aa_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         "Struct missing one or more field(s).",
@@ -3638,87 +2760,87 @@ pub mod comprehensive {
                 }
 
                 Ok(FooIn {
-                    a_required: a_required_field.unwrap(),
-                    b_required: b_required_field.unwrap(),
-                    c_required: c_required_field.unwrap(),
-                    d_required: d_required_field.unwrap(),
-                    e_required: e_required_field.unwrap(),
-                    f_required: f_required_field.unwrap(),
-                    g_required: g_required_field.unwrap(),
-                    h_required: h_required_field.unwrap(),
-                    i_required: i_required_field.unwrap(),
-                    j_required: j_required_field.unwrap(),
-                    k_required: k_required_field.unwrap(),
-                    l_required: l_required_field.unwrap(),
-                    m_required: m_required_field.unwrap(),
-                    n_required: n_required_field.unwrap(),
-                    o_required: o_required_field.unwrap(),
-                    p_required: p_required_field.unwrap(),
-                    q_required: q_required_field.unwrap(),
-                    r_required: r_required_field.unwrap(),
-                    s_required: s_required_field.unwrap(),
-                    t_required: t_required_field.unwrap(),
-                    u_required: u_required_field.unwrap(),
-                    v_required: v_required_field.unwrap(),
-                    w_required: w_required_field.unwrap(),
-                    x_required: x_required_field.unwrap(),
-                    y_required: y_required_field.unwrap(),
-                    z_required: z_required_field.unwrap(),
-                    aa_required: aa_required_field.unwrap(),
-                    a_asymmetric: a_asymmetric_field,
-                    b_asymmetric: b_asymmetric_field,
-                    c_asymmetric: c_asymmetric_field,
-                    d_asymmetric: d_asymmetric_field,
-                    e_asymmetric: e_asymmetric_field,
-                    f_asymmetric: f_asymmetric_field,
-                    g_asymmetric: g_asymmetric_field,
-                    h_asymmetric: h_asymmetric_field,
-                    i_asymmetric: i_asymmetric_field,
-                    j_asymmetric: j_asymmetric_field,
-                    k_asymmetric: k_asymmetric_field,
-                    l_asymmetric: l_asymmetric_field,
-                    m_asymmetric: m_asymmetric_field,
-                    n_asymmetric: n_asymmetric_field,
-                    o_asymmetric: o_asymmetric_field,
-                    p_asymmetric: p_asymmetric_field,
-                    q_asymmetric: q_asymmetric_field,
-                    r_asymmetric: r_asymmetric_field,
-                    s_asymmetric: s_asymmetric_field,
-                    t_asymmetric: t_asymmetric_field,
-                    u_asymmetric: u_asymmetric_field,
-                    v_asymmetric: v_asymmetric_field,
-                    w_asymmetric: w_asymmetric_field,
-                    x_asymmetric: x_asymmetric_field,
-                    y_asymmetric: y_asymmetric_field,
-                    z_asymmetric: z_asymmetric_field,
-                    aa_asymmetric: aa_asymmetric_field,
-                    a_optional: a_optional_field,
-                    b_optional: b_optional_field,
-                    c_optional: c_optional_field,
-                    d_optional: d_optional_field,
-                    e_optional: e_optional_field,
-                    f_optional: f_optional_field,
-                    g_optional: g_optional_field,
-                    h_optional: h_optional_field,
-                    i_optional: i_optional_field,
-                    j_optional: j_optional_field,
-                    k_optional: k_optional_field,
-                    l_optional: l_optional_field,
-                    m_optional: m_optional_field,
-                    n_optional: n_optional_field,
-                    o_optional: o_optional_field,
-                    p_optional: p_optional_field,
-                    q_optional: q_optional_field,
-                    r_optional: r_optional_field,
-                    s_optional: s_optional_field,
-                    t_optional: t_optional_field,
-                    u_optional: u_optional_field,
-                    v_optional: v_optional_field,
-                    w_optional: w_optional_field,
-                    x_optional: x_optional_field,
-                    y_optional: y_optional_field,
-                    z_optional: z_optional_field,
-                    aa_optional: aa_optional_field,
+                    a_required: _a_required.unwrap(),
+                    b_required: _b_required.unwrap(),
+                    c_required: _c_required.unwrap(),
+                    d_required: _d_required.unwrap(),
+                    e_required: _e_required.unwrap(),
+                    f_required: _f_required.unwrap(),
+                    g_required: _g_required.unwrap(),
+                    h_required: _h_required.unwrap(),
+                    i_required: _i_required.unwrap(),
+                    j_required: _j_required.unwrap(),
+                    k_required: _k_required.unwrap(),
+                    l_required: _l_required.unwrap(),
+                    m_required: _m_required.unwrap(),
+                    n_required: _n_required.unwrap(),
+                    o_required: _o_required.unwrap(),
+                    p_required: _p_required.unwrap(),
+                    q_required: _q_required.unwrap(),
+                    r_required: _r_required.unwrap(),
+                    s_required: _s_required.unwrap(),
+                    t_required: _t_required.unwrap(),
+                    u_required: _u_required.unwrap(),
+                    v_required: _v_required.unwrap(),
+                    w_required: _w_required.unwrap(),
+                    x_required: _x_required.unwrap(),
+                    y_required: _y_required.unwrap(),
+                    z_required: _z_required.unwrap(),
+                    aa_required: _aa_required.unwrap(),
+                    a_asymmetric: _a_asymmetric,
+                    b_asymmetric: _b_asymmetric,
+                    c_asymmetric: _c_asymmetric,
+                    d_asymmetric: _d_asymmetric,
+                    e_asymmetric: _e_asymmetric,
+                    f_asymmetric: _f_asymmetric,
+                    g_asymmetric: _g_asymmetric,
+                    h_asymmetric: _h_asymmetric,
+                    i_asymmetric: _i_asymmetric,
+                    j_asymmetric: _j_asymmetric,
+                    k_asymmetric: _k_asymmetric,
+                    l_asymmetric: _l_asymmetric,
+                    m_asymmetric: _m_asymmetric,
+                    n_asymmetric: _n_asymmetric,
+                    o_asymmetric: _o_asymmetric,
+                    p_asymmetric: _p_asymmetric,
+                    q_asymmetric: _q_asymmetric,
+                    r_asymmetric: _r_asymmetric,
+                    s_asymmetric: _s_asymmetric,
+                    t_asymmetric: _t_asymmetric,
+                    u_asymmetric: _u_asymmetric,
+                    v_asymmetric: _v_asymmetric,
+                    w_asymmetric: _w_asymmetric,
+                    x_asymmetric: _x_asymmetric,
+                    y_asymmetric: _y_asymmetric,
+                    z_asymmetric: _z_asymmetric,
+                    aa_asymmetric: _aa_asymmetric,
+                    a_optional: _a_optional,
+                    b_optional: _b_optional,
+                    c_optional: _c_optional,
+                    d_optional: _d_optional,
+                    e_optional: _e_optional,
+                    f_optional: _f_optional,
+                    g_optional: _g_optional,
+                    h_optional: _h_optional,
+                    i_optional: _i_optional,
+                    j_optional: _j_optional,
+                    k_optional: _k_optional,
+                    l_optional: _l_optional,
+                    m_optional: _m_optional,
+                    n_optional: _n_optional,
+                    o_optional: _o_optional,
+                    p_optional: _p_optional,
+                    q_optional: _q_optional,
+                    r_optional: _r_optional,
+                    s_optional: _s_optional,
+                    t_optional: _t_optional,
+                    u_optional: _u_optional,
+                    v_optional: _v_optional,
+                    w_optional: _w_optional,
+                    x_optional: _x_optional,
+                    y_optional: _y_optional,
+                    z_optional: _z_optional,
+                    aa_optional: _aa_optional,
                 })
             }
         }
@@ -3809,6 +2931,1221 @@ pub mod comprehensive {
                     aa_optional: message.aa_optional.map(|payload| payload.into_iter().map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<_>>()).collect::<Vec<_>>()),
                 }
             }
+        }
+
+        impl FooOut {
+            pub fn atlas(&self) -> FooAtlas {
+                let _a_required = { let payload = &self.a_required; (0_usize) };
+                let _b_required = { let payload = &self.b_required; (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize }) };
+                let _c_required = { let payload = &self.c_required; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) };
+                let _d_required = { let payload = &self.d_required; ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }) };
+                let _e_required = { let payload = &self.e_required; (if *payload { 1_usize } else { 0_usize }) };
+                let _f_required = { let payload = &self.f_required; (payload.len()) };
+                let _g_required = { let payload = &self.g_required; (payload.len()) };
+                let _h_required = { let payload = &self.h_required; (payload.atlas()) };
+                let _i_required = { let payload = &self.i_required; (payload.atlas()) };
+                let _j_required = { let payload = &self.j_required; ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }) };
+                let _k_required = { let payload = &self.k_required; (8_usize * payload.len()) };
+                let _l_required = { let payload = &self.l_required; (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) };
+                let _m_required = { let payload = &self.m_required; (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) };
+                let _n_required = { let payload = &self.n_required; (payload.iter().fold(0_usize, |x, payload| x + (1_usize))) };
+                let _o_required = { let payload = &self.o_required; ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _p_required = { let payload = &self.p_required; ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _q_required = { let payload = &self.q_required; ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _r_required = { let payload = &self.r_required; ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _s_required = { let payload = &self.s_required; ({ let atlases = payload.iter().map(|payload| ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _t_required = { let payload = &self.t_required; ({ let atlases = payload.iter().map(|payload| (8_usize * payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _u_required = { let payload = &self.u_required; ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _v_required = { let payload = &self.v_required; ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _w_required = { let payload = &self.w_required; ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize)))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _x_required = { let payload = &self.x_required; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _y_required = { let payload = &self.y_required; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _z_required = { let payload = &self.z_required; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _aa_required = { let payload = &self.aa_required; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _a_asymmetric = { let payload = &self.a_asymmetric; (0_usize) };
+                let _b_asymmetric = { let payload = &self.b_asymmetric; (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize }) };
+                let _c_asymmetric = { let payload = &self.c_asymmetric; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) };
+                let _d_asymmetric = { let payload = &self.d_asymmetric; ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }) };
+                let _e_asymmetric = { let payload = &self.e_asymmetric; (if *payload { 1_usize } else { 0_usize }) };
+                let _f_asymmetric = { let payload = &self.f_asymmetric; (payload.len()) };
+                let _g_asymmetric = { let payload = &self.g_asymmetric; (payload.len()) };
+                let _h_asymmetric = { let payload = &self.h_asymmetric; (payload.atlas()) };
+                let _i_asymmetric = { let payload = &self.i_asymmetric; (payload.atlas()) };
+                let _j_asymmetric = { let payload = &self.j_asymmetric; ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }) };
+                let _k_asymmetric = { let payload = &self.k_asymmetric; (8_usize * payload.len()) };
+                let _l_asymmetric = { let payload = &self.l_asymmetric; (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) };
+                let _m_asymmetric = { let payload = &self.m_asymmetric; (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) };
+                let _n_asymmetric = { let payload = &self.n_asymmetric; (payload.iter().fold(0_usize, |x, payload| x + (1_usize))) };
+                let _o_asymmetric = { let payload = &self.o_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _p_asymmetric = { let payload = &self.p_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _q_asymmetric = { let payload = &self.q_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _r_asymmetric = { let payload = &self.r_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _s_asymmetric = { let payload = &self.s_asymmetric; ({ let atlases = payload.iter().map(|payload| ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _t_asymmetric = { let payload = &self.t_asymmetric; ({ let atlases = payload.iter().map(|payload| (8_usize * payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _u_asymmetric = { let payload = &self.u_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _v_asymmetric = { let payload = &self.v_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _w_asymmetric = { let payload = &self.w_asymmetric; ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize)))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _x_asymmetric = { let payload = &self.x_asymmetric; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _y_asymmetric = { let payload = &self.y_asymmetric; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _z_asymmetric = { let payload = &self.z_asymmetric; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _aa_asymmetric = { let payload = &self.aa_asymmetric; ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }) };
+                let _a_optional = self.a_optional.as_ref().map(|payload| (0_usize));
+                let _b_optional = self.b_optional.as_ref().map(|payload| (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize }));
+                let _c_optional = self.c_optional.as_ref().map(|payload| (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }));
+                let _d_optional = self.d_optional.as_ref().map(|payload| ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }));
+                let _e_optional = self.e_optional.as_ref().map(|payload| (if *payload { 1_usize } else { 0_usize }));
+                let _f_optional = self.f_optional.as_ref().map(|payload| (payload.len()));
+                let _g_optional = self.g_optional.as_ref().map(|payload| (payload.len()));
+                let _h_optional = self.h_optional.as_ref().map(|payload| (payload.atlas()));
+                let _i_optional = self.i_optional.as_ref().map(|payload| (payload.atlas()));
+                let _j_optional = self.j_optional.as_ref().map(|payload| ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }));
+                let _k_optional = self.k_optional.as_ref().map(|payload| (8_usize * payload.len()));
+                let _l_optional = self.l_optional.as_ref().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))));
+                let _m_optional = self.m_optional.as_ref().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))));
+                let _n_optional = self.n_optional.as_ref().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize))));
+                let _o_optional = self.o_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _p_optional = self.p_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _q_optional = self.q_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _r_optional = self.r_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _s_optional = self.s_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _t_optional = self.t_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (8_usize * payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _u_optional = self.u_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _v_optional = self.v_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _w_optional = self.w_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize)))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _x_optional = self.x_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _y_optional = self.y_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _z_optional = self.z_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+                let _aa_optional = self.aa_optional.as_ref().map(|payload| ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) }));
+
+                FooAtlas {
+                    _size:
+                        { let payload_atlas = &_a_required; let payload_size = *payload_atlas; super::super::field_header_size(0_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_b_required; let payload_size = *payload_atlas; super::super::field_header_size(1_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_c_required; let payload_size = *payload_atlas; super::super::field_header_size(2_u64, payload_size, true) + payload_size }
+                        + { let payload_atlas = &_d_required; let payload_size = *payload_atlas; super::super::field_header_size(3_u64, payload_size, true) + payload_size }
+                        + { let payload_atlas = &_e_required; let payload_size = *payload_atlas; super::super::field_header_size(4_u64, payload_size, true) + payload_size }
+                        + { let payload_atlas = &_f_required; let payload_size = *payload_atlas; super::super::field_header_size(5_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_g_required; let payload_size = *payload_atlas; super::super::field_header_size(6_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_h_required; let payload_size = payload_atlas.size(); super::super::field_header_size(7_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_i_required; let payload_size = payload_atlas.size(); super::super::field_header_size(8_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_j_required; let payload_size = *payload_atlas; super::super::field_header_size(9_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_k_required; let payload_size = *payload_atlas; super::super::field_header_size(10_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_l_required; let payload_size = *payload_atlas; super::super::field_header_size(11_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_m_required; let payload_size = *payload_atlas; super::super::field_header_size(12_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_n_required; let payload_size = *payload_atlas; super::super::field_header_size(13_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_o_required; let payload_size = payload_atlas.0; super::super::field_header_size(14_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_p_required; let payload_size = payload_atlas.0; super::super::field_header_size(15_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_q_required; let payload_size = payload_atlas.0; super::super::field_header_size(16_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_r_required; let payload_size = payload_atlas.0; super::super::field_header_size(17_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_s_required; let payload_size = payload_atlas.0; super::super::field_header_size(18_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_t_required; let payload_size = payload_atlas.0; super::super::field_header_size(19_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_u_required; let payload_size = payload_atlas.0; super::super::field_header_size(20_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_v_required; let payload_size = payload_atlas.0; super::super::field_header_size(21_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_w_required; let payload_size = payload_atlas.0; super::super::field_header_size(22_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_x_required; let payload_size = payload_atlas.0; super::super::field_header_size(23_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_y_required; let payload_size = payload_atlas.0; super::super::field_header_size(24_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_z_required; let payload_size = payload_atlas.0; super::super::field_header_size(25_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_aa_required; let payload_size = payload_atlas.0; super::super::field_header_size(26_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_a_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(28_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_b_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(29_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_c_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(30_u64, payload_size, true) + payload_size }
+                        + { let payload_atlas = &_d_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(31_u64, payload_size, true) + payload_size }
+                        + { let payload_atlas = &_e_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(32_u64, payload_size, true) + payload_size }
+                        + { let payload_atlas = &_f_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(33_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_g_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(34_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_h_asymmetric; let payload_size = payload_atlas.size(); super::super::field_header_size(35_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_i_asymmetric; let payload_size = payload_atlas.size(); super::super::field_header_size(36_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_j_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(37_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_k_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(38_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_l_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(39_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_m_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(40_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_n_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(41_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_o_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(42_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_p_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(43_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_q_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(44_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_r_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(45_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_s_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(46_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_t_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(47_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_u_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(48_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_v_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(49_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_w_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(50_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_x_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(51_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_y_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(52_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_z_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(53_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_aa_asymmetric; let payload_size = payload_atlas.0; super::super::field_header_size(54_u64, payload_size, false) + payload_size }
+                        + _a_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(56_u64, payload_size, false) + payload_size })
+                        + _b_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(57_u64, payload_size, false) + payload_size })
+                        + _c_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(58_u64, payload_size, true) + payload_size })
+                        + _d_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(59_u64, payload_size, true) + payload_size })
+                        + _e_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(60_u64, payload_size, true) + payload_size })
+                        + _f_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(61_u64, payload_size, false) + payload_size })
+                        + _g_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(62_u64, payload_size, false) + payload_size })
+                        + _h_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.size(); super::super::field_header_size(63_u64, payload_size, false) + payload_size })
+                        + _i_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.size(); super::super::field_header_size(64_u64, payload_size, false) + payload_size })
+                        + _j_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(65_u64, payload_size, false) + payload_size })
+                        + _k_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(66_u64, payload_size, false) + payload_size })
+                        + _l_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(67_u64, payload_size, false) + payload_size })
+                        + _m_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(68_u64, payload_size, false) + payload_size })
+                        + _n_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(69_u64, payload_size, false) + payload_size })
+                        + _o_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(70_u64, payload_size, false) + payload_size })
+                        + _p_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(71_u64, payload_size, false) + payload_size })
+                        + _q_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(72_u64, payload_size, false) + payload_size })
+                        + _r_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(73_u64, payload_size, false) + payload_size })
+                        + _s_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(74_u64, payload_size, false) + payload_size })
+                        + _t_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(75_u64, payload_size, false) + payload_size })
+                        + _u_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(76_u64, payload_size, false) + payload_size })
+                        + _v_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(77_u64, payload_size, false) + payload_size })
+                        + _w_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(78_u64, payload_size, false) + payload_size })
+                        + _x_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(79_u64, payload_size, false) + payload_size })
+                        + _y_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(80_u64, payload_size, false) + payload_size })
+                        + _z_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(81_u64, payload_size, false) + payload_size })
+                        + _aa_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = payload_atlas.0; super::super::field_header_size(82_u64, payload_size, false) + payload_size }),
+                    a_required: _a_required,
+                    b_required: _b_required,
+                    c_required: _c_required,
+                    d_required: _d_required,
+                    e_required: _e_required,
+                    f_required: _f_required,
+                    g_required: _g_required,
+                    h_required: _h_required,
+                    i_required: _i_required,
+                    j_required: _j_required,
+                    k_required: _k_required,
+                    l_required: _l_required,
+                    m_required: _m_required,
+                    n_required: _n_required,
+                    o_required: _o_required,
+                    p_required: _p_required,
+                    q_required: _q_required,
+                    r_required: _r_required,
+                    s_required: _s_required,
+                    t_required: _t_required,
+                    u_required: _u_required,
+                    v_required: _v_required,
+                    w_required: _w_required,
+                    x_required: _x_required,
+                    y_required: _y_required,
+                    z_required: _z_required,
+                    aa_required: _aa_required,
+                    a_asymmetric: _a_asymmetric,
+                    b_asymmetric: _b_asymmetric,
+                    c_asymmetric: _c_asymmetric,
+                    d_asymmetric: _d_asymmetric,
+                    e_asymmetric: _e_asymmetric,
+                    f_asymmetric: _f_asymmetric,
+                    g_asymmetric: _g_asymmetric,
+                    h_asymmetric: _h_asymmetric,
+                    i_asymmetric: _i_asymmetric,
+                    j_asymmetric: _j_asymmetric,
+                    k_asymmetric: _k_asymmetric,
+                    l_asymmetric: _l_asymmetric,
+                    m_asymmetric: _m_asymmetric,
+                    n_asymmetric: _n_asymmetric,
+                    o_asymmetric: _o_asymmetric,
+                    p_asymmetric: _p_asymmetric,
+                    q_asymmetric: _q_asymmetric,
+                    r_asymmetric: _r_asymmetric,
+                    s_asymmetric: _s_asymmetric,
+                    t_asymmetric: _t_asymmetric,
+                    u_asymmetric: _u_asymmetric,
+                    v_asymmetric: _v_asymmetric,
+                    w_asymmetric: _w_asymmetric,
+                    x_asymmetric: _x_asymmetric,
+                    y_asymmetric: _y_asymmetric,
+                    z_asymmetric: _z_asymmetric,
+                    aa_asymmetric: _aa_asymmetric,
+                    a_optional: _a_optional,
+                    b_optional: _b_optional,
+                    c_optional: _c_optional,
+                    d_optional: _d_optional,
+                    e_optional: _e_optional,
+                    f_optional: _f_optional,
+                    g_optional: _g_optional,
+                    h_optional: _h_optional,
+                    i_optional: _i_optional,
+                    j_optional: _j_optional,
+                    k_optional: _k_optional,
+                    l_optional: _l_optional,
+                    m_optional: _m_optional,
+                    n_optional: _n_optional,
+                    o_optional: _o_optional,
+                    p_optional: _p_optional,
+                    q_optional: _q_optional,
+                    r_optional: _r_optional,
+                    s_optional: _s_optional,
+                    t_optional: _t_optional,
+                    u_optional: _u_optional,
+                    v_optional: _v_optional,
+                    w_optional: _w_optional,
+                    x_optional: _x_optional,
+                    y_optional: _y_optional,
+                    z_optional: _z_optional,
+                    aa_optional: _aa_optional,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &FooAtlas,
+            ) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.a_required;
+                    let payload_atlas = &atlas.a_required;
+                    super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                }
+
+                {
+                    let payload = &self.b_required;
+                    let payload_atlas = &atlas.b_required;
+                    super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                    if payload.to_bits() != 0_u64 {
+                        writer.write_all(&payload.to_le_bytes())?;
+                    }
+                }
+
+                {
+                    let payload = &self.c_required;
+                    let payload_atlas = &atlas.c_required;
+                    super::super::serialize_field_header(writer, 2_u64, *payload_atlas, true)?;
+                    {
+                        let varint = *payload;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.d_required;
+                    let payload_atlas = &atlas.d_required;
+                    super::super::serialize_field_header(writer, 3_u64, *payload_atlas, true)?;
+                    {
+                        let varint = super::super::zigzag_encode(*payload);
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.e_required;
+                    let payload_atlas = &atlas.e_required;
+                    super::super::serialize_field_header(writer, 4_u64, *payload_atlas, true)?;
+                    {
+                        let varint = *payload as u64;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.f_required;
+                    let payload_atlas = &atlas.f_required;
+                    super::super::serialize_field_header(writer, 5_u64, *payload_atlas, false)?;
+                    writer.write_all(payload)?;
+                }
+
+                {
+                    let payload = &self.g_required;
+                    let payload_atlas = &atlas.g_required;
+                    super::super::serialize_field_header(writer, 6_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.h_required;
+                    let payload_atlas = &atlas.h_required;
+                    super::super::serialize_field_header(writer, 7_u64, payload_atlas.size(), false)?;
+                    payload.serialize_with_atlas(writer, payload_atlas)?;
+                }
+
+                {
+                    let payload = &self.i_required;
+                    let payload_atlas = &atlas.i_required;
+                    super::super::serialize_field_header(writer, 8_u64, payload_atlas.size(), false)?;
+                    payload.serialize_with_atlas(writer, payload_atlas)?;
+                }
+
+                {
+                    let payload = &self.j_required;
+                    let payload_atlas = &atlas.j_required;
+                    super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
+                    {
+                        let varint = payload.len() as u64 as u64;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.k_required;
+                    let payload_atlas = &atlas.k_required;
+                    super::super::serialize_field_header(writer, 10_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        writer.write_all(&payload.to_le_bytes())?;
+                    }
+                }
+
+                {
+                    let payload = &self.l_required;
+                    let payload_atlas = &atlas.l_required;
+                    super::super::serialize_field_header(writer, 11_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = *payload;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.m_required;
+                    let payload_atlas = &atlas.m_required;
+                    super::super::serialize_field_header(writer, 12_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = super::super::zigzag_encode(*payload);
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.n_required;
+                    let payload_atlas = &atlas.n_required;
+                    super::super::serialize_field_header(writer, 13_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = *payload as u64;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.o_required;
+                    let payload_atlas = &atlas.o_required;
+                    super::super::serialize_field_header(writer, 14_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        writer.write_all(payload)?;
+                    }
+                }
+
+                {
+                    let payload = &self.p_required;
+                    let payload_atlas = &atlas.p_required;
+                    super::super::serialize_field_header(writer, 15_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        writer.write_all(payload.as_bytes())?;
+                    }
+                }
+
+                {
+                    let payload = &self.q_required;
+                    let payload_atlas = &atlas.q_required;
+                    super::super::serialize_field_header(writer, 16_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+                }
+
+                {
+                    let payload = &self.r_required;
+                    let payload_atlas = &atlas.r_required;
+                    super::super::serialize_field_header(writer, 17_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+                }
+
+                {
+                    let payload = &self.s_required;
+                    let payload_atlas = &atlas.s_required;
+                    super::super::serialize_field_header(writer, 18_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        {
+                            let varint = payload.len() as u64 as u64;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.t_required;
+                    let payload_atlas = &atlas.t_required;
+                    super::super::serialize_field_header(writer, 19_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.u_required;
+                    let payload_atlas = &atlas.u_required;
+                    super::super::serialize_field_header(writer, 20_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.v_required;
+                    let payload_atlas = &atlas.v_required;
+                    super::super::serialize_field_header(writer, 21_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = super::super::zigzag_encode(*payload);
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.w_required;
+                    let payload_atlas = &atlas.w_required;
+                    super::super::serialize_field_header(writer, 22_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.x_required;
+                    let payload_atlas = &atlas.x_required;
+                    super::super::serialize_field_header(writer, 23_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.y_required;
+                    let payload_atlas = &atlas.y_required;
+                    super::super::serialize_field_header(writer, 24_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload.as_bytes())?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.z_required;
+                    let payload_atlas = &atlas.z_required;
+                    super::super::serialize_field_header(writer, 25_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.aa_required;
+                    let payload_atlas = &atlas.aa_required;
+                    super::super::serialize_field_header(writer, 26_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.a_asymmetric;
+                    let payload_atlas = &atlas.a_asymmetric;
+                    super::super::serialize_field_header(writer, 28_u64, *payload_atlas, false)?;
+                }
+
+                {
+                    let payload = &self.b_asymmetric;
+                    let payload_atlas = &atlas.b_asymmetric;
+                    super::super::serialize_field_header(writer, 29_u64, *payload_atlas, false)?;
+                    if payload.to_bits() != 0_u64 {
+                        writer.write_all(&payload.to_le_bytes())?;
+                    }
+                }
+
+                {
+                    let payload = &self.c_asymmetric;
+                    let payload_atlas = &atlas.c_asymmetric;
+                    super::super::serialize_field_header(writer, 30_u64, *payload_atlas, true)?;
+                    {
+                        let varint = *payload;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.d_asymmetric;
+                    let payload_atlas = &atlas.d_asymmetric;
+                    super::super::serialize_field_header(writer, 31_u64, *payload_atlas, true)?;
+                    {
+                        let varint = super::super::zigzag_encode(*payload);
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.e_asymmetric;
+                    let payload_atlas = &atlas.e_asymmetric;
+                    super::super::serialize_field_header(writer, 32_u64, *payload_atlas, true)?;
+                    {
+                        let varint = *payload as u64;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.f_asymmetric;
+                    let payload_atlas = &atlas.f_asymmetric;
+                    super::super::serialize_field_header(writer, 33_u64, *payload_atlas, false)?;
+                    writer.write_all(payload)?;
+                }
+
+                {
+                    let payload = &self.g_asymmetric;
+                    let payload_atlas = &atlas.g_asymmetric;
+                    super::super::serialize_field_header(writer, 34_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.h_asymmetric;
+                    let payload_atlas = &atlas.h_asymmetric;
+                    super::super::serialize_field_header(writer, 35_u64, payload_atlas.size(), false)?;
+                    payload.serialize_with_atlas(writer, payload_atlas)?;
+                }
+
+                {
+                    let payload = &self.i_asymmetric;
+                    let payload_atlas = &atlas.i_asymmetric;
+                    super::super::serialize_field_header(writer, 36_u64, payload_atlas.size(), false)?;
+                    payload.serialize_with_atlas(writer, payload_atlas)?;
+                }
+
+                {
+                    let payload = &self.j_asymmetric;
+                    let payload_atlas = &atlas.j_asymmetric;
+                    super::super::serialize_field_header(writer, 37_u64, *payload_atlas, false)?;
+                    {
+                        let varint = payload.len() as u64 as u64;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.k_asymmetric;
+                    let payload_atlas = &atlas.k_asymmetric;
+                    super::super::serialize_field_header(writer, 38_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        writer.write_all(&payload.to_le_bytes())?;
+                    }
+                }
+
+                {
+                    let payload = &self.l_asymmetric;
+                    let payload_atlas = &atlas.l_asymmetric;
+                    super::super::serialize_field_header(writer, 39_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = *payload;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.m_asymmetric;
+                    let payload_atlas = &atlas.m_asymmetric;
+                    super::super::serialize_field_header(writer, 40_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = super::super::zigzag_encode(*payload);
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.n_asymmetric;
+                    let payload_atlas = &atlas.n_asymmetric;
+                    super::super::serialize_field_header(writer, 41_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = *payload as u64;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.o_asymmetric;
+                    let payload_atlas = &atlas.o_asymmetric;
+                    super::super::serialize_field_header(writer, 42_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        writer.write_all(payload)?;
+                    }
+                }
+
+                {
+                    let payload = &self.p_asymmetric;
+                    let payload_atlas = &atlas.p_asymmetric;
+                    super::super::serialize_field_header(writer, 43_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        writer.write_all(payload.as_bytes())?;
+                    }
+                }
+
+                {
+                    let payload = &self.q_asymmetric;
+                    let payload_atlas = &atlas.q_asymmetric;
+                    super::super::serialize_field_header(writer, 44_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+                }
+
+                {
+                    let payload = &self.r_asymmetric;
+                    let payload_atlas = &atlas.r_asymmetric;
+                    super::super::serialize_field_header(writer, 45_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+                }
+
+                {
+                    let payload = &self.s_asymmetric;
+                    let payload_atlas = &atlas.s_asymmetric;
+                    super::super::serialize_field_header(writer, 46_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        {
+                            let varint = payload.len() as u64 as u64;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.t_asymmetric;
+                    let payload_atlas = &atlas.t_asymmetric;
+                    super::super::serialize_field_header(writer, 47_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.u_asymmetric;
+                    let payload_atlas = &atlas.u_asymmetric;
+                    super::super::serialize_field_header(writer, 48_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.v_asymmetric;
+                    let payload_atlas = &atlas.v_asymmetric;
+                    super::super::serialize_field_header(writer, 49_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = super::super::zigzag_encode(*payload);
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.w_asymmetric;
+                    let payload_atlas = &atlas.w_asymmetric;
+                    super::super::serialize_field_header(writer, 50_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.x_asymmetric;
+                    let payload_atlas = &atlas.x_asymmetric;
+                    super::super::serialize_field_header(writer, 51_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.y_asymmetric;
+                    let payload_atlas = &atlas.y_asymmetric;
+                    super::super::serialize_field_header(writer, 52_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload.as_bytes())?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.z_asymmetric;
+                    let payload_atlas = &atlas.z_asymmetric;
+                    super::super::serialize_field_header(writer, 53_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                    }
+                }
+
+                {
+                    let payload = &self.aa_asymmetric;
+                    let payload_atlas = &atlas.aa_asymmetric;
+                    super::super::serialize_field_header(writer, 54_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.a_optional, &atlas.a_optional) {
+                    super::super::serialize_field_header(writer, 56_u64, *payload_atlas, false)?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.b_optional, &atlas.b_optional) {
+                    super::super::serialize_field_header(writer, 57_u64, *payload_atlas, false)?;
+                    if payload.to_bits() != 0_u64 {
+                        writer.write_all(&payload.to_le_bytes())?;
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.c_optional, &atlas.c_optional) {
+                    super::super::serialize_field_header(writer, 58_u64, *payload_atlas, true)?;
+                    {
+                        let varint = *payload;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.d_optional, &atlas.d_optional) {
+                    super::super::serialize_field_header(writer, 59_u64, *payload_atlas, true)?;
+                    {
+                        let varint = super::super::zigzag_encode(*payload);
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.e_optional, &atlas.e_optional) {
+                    super::super::serialize_field_header(writer, 60_u64, *payload_atlas, true)?;
+                    {
+                        let varint = *payload as u64;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.f_optional, &atlas.f_optional) {
+                    super::super::serialize_field_header(writer, 61_u64, *payload_atlas, false)?;
+                    writer.write_all(payload)?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.g_optional, &atlas.g_optional) {
+                    super::super::serialize_field_header(writer, 62_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.h_optional, &atlas.h_optional) {
+                    super::super::serialize_field_header(writer, 63_u64, payload_atlas.size(), false)?;
+                    payload.serialize_with_atlas(writer, payload_atlas)?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.i_optional, &atlas.i_optional) {
+                    super::super::serialize_field_header(writer, 64_u64, payload_atlas.size(), false)?;
+                    payload.serialize_with_atlas(writer, payload_atlas)?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.j_optional, &atlas.j_optional) {
+                    super::super::serialize_field_header(writer, 65_u64, *payload_atlas, false)?;
+                    {
+                        let varint = payload.len() as u64 as u64;
+                        match varint {
+                            0_u64 => {}
+                            1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                            567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.k_optional, &atlas.k_optional) {
+                    super::super::serialize_field_header(writer, 66_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        writer.write_all(&payload.to_le_bytes())?;
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.l_optional, &atlas.l_optional) {
+                    super::super::serialize_field_header(writer, 67_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = *payload;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.m_optional, &atlas.m_optional) {
+                    super::super::serialize_field_header(writer, 68_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = super::super::zigzag_encode(*payload);
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.n_optional, &atlas.n_optional) {
+                    super::super::serialize_field_header(writer, 69_u64, *payload_atlas, false)?;
+                    for payload in payload {
+                        {
+                            let varint = *payload as u64;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.o_optional, &atlas.o_optional) {
+                    super::super::serialize_field_header(writer, 70_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        writer.write_all(payload)?;
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.p_optional, &atlas.p_optional) {
+                    super::super::serialize_field_header(writer, 71_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        writer.write_all(payload.as_bytes())?;
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.q_optional, &atlas.q_optional) {
+                    super::super::serialize_field_header(writer, 72_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.r_optional, &atlas.r_optional) {
+                    super::super::serialize_field_header(writer, 73_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.s_optional, &atlas.s_optional) {
+                    super::super::serialize_field_header(writer, 74_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        {
+                            let varint = payload.len() as u64 as u64;
+                            super::super::serialize_varint(varint, writer)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.t_optional, &atlas.t_optional) {
+                    super::super::serialize_field_header(writer, 75_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.u_optional, &atlas.u_optional) {
+                    super::super::serialize_field_header(writer, 76_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.v_optional, &atlas.v_optional) {
+                    super::super::serialize_field_header(writer, 77_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = super::super::zigzag_encode(*payload);
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.w_optional, &atlas.w_optional) {
+                    super::super::serialize_field_header(writer, 78_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.x_optional, &atlas.x_optional) {
+                    super::super::serialize_field_header(writer, 79_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.y_optional, &atlas.y_optional) {
+                    super::super::serialize_field_header(writer, 80_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload.as_bytes())?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.z_optional, &atlas.z_optional) {
+                    super::super::serialize_field_header(writer, 81_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                    }
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.aa_optional, &atlas.aa_optional) {
+                    super::super::serialize_field_header(writer, 82_u64, payload_atlas.0, false)?;
+                    for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                        super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                    }
+                }
+
+                Ok(())
+            }
+        }
+
+        impl FooAtlas {
+            pub fn size(&self) -> usize {
+                self._size
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum BarAtlas {
+            ARequired(usize, usize),
+            BRequired(usize, usize),
+            CRequired(usize, usize),
+            DRequired(usize, usize),
+            ERequired(usize, usize),
+            FRequired(usize, usize),
+            GRequired(usize, usize),
+            HRequired(usize, LocalStructAtlas),
+            IRequired(usize, super::super::degenerate::types::EmptyStructAtlas),
+            JRequired(usize, usize),
+            KRequired(usize, usize),
+            LRequired(usize, usize),
+            MRequired(usize, usize),
+            NRequired(usize, usize),
+            ORequired(usize, (usize, Vec<usize>)),
+            PRequired(usize, (usize, Vec<usize>)),
+            QRequired(usize, (usize, Vec<LocalStructAtlas>)),
+            RRequired(usize, (usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)),
+            SRequired(usize, (usize, Vec<usize>)),
+            TRequired(usize, (usize, Vec<usize>)),
+            URequired(usize, (usize, Vec<usize>)),
+            VRequired(usize, (usize, Vec<usize>)),
+            WRequired(usize, (usize, Vec<usize>)),
+            XRequired(usize, (usize, Vec<(usize, Vec<usize>)>)),
+            YRequired(usize, (usize, Vec<(usize, Vec<usize>)>)),
+            ZRequired(usize, (usize, Vec<(usize, Vec<LocalStructAtlas>)>)),
+            AaRequired(usize, (usize, Vec<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>)),
+            AAsymmetric(usize, usize, Box<BarAtlas>),
+            BAsymmetric(usize, usize, Box<BarAtlas>),
+            CAsymmetric(usize, usize, Box<BarAtlas>),
+            DAsymmetric(usize, usize, Box<BarAtlas>),
+            EAsymmetric(usize, usize, Box<BarAtlas>),
+            FAsymmetric(usize, usize, Box<BarAtlas>),
+            GAsymmetric(usize, usize, Box<BarAtlas>),
+            HAsymmetric(usize, LocalStructAtlas, Box<BarAtlas>),
+            IAsymmetric(usize, super::super::degenerate::types::EmptyStructAtlas, Box<BarAtlas>),
+            JAsymmetric(usize, usize, Box<BarAtlas>),
+            KAsymmetric(usize, usize, Box<BarAtlas>),
+            LAsymmetric(usize, usize, Box<BarAtlas>),
+            MAsymmetric(usize, usize, Box<BarAtlas>),
+            NAsymmetric(usize, usize, Box<BarAtlas>),
+            OAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            PAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            QAsymmetric(usize, (usize, Vec<LocalStructAtlas>), Box<BarAtlas>),
+            RAsymmetric(usize, (usize, Vec<super::super::degenerate::types::EmptyStructAtlas>), Box<BarAtlas>),
+            SAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            TAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            UAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            VAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            WAsymmetric(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            XAsymmetric(usize, (usize, Vec<(usize, Vec<usize>)>), Box<BarAtlas>),
+            YAsymmetric(usize, (usize, Vec<(usize, Vec<usize>)>), Box<BarAtlas>),
+            ZAsymmetric(usize, (usize, Vec<(usize, Vec<LocalStructAtlas>)>), Box<BarAtlas>),
+            AaAsymmetric(usize, (usize, Vec<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>), Box<BarAtlas>),
+            AOptional(usize, usize, Box<BarAtlas>),
+            BOptional(usize, usize, Box<BarAtlas>),
+            COptional(usize, usize, Box<BarAtlas>),
+            DOptional(usize, usize, Box<BarAtlas>),
+            EOptional(usize, usize, Box<BarAtlas>),
+            FOptional(usize, usize, Box<BarAtlas>),
+            GOptional(usize, usize, Box<BarAtlas>),
+            HOptional(usize, LocalStructAtlas, Box<BarAtlas>),
+            IOptional(usize, super::super::degenerate::types::EmptyStructAtlas, Box<BarAtlas>),
+            JOptional(usize, usize, Box<BarAtlas>),
+            KOptional(usize, usize, Box<BarAtlas>),
+            LOptional(usize, usize, Box<BarAtlas>),
+            MOptional(usize, usize, Box<BarAtlas>),
+            NOptional(usize, usize, Box<BarAtlas>),
+            OOptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            POptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            QOptional(usize, (usize, Vec<LocalStructAtlas>), Box<BarAtlas>),
+            ROptional(usize, (usize, Vec<super::super::degenerate::types::EmptyStructAtlas>), Box<BarAtlas>),
+            SOptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            TOptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            UOptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            VOptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            WOptional(usize, (usize, Vec<usize>), Box<BarAtlas>),
+            XOptional(usize, (usize, Vec<(usize, Vec<usize>)>), Box<BarAtlas>),
+            YOptional(usize, (usize, Vec<(usize, Vec<usize>)>), Box<BarAtlas>),
+            ZOptional(usize, (usize, Vec<(usize, Vec<LocalStructAtlas>)>), Box<BarAtlas>),
+            AaOptional(usize, (usize, Vec<(usize, Vec<super::super::degenerate::types::EmptyStructAtlas>)>), Box<BarAtlas>),
         }
 
         #[derive(Clone, Debug)]
@@ -3983,1309 +4320,12 @@ pub mod comprehensive {
 
         impl super::super::Serialize for BarOut {
             fn size(&self) -> usize {
-                match *self {
-                    BarOut::ARequired => {
-                        let payload_size = (0_usize);
-                        super::super::field_header_size(0_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::BRequired(ref payload) => {
-                        let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                        super::super::field_header_size(1_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::CRequired(ref payload) => {
-                        let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                        super::super::field_header_size(2_u64, payload_size, true) +
-                            payload_size
-                    }
-                    BarOut::DRequired(ref payload) => {
-                        let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::field_header_size(3_u64, payload_size, true) +
-                            payload_size
-                    }
-                    BarOut::ERequired(ref payload) => {
-                        let payload_size = (if *payload { 1_usize } else { 0_usize });
-                        super::super::field_header_size(4_u64, payload_size, true) +
-                            payload_size
-                    }
-                    BarOut::FRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(5_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::GRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(6_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::HRequired(ref payload) => {
-                        let payload_size = (payload.size());
-                        super::super::field_header_size(7_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::IRequired(ref payload) => {
-                        let payload_size = (payload.size());
-                        super::super::field_header_size(8_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::JRequired(ref payload) => {
-                        let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::field_header_size(9_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::KRequired(ref payload) => {
-                        let payload_size = (8_usize * payload.len());
-                        super::super::field_header_size(10_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::LRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                        super::super::field_header_size(11_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::MRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                        super::super::field_header_size(12_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::NRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                        super::super::field_header_size(13_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::ORequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(14_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::PRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(15_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::QRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(16_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::RRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(17_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::SRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(18_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::TRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(19_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::URequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(20_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::VRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(21_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::WRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(22_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::XRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(23_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::YRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(24_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::ZRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(25_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::AaRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(26_u64, payload_size, false) +
-                            payload_size
-                    }
-                    BarOut::AAsymmetric(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::field_header_size(28_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::BAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                        super::super::field_header_size(29_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::CAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                        super::super::field_header_size(30_u64, payload_size, true) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::DAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::field_header_size(31_u64, payload_size, true) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::EAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (if *payload { 1_usize } else { 0_usize });
-                        super::super::field_header_size(32_u64, payload_size, true) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::FAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(33_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::GAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(34_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::HAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::field_header_size(35_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::IAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::field_header_size(36_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::JAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::field_header_size(37_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::KAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (8_usize * payload.len());
-                        super::super::field_header_size(38_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::LAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                        super::super::field_header_size(39_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::MAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                        super::super::field_header_size(40_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::NAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                        super::super::field_header_size(41_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::OAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(42_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::PAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(43_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::QAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(44_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::RAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(45_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::SAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(46_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::TAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(47_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::UAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(48_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::VAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(49_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::WAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(50_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::XAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(51_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::YAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(52_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::ZAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(53_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::AaAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(54_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::AOptional(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::field_header_size(56_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::BOptional(ref payload, ref fallback) => {
-                        let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                        super::super::field_header_size(57_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::COptional(ref payload, ref fallback) => {
-                        let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                        super::super::field_header_size(58_u64, payload_size, true) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::DOptional(ref payload, ref fallback) => {
-                        let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::field_header_size(59_u64, payload_size, true) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::EOptional(ref payload, ref fallback) => {
-                        let payload_size = (if *payload { 1_usize } else { 0_usize });
-                        super::super::field_header_size(60_u64, payload_size, true) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::FOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(61_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::GOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(62_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::HOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::field_header_size(63_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::IOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::field_header_size(64_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::JOptional(ref payload, ref fallback) => {
-                        let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::field_header_size(65_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::KOptional(ref payload, ref fallback) => {
-                        let payload_size = (8_usize * payload.len());
-                        super::super::field_header_size(66_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::LOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                        super::super::field_header_size(67_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::MOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                        super::super::field_header_size(68_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::NOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                        super::super::field_header_size(69_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::OOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(70_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::POptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(71_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::QOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(72_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::ROptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(73_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::SOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(74_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::TOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(75_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::UOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(76_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::VOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(77_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::WOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(78_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::XOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(79_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::YOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(80_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::ZOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(81_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    BarOut::AaOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::field_header_size(82_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                }
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                    BarOut::ARequired => {
-                        let payload_size = (0_usize);
-                        super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                        Ok(())
-                    }
-                    BarOut::BRequired(ref payload) => {
-                        let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                        super::super::serialize_field_header(writer, 1_u64, payload_size, false)?;
-                        if payload.to_bits() != 0_u64 {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                        Ok(())
-                    }
-                    BarOut::CRequired(ref payload) => {
-                        let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                        super::super::serialize_field_header(writer, 2_u64, payload_size, true)?;
-                        {
-                            let varint = *payload;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::DRequired(ref payload) => {
-                        let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::serialize_field_header(writer, 3_u64, payload_size, true)?;
-                        {
-                            let varint = super::super::zigzag_encode(*payload);
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::ERequired(ref payload) => {
-                        let payload_size = (if *payload { 1_usize } else { 0_usize });
-                        super::super::serialize_field_header(writer, 4_u64, payload_size, true)?;
-                        {
-                            let varint = *payload as u64;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::FRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
-                        writer.write_all(payload)?;
-                        Ok(())
-                    }
-                    BarOut::GRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    BarOut::HRequired(ref payload) => {
-                        let payload_size = (payload.size());
-                        super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                        Ok(())
-                    }
-                    BarOut::IRequired(ref payload) => {
-                        let payload_size = (payload.size());
-                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                        Ok(())
-                    }
-                    BarOut::JRequired(ref payload) => {
-                        let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
-                        {
-                            let varint = payload.len() as u64 as u64;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::KRequired(ref payload) => {
-                        let payload_size = (8_usize * payload.len());
-                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
-                        for payload in payload {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                        Ok(())
-                    }
-                    BarOut::LRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                        super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::MRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                        super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = super::super::zigzag_encode(*payload);
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::NRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                        super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::ORequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload)?;
-                        }
-                        Ok(())
-                    }
-                    BarOut::PRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 15_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
-                        }
-                        Ok(())
-                    }
-                    BarOut::QRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 16_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                        Ok(())
-                    }
-                    BarOut::RRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 17_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                        Ok(())
-                    }
-                    BarOut::SRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 18_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint(({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }) as u64, writer)?;
-                            {
-                                let varint = payload.len() as u64 as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::TRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 19_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((8_usize * payload.len()) as u64, writer)?;
-                            for payload in payload {
-                                writer.write_all(&payload.to_le_bytes())?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::URequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 20_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = *payload;
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::VRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 21_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = super::super::zigzag_encode(*payload);
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::WRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 22_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (1_usize))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = *payload as u64;
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::XRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 23_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.len()) as u64, writer)?;
-                                writer.write_all(payload)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::YRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 24_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.len()) as u64, writer)?;
-                                writer.write_all(payload.as_bytes())?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::ZRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 25_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.size()) as u64, writer)?;
-                                payload.serialize(writer)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::AaRequired(ref payload) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 26_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.size()) as u64, writer)?;
-                                payload.serialize(writer)?;
-                            }
-                        }
-                        Ok(())
-                    }
-                    BarOut::AAsymmetric(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::serialize_field_header(writer, 28_u64, payload_size, false)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::BAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                        super::super::serialize_field_header(writer, 29_u64, payload_size, false)?;
-                        if payload.to_bits() != 0_u64 {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::CAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                        super::super::serialize_field_header(writer, 30_u64, payload_size, true)?;
-                        {
-                            let varint = *payload;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::DAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::serialize_field_header(writer, 31_u64, payload_size, true)?;
-                        {
-                            let varint = super::super::zigzag_encode(*payload);
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::EAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (if *payload { 1_usize } else { 0_usize });
-                        super::super::serialize_field_header(writer, 32_u64, payload_size, true)?;
-                        {
-                            let varint = *payload as u64;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::FAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 33_u64, payload_size, false)?;
-                        writer.write_all(payload)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::GAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 34_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::HAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::serialize_field_header(writer, 35_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::IAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::serialize_field_header(writer, 36_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::JAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::serialize_field_header(writer, 37_u64, payload_size, false)?;
-                        {
-                            let varint = payload.len() as u64 as u64;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::KAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (8_usize * payload.len());
-                        super::super::serialize_field_header(writer, 38_u64, payload_size, false)?;
-                        for payload in payload {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::LAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                        super::super::serialize_field_header(writer, 39_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::MAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                        super::super::serialize_field_header(writer, 40_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = super::super::zigzag_encode(*payload);
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::NAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                        super::super::serialize_field_header(writer, 41_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::OAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 42_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload)?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::PAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 43_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::QAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 44_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::RAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 45_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::SAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 46_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint(({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }) as u64, writer)?;
-                            {
-                                let varint = payload.len() as u64 as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::TAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 47_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((8_usize * payload.len()) as u64, writer)?;
-                            for payload in payload {
-                                writer.write_all(&payload.to_le_bytes())?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::UAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 48_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = *payload;
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::VAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 49_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = super::super::zigzag_encode(*payload);
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::WAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 50_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (1_usize))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = *payload as u64;
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::XAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 51_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.len()) as u64, writer)?;
-                                writer.write_all(payload)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::YAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 52_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.len()) as u64, writer)?;
-                                writer.write_all(payload.as_bytes())?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::ZAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 53_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.size()) as u64, writer)?;
-                                payload.serialize(writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::AaAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 54_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.size()) as u64, writer)?;
-                                payload.serialize(writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::AOptional(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::serialize_field_header(writer, 56_u64, payload_size, false)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::BOptional(ref payload, ref fallback) => {
-                        let payload_size = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
-                        super::super::serialize_field_header(writer, 57_u64, payload_size, false)?;
-                        if payload.to_bits() != 0_u64 {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::COptional(ref payload, ref fallback) => {
-                        let payload_size = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
-                        super::super::serialize_field_header(writer, 58_u64, payload_size, true)?;
-                        {
-                            let varint = *payload;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::DOptional(ref payload, ref fallback) => {
-                        let payload_size = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::serialize_field_header(writer, 59_u64, payload_size, true)?;
-                        {
-                            let varint = super::super::zigzag_encode(*payload);
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::EOptional(ref payload, ref fallback) => {
-                        let payload_size = (if *payload { 1_usize } else { 0_usize });
-                        super::super::serialize_field_header(writer, 60_u64, payload_size, true)?;
-                        {
-                            let varint = *payload as u64;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::FOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 61_u64, payload_size, false)?;
-                        writer.write_all(payload)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::GOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 62_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::HOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::serialize_field_header(writer, 63_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::IOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.size());
-                        super::super::serialize_field_header(writer, 64_u64, payload_size, false)?;
-                        payload.serialize(writer)?;
-                        fallback.serialize(writer)
-                    }
-                    BarOut::JOptional(ref payload, ref fallback) => {
-                        let payload_size = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
-                        super::super::serialize_field_header(writer, 65_u64, payload_size, false)?;
-                        {
-                            let varint = payload.len() as u64 as u64;
-                            match varint {
-                                0_u64 => {}
-                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
-                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::KOptional(ref payload, ref fallback) => {
-                        let payload_size = (8_usize * payload.len());
-                        super::super::serialize_field_header(writer, 66_u64, payload_size, false)?;
-                        for payload in payload {
-                            writer.write_all(&payload.to_le_bytes())?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::LOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
-                        super::super::serialize_field_header(writer, 67_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::MOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
-                        super::super::serialize_field_header(writer, 68_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = super::super::zigzag_encode(*payload);
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::NOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
-                        super::super::serialize_field_header(writer, 69_u64, payload_size, false)?;
-                        for payload in payload {
-                            {
-                                let varint = *payload as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::OOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 70_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload)?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::POptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 71_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.len()) as u64, writer)?;
-                            writer.write_all(payload.as_bytes())?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::QOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 72_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::ROptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 73_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.size()) as u64, writer)?;
-                            payload.serialize(writer)?;
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::SOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 74_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint(({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) }) as u64, writer)?;
-                            {
-                                let varint = payload.len() as u64 as u64;
-                                super::super::serialize_varint(varint, writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::TOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (8_usize * payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 75_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((8_usize * payload.len()) as u64, writer)?;
-                            for payload in payload {
-                                writer.write_all(&payload.to_le_bytes())?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::UOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 76_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload)))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = *payload;
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::VOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 77_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) }))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = super::super::zigzag_encode(*payload);
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::WOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| x + (1_usize))); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 78_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| x + (1_usize))) as u64, writer)?;
-                            for payload in payload {
-                                {
-                                    let varint = *payload as u64;
-                                    super::super::serialize_varint(varint, writer)?;
-                                }
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::XOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 79_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.len()) as u64, writer)?;
-                                writer.write_all(payload)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::YOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 80_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.len()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.len()) as u64, writer)?;
-                                writer.write_all(payload.as_bytes())?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::ZOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 81_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.size()) as u64, writer)?;
-                                payload.serialize(writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                    BarOut::AaOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })); x + super::super::varint_size_from_value(payload_size as u64) + payload_size }));
-                        super::super::serialize_field_header(writer, 82_u64, payload_size, false)?;
-                        for payload in payload {
-                            super::super::serialize_varint((payload.iter().fold(0_usize, |x, payload| { let payload_size = (payload.size()); x + super::super::varint_size_from_value(payload_size as u64) + payload_size })) as u64, writer)?;
-                            for payload in payload {
-                                super::super::serialize_varint((payload.size()) as u64, writer)?;
-                                payload.serialize(writer)?;
-                            }
-                        }
-                        fallback.serialize(writer)
-                    }
-                }
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -7181,11 +6221,1339 @@ pub mod comprehensive {
                 }
             }
         }
+
+        impl BarOut {
+            pub fn atlas(&self) -> BarAtlas {
+                match *self {
+                    BarOut::ARequired => {
+                        let payload = &();
+                        let payload_atlas = (0_usize);
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::ARequired(super::super::field_header_size(0_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::BRequired(ref payload) => {
+                        let payload_atlas = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::BRequired(super::super::field_header_size(1_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::CRequired(ref payload) => {
+                        let payload_atlas = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::CRequired(super::super::field_header_size(2_u64, payload_size, true) + payload_size, payload_atlas)
+                    }
+                    BarOut::DRequired(ref payload) => {
+                        let payload_atlas = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::DRequired(super::super::field_header_size(3_u64, payload_size, true) + payload_size, payload_atlas)
+                    }
+                    BarOut::ERequired(ref payload) => {
+                        let payload_atlas = (if *payload { 1_usize } else { 0_usize });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::ERequired(super::super::field_header_size(4_u64, payload_size, true) + payload_size, payload_atlas)
+                    }
+                    BarOut::FRequired(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::FRequired(super::super::field_header_size(5_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::GRequired(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::GRequired(super::super::field_header_size(6_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::HRequired(ref payload) => {
+                        let payload_atlas = (payload.atlas());
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.size() };
+                        BarAtlas::HRequired(super::super::field_header_size(7_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::IRequired(ref payload) => {
+                        let payload_atlas = (payload.atlas());
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.size() };
+                        BarAtlas::IRequired(super::super::field_header_size(8_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::JRequired(ref payload) => {
+                        let payload_atlas = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::JRequired(super::super::field_header_size(9_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::KRequired(ref payload) => {
+                        let payload_atlas = (8_usize * payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::KRequired(super::super::field_header_size(10_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::LRequired(ref payload) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::LRequired(super::super::field_header_size(11_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::MRequired(ref payload) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::MRequired(super::super::field_header_size(12_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::NRequired(ref payload) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        BarAtlas::NRequired(super::super::field_header_size(13_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::ORequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::ORequired(super::super::field_header_size(14_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::PRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::PRequired(super::super::field_header_size(15_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::QRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::QRequired(super::super::field_header_size(16_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::RRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::RRequired(super::super::field_header_size(17_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::SRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::SRequired(super::super::field_header_size(18_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::TRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (8_usize * payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::TRequired(super::super::field_header_size(19_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::URequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::URequired(super::super::field_header_size(20_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::VRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::VRequired(super::super::field_header_size(21_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::WRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize)))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::WRequired(super::super::field_header_size(22_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::XRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::XRequired(super::super::field_header_size(23_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::YRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::YRequired(super::super::field_header_size(24_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::ZRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::ZRequired(super::super::field_header_size(25_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::AaRequired(ref payload) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        BarAtlas::AaRequired(super::super::field_header_size(26_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    BarOut::AAsymmetric(ref fallback) => {
+                        let payload = &();
+                        let payload_atlas = (0_usize);
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::AAsymmetric(super::super::field_header_size(28_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::BAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::BAsymmetric(super::super::field_header_size(29_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::CAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::CAsymmetric(super::super::field_header_size(30_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::DAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::DAsymmetric(super::super::field_header_size(31_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::EAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (if *payload { 1_usize } else { 0_usize });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::EAsymmetric(super::super::field_header_size(32_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::FAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::FAsymmetric(super::super::field_header_size(33_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::GAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::GAsymmetric(super::super::field_header_size(34_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::HAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.atlas());
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.size() };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::HAsymmetric(super::super::field_header_size(35_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::IAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.atlas());
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.size() };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::IAsymmetric(super::super::field_header_size(36_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::JAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::JAsymmetric(super::super::field_header_size(37_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::KAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (8_usize * payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::KAsymmetric(super::super::field_header_size(38_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::LAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::LAsymmetric(super::super::field_header_size(39_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::MAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::MAsymmetric(super::super::field_header_size(40_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::NAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::NAsymmetric(super::super::field_header_size(41_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::OAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::OAsymmetric(super::super::field_header_size(42_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::PAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::PAsymmetric(super::super::field_header_size(43_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::QAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::QAsymmetric(super::super::field_header_size(44_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::RAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::RAsymmetric(super::super::field_header_size(45_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::SAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::SAsymmetric(super::super::field_header_size(46_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::TAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (8_usize * payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::TAsymmetric(super::super::field_header_size(47_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::UAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::UAsymmetric(super::super::field_header_size(48_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::VAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::VAsymmetric(super::super::field_header_size(49_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::WAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize)))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::WAsymmetric(super::super::field_header_size(50_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::XAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::XAsymmetric(super::super::field_header_size(51_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::YAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::YAsymmetric(super::super::field_header_size(52_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::ZAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::ZAsymmetric(super::super::field_header_size(53_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::AaAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::AaAsymmetric(super::super::field_header_size(54_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::AOptional(ref fallback) => {
+                        let payload = &();
+                        let payload_atlas = (0_usize);
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::AOptional(super::super::field_header_size(56_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::BOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::BOptional(super::super::field_header_size(57_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::COptional(ref payload, ref fallback) => {
+                        let payload_atlas = (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::COptional(super::super::field_header_size(58_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::DOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::DOptional(super::super::field_header_size(59_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::EOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (if *payload { 1_usize } else { 0_usize });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::EOptional(super::super::field_header_size(60_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::FOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::FOptional(super::super::field_header_size(61_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::GOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::GOptional(super::super::field_header_size(62_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::HOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.atlas());
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.size() };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::HOptional(super::super::field_header_size(63_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::IOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.atlas());
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.size() };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::IOptional(super::super::field_header_size(64_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::JOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let payload = &(payload.len() as u64); (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) });
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::JOptional(super::super::field_header_size(65_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::KOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (8_usize * payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::KOptional(super::super::field_header_size(66_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::LOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::LOptional(super::super::field_header_size(67_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::MOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::MOptional(super::super::field_header_size(68_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::NOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.iter().fold(0_usize, |x, payload| x + (1_usize)));
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::NOptional(super::super::field_header_size(69_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::OOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::OOptional(super::super::field_header_size(70_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::POptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::POptional(super::super::field_header_size(71_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::QOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::QOptional(super::super::field_header_size(72_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::ROptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::ROptional(super::super::field_header_size(73_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::SOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let payload = &(payload.len() as u64); (super::super::varint_size_from_value(*payload)) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::SOptional(super::super::field_header_size(74_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::TOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (8_usize * payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::TOptional(super::super::field_header_size(75_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::UOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (super::super::varint_size_from_value(*payload))))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::UOptional(super::super::field_header_size(76_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::VOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (super::super::varint_size_from_value(*payload)) })))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::VOptional(super::super::field_header_size(77_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::WOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| (payload.iter().fold(0_usize, |x, payload| x + (1_usize)))).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::WOptional(super::super::field_header_size(78_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::XOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::XOptional(super::super::field_header_size(79_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::YOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.len())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = *payload_atlas; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::YOptional(super::super::field_header_size(80_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::ZOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::ZOptional(super::super::field_header_size(81_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    BarOut::AaOptional(ref payload, ref fallback) => {
+                        let payload_atlas = ({ let atlases = payload.iter().map(|payload| ({ let atlases = payload.iter().map(|payload| (payload.atlas())).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.size(); x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) })).collect::<Vec<_>>(); (atlases.iter().fold(0_usize, |x, payload_atlas| { let atlas_size = payload_atlas.0; x + super::super::varint_size_from_value(atlas_size as u64) + atlas_size }), atlases) });
+                        let payload_size = { let payload_atlas = &payload_atlas; payload_atlas.0 };
+                        let fallback_atlas = fallback.atlas();
+                        BarAtlas::AaOptional(super::super::field_header_size(82_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &BarAtlas,
+            ) -> ::std::io::Result<()> {
+                match (self, atlas) {
+                    (BarOut::ARequired, BarAtlas::ARequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                        Ok(())
+                    }
+                    (BarOut::BRequired(payload), BarAtlas::BRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                        if payload.to_bits() != 0_u64 {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                        Ok(())
+                    }
+                    (BarOut::CRequired(payload), BarAtlas::CRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 2_u64, *payload_atlas, true)?;
+                        {
+                            let varint = *payload;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::DRequired(payload), BarAtlas::DRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 3_u64, *payload_atlas, true)?;
+                        {
+                            let varint = super::super::zigzag_encode(*payload);
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::ERequired(payload), BarAtlas::ERequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 4_u64, *payload_atlas, true)?;
+                        {
+                            let varint = *payload as u64;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::FRequired(payload), BarAtlas::FRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 5_u64, *payload_atlas, false)?;
+                        writer.write_all(payload)?;
+                        Ok(())
+                    }
+                    (BarOut::GRequired(payload), BarAtlas::GRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 6_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (BarOut::HRequired(payload), BarAtlas::HRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 7_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                        Ok(())
+                    }
+                    (BarOut::IRequired(payload), BarAtlas::IRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 8_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                        Ok(())
+                    }
+                    (BarOut::JRequired(payload), BarAtlas::JRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
+                        {
+                            let varint = payload.len() as u64 as u64;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::KRequired(payload), BarAtlas::KRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 10_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                        Ok(())
+                    }
+                    (BarOut::LRequired(payload), BarAtlas::LRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 11_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::MRequired(payload), BarAtlas::MRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 12_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = super::super::zigzag_encode(*payload);
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::NRequired(payload), BarAtlas::NRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 13_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::ORequired(payload), BarAtlas::ORequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 14_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload)?;
+                        }
+                        Ok(())
+                    }
+                    (BarOut::PRequired(payload), BarAtlas::PRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 15_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload.as_bytes())?;
+                        }
+                        Ok(())
+                    }
+                    (BarOut::QRequired(payload), BarAtlas::QRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 16_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                        Ok(())
+                    }
+                    (BarOut::RRequired(payload), BarAtlas::RRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 17_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                        Ok(())
+                    }
+                    (BarOut::SRequired(payload), BarAtlas::SRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 18_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            {
+                                let varint = payload.len() as u64 as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::TRequired(payload), BarAtlas::TRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 19_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                writer.write_all(&payload.to_le_bytes())?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::URequired(payload), BarAtlas::URequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 20_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = *payload;
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::VRequired(payload), BarAtlas::VRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 21_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = super::super::zigzag_encode(*payload);
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::WRequired(payload), BarAtlas::WRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 22_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = *payload as u64;
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::XRequired(payload), BarAtlas::XRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 23_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                                writer.write_all(payload)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::YRequired(payload), BarAtlas::YRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 24_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                                writer.write_all(payload.as_bytes())?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::ZRequired(payload), BarAtlas::ZRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 25_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                                payload.serialize_with_atlas(writer, payload_atlas)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::AaRequired(payload), BarAtlas::AaRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 26_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                                payload.serialize_with_atlas(writer, payload_atlas)?;
+                            }
+                        }
+                        Ok(())
+                    }
+                    (BarOut::AAsymmetric(fallback), BarAtlas::AAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 28_u64, *payload_atlas, false)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::BAsymmetric(payload, fallback), BarAtlas::BAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 29_u64, *payload_atlas, false)?;
+                        if payload.to_bits() != 0_u64 {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::CAsymmetric(payload, fallback), BarAtlas::CAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 30_u64, *payload_atlas, true)?;
+                        {
+                            let varint = *payload;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::DAsymmetric(payload, fallback), BarAtlas::DAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 31_u64, *payload_atlas, true)?;
+                        {
+                            let varint = super::super::zigzag_encode(*payload);
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::EAsymmetric(payload, fallback), BarAtlas::EAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 32_u64, *payload_atlas, true)?;
+                        {
+                            let varint = *payload as u64;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::FAsymmetric(payload, fallback), BarAtlas::FAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 33_u64, *payload_atlas, false)?;
+                        writer.write_all(payload)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::GAsymmetric(payload, fallback), BarAtlas::GAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 34_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::HAsymmetric(payload, fallback), BarAtlas::HAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 35_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::IAsymmetric(payload, fallback), BarAtlas::IAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 36_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::JAsymmetric(payload, fallback), BarAtlas::JAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 37_u64, *payload_atlas, false)?;
+                        {
+                            let varint = payload.len() as u64 as u64;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::KAsymmetric(payload, fallback), BarAtlas::KAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 38_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::LAsymmetric(payload, fallback), BarAtlas::LAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 39_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::MAsymmetric(payload, fallback), BarAtlas::MAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 40_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = super::super::zigzag_encode(*payload);
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::NAsymmetric(payload, fallback), BarAtlas::NAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 41_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::OAsymmetric(payload, fallback), BarAtlas::OAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 42_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload)?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::PAsymmetric(payload, fallback), BarAtlas::PAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 43_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload.as_bytes())?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::QAsymmetric(payload, fallback), BarAtlas::QAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 44_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::RAsymmetric(payload, fallback), BarAtlas::RAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 45_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::SAsymmetric(payload, fallback), BarAtlas::SAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 46_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            {
+                                let varint = payload.len() as u64 as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::TAsymmetric(payload, fallback), BarAtlas::TAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 47_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                writer.write_all(&payload.to_le_bytes())?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::UAsymmetric(payload, fallback), BarAtlas::UAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 48_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = *payload;
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::VAsymmetric(payload, fallback), BarAtlas::VAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 49_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = super::super::zigzag_encode(*payload);
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::WAsymmetric(payload, fallback), BarAtlas::WAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 50_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = *payload as u64;
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::XAsymmetric(payload, fallback), BarAtlas::XAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 51_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                                writer.write_all(payload)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::YAsymmetric(payload, fallback), BarAtlas::YAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 52_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                                writer.write_all(payload.as_bytes())?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::ZAsymmetric(payload, fallback), BarAtlas::ZAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 53_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                                payload.serialize_with_atlas(writer, payload_atlas)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::AaAsymmetric(payload, fallback), BarAtlas::AaAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 54_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                                payload.serialize_with_atlas(writer, payload_atlas)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::AOptional(fallback), BarAtlas::AOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 56_u64, *payload_atlas, false)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::BOptional(payload, fallback), BarAtlas::BOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 57_u64, *payload_atlas, false)?;
+                        if payload.to_bits() != 0_u64 {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::COptional(payload, fallback), BarAtlas::COptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 58_u64, *payload_atlas, true)?;
+                        {
+                            let varint = *payload;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::DOptional(payload, fallback), BarAtlas::DOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 59_u64, *payload_atlas, true)?;
+                        {
+                            let varint = super::super::zigzag_encode(*payload);
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::EOptional(payload, fallback), BarAtlas::EOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 60_u64, *payload_atlas, true)?;
+                        {
+                            let varint = *payload as u64;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::FOptional(payload, fallback), BarAtlas::FOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 61_u64, *payload_atlas, false)?;
+                        writer.write_all(payload)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::GOptional(payload, fallback), BarAtlas::GOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 62_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::HOptional(payload, fallback), BarAtlas::HOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 63_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::IOptional(payload, fallback), BarAtlas::IOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 64_u64, payload_atlas.size(), false)?;
+                        payload.serialize_with_atlas(writer, payload_atlas)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::JOptional(payload, fallback), BarAtlas::JOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 65_u64, *payload_atlas, false)?;
+                        {
+                            let varint = payload.len() as u64 as u64;
+                            match varint {
+                                0_u64 => {}
+                                1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
+                                567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => writer.write_all(&varint.to_le_bytes())?,
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::KOptional(payload, fallback), BarAtlas::KOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 66_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            writer.write_all(&payload.to_le_bytes())?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::LOptional(payload, fallback), BarAtlas::LOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 67_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::MOptional(payload, fallback), BarAtlas::MOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 68_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = super::super::zigzag_encode(*payload);
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::NOptional(payload, fallback), BarAtlas::NOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 69_u64, *payload_atlas, false)?;
+                        for payload in payload {
+                            {
+                                let varint = *payload as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::OOptional(payload, fallback), BarAtlas::OOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 70_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload)?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::POptional(payload, fallback), BarAtlas::POptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 71_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            writer.write_all(payload.as_bytes())?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::QOptional(payload, fallback), BarAtlas::QOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 72_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::ROptional(payload, fallback), BarAtlas::ROptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 73_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                            payload.serialize_with_atlas(writer, payload_atlas)?;
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::SOptional(payload, fallback), BarAtlas::SOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 74_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            {
+                                let varint = payload.len() as u64 as u64;
+                                super::super::serialize_varint(varint, writer)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::TOptional(payload, fallback), BarAtlas::TOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 75_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                writer.write_all(&payload.to_le_bytes())?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::UOptional(payload, fallback), BarAtlas::UOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 76_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = *payload;
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::VOptional(payload, fallback), BarAtlas::VOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 77_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = super::super::zigzag_encode(*payload);
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::WOptional(payload, fallback), BarAtlas::WOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 78_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                            for payload in payload {
+                                {
+                                    let varint = *payload as u64;
+                                    super::super::serialize_varint(varint, writer)?;
+                                }
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::XOptional(payload, fallback), BarAtlas::XOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 79_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                                writer.write_all(payload)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::YOptional(payload, fallback), BarAtlas::YOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 80_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(*payload_atlas as u64, writer)?;
+                                writer.write_all(payload.as_bytes())?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::ZOptional(payload, fallback), BarAtlas::ZOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 81_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                                payload.serialize_with_atlas(writer, payload_atlas)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (BarOut::AaOptional(payload, fallback), BarAtlas::AaOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 82_u64, payload_atlas.0, false)?;
+                        for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                            super::super::serialize_varint(payload_atlas.0 as u64, writer)?;
+                            for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
+                                super::super::serialize_varint(payload_atlas.size() as u64, writer)?;
+                                payload.serialize_with_atlas(writer, payload_atlas)?;
+                            }
+                        }
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl BarAtlas {
+            pub fn size(&self) -> usize {
+                match *self {
+                    BarAtlas::ARequired(ref size, _) => *size,
+                    BarAtlas::BRequired(ref size, _) => *size,
+                    BarAtlas::CRequired(ref size, _) => *size,
+                    BarAtlas::DRequired(ref size, _) => *size,
+                    BarAtlas::ERequired(ref size, _) => *size,
+                    BarAtlas::FRequired(ref size, _) => *size,
+                    BarAtlas::GRequired(ref size, _) => *size,
+                    BarAtlas::HRequired(ref size, _) => *size,
+                    BarAtlas::IRequired(ref size, _) => *size,
+                    BarAtlas::JRequired(ref size, _) => *size,
+                    BarAtlas::KRequired(ref size, _) => *size,
+                    BarAtlas::LRequired(ref size, _) => *size,
+                    BarAtlas::MRequired(ref size, _) => *size,
+                    BarAtlas::NRequired(ref size, _) => *size,
+                    BarAtlas::ORequired(ref size, _) => *size,
+                    BarAtlas::PRequired(ref size, _) => *size,
+                    BarAtlas::QRequired(ref size, _) => *size,
+                    BarAtlas::RRequired(ref size, _) => *size,
+                    BarAtlas::SRequired(ref size, _) => *size,
+                    BarAtlas::TRequired(ref size, _) => *size,
+                    BarAtlas::URequired(ref size, _) => *size,
+                    BarAtlas::VRequired(ref size, _) => *size,
+                    BarAtlas::WRequired(ref size, _) => *size,
+                    BarAtlas::XRequired(ref size, _) => *size,
+                    BarAtlas::YRequired(ref size, _) => *size,
+                    BarAtlas::ZRequired(ref size, _) => *size,
+                    BarAtlas::AaRequired(ref size, _) => *size,
+                    BarAtlas::AAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::BAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::CAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::DAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::EAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::FAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::GAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::HAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::IAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::JAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::KAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::LAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::MAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::NAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::OAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::PAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::QAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::RAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::SAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::TAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::UAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::VAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::WAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::XAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::YAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::ZAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::AaAsymmetric(ref size, _, _) => *size,
+                    BarAtlas::AOptional(ref size, _, _) => *size,
+                    BarAtlas::BOptional(ref size, _, _) => *size,
+                    BarAtlas::COptional(ref size, _, _) => *size,
+                    BarAtlas::DOptional(ref size, _, _) => *size,
+                    BarAtlas::EOptional(ref size, _, _) => *size,
+                    BarAtlas::FOptional(ref size, _, _) => *size,
+                    BarAtlas::GOptional(ref size, _, _) => *size,
+                    BarAtlas::HOptional(ref size, _, _) => *size,
+                    BarAtlas::IOptional(ref size, _, _) => *size,
+                    BarAtlas::JOptional(ref size, _, _) => *size,
+                    BarAtlas::KOptional(ref size, _, _) => *size,
+                    BarAtlas::LOptional(ref size, _, _) => *size,
+                    BarAtlas::MOptional(ref size, _, _) => *size,
+                    BarAtlas::NOptional(ref size, _, _) => *size,
+                    BarAtlas::OOptional(ref size, _, _) => *size,
+                    BarAtlas::POptional(ref size, _, _) => *size,
+                    BarAtlas::QOptional(ref size, _, _) => *size,
+                    BarAtlas::ROptional(ref size, _, _) => *size,
+                    BarAtlas::SOptional(ref size, _, _) => *size,
+                    BarAtlas::TOptional(ref size, _, _) => *size,
+                    BarAtlas::UOptional(ref size, _, _) => *size,
+                    BarAtlas::VOptional(ref size, _, _) => *size,
+                    BarAtlas::WOptional(ref size, _, _) => *size,
+                    BarAtlas::XOptional(ref size, _, _) => *size,
+                    BarAtlas::YOptional(ref size, _, _) => *size,
+                    BarAtlas::ZOptional(ref size, _, _) => *size,
+                    BarAtlas::AaOptional(ref size, _, _) => *size,
+                }
+            }
+        }
     }
 }
 
 pub mod degenerate {
     pub mod types {
+        #[derive(Clone, Debug)]
+        pub struct EmptyStructAtlas {
+            pub _size: usize,
+        }
+
         #[derive(Clone, Debug)]
         pub struct EmptyStructOut {
         }
@@ -7196,11 +7564,12 @@ pub mod degenerate {
 
         impl super::super::Serialize for EmptyStructOut {
             fn size(&self) -> usize {
-                0
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -7243,6 +7612,32 @@ pub mod degenerate {
             }
         }
 
+        impl EmptyStructOut {
+            pub fn atlas(&self) -> EmptyStructAtlas {
+                EmptyStructAtlas {
+                    _size: 0,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &EmptyStructAtlas,
+            ) -> ::std::io::Result<()> {
+                Ok(())
+            }
+        }
+
+        impl EmptyStructAtlas {
+            pub fn size(&self) -> usize {
+                self._size
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum EmptyChoiceAtlas {
+        }
+
         #[derive(Clone, Debug)]
         pub enum EmptyChoiceOut {
         }
@@ -7253,13 +7648,12 @@ pub mod degenerate {
 
         impl super::super::Serialize for EmptyChoiceOut {
             fn size(&self) -> usize {
-                match *self {
-                }
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                }
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -7289,11 +7683,51 @@ pub mod degenerate {
                 }
             }
         }
+
+        impl EmptyChoiceOut {
+            pub fn atlas(&self) -> EmptyChoiceAtlas {
+                match *self {
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &EmptyChoiceAtlas,
+            ) -> ::std::io::Result<()> {
+                match (self, atlas) {
+                    (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl EmptyChoiceAtlas {
+            pub fn size(&self) -> usize {
+                match *self {
+                }
+            }
+        }
     }
 }
 
 pub mod schema_evolution {
     pub mod after {
+        #[derive(Clone, Debug)]
+        pub struct ExampleStructAtlas {
+            pub _size: usize,
+            pub required_to_required: usize,
+            pub required_to_asymmetric: usize,
+            pub required_to_optional: Option<usize>,
+            pub asymmetric_to_required: usize,
+            pub asymmetric_to_asymmetric: usize,
+            pub asymmetric_to_optional: Option<usize>,
+            pub optional_to_required: usize,
+            pub optional_to_asymmetric: usize,
+            pub optional_to_optional: Option<usize>,
+            pub nonexistent_to_asymmetric: usize,
+            pub nonexistent_to_optional: Option<usize>,
+        }
+
         #[derive(Clone, Debug)]
         pub struct ExampleStructOut {
             pub required_to_required: String,
@@ -7326,122 +7760,12 @@ pub mod schema_evolution {
 
         impl super::super::Serialize for ExampleStructOut {
             fn size(&self) -> usize {
-                ({
-                    let payload = &self.required_to_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(0_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.required_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(1_u64, payload_size, false) + payload_size
-                }) + self.required_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(2_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(4_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(5_u64, payload_size, false) + payload_size
-                }) + self.asymmetric_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(6_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.optional_to_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(8_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.optional_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(9_u64, payload_size, false) + payload_size
-                }) + self.optional_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(10_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = (0_usize);
-                    super::super::field_header_size(13_u64, payload_size, false) + payload_size
-                }) + self.nonexistent_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (0_usize);
-                    super::super::field_header_size(14_u64, payload_size, false) + payload_size
-                })
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                {
-                    let payload = &self.required_to_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.required_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 1_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.required_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 2_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 4_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.asymmetric_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.optional_to_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.optional_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.nonexistent_to_asymmetric;
-                    let payload_size = (0_usize);
-                    super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                }
-
-                if let Some(payload) = &self.nonexistent_to_optional {
-                    let payload_size = (0_usize);
-                    super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
-                }
-
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -7451,17 +7775,17 @@ pub mod schema_evolution {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut required_to_required_field: Option<String> = None;
-                let mut required_to_asymmetric_field: Option<String> = None;
-                let mut required_to_optional_field: Option<String> = None;
-                let mut asymmetric_to_required_field: Option<String> = None;
-                let mut asymmetric_to_asymmetric_field: Option<String> = None;
-                let mut asymmetric_to_optional_field: Option<String> = None;
-                let mut optional_to_required_field: Option<String> = None;
-                let mut optional_to_asymmetric_field: Option<String> = None;
-                let mut optional_to_optional_field: Option<String> = None;
-                let mut nonexistent_to_asymmetric_field: Option<()> = None;
-                let mut nonexistent_to_optional_field: Option<()> = None;
+                let mut _required_to_required: Option<String> = None;
+                let mut _required_to_asymmetric: Option<String> = None;
+                let mut _required_to_optional: Option<String> = None;
+                let mut _asymmetric_to_required: Option<String> = None;
+                let mut _asymmetric_to_asymmetric: Option<String> = None;
+                let mut _asymmetric_to_optional: Option<String> = None;
+                let mut _optional_to_required: Option<String> = None;
+                let mut _optional_to_asymmetric: Option<String> = None;
+                let mut _optional_to_optional: Option<String> = None;
+                let mut _nonexistent_to_asymmetric: Option<()> = None;
+                let mut _nonexistent_to_optional: Option<()> = None;
 
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
@@ -7485,7 +7809,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_required_field.get_or_insert(payload);
+                            _required_to_required.get_or_insert(payload);
                         }
                         1 => {
                             let mut buffer = vec![];
@@ -7494,7 +7818,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_asymmetric_field.get_or_insert(payload);
+                            _required_to_asymmetric.get_or_insert(payload);
                         }
                         2 => {
                             let mut buffer = vec![];
@@ -7503,7 +7827,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_optional_field.get_or_insert(payload);
+                            _required_to_optional.get_or_insert(payload);
                         }
                         4 => {
                             let mut buffer = vec![];
@@ -7512,7 +7836,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_required_field.get_or_insert(payload);
+                            _asymmetric_to_required.get_or_insert(payload);
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -7521,7 +7845,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_asymmetric_field.get_or_insert(payload);
+                            _asymmetric_to_asymmetric.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -7530,7 +7854,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_optional_field.get_or_insert(payload);
+                            _asymmetric_to_optional.get_or_insert(payload);
                         }
                         8 => {
                             let mut buffer = vec![];
@@ -7539,7 +7863,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_required_field.get_or_insert(payload);
+                            _optional_to_required.get_or_insert(payload);
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -7548,7 +7872,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_asymmetric_field.get_or_insert(payload);
+                            _optional_to_asymmetric.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -7557,15 +7881,15 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_optional_field.get_or_insert(payload);
+                            _optional_to_optional.get_or_insert(payload);
                         }
                         13 => {
                             let payload = ();
-                            nonexistent_to_asymmetric_field.get_or_insert(payload);
+                            _nonexistent_to_asymmetric.get_or_insert(payload);
                         }
                         14 => {
                             let payload = ();
-                            nonexistent_to_optional_field.get_or_insert(payload);
+                            _nonexistent_to_optional.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -7573,7 +7897,9 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required_field.is_none() || asymmetric_to_required_field.is_none() || optional_to_required_field.is_none() {
+                if _required_to_required.is_none()
+                    || _asymmetric_to_required.is_none()
+                    || _optional_to_required.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         "Struct missing one or more field(s).",
@@ -7581,17 +7907,17 @@ pub mod schema_evolution {
                 }
 
                 Ok(ExampleStructIn {
-                    required_to_required: required_to_required_field.unwrap(),
-                    required_to_asymmetric: required_to_asymmetric_field,
-                    required_to_optional: required_to_optional_field,
-                    asymmetric_to_required: asymmetric_to_required_field.unwrap(),
-                    asymmetric_to_asymmetric: asymmetric_to_asymmetric_field,
-                    asymmetric_to_optional: asymmetric_to_optional_field,
-                    optional_to_required: optional_to_required_field.unwrap(),
-                    optional_to_asymmetric: optional_to_asymmetric_field,
-                    optional_to_optional: optional_to_optional_field,
-                    nonexistent_to_asymmetric: nonexistent_to_asymmetric_field,
-                    nonexistent_to_optional: nonexistent_to_optional_field,
+                    required_to_required: _required_to_required.unwrap(),
+                    required_to_asymmetric: _required_to_asymmetric,
+                    required_to_optional: _required_to_optional,
+                    asymmetric_to_required: _asymmetric_to_required.unwrap(),
+                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
+                    asymmetric_to_optional: _asymmetric_to_optional,
+                    optional_to_required: _optional_to_required.unwrap(),
+                    optional_to_asymmetric: _optional_to_asymmetric,
+                    optional_to_optional: _optional_to_optional,
+                    nonexistent_to_asymmetric: _nonexistent_to_asymmetric,
+                    nonexistent_to_optional: _nonexistent_to_optional,
                 })
             }
         }
@@ -7612,6 +7938,144 @@ pub mod schema_evolution {
                     nonexistent_to_optional: message.nonexistent_to_optional.map(|payload| payload.into()),
                 }
             }
+        }
+
+        impl ExampleStructOut {
+            pub fn atlas(&self) -> ExampleStructAtlas {
+                let _required_to_required = { let payload = &self.required_to_required; (payload.len()) };
+                let _required_to_asymmetric = { let payload = &self.required_to_asymmetric; (payload.len()) };
+                let _required_to_optional = self.required_to_optional.as_ref().map(|payload| (payload.len()));
+                let _asymmetric_to_required = { let payload = &self.asymmetric_to_required; (payload.len()) };
+                let _asymmetric_to_asymmetric = { let payload = &self.asymmetric_to_asymmetric; (payload.len()) };
+                let _asymmetric_to_optional = self.asymmetric_to_optional.as_ref().map(|payload| (payload.len()));
+                let _optional_to_required = { let payload = &self.optional_to_required; (payload.len()) };
+                let _optional_to_asymmetric = { let payload = &self.optional_to_asymmetric; (payload.len()) };
+                let _optional_to_optional = self.optional_to_optional.as_ref().map(|payload| (payload.len()));
+                let _nonexistent_to_asymmetric = { let payload = &self.nonexistent_to_asymmetric; (0_usize) };
+                let _nonexistent_to_optional = self.nonexistent_to_optional.as_ref().map(|payload| (0_usize));
+
+                ExampleStructAtlas {
+                    _size:
+                        { let payload_atlas = &_required_to_required; let payload_size = *payload_atlas; super::super::field_header_size(0_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_required_to_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(1_u64, payload_size, false) + payload_size }
+                        + _required_to_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(2_u64, payload_size, false) + payload_size })
+                        + { let payload_atlas = &_asymmetric_to_required; let payload_size = *payload_atlas; super::super::field_header_size(4_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_asymmetric_to_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(5_u64, payload_size, false) + payload_size }
+                        + _asymmetric_to_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(6_u64, payload_size, false) + payload_size })
+                        + { let payload_atlas = &_optional_to_required; let payload_size = *payload_atlas; super::super::field_header_size(8_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_optional_to_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(9_u64, payload_size, false) + payload_size }
+                        + _optional_to_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(10_u64, payload_size, false) + payload_size })
+                        + { let payload_atlas = &_nonexistent_to_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(13_u64, payload_size, false) + payload_size }
+                        + _nonexistent_to_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(14_u64, payload_size, false) + payload_size }),
+                    required_to_required: _required_to_required,
+                    required_to_asymmetric: _required_to_asymmetric,
+                    required_to_optional: _required_to_optional,
+                    asymmetric_to_required: _asymmetric_to_required,
+                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
+                    asymmetric_to_optional: _asymmetric_to_optional,
+                    optional_to_required: _optional_to_required,
+                    optional_to_asymmetric: _optional_to_asymmetric,
+                    optional_to_optional: _optional_to_optional,
+                    nonexistent_to_asymmetric: _nonexistent_to_asymmetric,
+                    nonexistent_to_optional: _nonexistent_to_optional,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &ExampleStructAtlas,
+            ) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.required_to_required;
+                    let payload_atlas = &atlas.required_to_required;
+                    super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.required_to_asymmetric;
+                    let payload_atlas = &atlas.required_to_asymmetric;
+                    super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.required_to_optional, &atlas.required_to_optional) {
+                    super::super::serialize_field_header(writer, 2_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_required;
+                    let payload_atlas = &atlas.asymmetric_to_required;
+                    super::super::serialize_field_header(writer, 4_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_asymmetric;
+                    let payload_atlas = &atlas.asymmetric_to_asymmetric;
+                    super::super::serialize_field_header(writer, 5_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.asymmetric_to_optional, &atlas.asymmetric_to_optional) {
+                    super::super::serialize_field_header(writer, 6_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.optional_to_required;
+                    let payload_atlas = &atlas.optional_to_required;
+                    super::super::serialize_field_header(writer, 8_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.optional_to_asymmetric;
+                    let payload_atlas = &atlas.optional_to_asymmetric;
+                    super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.optional_to_optional, &atlas.optional_to_optional) {
+                    super::super::serialize_field_header(writer, 10_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.nonexistent_to_asymmetric;
+                    let payload_atlas = &atlas.nonexistent_to_asymmetric;
+                    super::super::serialize_field_header(writer, 13_u64, *payload_atlas, false)?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.nonexistent_to_optional, &atlas.nonexistent_to_optional) {
+                    super::super::serialize_field_header(writer, 14_u64, *payload_atlas, false)?;
+                }
+
+                Ok(())
+            }
+        }
+
+        impl ExampleStructAtlas {
+            pub fn size(&self) -> usize {
+                self._size
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum ExampleChoiceAtlas {
+            RequiredToRequired(usize, usize),
+            RequiredToAsymmetric(usize, usize, Box<ExampleChoiceAtlas>),
+            AsymmetricToRequired(usize, usize),
+            AsymmetricToAsymmetric(usize, usize, Box<ExampleChoiceAtlas>),
+            AsymmetricToOptional(usize, usize, Box<ExampleChoiceAtlas>),
+            OptionalToRequired(usize, usize),
+            OptionalToAsymmetric(usize, usize, Box<ExampleChoiceAtlas>),
+            OptionalToOptional(usize, usize, Box<ExampleChoiceAtlas>),
+            NonexistentToRequired(usize, usize),
+            NonexistentToAsymmetric(usize, usize, Box<ExampleChoiceAtlas>),
+            NonexistentToOptional(usize, usize, Box<ExampleChoiceAtlas>),
         }
 
         #[derive(Clone, Debug)]
@@ -7646,138 +8110,12 @@ pub mod schema_evolution {
 
         impl super::super::Serialize for ExampleChoiceOut {
             fn size(&self) -> usize {
-                match *self {
-                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(0_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(1_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(4_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(5_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(6_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(8_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(9_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(10_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::NonexistentToRequired => {
-                        let payload_size = (0_usize);
-                        super::super::field_header_size(12_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::NonexistentToAsymmetric(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::field_header_size(13_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::NonexistentToOptional(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::field_header_size(14_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                }
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 1_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 4_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::NonexistentToRequired => {
-                        let payload_size = (0_usize);
-                        super::super::serialize_field_header(writer, 12_u64, payload_size, false)?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::NonexistentToAsymmetric(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::serialize_field_header(writer, 13_u64, payload_size, false)?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::NonexistentToOptional(ref fallback) => {
-                        let payload_size = (0_usize);
-                        super::super::serialize_field_header(writer, 14_u64, payload_size, false)?;
-                        fallback.serialize(writer)
-                    }
-                }
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -7913,9 +8251,178 @@ pub mod schema_evolution {
                 }
             }
         }
+
+        impl ExampleChoiceOut {
+            pub fn atlas(&self) -> ExampleChoiceAtlas {
+                match *self {
+                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        ExampleChoiceAtlas::RequiredToRequired(super::super::field_header_size(0_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::RequiredToAsymmetric(super::super::field_header_size(1_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        ExampleChoiceAtlas::AsymmetricToRequired(super::super::field_header_size(4_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::AsymmetricToAsymmetric(super::super::field_header_size(5_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::AsymmetricToOptional(super::super::field_header_size(6_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::OptionalToRequired(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        ExampleChoiceAtlas::OptionalToRequired(super::super::field_header_size(8_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::OptionalToAsymmetric(super::super::field_header_size(9_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::OptionalToOptional(super::super::field_header_size(10_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::NonexistentToRequired => {
+                        let payload = &();
+                        let payload_atlas = (0_usize);
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        ExampleChoiceAtlas::NonexistentToRequired(super::super::field_header_size(12_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    ExampleChoiceOut::NonexistentToAsymmetric(ref fallback) => {
+                        let payload = &();
+                        let payload_atlas = (0_usize);
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::NonexistentToAsymmetric(super::super::field_header_size(13_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::NonexistentToOptional(ref fallback) => {
+                        let payload = &();
+                        let payload_atlas = (0_usize);
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::NonexistentToOptional(super::super::field_header_size(14_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &ExampleChoiceAtlas,
+            ) -> ::std::io::Result<()> {
+                match (self, atlas) {
+                    (ExampleChoiceOut::RequiredToRequired(payload), ExampleChoiceAtlas::RequiredToRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (ExampleChoiceOut::RequiredToAsymmetric(payload, fallback), ExampleChoiceAtlas::RequiredToAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::AsymmetricToRequired(payload), ExampleChoiceAtlas::AsymmetricToRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 4_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback), ExampleChoiceAtlas::AsymmetricToAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 5_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::AsymmetricToOptional(payload, fallback), ExampleChoiceAtlas::AsymmetricToOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 6_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::OptionalToRequired(payload), ExampleChoiceAtlas::OptionalToRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 8_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (ExampleChoiceOut::OptionalToAsymmetric(payload, fallback), ExampleChoiceAtlas::OptionalToAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::OptionalToOptional(payload, fallback), ExampleChoiceAtlas::OptionalToOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 10_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::NonexistentToRequired, ExampleChoiceAtlas::NonexistentToRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 12_u64, *payload_atlas, false)?;
+                        Ok(())
+                    }
+                    (ExampleChoiceOut::NonexistentToAsymmetric(fallback), ExampleChoiceAtlas::NonexistentToAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 13_u64, *payload_atlas, false)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::NonexistentToOptional(fallback), ExampleChoiceAtlas::NonexistentToOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 14_u64, *payload_atlas, false)?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl ExampleChoiceAtlas {
+            pub fn size(&self) -> usize {
+                match *self {
+                    ExampleChoiceAtlas::RequiredToRequired(ref size, _) => *size,
+                    ExampleChoiceAtlas::RequiredToAsymmetric(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToRequired(ref size, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToAsymmetric(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToOptional(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::OptionalToRequired(ref size, _) => *size,
+                    ExampleChoiceAtlas::OptionalToAsymmetric(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::OptionalToOptional(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::NonexistentToRequired(ref size, _) => *size,
+                    ExampleChoiceAtlas::NonexistentToAsymmetric(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::NonexistentToOptional(ref size, _, _) => *size,
+                }
+            }
+        }
     }
 
     pub mod before {
+        #[derive(Clone, Debug)]
+        pub struct ExampleStructAtlas {
+            pub _size: usize,
+            pub required_to_required: usize,
+            pub required_to_asymmetric: usize,
+            pub required_to_optional: usize,
+            pub required_to_nonexistent: usize,
+            pub asymmetric_to_required: usize,
+            pub asymmetric_to_asymmetric: usize,
+            pub asymmetric_to_optional: usize,
+            pub asymmetric_to_nonexistent: usize,
+            pub optional_to_required: Option<usize>,
+            pub optional_to_asymmetric: Option<usize>,
+            pub optional_to_optional: Option<usize>,
+            pub optional_to_nonexistent: Option<usize>,
+        }
+
         #[derive(Clone, Debug)]
         pub struct ExampleStructOut {
             pub required_to_required: String,
@@ -7950,135 +8457,12 @@ pub mod schema_evolution {
 
         impl super::super::Serialize for ExampleStructOut {
             fn size(&self) -> usize {
-                ({
-                    let payload = &self.required_to_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(0_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.required_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(1_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.required_to_optional;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(2_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.required_to_nonexistent;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(3_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_required;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(4_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(5_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_optional;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(6_u64, payload_size, false) + payload_size
-                }) + ({
-                    let payload = &self.asymmetric_to_nonexistent;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(7_u64, payload_size, false) + payload_size
-                }) + self.optional_to_required.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(8_u64, payload_size, false) + payload_size
-                }) + self.optional_to_asymmetric.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(9_u64, payload_size, false) + payload_size
-                }) + self.optional_to_optional.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(10_u64, payload_size, false) + payload_size
-                }) + self.optional_to_nonexistent.as_ref().map_or(0, |payload| {
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(11_u64, payload_size, false) + payload_size
-                })
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                {
-                    let payload = &self.required_to_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.required_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 1_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.required_to_optional;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 2_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.required_to_nonexistent;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 3_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_required;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 4_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_asymmetric;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_optional;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                {
-                    let payload = &self.asymmetric_to_nonexistent;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_to_required {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_to_asymmetric {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_to_optional {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                if let Some(payload) = &self.optional_to_nonexistent {
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -8088,18 +8472,18 @@ pub mod schema_evolution {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut required_to_required_field: Option<String> = None;
-                let mut required_to_asymmetric_field: Option<String> = None;
-                let mut required_to_optional_field: Option<String> = None;
-                let mut required_to_nonexistent_field: Option<String> = None;
-                let mut asymmetric_to_required_field: Option<String> = None;
-                let mut asymmetric_to_asymmetric_field: Option<String> = None;
-                let mut asymmetric_to_optional_field: Option<String> = None;
-                let mut asymmetric_to_nonexistent_field: Option<String> = None;
-                let mut optional_to_required_field: Option<String> = None;
-                let mut optional_to_asymmetric_field: Option<String> = None;
-                let mut optional_to_optional_field: Option<String> = None;
-                let mut optional_to_nonexistent_field: Option<String> = None;
+                let mut _required_to_required: Option<String> = None;
+                let mut _required_to_asymmetric: Option<String> = None;
+                let mut _required_to_optional: Option<String> = None;
+                let mut _required_to_nonexistent: Option<String> = None;
+                let mut _asymmetric_to_required: Option<String> = None;
+                let mut _asymmetric_to_asymmetric: Option<String> = None;
+                let mut _asymmetric_to_optional: Option<String> = None;
+                let mut _asymmetric_to_nonexistent: Option<String> = None;
+                let mut _optional_to_required: Option<String> = None;
+                let mut _optional_to_asymmetric: Option<String> = None;
+                let mut _optional_to_optional: Option<String> = None;
+                let mut _optional_to_nonexistent: Option<String> = None;
 
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
@@ -8123,7 +8507,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_required_field.get_or_insert(payload);
+                            _required_to_required.get_or_insert(payload);
                         }
                         1 => {
                             let mut buffer = vec![];
@@ -8132,7 +8516,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_asymmetric_field.get_or_insert(payload);
+                            _required_to_asymmetric.get_or_insert(payload);
                         }
                         2 => {
                             let mut buffer = vec![];
@@ -8141,7 +8525,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_optional_field.get_or_insert(payload);
+                            _required_to_optional.get_or_insert(payload);
                         }
                         3 => {
                             let mut buffer = vec![];
@@ -8150,7 +8534,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            required_to_nonexistent_field.get_or_insert(payload);
+                            _required_to_nonexistent.get_or_insert(payload);
                         }
                         4 => {
                             let mut buffer = vec![];
@@ -8159,7 +8543,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_required_field.get_or_insert(payload);
+                            _asymmetric_to_required.get_or_insert(payload);
                         }
                         5 => {
                             let mut buffer = vec![];
@@ -8168,7 +8552,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_asymmetric_field.get_or_insert(payload);
+                            _asymmetric_to_asymmetric.get_or_insert(payload);
                         }
                         6 => {
                             let mut buffer = vec![];
@@ -8177,7 +8561,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_optional_field.get_or_insert(payload);
+                            _asymmetric_to_optional.get_or_insert(payload);
                         }
                         7 => {
                             let mut buffer = vec![];
@@ -8186,7 +8570,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            asymmetric_to_nonexistent_field.get_or_insert(payload);
+                            _asymmetric_to_nonexistent.get_or_insert(payload);
                         }
                         8 => {
                             let mut buffer = vec![];
@@ -8195,7 +8579,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_required_field.get_or_insert(payload);
+                            _optional_to_required.get_or_insert(payload);
                         }
                         9 => {
                             let mut buffer = vec![];
@@ -8204,7 +8588,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_asymmetric_field.get_or_insert(payload);
+                            _optional_to_asymmetric.get_or_insert(payload);
                         }
                         10 => {
                             let mut buffer = vec![];
@@ -8213,7 +8597,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_optional_field.get_or_insert(payload);
+                            _optional_to_optional.get_or_insert(payload);
                         }
                         11 => {
                             let mut buffer = vec![];
@@ -8222,7 +8606,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            optional_to_nonexistent_field.get_or_insert(payload);
+                            _optional_to_nonexistent.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -8230,7 +8614,10 @@ pub mod schema_evolution {
                     }
                 }
 
-                if required_to_required_field.is_none() || required_to_asymmetric_field.is_none() || required_to_optional_field.is_none() || required_to_nonexistent_field.is_none() {
+                if _required_to_required.is_none()
+                    || _required_to_asymmetric.is_none()
+                    || _required_to_optional.is_none()
+                    || _required_to_nonexistent.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         "Struct missing one or more field(s).",
@@ -8238,18 +8625,18 @@ pub mod schema_evolution {
                 }
 
                 Ok(ExampleStructIn {
-                    required_to_required: required_to_required_field.unwrap(),
-                    required_to_asymmetric: required_to_asymmetric_field.unwrap(),
-                    required_to_optional: required_to_optional_field.unwrap(),
-                    required_to_nonexistent: required_to_nonexistent_field.unwrap(),
-                    asymmetric_to_required: asymmetric_to_required_field,
-                    asymmetric_to_asymmetric: asymmetric_to_asymmetric_field,
-                    asymmetric_to_optional: asymmetric_to_optional_field,
-                    asymmetric_to_nonexistent: asymmetric_to_nonexistent_field,
-                    optional_to_required: optional_to_required_field,
-                    optional_to_asymmetric: optional_to_asymmetric_field,
-                    optional_to_optional: optional_to_optional_field,
-                    optional_to_nonexistent: optional_to_nonexistent_field,
+                    required_to_required: _required_to_required.unwrap(),
+                    required_to_asymmetric: _required_to_asymmetric.unwrap(),
+                    required_to_optional: _required_to_optional.unwrap(),
+                    required_to_nonexistent: _required_to_nonexistent.unwrap(),
+                    asymmetric_to_required: _asymmetric_to_required,
+                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
+                    asymmetric_to_optional: _asymmetric_to_optional,
+                    asymmetric_to_nonexistent: _asymmetric_to_nonexistent,
+                    optional_to_required: _optional_to_required,
+                    optional_to_asymmetric: _optional_to_asymmetric,
+                    optional_to_optional: _optional_to_optional,
+                    optional_to_nonexistent: _optional_to_nonexistent,
                 })
             }
         }
@@ -8271,6 +8658,155 @@ pub mod schema_evolution {
                     optional_to_nonexistent: message.optional_to_nonexistent.map(|payload| payload.into()),
                 }
             }
+        }
+
+        impl ExampleStructOut {
+            pub fn atlas(&self) -> ExampleStructAtlas {
+                let _required_to_required = { let payload = &self.required_to_required; (payload.len()) };
+                let _required_to_asymmetric = { let payload = &self.required_to_asymmetric; (payload.len()) };
+                let _required_to_optional = { let payload = &self.required_to_optional; (payload.len()) };
+                let _required_to_nonexistent = { let payload = &self.required_to_nonexistent; (payload.len()) };
+                let _asymmetric_to_required = { let payload = &self.asymmetric_to_required; (payload.len()) };
+                let _asymmetric_to_asymmetric = { let payload = &self.asymmetric_to_asymmetric; (payload.len()) };
+                let _asymmetric_to_optional = { let payload = &self.asymmetric_to_optional; (payload.len()) };
+                let _asymmetric_to_nonexistent = { let payload = &self.asymmetric_to_nonexistent; (payload.len()) };
+                let _optional_to_required = self.optional_to_required.as_ref().map(|payload| (payload.len()));
+                let _optional_to_asymmetric = self.optional_to_asymmetric.as_ref().map(|payload| (payload.len()));
+                let _optional_to_optional = self.optional_to_optional.as_ref().map(|payload| (payload.len()));
+                let _optional_to_nonexistent = self.optional_to_nonexistent.as_ref().map(|payload| (payload.len()));
+
+                ExampleStructAtlas {
+                    _size:
+                        { let payload_atlas = &_required_to_required; let payload_size = *payload_atlas; super::super::field_header_size(0_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_required_to_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(1_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_required_to_optional; let payload_size = *payload_atlas; super::super::field_header_size(2_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_required_to_nonexistent; let payload_size = *payload_atlas; super::super::field_header_size(3_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_asymmetric_to_required; let payload_size = *payload_atlas; super::super::field_header_size(4_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_asymmetric_to_asymmetric; let payload_size = *payload_atlas; super::super::field_header_size(5_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_asymmetric_to_optional; let payload_size = *payload_atlas; super::super::field_header_size(6_u64, payload_size, false) + payload_size }
+                        + { let payload_atlas = &_asymmetric_to_nonexistent; let payload_size = *payload_atlas; super::super::field_header_size(7_u64, payload_size, false) + payload_size }
+                        + _optional_to_required.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(8_u64, payload_size, false) + payload_size })
+                        + _optional_to_asymmetric.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(9_u64, payload_size, false) + payload_size })
+                        + _optional_to_optional.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(10_u64, payload_size, false) + payload_size })
+                        + _optional_to_nonexistent.as_ref().map_or(0_usize, |payload_atlas| { let payload_size = *payload_atlas; super::super::field_header_size(11_u64, payload_size, false) + payload_size }),
+                    required_to_required: _required_to_required,
+                    required_to_asymmetric: _required_to_asymmetric,
+                    required_to_optional: _required_to_optional,
+                    required_to_nonexistent: _required_to_nonexistent,
+                    asymmetric_to_required: _asymmetric_to_required,
+                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
+                    asymmetric_to_optional: _asymmetric_to_optional,
+                    asymmetric_to_nonexistent: _asymmetric_to_nonexistent,
+                    optional_to_required: _optional_to_required,
+                    optional_to_asymmetric: _optional_to_asymmetric,
+                    optional_to_optional: _optional_to_optional,
+                    optional_to_nonexistent: _optional_to_nonexistent,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &ExampleStructAtlas,
+            ) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.required_to_required;
+                    let payload_atlas = &atlas.required_to_required;
+                    super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.required_to_asymmetric;
+                    let payload_atlas = &atlas.required_to_asymmetric;
+                    super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.required_to_optional;
+                    let payload_atlas = &atlas.required_to_optional;
+                    super::super::serialize_field_header(writer, 2_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.required_to_nonexistent;
+                    let payload_atlas = &atlas.required_to_nonexistent;
+                    super::super::serialize_field_header(writer, 3_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_required;
+                    let payload_atlas = &atlas.asymmetric_to_required;
+                    super::super::serialize_field_header(writer, 4_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_asymmetric;
+                    let payload_atlas = &atlas.asymmetric_to_asymmetric;
+                    super::super::serialize_field_header(writer, 5_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_optional;
+                    let payload_atlas = &atlas.asymmetric_to_optional;
+                    super::super::serialize_field_header(writer, 6_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                {
+                    let payload = &self.asymmetric_to_nonexistent;
+                    let payload_atlas = &atlas.asymmetric_to_nonexistent;
+                    super::super::serialize_field_header(writer, 7_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.optional_to_required, &atlas.optional_to_required) {
+                    super::super::serialize_field_header(writer, 8_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.optional_to_asymmetric, &atlas.optional_to_asymmetric) {
+                    super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.optional_to_optional, &atlas.optional_to_optional) {
+                    super::super::serialize_field_header(writer, 10_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                if let (Some(payload), Some(payload_atlas)) = (&self.optional_to_nonexistent, &atlas.optional_to_nonexistent) {
+                    super::super::serialize_field_header(writer, 11_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                Ok(())
+            }
+        }
+
+        impl ExampleStructAtlas {
+            pub fn size(&self) -> usize {
+                self._size
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum ExampleChoiceAtlas {
+            RequiredToRequired(usize, usize),
+            RequiredToAsymmetric(usize, usize),
+            AsymmetricToRequired(usize, usize, Box<ExampleChoiceAtlas>),
+            AsymmetricToAsymmetric(usize, usize, Box<ExampleChoiceAtlas>),
+            AsymmetricToOptional(usize, usize, Box<ExampleChoiceAtlas>),
+            AsymmetricToNonexistent(usize, usize, Box<ExampleChoiceAtlas>),
+            OptionalToRequired(usize, usize, Box<ExampleChoiceAtlas>),
+            OptionalToAsymmetric(usize, usize, Box<ExampleChoiceAtlas>),
+            OptionalToOptional(usize, usize, Box<ExampleChoiceAtlas>),
+            OptionalToNonexistent(usize, usize, Box<ExampleChoiceAtlas>),
         }
 
         #[derive(Clone, Debug)]
@@ -8303,131 +8839,12 @@ pub mod schema_evolution {
 
         impl super::super::Serialize for ExampleChoiceOut {
             fn size(&self) -> usize {
-                match *self {
-                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(0_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(1_u64, payload_size, false) +
-                            payload_size
-                    }
-                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(4_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(5_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(6_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(7_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(8_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(9_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(10_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(11_u64, payload_size, false) +
-                            payload_size +
-                            fallback.size()
-                    }
-                }
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 1_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 4_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 5_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 6_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 7_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 8_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 9_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 10_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 11_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        fallback.serialize(writer)
-                    }
-                }
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -8567,9 +8984,157 @@ pub mod schema_evolution {
                 }
             }
         }
+
+        impl ExampleChoiceOut {
+            pub fn atlas(&self) -> ExampleChoiceAtlas {
+                match *self {
+                    ExampleChoiceOut::RequiredToRequired(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        ExampleChoiceAtlas::RequiredToRequired(super::super::field_header_size(0_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    ExampleChoiceOut::RequiredToAsymmetric(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        ExampleChoiceAtlas::RequiredToAsymmetric(super::super::field_header_size(1_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                    ExampleChoiceOut::AsymmetricToRequired(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::AsymmetricToRequired(super::super::field_header_size(4_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::AsymmetricToAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::AsymmetricToAsymmetric(super::super::field_header_size(5_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::AsymmetricToOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::AsymmetricToOptional(super::super::field_header_size(6_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::AsymmetricToNonexistent(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::AsymmetricToNonexistent(super::super::field_header_size(7_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::OptionalToRequired(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::OptionalToRequired(super::super::field_header_size(8_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::OptionalToAsymmetric(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::OptionalToAsymmetric(super::super::field_header_size(9_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::OptionalToOptional(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::OptionalToOptional(super::super::field_header_size(10_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                    ExampleChoiceOut::OptionalToNonexistent(ref payload, ref fallback) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        let fallback_atlas = fallback.atlas();
+                        ExampleChoiceAtlas::OptionalToNonexistent(super::super::field_header_size(11_u64, payload_size, false) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
+                    }
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &ExampleChoiceAtlas,
+            ) -> ::std::io::Result<()> {
+                match (self, atlas) {
+                    (ExampleChoiceOut::RequiredToRequired(payload), ExampleChoiceAtlas::RequiredToRequired(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (ExampleChoiceOut::RequiredToAsymmetric(payload), ExampleChoiceAtlas::RequiredToAsymmetric(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 1_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (ExampleChoiceOut::AsymmetricToRequired(payload, fallback), ExampleChoiceAtlas::AsymmetricToRequired(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 4_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::AsymmetricToAsymmetric(payload, fallback), ExampleChoiceAtlas::AsymmetricToAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 5_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::AsymmetricToOptional(payload, fallback), ExampleChoiceAtlas::AsymmetricToOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 6_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::AsymmetricToNonexistent(payload, fallback), ExampleChoiceAtlas::AsymmetricToNonexistent(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 7_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::OptionalToRequired(payload, fallback), ExampleChoiceAtlas::OptionalToRequired(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 8_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::OptionalToAsymmetric(payload, fallback), ExampleChoiceAtlas::OptionalToAsymmetric(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::OptionalToOptional(payload, fallback), ExampleChoiceAtlas::OptionalToOptional(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 10_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (ExampleChoiceOut::OptionalToNonexistent(payload, fallback), ExampleChoiceAtlas::OptionalToNonexistent(_, payload_atlas, fallback_atlas)) => {
+                        super::super::serialize_field_header(writer, 11_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        fallback.serialize_with_atlas(writer, fallback_atlas)
+                    }
+                    (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl ExampleChoiceAtlas {
+            pub fn size(&self) -> usize {
+                match *self {
+                    ExampleChoiceAtlas::RequiredToRequired(ref size, _) => *size,
+                    ExampleChoiceAtlas::RequiredToAsymmetric(ref size, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToRequired(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToAsymmetric(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToOptional(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::AsymmetricToNonexistent(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::OptionalToRequired(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::OptionalToAsymmetric(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::OptionalToOptional(ref size, _, _) => *size,
+                    ExampleChoiceAtlas::OptionalToNonexistent(ref size, _, _) => *size,
+                }
+            }
+        }
     }
 
     pub mod types {
+        #[derive(Clone, Debug)]
+        pub struct SingletonStructAtlas {
+            pub _size: usize,
+            pub x: usize,
+        }
+
         #[derive(Clone, Debug)]
         pub struct SingletonStructOut {
             pub x: String,
@@ -8582,22 +9147,12 @@ pub mod schema_evolution {
 
         impl super::super::Serialize for SingletonStructOut {
             fn size(&self) -> usize {
-                ({
-                    let payload = &self.x;
-                    let payload_size = (payload.len());
-                    super::super::field_header_size(0_u64, payload_size, false) + payload_size
-                })
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                {
-                    let payload = &self.x;
-                    let payload_size = (payload.len());
-                    super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                    writer.write_all(payload.as_bytes())?;
-                }
-
-                Ok(())
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -8607,7 +9162,7 @@ pub mod schema_evolution {
                 Self: Sized,
                 T: ::std::io::BufRead,
             {
-                let mut x_field: Option<String> = None;
+                let mut _x: Option<String> = None;
 
                 loop {
                     let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
@@ -8631,7 +9186,7 @@ pub mod schema_evolution {
                                 |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
                                 |result| Ok(result.to_owned()),
                             )?;
-                            x_field.get_or_insert(payload);
+                            _x.get_or_insert(payload);
                         }
                         _ => {
                             super::super::skip(&mut sub_reader, payload_size as usize)?;
@@ -8639,7 +9194,7 @@ pub mod schema_evolution {
                     }
                 }
 
-                if x_field.is_none() {
+                if _x.is_none() {
                     return Err(::std::io::Error::new(
                         ::std::io::ErrorKind::InvalidData,
                         "Struct missing one or more field(s).",
@@ -8647,7 +9202,7 @@ pub mod schema_evolution {
                 }
 
                 Ok(SingletonStructIn {
-                    x: x_field.unwrap(),
+                    x: _x.unwrap(),
                 })
             }
         }
@@ -8658,6 +9213,44 @@ pub mod schema_evolution {
                     x: message.x.into(),
                 }
             }
+        }
+
+        impl SingletonStructOut {
+            pub fn atlas(&self) -> SingletonStructAtlas {
+                let _x = { let payload = &self.x; (payload.len()) };
+
+                SingletonStructAtlas {
+                    _size:
+                        { let payload_atlas = &_x; let payload_size = *payload_atlas; super::super::field_header_size(0_u64, payload_size, false) + payload_size },
+                    x: _x,
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &SingletonStructAtlas,
+            ) -> ::std::io::Result<()> {
+                {
+                    let payload = &self.x;
+                    let payload_atlas = &atlas.x;
+                    super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                    writer.write_all(payload.as_bytes())?;
+                }
+
+                Ok(())
+            }
+        }
+
+        impl SingletonStructAtlas {
+            pub fn size(&self) -> usize {
+                self._size
+            }
+        }
+
+        #[derive(Clone, Debug)]
+        pub enum SingletonChoiceAtlas {
+            X(usize, usize),
         }
 
         #[derive(Clone, Debug)]
@@ -8672,24 +9265,12 @@ pub mod schema_evolution {
 
         impl super::super::Serialize for SingletonChoiceOut {
             fn size(&self) -> usize {
-                match *self {
-                    SingletonChoiceOut::X(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::field_header_size(0_u64, payload_size, false) +
-                            payload_size
-                    }
-                }
+                self.atlas().size()
             }
 
             fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
-                match *self {
-                    SingletonChoiceOut::X(ref payload) => {
-                        let payload_size = (payload.len());
-                        super::super::serialize_field_header(writer, 0_u64, payload_size, false)?;
-                        writer.write_all(payload.as_bytes())?;
-                        Ok(())
-                    }
-                }
+                let atlas = self.atlas();
+                self.serialize_with_atlas(writer, &atlas)
             }
         }
 
@@ -8727,6 +9308,41 @@ pub mod schema_evolution {
             fn from(message: SingletonChoiceOut) -> Self {
                 match message {
                     SingletonChoiceOut::X(payload) => SingletonChoiceIn::X(payload.into()),
+                }
+            }
+        }
+
+        impl SingletonChoiceOut {
+            pub fn atlas(&self) -> SingletonChoiceAtlas {
+                match *self {
+                    SingletonChoiceOut::X(ref payload) => {
+                        let payload_atlas = (payload.len());
+                        let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
+                        SingletonChoiceAtlas::X(super::super::field_header_size(0_u64, payload_size, false) + payload_size, payload_atlas)
+                    }
+                }
+            }
+
+            pub fn serialize_with_atlas<T: ::std::io::Write>(
+                &self,
+                writer: &mut T,
+                atlas: &SingletonChoiceAtlas,
+            ) -> ::std::io::Result<()> {
+                match (self, atlas) {
+                    (SingletonChoiceOut::X(payload), SingletonChoiceAtlas::X(_, payload_atlas)) => {
+                        super::super::serialize_field_header(writer, 0_u64, *payload_atlas, false)?;
+                        writer.write_all(payload.as_bytes())?;
+                        Ok(())
+                    }
+                    (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl SingletonChoiceAtlas {
+            pub fn size(&self) -> usize {
+                match *self {
+                    SingletonChoiceAtlas::X(ref size, _) => *size,
                 }
             }
         }

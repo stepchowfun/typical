@@ -3,20 +3,30 @@ import { assertRoundTrip } from './assertions';
 
 export default function run(): void {
   assertRoundTrip(
-    CircularDependency.Types.StructFromAbove.atlas,
-    CircularDependency.Types.StructFromAbove.serializeUnsafe,
+    CircularDependency.Types.StructFromAbove.size,
     CircularDependency.Types.StructFromAbove.serialize,
     CircularDependency.Types.StructFromAbove.deserialize,
-    {},
+    {
+      field: 'field',
+      size: 'size',
+      elements: 'elements',
+      fallback: 'fallback',
+    },
   );
 
   console.log();
 
   assertRoundTrip(
-    CircularDependency.Dependency.Types.StructFromBelow.atlas,
-    CircularDependency.Dependency.Types.StructFromBelow.serializeUnsafe,
+    CircularDependency.Dependency.Types.StructFromBelow.size,
     CircularDependency.Dependency.Types.StructFromBelow.serialize,
     CircularDependency.Dependency.Types.StructFromBelow.deserialize,
-    { x: {} },
+    {
+      x: {
+        field: 'field',
+        size: 'size',
+        elements: 'elements',
+        fallback: 'fallback',
+      },
+    },
   );
 }

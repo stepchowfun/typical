@@ -195,6 +195,15 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         ));
                     }
 
+                    if schema_contents[start..end].starts_with('_') {
+                        errors.push(throw::<Error>(
+                            "Identifiers cannot begin with `_`.",
+                            Some(schema_path),
+                            Some(&listing(schema_contents, SourceRange { start: i, end })),
+                            None,
+                        ));
+                    }
+
                     tokens.push(Token {
                         source_range: SourceRange { start: i, end },
                         variant: Variant::Identifier(schema_contents[start..end].into()),
@@ -662,6 +671,25 @@ mod tests {
                 source_range: SourceRange { start: 0, end: 7 },
                 variant: Variant::Identifier(STRUCT_KEYWORD.into()),
             }],
+        );
+    }
+
+    #[test]
+    fn tokenize_bare_identifier_underscore_prefix() {
+        assert_fails!(
+            tokenize(Path::new("foo.t"), "_foo"),
+            "Identifiers cannot begin with `_`.",
+        );
+    }
+
+    #[test]
+    fn tokenize_raw_identifier_underscore_prefix() {
+        assert_fails!(
+            tokenize(
+                Path::new("foo.t"),
+                &format!("{}{}", RAW_IDENTIFIER_SIGIL, "_foo"),
+            ),
+            "Identifiers cannot begin with `_`.",
         );
     }
 
