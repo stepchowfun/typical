@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { Types } from '../generated/types';
 
 const filePath = '/tmp/message';
+const { SendEmailRequest } = Types;
 
 function writeToFile() {
   const message = {
@@ -10,13 +11,13 @@ function writeToFile() {
     body: 'It makes serialization easy and safe.',
   };
 
-  const arrayBuffer = Types.SendEmailRequest.serialize(message);
+  const arrayBuffer = SendEmailRequest.serialize(message);
   writeFileSync(filePath, new DataView(arrayBuffer));
 }
 
 function readFromFile() {
   const fileContents = readFileSync(filePath);
-  const message = Types.SendEmailRequest.deserialize(
+  const message = SendEmailRequest.deserialize(
     new DataView(
       fileContents.buffer,
       fileContents.byteOffset,
