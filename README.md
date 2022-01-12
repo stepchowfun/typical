@@ -2,9 +2,9 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-*Typical* is a [data serialization](https://en.wikipedia.org/wiki/Serialization) framework. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. Typical uses a compact [binary encoding](#binary-encoding) which supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
+*Typical* is a [data serialization](https://en.wikipedia.org/wiki/Serialization) framework. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. The compact [binary encoding](#binary-encoding) supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
-Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference between Typical and those toolchains is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and exhaustive pattern matching. You'll feel at home if you have experience with languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#asymmetric-fields-can-safely-be-promoted-to-required-and-vice-versa)) to the classic problem of how to safely add or remove fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)) without breaking compatibility. The concept of asymmetric fields also solves the dual problem of how to preserve compatibility when adding or removing cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union).
+Typical can be compared to [Protocol Buffers](https://developers.google.com/protocol-buffers) and [Apache Thrift](https://thrift.apache.org/). The main difference is that Typical has a more modern type system based on [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type), emphasizing a safer programming style with non-nullable types and exhaustive pattern matching. You'll feel at home if you have experience with languages that embrace this style, such as Rust and Haskell. Typical offers a new solution (["asymmetric" fields](#asymmetric-fields-can-safely-be-promoted-to-required-and-vice-versa)) to the classic problem of how to safely add or remove fields in [record types](https://en.wikipedia.org/wiki/Record_\(computer_science\)) without breaking compatibility. The concept of asymmetric fields also solves the dual problem of how to preserve compatibility when adding or removing cases in [sum types](https://en.wikipedia.org/wiki/Tagged_union).
 
 In short, Typical offers two important features that are conventionally thought to be at odds:
 
@@ -15,17 +15,17 @@ Typical's design was informed by experience using Protocol Buffers at Google and
 
 ## Supported programming languages
 
-Typical currently supports the following programming languages:
+The following languages are currently supported:
 
 - Rust
 - TypeScript
 - JavaScript (via TypeScript)
 
-See the [language-specific remarks](#language-specific-remarks) for notes about each code generator.
+See [below](#code-generation) for remarks about each code generator.
 
 ## Tutorial
 
-To understand what this is all about, let's walk through an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized for transport. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
+To understand what this is all about, let's walk through an example scenario. Suppose you want to build a simple API for sending emails, and you need to decide how requests and responses will be serialized over the wire. You could use a self-describing format like JSON or XML, but you may want better type safety and performance. Typical has a great story to tell about those things.
 
 Although our example scenario involves a client talking to a server, Typical has no notion of clients or servers. It only deals with serialization and deserialization. Other concerns like networking, encryption, and authentication are outside Typical's purview.
 
@@ -46,11 +46,11 @@ choice SendEmailResponse {
 }
 ```
 
-This schema defines two types: `SendEmailRequest` and `SendEmailResponse`. The first type is a *struct*, which means it describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). The second type is a *choice*, which means it describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* since they can be understood as multiplication and addition of types, respectively, but you don't need to know anything about that to use Typical.
+This schema defines two types: `SendEmailRequest` and `SendEmailResponse`. The first type is a *struct*, which means it describes messages containing a fixed set of fields (in this case, `to`, `subject`, and `body`). The second type is a *choice*, which means it describes messages containing exactly one field from a fixed set of possibilities (in this case, `success` and `error`). Structs and choices are called *algebraic data types* since they can be understood abstractly as multiplication and addition of types, respectively, but you don't need to know anything about that to use Typical.
 
 Each field has both a name (e.g., `body`) and an integer index (e.g., `2`). The name is just for humans, as only the index is used to identify fields in the binary encoding. You can freely rename fields without worrying about binary incompatibility, as long as you don't change the indices.
 
-Each field also has a type. If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`. The `Unit` type holds no information and takes zero bytes to encode.
+Each field also has a type (e.g., `String`). If the type is missing, as it is for the `success` field above, then it defaults to a built-in type called `Unit`. The `Unit` type holds no information and takes zero bytes to encode.
 
 Once you've written your schema, Typical can format it to ensure consistent orthography such as indentation, letter case, etc. The following command will do it, though it won't have any effect on our example since it's already formatted properly:
 
@@ -125,7 +125,7 @@ struct SendEmailRequest {
 
 The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
 
-That kind of attentive rollout may not be feasible. You may not be in control of the order in which clients and servers are updated. Or, the clients and servers might be updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
+That kind of attentive rollout may not be feasible. You might not be in control of the order in which clients and servers are updated. Or, perhaps the clients and servers are updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
@@ -151,7 +151,7 @@ The trouble is that, as long as the field is optional, you can't rely on the typ
 
 You can run into similar trouble when demoting a required field to optional. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated first.
 
-### Making every field optional is not ergonomic
+### Making every field optional isn't ergonomic
 
 Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared optional. For example:
 
@@ -238,9 +238,9 @@ Not to worry—choices can have optional and asymmetric fields, just like struct
 
 Optional and asymmetric fields in choices must be constructed with a fallback field, which is used as a backup in case the reader doesn't recognize or doesn't want to handle the original field. Readers aren't required to handle optional fields; hence, *optional*. Note that the fallback itself might be optional or asymmetric, in which case the fallback must have a fallback, etc. Eventually, the fallback chain ends with a required field. Readers will scan the fallback chain for the first field they recognize.
 
-**Note:** An optional field in a choice is not simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type) or [nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field).
+**Note:** An optional field in a choice isn't simply a field with an [option type](https://en.wikipedia.org/wiki/Option_type)/[nullable type](https://en.wikipedia.org/wiki/Nullable_type). The word "optional" here means that readers can ignore it and use a fallback instead, not that its payload might be missing. It's tempting to assume things work the same way for structs and choices, but in reality things work in [dual](https://en.wikipedia.org/wiki/Dual_\(category_theory\)) ways: optionality for a struct relaxes the burden on writers (they don't have to set the field), whereas for a choice the burden is relaxed on readers (they don't have to handle the field).
 
-Although asymmetric fields in choices must be constructed with a fallback, the fallback is not exposed to readers; they must be able to handle the asymmetric field itself. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can safely be promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
+Although asymmetric fields in choices must be constructed with a fallback, the fallback isn't exposed to readers; they must be able to handle the asymmetric field itself. Thus, asymmetric fields in choices behave like optional fields for writers and like required fields for readers—the opposite of their behavior in structs. Duality strikes again! As with structs, asymmetric fields in choices can safely be promoted to required and vice versa. To emphasize: that's the sole purpose of asymmetric fields.
 
 Consider a more elaborate version of our API response type:
 
@@ -287,7 +287,7 @@ The required cases (`Success` and `Error`) are as you would expect in both types
 
 The optional case, `AuthenticationError`, has a `String` for the error message and a second payload for the fallback. A writer might set the less specific `Error` case as the fallback. Readers can use the fallback if they don't wish to handle the optional case, and readers which don't even know about the optional case will use the fallback automatically.
 
-The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to optional or nonexistent (which will stop readers from having to handle it).
+The asymmetric case, `PleaseTryAgain`, also requires writers to provide a fallback. However, readers don't get to use it. This is a safe intermediate state to use before changing the field to required (which will stop requiring writers to provide a fallback) or changing the field from required to optional/deleting it (which will stop readers from having to handle it).
 
 ### What about default values?
 
@@ -303,7 +303,7 @@ Any user-defined type can safely be migrated to any other user-defined type thro
 - You can safely convert a struct with exactly one field, which must be required, into a choice with just that field and vice versa. This type of change is rare, but is needed to guarantee that any user-defined type can be eventually migrated to any other user-defined type.
 - No other changes are guaranteed to be safe.
 
-In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is reflexive (every schema is compatible with itself) and symmetric (forward compatibility and backward compatibility imply each other), but not transitive (two individually safe schema changes are not necessarily safe as a single change).
+In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is reflexive (every schema is compatible with itself) and symmetric (forward compatibility and backward compatibility imply each other), but not transitive (two individually safe schema changes aren't necessarily safe as a single change).
 
 ## Schema reference
 
@@ -431,10 +431,10 @@ The following built-in types are supported:
 - `U64` is the type of integers in the range [`0`, `2^64`).
 - `S64` is the type of integers in the range [`-2^63`, `2^63`).
 - `Bool` is the type of Booleans.
-  - You could define your own Boolean type as a choice with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type of the programming language targeted by the generated code.
+  - You could define your own Boolean type as a choice with two fields, and it would use the exact same space on the wire. However, the built-in `Bool` type is often more convenient to use, since it corresponds to the native Boolean type in the generated code.
 - `Bytes` is the type of binary blobs.
-- `String` is the type of Unicode strings.
-- Arrays (e.g., `[U64]`) are the types of sequences of some other type. Any type may be used for the elements, including nested arrays (e.g., `[[String]]`).
+- `String` is the type of Unicode text.
+- Arrays (e.g., `[String]`) are the types of sequences of some other type. Arrays can be nested (e.g., `[[String]]`).
 
 ### Comments
 
@@ -444,11 +444,10 @@ Unlike with most programming languages, comments in Typical schemas are associat
 
 ```perl
 # This file contains types relating to a hypothetical email sending API.
-# Comments may span multiple lines.
 
 # A request to send an email
 struct SendEmailRequest {
-    # Whom the email is addressed to
+    # To whom the email is addressed
     to: String = 0
 
     # Who is sending the email
@@ -470,28 +469,36 @@ choice SendEmailResponse {
 
 ### Identifiers
 
-An identifier (the name of a type, field, or import) must start with a letter or an underscore (`_`), and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
+An identifier (the name of a type, field, or import) must start with a letter, and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
 
 ## Security
 
 The generated deserialization code is designed to be safe from malicious inputs in the sense that it protects against unsafe memory accesses like buffer over-reading, buffer overflowing, and arbitrary code execution.
 
-To mitigate memory-based denial-of-service attacks, it's good practice to reject implausibly large messages rather than attempting to deserialize them. In general, you can expect the size of a deserialized message in memory to be within the same order of magnitude as the size of the corresponding serialized message on the wire. However, there is one exception: for values of type `[Unit]` (array of units), only the number of elements is encoded, since the `Unit` values themselves take up zero bytes on the wire. If a field with that type is expected, an attacker can force the deserialization logic to reconstruct arbitrarily large arrays of units (see [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack)). For this reason, we strongly recommend avoiding the use of `[Unit]` in your schema if you intend to consume untrusted inputs. This isn't a major loss, however, since that type is generally useless anyway. It's only supported for the uniformity of the type system; the array [type constructor](https://en.wikipedia.org/wiki/Type_constructor) accepts any type for its argument, even if some combinations have no practical purpose.
+To mitigate memory-based denial-of-service attacks, it's good practice to reject implausibly large messages rather than attempting to deserialize them. In general, you can expect the size of a deserialized message in memory to be within the same order of magnitude as the size of the corresponding serialized message on the wire. However, there is one exception: for values of type `[Unit]` (array of units), only the number of elements is encoded, since the `Unit` values themselves take up zero bytes on the wire. If a field with that type is expected, an attacker can force the deserialization logic to reconstruct arbitrarily large arrays of units (see [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack)). For this reason, we strongly recommend avoiding the use of `[Unit]` in your schema if you intend to consume untrusted inputs. This isn't a major loss, however, since that type is generally useless anyway. It's only supported for the uniformity of the type system; arrays can contain anything, even if certain types of arrays have no practical purpose.
 
-## Language-specific remarks
+## Code generation
 
-Every language has its own patterns and idiosyncrasies. The sections below contain some language-specific notes.
+The code generators have a simple user interface. They have no settings to configure, and they produce a single self-contained source file regardless of the number of schema files. The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use them.
+
+The primary goal is to generate code that is amenable to compiler optimizations, though the generated code is reasonably human-readable too. For example, indentation is used as one would expect, and variables are named appropriately. For web-based applications, it's sensible to [minify](https://en.wikipedia.org/wiki/Minification_\(programming\)) the generated code along with your other application code for distribution.
+
+Typical types map to [plain old data types](https://en.wikipedia.org/wiki/Passive_data_structure), rather than objects with methods like getters and setters. That means serialization and deserialization aren't [zero-copy operations](https://en.wikipedia.org/wiki/Zero-copy), but it also means accessing individual fields of decoded messages is extremely fast.
+
+The code generators are thoroughly exercised with a comprehensive [integration test suite](https://github.com/stepchowfun/typical/tree/main/integration_tests). All of the data serialized by the test suite is recorded in a file called the [omnifile](https://github.com/stepchowfun/typical/blob/main/test_data/omnifile), and every code generator is required to produce identical results, bit-for-bit.
+
+Every programming language has its own patterns and idiosyncrasies. The sections below contain some language-specific notes.
 
 ### Rust
 
-- The generated code is self-contained in that it only depends on the Rust standard library.
+- Typical's type system maps straightforwardly to Rust's `struct`s and `enum`s, but with slightly different naming conventions. All Typical types are written in `UpperCamelCase` (e.g., `String`), whereas Rust uses a combination of that and `lower_snake_case` (e.g., `u64`). Note that Typical's integer types are called `S64` and `U64` ("S" for signed, "U" for unsigned), but the respective types in Rust are `i64` and `u64` ("i" for integer, "u" for unsigned).
 
 ### JavaScript and TypeScript
 
-- The generated code is self-contained in that it only depends on JavaScript's standard built-in objects. It can run in the browser or with Node.js.
+- The generated code runs in Node.js and modern web browsers. Older browsers can be targeted with tools like [Babel](https://babeljs.io/).
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
 - Typical's integer types map to `bigint` rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
-- For extra safety, the generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
+- The generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
 - The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
 
   ```typescript
@@ -583,7 +590,7 @@ A struct must follow these rules:
 - Encoding rules:
   - Optional fields may be missing, but required and asymmetric fields must be present.
 - Decoding rules:
-  - All required fields must be present, whereas optional and asymmetric fields may be missing.
+  - All required fields must be present, but optional and asymmetric fields may be missing.
   - Unrecognized fields are ignored.
 
 #### Choices
@@ -594,7 +601,7 @@ A choice is encoded in the same way as a struct, but with different rules:
   - At least one required field must be present.
 - Decoding rules:
   - At least one required or asymmetric field must be present.
-  - The first field recognized by the receiver is used.
+  - The first field recognized by the reader is used.
 
 For a simple enumerated type (such as `Weekday` above), a field with an index less than 32 takes up a single byte.
 
@@ -609,8 +616,8 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
 - `String` is encoded as UTF-8.
 - Arrays (e.g., `[U64]`) are encoded in one of three ways, depending on the element type:
   - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`, including the special behavior for field values if applicable. Since the elements (of type `Unit`) take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
-  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements is not explicitly encoded.
-  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded as a variable-width integer. The *element* is encoded according to its type. The number of elements is not explicitly encoded.
+  - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements isn't explicitly encoded.
+  - Arrays of any other type (`Bytes`, `String`, nested arrays, or nested messages) are encoded as the contiguous arrangement of (*size*, *element*) pairs, where *size* is the number of bytes of the encoded *element* and is encoded as a variable-width integer. The *element* is encoded according to its type. The number of elements isn't explicitly encoded.
 
 Notice that several types can take advantage of a more compact representation when they are used for the values of fields. For example, a variable-width integer takes 1-9 bytes to encode, but `U64` and `S64` fields only take 0-8 bytes to encode, not including the field header. This may seem impossible—the resolution to this paradox is that the extra information comes from the size mode of the field header.
 
