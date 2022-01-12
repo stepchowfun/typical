@@ -22,13 +22,13 @@ fn write_to_file() -> io::Result<()> {
         body: "It makes serialization easy and safe.".to_owned(),
     };
 
-    let mut file = BufWriter::new(File::create(FILE_PATH)?);
-    message.serialize(&mut file)
+    let file = BufWriter::new(File::create(FILE_PATH)?);
+    message.serialize(file)
 }
 
 fn read_from_file() -> io::Result<()> {
-    let mut file = BufReader::new(File::open(FILE_PATH)?);
-    let message = SendEmailRequestIn::deserialize(&mut file)?;
+    let file = BufReader::new(File::open(FILE_PATH)?);
+    let message = SendEmailRequestIn::deserialize(file)?;
 
     println!("to: {}", message.to);
     println!("subject: {}", message.subject);

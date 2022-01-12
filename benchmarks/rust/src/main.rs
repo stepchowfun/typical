@@ -97,7 +97,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
 
     for i in 0..iterations {
         let offset = message_size * i;
-        U::deserialize(&mut &buffer[offset..offset + message_size])?;
+        U::deserialize(&buffer[offset..offset + message_size])?;
     }
 
     let deserialization_duration = deserialization_instant.elapsed();
