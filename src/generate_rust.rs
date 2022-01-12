@@ -100,14 +100,11 @@ const MISSING_FIELDS_ERROR_MESSAGE: &str = \"Struct missing one or more required
 pub trait Serialize {{
     fn size(&self) -> usize;
 
-    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
+    fn serialize<T: Write>(&self, writer: T) -> io::Result<()>;
 }}
 
-pub trait Deserialize {{
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead;
+pub trait Deserialize: Sized {{
+    fn deserialize<T: BufRead>(reader: T) -> io::Result<Self>;
 }}
 
 fn zigzag_encode(value: i64) -> u64 {{
@@ -517,159 +514,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "Deserialize for ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>",
-                )?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "where")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "Self: Sized,")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "T: ::std::io::BufRead,")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "{{")?;
-                if !&declaration.fields.is_empty() {
-                    for field in &declaration.fields {
-                        write_indentation(buffer, indentation + 2)?;
-                        write!(buffer, "let mut _")?;
-                        write_identifier(buffer, &field.name, Snake, None)?;
-                        write!(buffer, ": Option<")?;
-                        write_type(buffer, &imports, namespace, &field.r#type.variant, In)?;
-                        writeln!(buffer, "> = None;")?;
-                    }
-                    writeln!(buffer)?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "loop {{")?;
-                write_indentation(buffer, indentation + 3)?;
-                write!(buffer, "let (index, payload_size) = match ")?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "deserialize_field_header(&mut *reader) {{")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "Ok(header) => header,")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "Err(err) => {{")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(
-                    buffer,
-                    "if let std::io::ErrorKind::UnexpectedEof = err.kind() {{",
-                )?;
-                write_indentation(buffer, indentation + 6)?;
-                writeln!(buffer, "break;")?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 5)?;
-                writeln!(buffer, "return Err(err);")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}};")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(
-                    buffer,
-                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, \
-                        payload_size as u64);",
-                )?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match index {{")?;
-                for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "{} => {{", field.index)?;
-                    write_deserialization_invocation(
-                        buffer,
-                        indentation + 5,
-                        indentation,
-                        &imports,
-                        namespace,
-                        &field.r#type.variant,
-                        true,
-                    )?;
-                    write_indentation(buffer, indentation + 5)?;
-                    write!(buffer, "_")?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    writeln!(buffer, ".get_or_insert(payload);")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "}}")?;
-                }
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "_ => {{")?;
-                write_indentation(buffer, indentation + 5)?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "skip(&mut sub_reader, payload_size as usize)?;")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                writeln!(buffer)?;
-                // The logic below ensures that all required fields have been parsed.
-                // [tag:required_fields_present]
-                if declaration.fields.iter().any(|field| match field.rule {
-                    schema::Rule::Asymmetric | schema::Rule::Optional => false,
-                    schema::Rule::Required => true,
-                }) {
-                    write_indentation(buffer, indentation + 2)?;
-                    write!(buffer, "if ")?;
-                    let mut first = true;
-                    for field in &declaration.fields {
-                        match field.rule {
-                            schema::Rule::Asymmetric | schema::Rule::Optional => {}
-                            schema::Rule::Required => {
-                                if first {
-                                    first = false;
-                                } else {
-                                    writeln!(buffer)?;
-                                    write_indentation(buffer, indentation + 3)?;
-                                    write!(buffer, "|| ")?;
-                                }
-                                write!(buffer, "_")?;
-                                write_identifier(buffer, &field.name, Snake, None)?;
-                                write!(buffer, ".is_none()")?;
-                            }
-                        }
-                    }
-                    writeln!(buffer, " {{")?;
-                    write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "return Err(::std::io::Error::new(")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "::std::io::ErrorKind::InvalidData,")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    write_supers(buffer, indentation)?;
-                    writeln!(buffer, "MISSING_FIELDS_ERROR_MESSAGE,")?;
-                    write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "));")?;
-                    write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "}}")?;
-                    writeln!(buffer)?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                write!(buffer, "Ok(")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, " {{")?;
-                for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 3)?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    write!(buffer, ": _")?;
-                    write_identifier(buffer, &field.name, Snake, None)?;
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Optional => {}
-                        schema::Rule::Required => {
-                            // This `unwrap` is safe due to [ref:required_fields_present].
-                            write!(buffer, ".unwrap()")?;
-                        }
-                    }
-                    writeln!(buffer, ",")?;
-                }
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}})")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                write_deserialize_function(buffer, indentation + 1)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
 
@@ -901,6 +746,164 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(",
+                )?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "reader: &mut T,")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, ") -> ::std::io::Result<Self> {{")?;
+                if !&declaration.fields.is_empty() {
+                    for field in &declaration.fields {
+                        write_indentation(buffer, indentation + 2)?;
+                        write!(buffer, "let mut _")?;
+                        write_identifier(buffer, &field.name, Snake, None)?;
+                        write!(buffer, ": Option<")?;
+                        write_type(buffer, &imports, namespace, &field.r#type.variant, In)?;
+                        writeln!(buffer, "> = None;")?;
+                    }
+                    writeln!(buffer)?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "loop {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                write!(buffer, "let (index, payload_size) = match ")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "deserialize_field_header(&mut *reader) {{")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "Ok(header) => header,")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "Err(err) => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(
+                    buffer,
+                    "if let std::io::ErrorKind::UnexpectedEof = err.kind() {{",
+                )?;
+                write_indentation(buffer, indentation + 6)?;
+                writeln!(buffer, "break;")?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 5)?;
+                writeln!(buffer, "return Err(err);")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}};")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, \
+                        payload_size as u64);",
+                )?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "match index {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "{} => {{", field.index)?;
+                    write_deserialization_invocation(
+                        buffer,
+                        indentation + 5,
+                        indentation,
+                        &imports,
+                        namespace,
+                        &field.r#type.variant,
+                        true,
+                    )?;
+                    write_indentation(buffer, indentation + 5)?;
+                    write!(buffer, "_")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    writeln!(buffer, ".get_or_insert(payload);")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "_ => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "skip(&mut sub_reader, payload_size as usize)?;")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                writeln!(buffer)?;
+                // The logic below ensures that all required fields have been parsed.
+                // [tag:required_fields_present]
+                if declaration.fields.iter().any(|field| match field.rule {
+                    schema::Rule::Asymmetric | schema::Rule::Optional => false,
+                    schema::Rule::Required => true,
+                }) {
+                    write_indentation(buffer, indentation + 2)?;
+                    write!(buffer, "if ")?;
+                    first = true;
+                    for field in &declaration.fields {
+                        match field.rule {
+                            schema::Rule::Asymmetric | schema::Rule::Optional => {}
+                            schema::Rule::Required => {
+                                if first {
+                                    first = false;
+                                } else {
+                                    writeln!(buffer)?;
+                                    write_indentation(buffer, indentation + 3)?;
+                                    write!(buffer, "|| ")?;
+                                }
+                                write!(buffer, "_")?;
+                                write_identifier(buffer, &field.name, Snake, None)?;
+                                write!(buffer, ".is_none()")?;
+                            }
+                        }
+                    }
+                    writeln!(buffer, " {{")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "return Err(::std::io::Error::new(")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "::std::io::ErrorKind::InvalidData,")?;
+                    write_indentation(buffer, indentation + 4)?;
+                    write_supers(buffer, indentation)?;
+                    writeln!(buffer, "MISSING_FIELDS_ERROR_MESSAGE,")?;
+                    write_indentation(buffer, indentation + 3)?;
+                    writeln!(buffer, "));")?;
+                    write_indentation(buffer, indentation + 2)?;
+                    writeln!(buffer, "}}")?;
+                    writeln!(buffer)?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                write!(buffer, "Ok(")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 3)?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    write!(buffer, ": _")?;
+                    write_identifier(buffer, &field.name, Snake, None)?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Optional => {}
+                        schema::Rule::Required => {
+                            // This `unwrap` is safe due to [ref:required_fields_present].
+                            write!(buffer, ".unwrap()")?;
+                        }
+                    }
+                    writeln!(buffer, ",")?;
+                }
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}})")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -969,98 +972,7 @@ fn write_schema<T: Write>(
                 write!(buffer, "Deserialize for ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
                 writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(
-                    buffer,
-                    "fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>",
-                )?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "where")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "Self: Sized,")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "T: ::std::io::BufRead,")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "{{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "loop {{")?;
-                write_indentation(buffer, indentation + 3)?;
-                write!(buffer, "let (index, payload_size) = ")?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "deserialize_field_header(&mut *reader)?;")?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(
-                    buffer,
-                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, \
-                        payload_size as u64);",
-                )?;
-                writeln!(buffer)?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "match index {{")?;
-                for field in &declaration.fields {
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "{} => {{", field.index)?;
-                    write_deserialization_invocation(
-                        buffer,
-                        indentation + 5,
-                        indentation,
-                        &imports,
-                        namespace,
-                        &field.r#type.variant,
-                        true,
-                    )?;
-                    match field.rule {
-                        schema::Rule::Asymmetric | schema::Rule::Required => {
-                            write_indentation(buffer, indentation + 5)?;
-                            write_supers(buffer, indentation)?;
-                            writeln!(buffer, "finish(&mut *reader)?;")?;
-                            write_indentation(buffer, indentation + 5)?;
-                            write!(buffer, "return Ok(")?;
-                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                            write!(buffer, "::")?;
-                            write_identifier(buffer, &field.name, Pascal, None)?;
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, ");")?;
-                            } else {
-                                writeln!(buffer, "(payload));")?;
-                            }
-                        }
-                        schema::Rule::Optional => {
-                            write_indentation(buffer, indentation + 5)?;
-                            write!(buffer, "let fallback = Box::new(<")?;
-                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                            write!(buffer, " as ")?;
-                            write_supers(buffer, indentation)?;
-                            writeln!(buffer, "Deserialize>::deserialize(&mut *reader)?);")?;
-                            write_indentation(buffer, indentation + 5)?;
-                            write!(buffer, "return Ok(")?;
-                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                            write!(buffer, "::")?;
-                            write_identifier(buffer, &field.name, Pascal, None)?;
-                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                                writeln!(buffer, "(fallback));")?;
-                            } else {
-                                writeln!(buffer, "(payload, fallback));")?;
-                            }
-                        }
-                    }
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "}}")?;
-                }
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "_ => {{")?;
-                write_indentation(buffer, indentation + 5)?;
-                write_supers(buffer, indentation)?;
-                writeln!(buffer, "skip(&mut sub_reader, payload_size as usize)?;")?;
-                write_indentation(buffer, indentation + 4)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 3)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "}}")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
+                write_deserialize_function(buffer, indentation + 1)?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "}}")?;
 
@@ -1315,6 +1227,101 @@ fn write_schema<T: Write>(
 
                 write_indentation(buffer, indentation)?;
                 write!(buffer, "impl ")?;
+                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                writeln!(buffer, " {{")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(
+                    buffer,
+                    "pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(",
+                )?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "reader: &mut T,")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, ") -> ::std::io::Result<Self> {{")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "loop {{")?;
+                write_indentation(buffer, indentation + 3)?;
+                write!(buffer, "let (index, payload_size) = ")?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "deserialize_field_header(&mut *reader)?;")?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(
+                    buffer,
+                    "let mut sub_reader = ::std::io::Read::take(&mut *reader, \
+                        payload_size as u64);",
+                )?;
+                writeln!(buffer)?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "match index {{")?;
+                for field in &declaration.fields {
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "{} => {{", field.index)?;
+                    write_deserialization_invocation(
+                        buffer,
+                        indentation + 5,
+                        indentation,
+                        &imports,
+                        namespace,
+                        &field.r#type.variant,
+                        true,
+                    )?;
+                    match field.rule {
+                        schema::Rule::Asymmetric | schema::Rule::Required => {
+                            write_indentation(buffer, indentation + 5)?;
+                            write_supers(buffer, indentation)?;
+                            writeln!(buffer, "finish(&mut *reader)?;")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "return Ok(")?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, ");")?;
+                            } else {
+                                writeln!(buffer, "(payload));")?;
+                            }
+                        }
+                        schema::Rule::Optional => {
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "let fallback = Box::new(")?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                            writeln!(buffer, "::deserialize_from_reader_ref(&mut *reader)?);")?;
+                            write_indentation(buffer, indentation + 5)?;
+                            write!(buffer, "return Ok(")?;
+                            write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
+                            write!(buffer, "::")?;
+                            write_identifier(buffer, &field.name, Pascal, None)?;
+                            if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
+                                writeln!(buffer, "(fallback));")?;
+                            } else {
+                                writeln!(buffer, "(payload, fallback));")?;
+                            }
+                        }
+                    }
+                    write_indentation(buffer, indentation + 4)?;
+                    writeln!(buffer, "}}")?;
+                }
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "_ => {{")?;
+                write_indentation(buffer, indentation + 5)?;
+                write_supers(buffer, indentation)?;
+                writeln!(buffer, "skip(&mut sub_reader, payload_size as usize)?;")?;
+                write_indentation(buffer, indentation + 4)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 3)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 2)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation + 1)?;
+                writeln!(buffer, "}}")?;
+                write_indentation(buffer, indentation)?;
+                writeln!(buffer, "}}")?;
+
+                writeln!(buffer)?;
+
+                write_indentation(buffer, indentation)?;
+                write!(buffer, "impl ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
                 writeln!(buffer, " {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -1514,13 +1521,28 @@ fn write_serialize_function<T: Write>(
     write_indentation(buffer, indentation)?;
     writeln!(
         buffer,
-        "fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> \
-            ::std::io::Result<()> {{",
+        "fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {{",
     )?;
     write_indentation(buffer, indentation + 1)?;
     writeln!(buffer, "let atlas = self.atlas();")?;
     write_indentation(buffer, indentation + 1)?;
-    writeln!(buffer, "self.serialize_with_atlas(writer, &atlas)")?;
+    writeln!(buffer, "self.serialize_with_atlas(&mut writer, &atlas)")?;
+    write_indentation(buffer, indentation)?;
+    writeln!(buffer, "}}")
+}
+
+// Write the function to deserialize a message.
+fn write_deserialize_function<T: Write>(
+    buffer: &mut T,
+    indentation: usize,
+) -> Result<(), fmt::Error> {
+    write_indentation(buffer, indentation)?;
+    writeln!(
+        buffer,
+        "fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {{",
+    )?;
+    write_indentation(buffer, indentation + 1)?;
+    writeln!(buffer, "Self::deserialize_from_reader_ref(&mut reader)")?;
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "}}")
 }
@@ -2032,13 +2054,15 @@ fn write_u64_serialization_invocation<T: Write>(
 // Write the logic to invoke the deserialization logic for a value, including a trailing line break.
 //
 // Context variables:
-// - `payload_size` (in, unused if `is_field` is `false`)
+// - `payload_size` (in)
 // - `payload` (out, introduced)
 // - `sub_reader` (in and out)
 //
 // Additional notes:
 // - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String` and the encoded data is well-
 //   formed, then `sub_reader` is consumed to the end.
+// - If `type_variant` is `Array` and the element type is `Bool`, `S64`, or `U64`, then
+//   `payload_size` is never read.
 #[allow(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
@@ -2060,11 +2084,11 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "let element_size = match ")?;
+                write!(buffer, "let payload_size = match ")?;
                 write_supers(buffer, supers)?;
                 writeln!(buffer, "deserialize_varint(&mut sub_reader) {{")?;
                 write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "Ok(element_size) => element_size,")?;
+                writeln!(buffer, "Ok(payload_size) => payload_size as usize,")?;
                 write_indentation(buffer, indentation + 2)?;
                 writeln!(buffer, "Err(err) => {{")?;
                 write_indentation(buffer, indentation + 3)?;
@@ -2086,7 +2110,7 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(
                     buffer,
                     "let mut sub_reader = ::std::io::Read::take(\
-                            &mut sub_reader, element_size as u64);",
+                            &mut sub_reader, payload_size as u64);",
                 )?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "payload.push({{")?;
@@ -2107,9 +2131,9 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(buffer, "}}")
             }
             schema::TypeVariant::Bool
+            | schema::TypeVariant::F64
             | schema::TypeVariant::S64
-            | schema::TypeVariant::U64
-            | schema::TypeVariant::F64 => {
+            | schema::TypeVariant::U64 => {
                 write_indentation(buffer, indentation)?;
                 write!(
                     buffer,
@@ -2133,6 +2157,10 @@ fn write_deserialization_invocation<T: Write>(
                 writeln!(buffer, "}}")?;
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "let mut payload = Vec::new();")?;
+                if matches!(inner_type.variant, schema::TypeVariant::F64) {
+                    write_indentation(buffer, indentation)?;
+                    writeln!(buffer, "payload.reserve_exact(payload_size);")?;
+                }
                 write_indentation(buffer, indentation)?;
                 writeln!(buffer, "loop {{")?;
                 write_indentation(buffer, indentation + 1)?;
@@ -2193,6 +2221,8 @@ fn write_deserialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "let mut payload = vec![];")?;
             write_indentation(buffer, indentation)?;
+            writeln!(buffer, "payload.reserve_exact(payload_size);")?;
+            write_indentation(buffer, indentation)?;
             writeln!(
                 buffer,
                 "::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;",
@@ -2200,11 +2230,9 @@ fn write_deserialization_invocation<T: Write>(
         }
         schema::TypeVariant::Custom(_, _) => {
             write_indentation(buffer, indentation)?;
-            write!(buffer, "let payload = <")?;
+            write!(buffer, "let payload = ")?;
             write_type(buffer, imports, namespace, type_variant, In)?;
-            write!(buffer, " as ")?;
-            write_supers(buffer, supers)?;
-            writeln!(buffer, "Deserialize>::deserialize(&mut sub_reader)?;")
+            writeln!(buffer, "::deserialize_from_reader_ref(&mut sub_reader)?;")
         }
         schema::TypeVariant::F64 => {
             write_indentation(buffer, indentation)?;
@@ -2253,26 +2281,14 @@ fn write_deserialization_invocation<T: Write>(
         }
         schema::TypeVariant::String => {
             write_indentation(buffer, indentation)?;
-            writeln!(buffer, "let mut buffer = vec![];")?;
+            writeln!(buffer, "let mut payload = String::new();")?;
+            write_indentation(buffer, indentation)?;
+            writeln!(buffer, "payload.reserve_exact(payload_size);")?;
             write_indentation(buffer, indentation)?;
             writeln!(
                 buffer,
-                "::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;",
-            )?;
-            write_indentation(buffer, indentation)?;
-            writeln!(
-                buffer,
-                "let payload = std::str::from_utf8(&buffer).map_or_else(",
-            )?;
-            write_indentation(buffer, indentation + 1)?;
-            writeln!(
-                buffer,
-                "|err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),",
-            )?;
-            write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "|result| Ok(result.to_owned()),")?;
-            write_indentation(buffer, indentation)?;
-            writeln!(buffer, ")?;")
+                "::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;",
+            )
         }
         schema::TypeVariant::U64 => {
             write_indentation(buffer, indentation)?;

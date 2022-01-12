@@ -12,14 +12,11 @@ const MISSING_FIELDS_ERROR_MESSAGE: &str = "Struct missing one or more required 
 pub trait Serialize {
     fn size(&self) -> usize;
 
-    fn serialize<T: Write>(&self, writer: &mut T) -> io::Result<()>;
+    fn serialize<T: Write>(&self, writer: T) -> io::Result<()>;
 }
 
-pub trait Deserialize {
-    fn deserialize<T>(reader: &mut T) -> io::Result<Self>
-    where
-        Self: Sized,
-        T: BufRead;
+pub trait Deserialize: Sized {
+    fn deserialize<T: BufRead>(reader: T) -> io::Result<Self>;
 }
 
 fn zigzag_encode(value: i64) -> u64 {
@@ -266,55 +263,15 @@ pub mod circular_dependency {
                     self.atlas().size()
                 }
 
-                fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+                fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                     let atlas = self.atlas();
-                    self.serialize_with_atlas(writer, &atlas)
+                    self.serialize_with_atlas(&mut writer, &atlas)
                 }
             }
 
             impl super::super::super::Deserialize for StructFromBelowIn {
-                fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-                where
-                    Self: Sized,
-                    T: ::std::io::BufRead,
-                {
-                    let mut _x: Option<super::super::types::StructFromAboveIn> = None;
-
-                    loop {
-                        let (index, payload_size) = match super::super::super::deserialize_field_header(&mut *reader) {
-                            Ok(header) => header,
-                            Err(err) => {
-                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                    break;
-                                }
-
-                                return Err(err);
-                            }
-                        };
-
-                        let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                        match index {
-                            0 => {
-                                let payload = <super::super::types::StructFromAboveIn as super::super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                _x.get_or_insert(payload);
-                            }
-                            _ => {
-                                super::super::super::skip(&mut sub_reader, payload_size as usize)?;
-                            }
-                        }
-                    }
-
-                    if _x.is_none() {
-                        return Err(::std::io::Error::new(
-                            ::std::io::ErrorKind::InvalidData,
-                            super::super::super::MISSING_FIELDS_ERROR_MESSAGE,
-                        ));
-                    }
-
-                    Ok(StructFromBelowIn {
-                        x: _x.unwrap(),
-                    })
+                fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                    Self::deserialize_from_reader_ref(&mut reader)
                 }
             }
 
@@ -350,6 +307,50 @@ pub mod circular_dependency {
                     }
 
                     Ok(())
+                }
+            }
+
+            impl StructFromBelowIn {
+                pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                    reader: &mut T,
+                ) -> ::std::io::Result<Self> {
+                    let mut _x: Option<super::super::types::StructFromAboveIn> = None;
+
+                    loop {
+                        let (index, payload_size) = match super::super::super::deserialize_field_header(&mut *reader) {
+                            Ok(header) => header,
+                            Err(err) => {
+                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                    break;
+                                }
+
+                                return Err(err);
+                            }
+                        };
+
+                        let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                        match index {
+                            0 => {
+                                let payload = super::super::types::StructFromAboveIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                _x.get_or_insert(payload);
+                            }
+                            _ => {
+                                super::super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            }
+                        }
+                    }
+
+                    if _x.is_none() {
+                        return Err(::std::io::Error::new(
+                            ::std::io::ErrorKind::InvalidData,
+                            super::super::super::MISSING_FIELDS_ERROR_MESSAGE,
+                        ));
+                    }
+
+                    Ok(StructFromBelowIn {
+                        x: _x.unwrap(),
+                    })
                 }
             }
 
@@ -392,96 +393,15 @@ pub mod circular_dependency {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for StructFromAboveIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                let mut _field: Option<String> = None;
-                let mut _size: Option<String> = None;
-                let mut _elements: Option<String> = None;
-                let mut _fallback: Option<String> = None;
-
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _field.get_or_insert(payload);
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _size.get_or_insert(payload);
-                        }
-                        2 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _elements.get_or_insert(payload);
-                        }
-                        3 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _fallback.get_or_insert(payload);
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                if _field.is_none()
-                    || _size.is_none()
-                    || _elements.is_none()
-                    || _fallback.is_none() {
-                    return Err(::std::io::Error::new(
-                        ::std::io::ErrorKind::InvalidData,
-                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
-                    ));
-                }
-
-                Ok(StructFromAboveIn {
-                    field: _field.unwrap(),
-                    size: _size.unwrap(),
-                    elements: _elements.unwrap(),
-                    fallback: _fallback.unwrap(),
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -553,6 +473,79 @@ pub mod circular_dependency {
             }
         }
 
+        impl StructFromAboveIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                let mut _field: Option<String> = None;
+                let mut _size: Option<String> = None;
+                let mut _elements: Option<String> = None;
+                let mut _fallback: Option<String> = None;
+
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _field.get_or_insert(payload);
+                        }
+                        1 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _size.get_or_insert(payload);
+                        }
+                        2 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _elements.get_or_insert(payload);
+                        }
+                        3 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _fallback.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                if _field.is_none()
+                    || _size.is_none()
+                    || _elements.is_none()
+                    || _fallback.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
+                    ));
+                }
+
+                Ok(StructFromAboveIn {
+                    field: _field.unwrap(),
+                    size: _size.unwrap(),
+                    elements: _elements.unwrap(),
+                    fallback: _fallback.unwrap(),
+                })
+            }
+        }
+
         impl StructFromAboveAtlas {
             pub fn size(&self) -> usize {
                 self._size
@@ -581,41 +574,15 @@ pub mod comprehensive {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for LocalStructIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                Ok(LocalStructIn {
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -639,6 +606,36 @@ pub mod comprehensive {
                 atlas: &LocalStructAtlas,
             ) -> ::std::io::Result<()> {
                 Ok(())
+            }
+        }
+
+        impl LocalStructIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                Ok(LocalStructIn {
+                })
             }
         }
 
@@ -909,1941 +906,15 @@ pub mod comprehensive {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for FooIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                let mut _a_required: Option<()> = None;
-                let mut _b_required: Option<f64> = None;
-                let mut _c_required: Option<u64> = None;
-                let mut _d_required: Option<i64> = None;
-                let mut _e_required: Option<bool> = None;
-                let mut _f_required: Option<Vec<u8>> = None;
-                let mut _g_required: Option<String> = None;
-                let mut _h_required: Option<LocalStructIn> = None;
-                let mut _i_required: Option<super::super::degenerate::types::EmptyStructIn> = None;
-                let mut _j_required: Option<Vec<()>> = None;
-                let mut _k_required: Option<Vec<f64>> = None;
-                let mut _l_required: Option<Vec<u64>> = None;
-                let mut _m_required: Option<Vec<i64>> = None;
-                let mut _n_required: Option<Vec<bool>> = None;
-                let mut _o_required: Option<Vec<Vec<u8>>> = None;
-                let mut _p_required: Option<Vec<String>> = None;
-                let mut _q_required: Option<Vec<LocalStructIn>> = None;
-                let mut _r_required: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
-                let mut _s_required: Option<Vec<Vec<()>>> = None;
-                let mut _t_required: Option<Vec<Vec<f64>>> = None;
-                let mut _u_required: Option<Vec<Vec<u64>>> = None;
-                let mut _v_required: Option<Vec<Vec<i64>>> = None;
-                let mut _w_required: Option<Vec<Vec<bool>>> = None;
-                let mut _x_required: Option<Vec<Vec<Vec<u8>>>> = None;
-                let mut _y_required: Option<Vec<Vec<String>>> = None;
-                let mut _z_required: Option<Vec<Vec<LocalStructIn>>> = None;
-                let mut _aa_required: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
-                let mut _a_asymmetric: Option<()> = None;
-                let mut _b_asymmetric: Option<f64> = None;
-                let mut _c_asymmetric: Option<u64> = None;
-                let mut _d_asymmetric: Option<i64> = None;
-                let mut _e_asymmetric: Option<bool> = None;
-                let mut _f_asymmetric: Option<Vec<u8>> = None;
-                let mut _g_asymmetric: Option<String> = None;
-                let mut _h_asymmetric: Option<LocalStructIn> = None;
-                let mut _i_asymmetric: Option<super::super::degenerate::types::EmptyStructIn> = None;
-                let mut _j_asymmetric: Option<Vec<()>> = None;
-                let mut _k_asymmetric: Option<Vec<f64>> = None;
-                let mut _l_asymmetric: Option<Vec<u64>> = None;
-                let mut _m_asymmetric: Option<Vec<i64>> = None;
-                let mut _n_asymmetric: Option<Vec<bool>> = None;
-                let mut _o_asymmetric: Option<Vec<Vec<u8>>> = None;
-                let mut _p_asymmetric: Option<Vec<String>> = None;
-                let mut _q_asymmetric: Option<Vec<LocalStructIn>> = None;
-                let mut _r_asymmetric: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
-                let mut _s_asymmetric: Option<Vec<Vec<()>>> = None;
-                let mut _t_asymmetric: Option<Vec<Vec<f64>>> = None;
-                let mut _u_asymmetric: Option<Vec<Vec<u64>>> = None;
-                let mut _v_asymmetric: Option<Vec<Vec<i64>>> = None;
-                let mut _w_asymmetric: Option<Vec<Vec<bool>>> = None;
-                let mut _x_asymmetric: Option<Vec<Vec<Vec<u8>>>> = None;
-                let mut _y_asymmetric: Option<Vec<Vec<String>>> = None;
-                let mut _z_asymmetric: Option<Vec<Vec<LocalStructIn>>> = None;
-                let mut _aa_asymmetric: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
-                let mut _a_optional: Option<()> = None;
-                let mut _b_optional: Option<f64> = None;
-                let mut _c_optional: Option<u64> = None;
-                let mut _d_optional: Option<i64> = None;
-                let mut _e_optional: Option<bool> = None;
-                let mut _f_optional: Option<Vec<u8>> = None;
-                let mut _g_optional: Option<String> = None;
-                let mut _h_optional: Option<LocalStructIn> = None;
-                let mut _i_optional: Option<super::super::degenerate::types::EmptyStructIn> = None;
-                let mut _j_optional: Option<Vec<()>> = None;
-                let mut _k_optional: Option<Vec<f64>> = None;
-                let mut _l_optional: Option<Vec<u64>> = None;
-                let mut _m_optional: Option<Vec<i64>> = None;
-                let mut _n_optional: Option<Vec<bool>> = None;
-                let mut _o_optional: Option<Vec<Vec<u8>>> = None;
-                let mut _p_optional: Option<Vec<String>> = None;
-                let mut _q_optional: Option<Vec<LocalStructIn>> = None;
-                let mut _r_optional: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
-                let mut _s_optional: Option<Vec<Vec<()>>> = None;
-                let mut _t_optional: Option<Vec<Vec<f64>>> = None;
-                let mut _u_optional: Option<Vec<Vec<u64>>> = None;
-                let mut _v_optional: Option<Vec<Vec<i64>>> = None;
-                let mut _w_optional: Option<Vec<Vec<bool>>> = None;
-                let mut _x_optional: Option<Vec<Vec<Vec<u8>>>> = None;
-                let mut _y_optional: Option<Vec<Vec<String>>> = None;
-                let mut _z_optional: Option<Vec<Vec<LocalStructIn>>> = None;
-                let mut _aa_optional: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
-
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let payload = ();
-                            _a_required.get_or_insert(payload);
-                        }
-                        1 => {
-                            let payload = if payload_size == 0_usize {
-                                0.0_f64
-                            } else {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                f64::from_le_bytes(buffer)
-                            };
-                            _b_required.get_or_insert(payload);
-                        }
-                        2 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            _c_required.get_or_insert(payload);
-                        }
-                        3 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = super::super::zigzag_decode(payload);
-                            _d_required.get_or_insert(payload);
-                        }
-                        4 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = payload != 0_u64;
-                            _e_required.get_or_insert(payload);
-                        }
-                        5 => {
-                            let mut payload = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            _f_required.get_or_insert(payload);
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _g_required.get_or_insert(payload);
-                        }
-                        7 => {
-                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            _h_required.get_or_insert(payload);
-                        }
-                        8 => {
-                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            _i_required.get_or_insert(payload);
-                        }
-                        9 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = vec![(); payload as usize];
-                            _j_required.get_or_insert(payload);
-                        }
-                        10 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                let payload = f64::from_le_bytes(buffer);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _k_required.get_or_insert(payload);
-                        }
-                        11 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _l_required.get_or_insert(payload);
-                        }
-                        12 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = super::super::zigzag_decode(payload);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _m_required.get_or_insert(payload);
-                        }
-                        13 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = payload != 0_u64;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _n_required.get_or_insert(payload);
-                        }
-                        14 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                    payload
-                                });
-                            }
-                            _o_required.get_or_insert(payload);
-                        }
-                        15 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut buffer = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                    let payload = std::str::from_utf8(&buffer).map_or_else(
-                                        |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                        |result| Ok(result.to_owned()),
-                                    )?;
-                                    payload
-                                });
-                            }
-                            _p_required.get_or_insert(payload);
-                        }
-                        16 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            _q_required.get_or_insert(payload);
-                        }
-                        17 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            _r_required.get_or_insert(payload);
-                        }
-                        18 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                    let payload = vec![(); payload as usize];
-                                    payload
-                                });
-                            }
-                            _s_required.get_or_insert(payload);
-                        }
-                        19 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                        let mut buffer = [0; 8];
-                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                        let payload = f64::from_le_bytes(buffer);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _t_required.get_or_insert(payload);
-                        }
-                        20 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _u_required.get_or_insert(payload);
-                        }
-                        21 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = super::super::zigzag_decode(payload);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _v_required.get_or_insert(payload);
-                        }
-                        22 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = payload != 0_u64;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _w_required.get_or_insert(payload);
-                        }
-                        23 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut payload = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _x_required.get_or_insert(payload);
-                        }
-                        24 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _y_required.get_or_insert(payload);
-                        }
-                        25 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _z_required.get_or_insert(payload);
-                        }
-                        26 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _aa_required.get_or_insert(payload);
-                        }
-                        28 => {
-                            let payload = ();
-                            _a_asymmetric.get_or_insert(payload);
-                        }
-                        29 => {
-                            let payload = if payload_size == 0_usize {
-                                0.0_f64
-                            } else {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                f64::from_le_bytes(buffer)
-                            };
-                            _b_asymmetric.get_or_insert(payload);
-                        }
-                        30 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            _c_asymmetric.get_or_insert(payload);
-                        }
-                        31 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = super::super::zigzag_decode(payload);
-                            _d_asymmetric.get_or_insert(payload);
-                        }
-                        32 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = payload != 0_u64;
-                            _e_asymmetric.get_or_insert(payload);
-                        }
-                        33 => {
-                            let mut payload = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            _f_asymmetric.get_or_insert(payload);
-                        }
-                        34 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _g_asymmetric.get_or_insert(payload);
-                        }
-                        35 => {
-                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            _h_asymmetric.get_or_insert(payload);
-                        }
-                        36 => {
-                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            _i_asymmetric.get_or_insert(payload);
-                        }
-                        37 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = vec![(); payload as usize];
-                            _j_asymmetric.get_or_insert(payload);
-                        }
-                        38 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                let payload = f64::from_le_bytes(buffer);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _k_asymmetric.get_or_insert(payload);
-                        }
-                        39 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _l_asymmetric.get_or_insert(payload);
-                        }
-                        40 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = super::super::zigzag_decode(payload);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _m_asymmetric.get_or_insert(payload);
-                        }
-                        41 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = payload != 0_u64;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _n_asymmetric.get_or_insert(payload);
-                        }
-                        42 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                    payload
-                                });
-                            }
-                            _o_asymmetric.get_or_insert(payload);
-                        }
-                        43 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut buffer = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                    let payload = std::str::from_utf8(&buffer).map_or_else(
-                                        |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                        |result| Ok(result.to_owned()),
-                                    )?;
-                                    payload
-                                });
-                            }
-                            _p_asymmetric.get_or_insert(payload);
-                        }
-                        44 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            _q_asymmetric.get_or_insert(payload);
-                        }
-                        45 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            _r_asymmetric.get_or_insert(payload);
-                        }
-                        46 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                    let payload = vec![(); payload as usize];
-                                    payload
-                                });
-                            }
-                            _s_asymmetric.get_or_insert(payload);
-                        }
-                        47 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                        let mut buffer = [0; 8];
-                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                        let payload = f64::from_le_bytes(buffer);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _t_asymmetric.get_or_insert(payload);
-                        }
-                        48 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _u_asymmetric.get_or_insert(payload);
-                        }
-                        49 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = super::super::zigzag_decode(payload);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _v_asymmetric.get_or_insert(payload);
-                        }
-                        50 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = payload != 0_u64;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _w_asymmetric.get_or_insert(payload);
-                        }
-                        51 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut payload = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _x_asymmetric.get_or_insert(payload);
-                        }
-                        52 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _y_asymmetric.get_or_insert(payload);
-                        }
-                        53 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _z_asymmetric.get_or_insert(payload);
-                        }
-                        54 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _aa_asymmetric.get_or_insert(payload);
-                        }
-                        56 => {
-                            let payload = ();
-                            _a_optional.get_or_insert(payload);
-                        }
-                        57 => {
-                            let payload = if payload_size == 0_usize {
-                                0.0_f64
-                            } else {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                f64::from_le_bytes(buffer)
-                            };
-                            _b_optional.get_or_insert(payload);
-                        }
-                        58 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            _c_optional.get_or_insert(payload);
-                        }
-                        59 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = super::super::zigzag_decode(payload);
-                            _d_optional.get_or_insert(payload);
-                        }
-                        60 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = payload != 0_u64;
-                            _e_optional.get_or_insert(payload);
-                        }
-                        61 => {
-                            let mut payload = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            _f_optional.get_or_insert(payload);
-                        }
-                        62 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _g_optional.get_or_insert(payload);
-                        }
-                        63 => {
-                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            _h_optional.get_or_insert(payload);
-                        }
-                        64 => {
-                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            _i_optional.get_or_insert(payload);
-                        }
-                        65 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = vec![(); payload as usize];
-                            _j_optional.get_or_insert(payload);
-                        }
-                        66 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                let payload = f64::from_le_bytes(buffer);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _k_optional.get_or_insert(payload);
-                        }
-                        67 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _l_optional.get_or_insert(payload);
-                        }
-                        68 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = super::super::zigzag_decode(payload);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _m_optional.get_or_insert(payload);
-                        }
-                        69 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = payload != 0_u64;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            _n_optional.get_or_insert(payload);
-                        }
-                        70 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                    payload
-                                });
-                            }
-                            _o_optional.get_or_insert(payload);
-                        }
-                        71 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut buffer = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                    let payload = std::str::from_utf8(&buffer).map_or_else(
-                                        |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                        |result| Ok(result.to_owned()),
-                                    )?;
-                                    payload
-                                });
-                            }
-                            _p_optional.get_or_insert(payload);
-                        }
-                        72 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            _q_optional.get_or_insert(payload);
-                        }
-                        73 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            _r_optional.get_or_insert(payload);
-                        }
-                        74 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                    let payload = vec![(); payload as usize];
-                                    payload
-                                });
-                            }
-                            _s_optional.get_or_insert(payload);
-                        }
-                        75 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                        let mut buffer = [0; 8];
-                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                        let payload = f64::from_le_bytes(buffer);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _t_optional.get_or_insert(payload);
-                        }
-                        76 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _u_optional.get_or_insert(payload);
-                        }
-                        77 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = super::super::zigzag_decode(payload);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _v_optional.get_or_insert(payload);
-                        }
-                        78 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = payload != 0_u64;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _w_optional.get_or_insert(payload);
-                        }
-                        79 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut payload = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _x_optional.get_or_insert(payload);
-                        }
-                        80 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _y_optional.get_or_insert(payload);
-                        }
-                        81 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _z_optional.get_or_insert(payload);
-                        }
-                        82 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            _aa_optional.get_or_insert(payload);
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                if _a_required.is_none()
-                    || _b_required.is_none()
-                    || _c_required.is_none()
-                    || _d_required.is_none()
-                    || _e_required.is_none()
-                    || _f_required.is_none()
-                    || _g_required.is_none()
-                    || _h_required.is_none()
-                    || _i_required.is_none()
-                    || _j_required.is_none()
-                    || _k_required.is_none()
-                    || _l_required.is_none()
-                    || _m_required.is_none()
-                    || _n_required.is_none()
-                    || _o_required.is_none()
-                    || _p_required.is_none()
-                    || _q_required.is_none()
-                    || _r_required.is_none()
-                    || _s_required.is_none()
-                    || _t_required.is_none()
-                    || _u_required.is_none()
-                    || _v_required.is_none()
-                    || _w_required.is_none()
-                    || _x_required.is_none()
-                    || _y_required.is_none()
-                    || _z_required.is_none()
-                    || _aa_required.is_none() {
-                    return Err(::std::io::Error::new(
-                        ::std::io::ErrorKind::InvalidData,
-                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
-                    ));
-                }
-
-                Ok(FooIn {
-                    a_required: _a_required.unwrap(),
-                    b_required: _b_required.unwrap(),
-                    c_required: _c_required.unwrap(),
-                    d_required: _d_required.unwrap(),
-                    e_required: _e_required.unwrap(),
-                    f_required: _f_required.unwrap(),
-                    g_required: _g_required.unwrap(),
-                    h_required: _h_required.unwrap(),
-                    i_required: _i_required.unwrap(),
-                    j_required: _j_required.unwrap(),
-                    k_required: _k_required.unwrap(),
-                    l_required: _l_required.unwrap(),
-                    m_required: _m_required.unwrap(),
-                    n_required: _n_required.unwrap(),
-                    o_required: _o_required.unwrap(),
-                    p_required: _p_required.unwrap(),
-                    q_required: _q_required.unwrap(),
-                    r_required: _r_required.unwrap(),
-                    s_required: _s_required.unwrap(),
-                    t_required: _t_required.unwrap(),
-                    u_required: _u_required.unwrap(),
-                    v_required: _v_required.unwrap(),
-                    w_required: _w_required.unwrap(),
-                    x_required: _x_required.unwrap(),
-                    y_required: _y_required.unwrap(),
-                    z_required: _z_required.unwrap(),
-                    aa_required: _aa_required.unwrap(),
-                    a_asymmetric: _a_asymmetric,
-                    b_asymmetric: _b_asymmetric,
-                    c_asymmetric: _c_asymmetric,
-                    d_asymmetric: _d_asymmetric,
-                    e_asymmetric: _e_asymmetric,
-                    f_asymmetric: _f_asymmetric,
-                    g_asymmetric: _g_asymmetric,
-                    h_asymmetric: _h_asymmetric,
-                    i_asymmetric: _i_asymmetric,
-                    j_asymmetric: _j_asymmetric,
-                    k_asymmetric: _k_asymmetric,
-                    l_asymmetric: _l_asymmetric,
-                    m_asymmetric: _m_asymmetric,
-                    n_asymmetric: _n_asymmetric,
-                    o_asymmetric: _o_asymmetric,
-                    p_asymmetric: _p_asymmetric,
-                    q_asymmetric: _q_asymmetric,
-                    r_asymmetric: _r_asymmetric,
-                    s_asymmetric: _s_asymmetric,
-                    t_asymmetric: _t_asymmetric,
-                    u_asymmetric: _u_asymmetric,
-                    v_asymmetric: _v_asymmetric,
-                    w_asymmetric: _w_asymmetric,
-                    x_asymmetric: _x_asymmetric,
-                    y_asymmetric: _y_asymmetric,
-                    z_asymmetric: _z_asymmetric,
-                    aa_asymmetric: _aa_asymmetric,
-                    a_optional: _a_optional,
-                    b_optional: _b_optional,
-                    c_optional: _c_optional,
-                    d_optional: _d_optional,
-                    e_optional: _e_optional,
-                    f_optional: _f_optional,
-                    g_optional: _g_optional,
-                    h_optional: _h_optional,
-                    i_optional: _i_optional,
-                    j_optional: _j_optional,
-                    k_optional: _k_optional,
-                    l_optional: _l_optional,
-                    m_optional: _m_optional,
-                    n_optional: _n_optional,
-                    o_optional: _o_optional,
-                    p_optional: _p_optional,
-                    q_optional: _q_optional,
-                    r_optional: _r_optional,
-                    s_optional: _s_optional,
-                    t_optional: _t_optional,
-                    u_optional: _u_optional,
-                    v_optional: _v_optional,
-                    w_optional: _w_optional,
-                    x_optional: _x_optional,
-                    y_optional: _y_optional,
-                    z_optional: _z_optional,
-                    aa_optional: _aa_optional,
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -4059,6 +2130,1924 @@ pub mod comprehensive {
             }
         }
 
+        impl FooIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                let mut _a_required: Option<()> = None;
+                let mut _b_required: Option<f64> = None;
+                let mut _c_required: Option<u64> = None;
+                let mut _d_required: Option<i64> = None;
+                let mut _e_required: Option<bool> = None;
+                let mut _f_required: Option<Vec<u8>> = None;
+                let mut _g_required: Option<String> = None;
+                let mut _h_required: Option<LocalStructIn> = None;
+                let mut _i_required: Option<super::super::degenerate::types::EmptyStructIn> = None;
+                let mut _j_required: Option<Vec<()>> = None;
+                let mut _k_required: Option<Vec<f64>> = None;
+                let mut _l_required: Option<Vec<u64>> = None;
+                let mut _m_required: Option<Vec<i64>> = None;
+                let mut _n_required: Option<Vec<bool>> = None;
+                let mut _o_required: Option<Vec<Vec<u8>>> = None;
+                let mut _p_required: Option<Vec<String>> = None;
+                let mut _q_required: Option<Vec<LocalStructIn>> = None;
+                let mut _r_required: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
+                let mut _s_required: Option<Vec<Vec<()>>> = None;
+                let mut _t_required: Option<Vec<Vec<f64>>> = None;
+                let mut _u_required: Option<Vec<Vec<u64>>> = None;
+                let mut _v_required: Option<Vec<Vec<i64>>> = None;
+                let mut _w_required: Option<Vec<Vec<bool>>> = None;
+                let mut _x_required: Option<Vec<Vec<Vec<u8>>>> = None;
+                let mut _y_required: Option<Vec<Vec<String>>> = None;
+                let mut _z_required: Option<Vec<Vec<LocalStructIn>>> = None;
+                let mut _aa_required: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
+                let mut _a_asymmetric: Option<()> = None;
+                let mut _b_asymmetric: Option<f64> = None;
+                let mut _c_asymmetric: Option<u64> = None;
+                let mut _d_asymmetric: Option<i64> = None;
+                let mut _e_asymmetric: Option<bool> = None;
+                let mut _f_asymmetric: Option<Vec<u8>> = None;
+                let mut _g_asymmetric: Option<String> = None;
+                let mut _h_asymmetric: Option<LocalStructIn> = None;
+                let mut _i_asymmetric: Option<super::super::degenerate::types::EmptyStructIn> = None;
+                let mut _j_asymmetric: Option<Vec<()>> = None;
+                let mut _k_asymmetric: Option<Vec<f64>> = None;
+                let mut _l_asymmetric: Option<Vec<u64>> = None;
+                let mut _m_asymmetric: Option<Vec<i64>> = None;
+                let mut _n_asymmetric: Option<Vec<bool>> = None;
+                let mut _o_asymmetric: Option<Vec<Vec<u8>>> = None;
+                let mut _p_asymmetric: Option<Vec<String>> = None;
+                let mut _q_asymmetric: Option<Vec<LocalStructIn>> = None;
+                let mut _r_asymmetric: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
+                let mut _s_asymmetric: Option<Vec<Vec<()>>> = None;
+                let mut _t_asymmetric: Option<Vec<Vec<f64>>> = None;
+                let mut _u_asymmetric: Option<Vec<Vec<u64>>> = None;
+                let mut _v_asymmetric: Option<Vec<Vec<i64>>> = None;
+                let mut _w_asymmetric: Option<Vec<Vec<bool>>> = None;
+                let mut _x_asymmetric: Option<Vec<Vec<Vec<u8>>>> = None;
+                let mut _y_asymmetric: Option<Vec<Vec<String>>> = None;
+                let mut _z_asymmetric: Option<Vec<Vec<LocalStructIn>>> = None;
+                let mut _aa_asymmetric: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
+                let mut _a_optional: Option<()> = None;
+                let mut _b_optional: Option<f64> = None;
+                let mut _c_optional: Option<u64> = None;
+                let mut _d_optional: Option<i64> = None;
+                let mut _e_optional: Option<bool> = None;
+                let mut _f_optional: Option<Vec<u8>> = None;
+                let mut _g_optional: Option<String> = None;
+                let mut _h_optional: Option<LocalStructIn> = None;
+                let mut _i_optional: Option<super::super::degenerate::types::EmptyStructIn> = None;
+                let mut _j_optional: Option<Vec<()>> = None;
+                let mut _k_optional: Option<Vec<f64>> = None;
+                let mut _l_optional: Option<Vec<u64>> = None;
+                let mut _m_optional: Option<Vec<i64>> = None;
+                let mut _n_optional: Option<Vec<bool>> = None;
+                let mut _o_optional: Option<Vec<Vec<u8>>> = None;
+                let mut _p_optional: Option<Vec<String>> = None;
+                let mut _q_optional: Option<Vec<LocalStructIn>> = None;
+                let mut _r_optional: Option<Vec<super::super::degenerate::types::EmptyStructIn>> = None;
+                let mut _s_optional: Option<Vec<Vec<()>>> = None;
+                let mut _t_optional: Option<Vec<Vec<f64>>> = None;
+                let mut _u_optional: Option<Vec<Vec<u64>>> = None;
+                let mut _v_optional: Option<Vec<Vec<i64>>> = None;
+                let mut _w_optional: Option<Vec<Vec<bool>>> = None;
+                let mut _x_optional: Option<Vec<Vec<Vec<u8>>>> = None;
+                let mut _y_optional: Option<Vec<Vec<String>>> = None;
+                let mut _z_optional: Option<Vec<Vec<LocalStructIn>>> = None;
+                let mut _aa_optional: Option<Vec<Vec<super::super::degenerate::types::EmptyStructIn>>> = None;
+
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let payload = ();
+                            _a_required.get_or_insert(payload);
+                        }
+                        1 => {
+                            let payload = if payload_size == 0_usize {
+                                0.0_f64
+                            } else {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                f64::from_le_bytes(buffer)
+                            };
+                            _b_required.get_or_insert(payload);
+                        }
+                        2 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            _c_required.get_or_insert(payload);
+                        }
+                        3 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = super::super::zigzag_decode(payload);
+                            _d_required.get_or_insert(payload);
+                        }
+                        4 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = payload != 0_u64;
+                            _e_required.get_or_insert(payload);
+                        }
+                        5 => {
+                            let mut payload = vec![];
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            _f_required.get_or_insert(payload);
+                        }
+                        6 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _g_required.get_or_insert(payload);
+                        }
+                        7 => {
+                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            _h_required.get_or_insert(payload);
+                        }
+                        8 => {
+                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            _i_required.get_or_insert(payload);
+                        }
+                        9 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = vec![(); payload as usize];
+                            _j_required.get_or_insert(payload);
+                        }
+                        10 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                let payload = f64::from_le_bytes(buffer);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            payload.reserve_exact(payload_size);
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _k_required.get_or_insert(payload);
+                        }
+                        11 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _l_required.get_or_insert(payload);
+                        }
+                        12 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = super::super::zigzag_decode(payload);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _m_required.get_or_insert(payload);
+                        }
+                        13 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = payload != 0_u64;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _n_required.get_or_insert(payload);
+                        }
+                        14 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = vec![];
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            _o_required.get_or_insert(payload);
+                        }
+                        15 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = String::new();
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            _p_required.get_or_insert(payload);
+                        }
+                        16 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            _q_required.get_or_insert(payload);
+                        }
+                        17 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            _r_required.get_or_insert(payload);
+                        }
+                        18 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                    let payload = vec![(); payload as usize];
+                                    payload
+                                });
+                            }
+                            _s_required.get_or_insert(payload);
+                        }
+                        19 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                        let mut buffer = [0; 8];
+                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                        let payload = f64::from_le_bytes(buffer);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    payload.reserve_exact(payload_size);
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _t_required.get_or_insert(payload);
+                        }
+                        20 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _u_required.get_or_insert(payload);
+                        }
+                        21 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = super::super::zigzag_decode(payload);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _v_required.get_or_insert(payload);
+                        }
+                        22 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = payload != 0_u64;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _w_required.get_or_insert(payload);
+                        }
+                        23 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = vec![];
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _x_required.get_or_insert(payload);
+                        }
+                        24 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = String::new();
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _y_required.get_or_insert(payload);
+                        }
+                        25 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _z_required.get_or_insert(payload);
+                        }
+                        26 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _aa_required.get_or_insert(payload);
+                        }
+                        28 => {
+                            let payload = ();
+                            _a_asymmetric.get_or_insert(payload);
+                        }
+                        29 => {
+                            let payload = if payload_size == 0_usize {
+                                0.0_f64
+                            } else {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                f64::from_le_bytes(buffer)
+                            };
+                            _b_asymmetric.get_or_insert(payload);
+                        }
+                        30 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            _c_asymmetric.get_or_insert(payload);
+                        }
+                        31 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = super::super::zigzag_decode(payload);
+                            _d_asymmetric.get_or_insert(payload);
+                        }
+                        32 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = payload != 0_u64;
+                            _e_asymmetric.get_or_insert(payload);
+                        }
+                        33 => {
+                            let mut payload = vec![];
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            _f_asymmetric.get_or_insert(payload);
+                        }
+                        34 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _g_asymmetric.get_or_insert(payload);
+                        }
+                        35 => {
+                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            _h_asymmetric.get_or_insert(payload);
+                        }
+                        36 => {
+                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            _i_asymmetric.get_or_insert(payload);
+                        }
+                        37 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = vec![(); payload as usize];
+                            _j_asymmetric.get_or_insert(payload);
+                        }
+                        38 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                let payload = f64::from_le_bytes(buffer);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            payload.reserve_exact(payload_size);
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _k_asymmetric.get_or_insert(payload);
+                        }
+                        39 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _l_asymmetric.get_or_insert(payload);
+                        }
+                        40 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = super::super::zigzag_decode(payload);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _m_asymmetric.get_or_insert(payload);
+                        }
+                        41 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = payload != 0_u64;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _n_asymmetric.get_or_insert(payload);
+                        }
+                        42 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = vec![];
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            _o_asymmetric.get_or_insert(payload);
+                        }
+                        43 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = String::new();
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            _p_asymmetric.get_or_insert(payload);
+                        }
+                        44 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            _q_asymmetric.get_or_insert(payload);
+                        }
+                        45 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            _r_asymmetric.get_or_insert(payload);
+                        }
+                        46 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                    let payload = vec![(); payload as usize];
+                                    payload
+                                });
+                            }
+                            _s_asymmetric.get_or_insert(payload);
+                        }
+                        47 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                        let mut buffer = [0; 8];
+                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                        let payload = f64::from_le_bytes(buffer);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    payload.reserve_exact(payload_size);
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _t_asymmetric.get_or_insert(payload);
+                        }
+                        48 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _u_asymmetric.get_or_insert(payload);
+                        }
+                        49 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = super::super::zigzag_decode(payload);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _v_asymmetric.get_or_insert(payload);
+                        }
+                        50 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = payload != 0_u64;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _w_asymmetric.get_or_insert(payload);
+                        }
+                        51 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = vec![];
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _x_asymmetric.get_or_insert(payload);
+                        }
+                        52 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = String::new();
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _y_asymmetric.get_or_insert(payload);
+                        }
+                        53 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _z_asymmetric.get_or_insert(payload);
+                        }
+                        54 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _aa_asymmetric.get_or_insert(payload);
+                        }
+                        56 => {
+                            let payload = ();
+                            _a_optional.get_or_insert(payload);
+                        }
+                        57 => {
+                            let payload = if payload_size == 0_usize {
+                                0.0_f64
+                            } else {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                f64::from_le_bytes(buffer)
+                            };
+                            _b_optional.get_or_insert(payload);
+                        }
+                        58 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            _c_optional.get_or_insert(payload);
+                        }
+                        59 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = super::super::zigzag_decode(payload);
+                            _d_optional.get_or_insert(payload);
+                        }
+                        60 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = payload != 0_u64;
+                            _e_optional.get_or_insert(payload);
+                        }
+                        61 => {
+                            let mut payload = vec![];
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            _f_optional.get_or_insert(payload);
+                        }
+                        62 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _g_optional.get_or_insert(payload);
+                        }
+                        63 => {
+                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            _h_optional.get_or_insert(payload);
+                        }
+                        64 => {
+                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            _i_optional.get_or_insert(payload);
+                        }
+                        65 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = vec![(); payload as usize];
+                            _j_optional.get_or_insert(payload);
+                        }
+                        66 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                let payload = f64::from_le_bytes(buffer);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            payload.reserve_exact(payload_size);
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _k_optional.get_or_insert(payload);
+                        }
+                        67 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _l_optional.get_or_insert(payload);
+                        }
+                        68 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = super::super::zigzag_decode(payload);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _m_optional.get_or_insert(payload);
+                        }
+                        69 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = payload != 0_u64;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            _n_optional.get_or_insert(payload);
+                        }
+                        70 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = vec![];
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            _o_optional.get_or_insert(payload);
+                        }
+                        71 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = String::new();
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            _p_optional.get_or_insert(payload);
+                        }
+                        72 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            _q_optional.get_or_insert(payload);
+                        }
+                        73 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            _r_optional.get_or_insert(payload);
+                        }
+                        74 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                    let payload = vec![(); payload as usize];
+                                    payload
+                                });
+                            }
+                            _s_optional.get_or_insert(payload);
+                        }
+                        75 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                        let mut buffer = [0; 8];
+                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                        let payload = f64::from_le_bytes(buffer);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    payload.reserve_exact(payload_size);
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _t_optional.get_or_insert(payload);
+                        }
+                        76 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _u_optional.get_or_insert(payload);
+                        }
+                        77 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = super::super::zigzag_decode(payload);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _v_optional.get_or_insert(payload);
+                        }
+                        78 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = payload != 0_u64;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _w_optional.get_or_insert(payload);
+                        }
+                        79 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = vec![];
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _x_optional.get_or_insert(payload);
+                        }
+                        80 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = String::new();
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _y_optional.get_or_insert(payload);
+                        }
+                        81 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _z_optional.get_or_insert(payload);
+                        }
+                        82 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            _aa_optional.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                if _a_required.is_none()
+                    || _b_required.is_none()
+                    || _c_required.is_none()
+                    || _d_required.is_none()
+                    || _e_required.is_none()
+                    || _f_required.is_none()
+                    || _g_required.is_none()
+                    || _h_required.is_none()
+                    || _i_required.is_none()
+                    || _j_required.is_none()
+                    || _k_required.is_none()
+                    || _l_required.is_none()
+                    || _m_required.is_none()
+                    || _n_required.is_none()
+                    || _o_required.is_none()
+                    || _p_required.is_none()
+                    || _q_required.is_none()
+                    || _r_required.is_none()
+                    || _s_required.is_none()
+                    || _t_required.is_none()
+                    || _u_required.is_none()
+                    || _v_required.is_none()
+                    || _w_required.is_none()
+                    || _x_required.is_none()
+                    || _y_required.is_none()
+                    || _z_required.is_none()
+                    || _aa_required.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
+                    ));
+                }
+
+                Ok(FooIn {
+                    a_required: _a_required.unwrap(),
+                    b_required: _b_required.unwrap(),
+                    c_required: _c_required.unwrap(),
+                    d_required: _d_required.unwrap(),
+                    e_required: _e_required.unwrap(),
+                    f_required: _f_required.unwrap(),
+                    g_required: _g_required.unwrap(),
+                    h_required: _h_required.unwrap(),
+                    i_required: _i_required.unwrap(),
+                    j_required: _j_required.unwrap(),
+                    k_required: _k_required.unwrap(),
+                    l_required: _l_required.unwrap(),
+                    m_required: _m_required.unwrap(),
+                    n_required: _n_required.unwrap(),
+                    o_required: _o_required.unwrap(),
+                    p_required: _p_required.unwrap(),
+                    q_required: _q_required.unwrap(),
+                    r_required: _r_required.unwrap(),
+                    s_required: _s_required.unwrap(),
+                    t_required: _t_required.unwrap(),
+                    u_required: _u_required.unwrap(),
+                    v_required: _v_required.unwrap(),
+                    w_required: _w_required.unwrap(),
+                    x_required: _x_required.unwrap(),
+                    y_required: _y_required.unwrap(),
+                    z_required: _z_required.unwrap(),
+                    aa_required: _aa_required.unwrap(),
+                    a_asymmetric: _a_asymmetric,
+                    b_asymmetric: _b_asymmetric,
+                    c_asymmetric: _c_asymmetric,
+                    d_asymmetric: _d_asymmetric,
+                    e_asymmetric: _e_asymmetric,
+                    f_asymmetric: _f_asymmetric,
+                    g_asymmetric: _g_asymmetric,
+                    h_asymmetric: _h_asymmetric,
+                    i_asymmetric: _i_asymmetric,
+                    j_asymmetric: _j_asymmetric,
+                    k_asymmetric: _k_asymmetric,
+                    l_asymmetric: _l_asymmetric,
+                    m_asymmetric: _m_asymmetric,
+                    n_asymmetric: _n_asymmetric,
+                    o_asymmetric: _o_asymmetric,
+                    p_asymmetric: _p_asymmetric,
+                    q_asymmetric: _q_asymmetric,
+                    r_asymmetric: _r_asymmetric,
+                    s_asymmetric: _s_asymmetric,
+                    t_asymmetric: _t_asymmetric,
+                    u_asymmetric: _u_asymmetric,
+                    v_asymmetric: _v_asymmetric,
+                    w_asymmetric: _w_asymmetric,
+                    x_asymmetric: _x_asymmetric,
+                    y_asymmetric: _y_asymmetric,
+                    z_asymmetric: _z_asymmetric,
+                    aa_asymmetric: _aa_asymmetric,
+                    a_optional: _a_optional,
+                    b_optional: _b_optional,
+                    c_optional: _c_optional,
+                    d_optional: _d_optional,
+                    e_optional: _e_optional,
+                    f_optional: _f_optional,
+                    g_optional: _g_optional,
+                    h_optional: _h_optional,
+                    i_optional: _i_optional,
+                    j_optional: _j_optional,
+                    k_optional: _k_optional,
+                    l_optional: _l_optional,
+                    m_optional: _m_optional,
+                    n_optional: _n_optional,
+                    o_optional: _o_optional,
+                    p_optional: _p_optional,
+                    q_optional: _q_optional,
+                    r_optional: _r_optional,
+                    s_optional: _s_optional,
+                    t_optional: _t_optional,
+                    u_optional: _u_optional,
+                    v_optional: _v_optional,
+                    w_optional: _w_optional,
+                    x_optional: _x_optional,
+                    y_optional: _y_optional,
+                    z_optional: _z_optional,
+                    aa_optional: _aa_optional,
+                })
+            }
+        }
+
         impl FooAtlas {
             pub fn size(&self) -> usize {
                 self._size
@@ -4325,1814 +4314,15 @@ pub mod comprehensive {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for BarIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let payload = ();
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::ARequired);
-                        }
-                        1 => {
-                            let payload = if payload_size == 0_usize {
-                                0.0_f64
-                            } else {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                f64::from_le_bytes(buffer)
-                            };
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::BRequired(payload));
-                        }
-                        2 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::CRequired(payload));
-                        }
-                        3 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = super::super::zigzag_decode(payload);
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::DRequired(payload));
-                        }
-                        4 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = payload != 0_u64;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::ERequired(payload));
-                        }
-                        5 => {
-                            let mut payload = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::FRequired(payload));
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::GRequired(payload));
-                        }
-                        7 => {
-                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::HRequired(payload));
-                        }
-                        8 => {
-                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::IRequired(payload));
-                        }
-                        9 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = vec![(); payload as usize];
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::JRequired(payload));
-                        }
-                        10 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                let payload = f64::from_le_bytes(buffer);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::KRequired(payload));
-                        }
-                        11 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::LRequired(payload));
-                        }
-                        12 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = super::super::zigzag_decode(payload);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::MRequired(payload));
-                        }
-                        13 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = payload != 0_u64;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::NRequired(payload));
-                        }
-                        14 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::ORequired(payload));
-                        }
-                        15 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut buffer = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                    let payload = std::str::from_utf8(&buffer).map_or_else(
-                                        |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                        |result| Ok(result.to_owned()),
-                                    )?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::PRequired(payload));
-                        }
-                        16 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::QRequired(payload));
-                        }
-                        17 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::RRequired(payload));
-                        }
-                        18 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                    let payload = vec![(); payload as usize];
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::SRequired(payload));
-                        }
-                        19 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                        let mut buffer = [0; 8];
-                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                        let payload = f64::from_le_bytes(buffer);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::TRequired(payload));
-                        }
-                        20 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::URequired(payload));
-                        }
-                        21 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = super::super::zigzag_decode(payload);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::VRequired(payload));
-                        }
-                        22 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = payload != 0_u64;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::WRequired(payload));
-                        }
-                        23 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut payload = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::XRequired(payload));
-                        }
-                        24 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::YRequired(payload));
-                        }
-                        25 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::ZRequired(payload));
-                        }
-                        26 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::AaRequired(payload));
-                        }
-                        28 => {
-                            let payload = ();
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::AAsymmetric);
-                        }
-                        29 => {
-                            let payload = if payload_size == 0_usize {
-                                0.0_f64
-                            } else {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                f64::from_le_bytes(buffer)
-                            };
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::BAsymmetric(payload));
-                        }
-                        30 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::CAsymmetric(payload));
-                        }
-                        31 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = super::super::zigzag_decode(payload);
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::DAsymmetric(payload));
-                        }
-                        32 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = payload != 0_u64;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::EAsymmetric(payload));
-                        }
-                        33 => {
-                            let mut payload = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::FAsymmetric(payload));
-                        }
-                        34 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::GAsymmetric(payload));
-                        }
-                        35 => {
-                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::HAsymmetric(payload));
-                        }
-                        36 => {
-                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::IAsymmetric(payload));
-                        }
-                        37 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = vec![(); payload as usize];
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::JAsymmetric(payload));
-                        }
-                        38 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                let payload = f64::from_le_bytes(buffer);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::KAsymmetric(payload));
-                        }
-                        39 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::LAsymmetric(payload));
-                        }
-                        40 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = super::super::zigzag_decode(payload);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::MAsymmetric(payload));
-                        }
-                        41 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = payload != 0_u64;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::NAsymmetric(payload));
-                        }
-                        42 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::OAsymmetric(payload));
-                        }
-                        43 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut buffer = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                    let payload = std::str::from_utf8(&buffer).map_or_else(
-                                        |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                        |result| Ok(result.to_owned()),
-                                    )?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::PAsymmetric(payload));
-                        }
-                        44 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::QAsymmetric(payload));
-                        }
-                        45 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::RAsymmetric(payload));
-                        }
-                        46 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                    let payload = vec![(); payload as usize];
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::SAsymmetric(payload));
-                        }
-                        47 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                        let mut buffer = [0; 8];
-                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                        let payload = f64::from_le_bytes(buffer);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::TAsymmetric(payload));
-                        }
-                        48 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::UAsymmetric(payload));
-                        }
-                        49 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = super::super::zigzag_decode(payload);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::VAsymmetric(payload));
-                        }
-                        50 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = payload != 0_u64;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::WAsymmetric(payload));
-                        }
-                        51 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut payload = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::XAsymmetric(payload));
-                        }
-                        52 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::YAsymmetric(payload));
-                        }
-                        53 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::ZAsymmetric(payload));
-                        }
-                        54 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            super::super::finish(&mut *reader)?;
-                            return Ok(BarIn::AaAsymmetric(payload));
-                        }
-                        56 => {
-                            let payload = ();
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::AOptional(fallback));
-                        }
-                        57 => {
-                            let payload = if payload_size == 0_usize {
-                                0.0_f64
-                            } else {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                f64::from_le_bytes(buffer)
-                            };
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::BOptional(payload, fallback));
-                        }
-                        58 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::COptional(payload, fallback));
-                        }
-                        59 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = super::super::zigzag_decode(payload);
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::DOptional(payload, fallback));
-                        }
-                        60 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = payload != 0_u64;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::EOptional(payload, fallback));
-                        }
-                        61 => {
-                            let mut payload = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::FOptional(payload, fallback));
-                        }
-                        62 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::GOptional(payload, fallback));
-                        }
-                        63 => {
-                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::HOptional(payload, fallback));
-                        }
-                        64 => {
-                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::IOptional(payload, fallback));
-                        }
-                        65 => {
-                            let payload = match payload_size {
-                                0_usize => 0_u64,
-                                8_usize => {
-                                    let mut buffer = [0; 8];
-                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
-                                    u64::from_le_bytes(buffer)
-                                }
-                                _ => super::super::deserialize_varint(&mut sub_reader)?,
-                            };
-                            let payload = vec![(); payload as usize];
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::JOptional(payload, fallback));
-                        }
-                        66 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                let mut buffer = [0; 8];
-                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                let payload = f64::from_le_bytes(buffer);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::KOptional(payload, fallback));
-                        }
-                        67 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::LOptional(payload, fallback));
-                        }
-                        68 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = super::super::zigzag_decode(payload);
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::MOptional(payload, fallback));
-                        }
-                        69 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                let payload = payload != 0_u64;
-                                Ok(payload)
-                            }
-                            let mut payload = Vec::new();
-                            loop {
-                                payload.push(match deserialize_element(&mut sub_reader) {
-                                    Ok(element) => element,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::NOptional(payload, fallback));
-                        }
-                        70 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::OOptional(payload, fallback));
-                        }
-                        71 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut buffer = vec![];
-                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                    let payload = std::str::from_utf8(&buffer).map_or_else(
-                                        |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                        |result| Ok(result.to_owned()),
-                                    )?;
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::POptional(payload, fallback));
-                        }
-                        72 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::QOptional(payload, fallback));
-                        }
-                        73 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::ROptional(payload, fallback));
-                        }
-                        74 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                    let payload = vec![(); payload as usize];
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::SOptional(payload, fallback));
-                        }
-                        75 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
-                                        let mut buffer = [0; 8];
-                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
-                                        let payload = f64::from_le_bytes(buffer);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::TOptional(payload, fallback));
-                        }
-                        76 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::UOptional(payload, fallback));
-                        }
-                        77 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = super::super::zigzag_decode(payload);
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::VOptional(payload, fallback));
-                        }
-                        78 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
-                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
-                                        let payload = payload != 0_u64;
-                                        Ok(payload)
-                                    }
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        payload.push(match deserialize_element(&mut sub_reader) {
-                                            Ok(element) => element,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::WOptional(payload, fallback));
-                        }
-                        79 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut payload = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::XOptional(payload, fallback));
-                        }
-                        80 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let mut buffer = vec![];
-                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                                |result| Ok(result.to_owned()),
-                                            )?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::YOptional(payload, fallback));
-                        }
-                        81 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <LocalStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::ZOptional(payload, fallback));
-                        }
-                        82 => {
-                            let mut payload = Vec::new();
-                            loop {
-                                let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                    Ok(element_size) => element_size,
-                                    Err(err) => {
-                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                            break;
-                                        }
-                                        return Err(err);
-                                    }
-                                };
-                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                payload.push({
-                                    let mut payload = Vec::new();
-                                    loop {
-                                        let element_size = match super::super::deserialize_varint(&mut sub_reader) {
-                                            Ok(element_size) => element_size,
-                                            Err(err) => {
-                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                                    break;
-                                                }
-                                                return Err(err);
-                                            }
-                                        };
-                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, element_size as u64);
-                                        payload.push({
-                                            let payload = <super::super::degenerate::types::EmptyStructIn as super::super::Deserialize>::deserialize(&mut sub_reader)?;
-                                            payload
-                                        });
-                                    }
-                                    payload
-                                });
-                            }
-                            let fallback = Box::new(<BarIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(BarIn::AaOptional(payload, fallback));
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -7459,6 +5649,1797 @@ pub mod comprehensive {
             }
         }
 
+        impl BarIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let payload = ();
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::ARequired);
+                        }
+                        1 => {
+                            let payload = if payload_size == 0_usize {
+                                0.0_f64
+                            } else {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                f64::from_le_bytes(buffer)
+                            };
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::BRequired(payload));
+                        }
+                        2 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::CRequired(payload));
+                        }
+                        3 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = super::super::zigzag_decode(payload);
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::DRequired(payload));
+                        }
+                        4 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = payload != 0_u64;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::ERequired(payload));
+                        }
+                        5 => {
+                            let mut payload = vec![];
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::FRequired(payload));
+                        }
+                        6 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::GRequired(payload));
+                        }
+                        7 => {
+                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::HRequired(payload));
+                        }
+                        8 => {
+                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::IRequired(payload));
+                        }
+                        9 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = vec![(); payload as usize];
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::JRequired(payload));
+                        }
+                        10 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                let payload = f64::from_le_bytes(buffer);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            payload.reserve_exact(payload_size);
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::KRequired(payload));
+                        }
+                        11 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::LRequired(payload));
+                        }
+                        12 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = super::super::zigzag_decode(payload);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::MRequired(payload));
+                        }
+                        13 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = payload != 0_u64;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::NRequired(payload));
+                        }
+                        14 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = vec![];
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::ORequired(payload));
+                        }
+                        15 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = String::new();
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::PRequired(payload));
+                        }
+                        16 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::QRequired(payload));
+                        }
+                        17 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::RRequired(payload));
+                        }
+                        18 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                    let payload = vec![(); payload as usize];
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::SRequired(payload));
+                        }
+                        19 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                        let mut buffer = [0; 8];
+                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                        let payload = f64::from_le_bytes(buffer);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    payload.reserve_exact(payload_size);
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::TRequired(payload));
+                        }
+                        20 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::URequired(payload));
+                        }
+                        21 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = super::super::zigzag_decode(payload);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::VRequired(payload));
+                        }
+                        22 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = payload != 0_u64;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::WRequired(payload));
+                        }
+                        23 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = vec![];
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::XRequired(payload));
+                        }
+                        24 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = String::new();
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::YRequired(payload));
+                        }
+                        25 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::ZRequired(payload));
+                        }
+                        26 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::AaRequired(payload));
+                        }
+                        28 => {
+                            let payload = ();
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::AAsymmetric);
+                        }
+                        29 => {
+                            let payload = if payload_size == 0_usize {
+                                0.0_f64
+                            } else {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                f64::from_le_bytes(buffer)
+                            };
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::BAsymmetric(payload));
+                        }
+                        30 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::CAsymmetric(payload));
+                        }
+                        31 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = super::super::zigzag_decode(payload);
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::DAsymmetric(payload));
+                        }
+                        32 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = payload != 0_u64;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::EAsymmetric(payload));
+                        }
+                        33 => {
+                            let mut payload = vec![];
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::FAsymmetric(payload));
+                        }
+                        34 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::GAsymmetric(payload));
+                        }
+                        35 => {
+                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::HAsymmetric(payload));
+                        }
+                        36 => {
+                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::IAsymmetric(payload));
+                        }
+                        37 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = vec![(); payload as usize];
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::JAsymmetric(payload));
+                        }
+                        38 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                let payload = f64::from_le_bytes(buffer);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            payload.reserve_exact(payload_size);
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::KAsymmetric(payload));
+                        }
+                        39 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::LAsymmetric(payload));
+                        }
+                        40 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = super::super::zigzag_decode(payload);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::MAsymmetric(payload));
+                        }
+                        41 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = payload != 0_u64;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::NAsymmetric(payload));
+                        }
+                        42 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = vec![];
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::OAsymmetric(payload));
+                        }
+                        43 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = String::new();
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::PAsymmetric(payload));
+                        }
+                        44 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::QAsymmetric(payload));
+                        }
+                        45 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::RAsymmetric(payload));
+                        }
+                        46 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                    let payload = vec![(); payload as usize];
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::SAsymmetric(payload));
+                        }
+                        47 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                        let mut buffer = [0; 8];
+                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                        let payload = f64::from_le_bytes(buffer);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    payload.reserve_exact(payload_size);
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::TAsymmetric(payload));
+                        }
+                        48 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::UAsymmetric(payload));
+                        }
+                        49 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = super::super::zigzag_decode(payload);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::VAsymmetric(payload));
+                        }
+                        50 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = payload != 0_u64;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::WAsymmetric(payload));
+                        }
+                        51 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = vec![];
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::XAsymmetric(payload));
+                        }
+                        52 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = String::new();
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::YAsymmetric(payload));
+                        }
+                        53 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::ZAsymmetric(payload));
+                        }
+                        54 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            super::super::finish(&mut *reader)?;
+                            return Ok(BarIn::AaAsymmetric(payload));
+                        }
+                        56 => {
+                            let payload = ();
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::AOptional(fallback));
+                        }
+                        57 => {
+                            let payload = if payload_size == 0_usize {
+                                0.0_f64
+                            } else {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                f64::from_le_bytes(buffer)
+                            };
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::BOptional(payload, fallback));
+                        }
+                        58 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::COptional(payload, fallback));
+                        }
+                        59 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = super::super::zigzag_decode(payload);
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::DOptional(payload, fallback));
+                        }
+                        60 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = payload != 0_u64;
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::EOptional(payload, fallback));
+                        }
+                        61 => {
+                            let mut payload = vec![];
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::FOptional(payload, fallback));
+                        }
+                        62 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::GOptional(payload, fallback));
+                        }
+                        63 => {
+                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::HOptional(payload, fallback));
+                        }
+                        64 => {
+                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::IOptional(payload, fallback));
+                        }
+                        65 => {
+                            let payload = match payload_size {
+                                0_usize => 0_u64,
+                                8_usize => {
+                                    let mut buffer = [0; 8];
+                                    ::std::io::Read::read_exact(&mut sub_reader, &mut buffer[..])?;
+                                    u64::from_le_bytes(buffer)
+                                }
+                                _ => super::super::deserialize_varint(&mut sub_reader)?,
+                            };
+                            let payload = vec![(); payload as usize];
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::JOptional(payload, fallback));
+                        }
+                        66 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                let mut buffer = [0; 8];
+                                ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                let payload = f64::from_le_bytes(buffer);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            payload.reserve_exact(payload_size);
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::KOptional(payload, fallback));
+                        }
+                        67 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::LOptional(payload, fallback));
+                        }
+                        68 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = super::super::zigzag_decode(payload);
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::MOptional(payload, fallback));
+                        }
+                        69 => {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                let payload = payload != 0_u64;
+                                Ok(payload)
+                            }
+                            let mut payload = Vec::new();
+                            loop {
+                                payload.push(match deserialize_element(&mut sub_reader) {
+                                    Ok(element) => element,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::NOptional(payload, fallback));
+                        }
+                        70 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = vec![];
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::OOptional(payload, fallback));
+                        }
+                        71 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = String::new();
+                                    payload.reserve_exact(payload_size);
+                                    ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::POptional(payload, fallback));
+                        }
+                        72 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::QOptional(payload, fallback));
+                        }
+                        73 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::ROptional(payload, fallback));
+                        }
+                        74 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                    let payload = vec![(); payload as usize];
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::SOptional(payload, fallback));
+                        }
+                        75 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                        let mut buffer = [0; 8];
+                                        ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
+                                        let payload = f64::from_le_bytes(buffer);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    payload.reserve_exact(payload_size);
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::TOptional(payload, fallback));
+                        }
+                        76 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::UOptional(payload, fallback));
+                        }
+                        77 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = super::super::zigzag_decode(payload);
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::VOptional(payload, fallback));
+                        }
+                        78 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                        let payload = super::super::deserialize_varint(&mut sub_reader)?;
+                                        let payload = payload != 0_u64;
+                                        Ok(payload)
+                                    }
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        payload.push(match deserialize_element(&mut sub_reader) {
+                                            Ok(element) => element,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::WOptional(payload, fallback));
+                        }
+                        79 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = vec![];
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_end(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::XOptional(payload, fallback));
+                        }
+                        80 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let mut payload = String::new();
+                                            payload.reserve_exact(payload_size);
+                                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::YOptional(payload, fallback));
+                        }
+                        81 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = LocalStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::ZOptional(payload, fallback));
+                        }
+                        82 => {
+                            let mut payload = Vec::new();
+                            loop {
+                                let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                    Ok(payload_size) => payload_size as usize,
+                                    Err(err) => {
+                                        if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                            break;
+                                        }
+                                        return Err(err);
+                                    }
+                                };
+                                let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                payload.push({
+                                    let mut payload = Vec::new();
+                                    loop {
+                                        let payload_size = match super::super::deserialize_varint(&mut sub_reader) {
+                                            Ok(payload_size) => payload_size as usize,
+                                            Err(err) => {
+                                                if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                                    break;
+                                                }
+                                                return Err(err);
+                                            }
+                                        };
+                                        let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
+                                        payload.push({
+                                            let payload = super::super::degenerate::types::EmptyStructIn::deserialize_from_reader_ref(&mut sub_reader)?;
+                                            payload
+                                        });
+                                    }
+                                    payload
+                                });
+                            }
+                            let fallback = Box::new(BarIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(BarIn::AaOptional(payload, fallback));
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+            }
+        }
+
         impl BarAtlas {
             pub fn size(&self) -> usize {
                 match *self {
@@ -7569,41 +7550,15 @@ pub mod degenerate {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for EmptyStructIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                Ok(EmptyStructIn {
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -7630,6 +7585,36 @@ pub mod degenerate {
             }
         }
 
+        impl EmptyStructIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                Ok(EmptyStructIn {
+                })
+            }
+        }
+
         impl EmptyStructAtlas {
             pub fn size(&self) -> usize {
                 self._size
@@ -7653,29 +7638,15 @@ pub mod degenerate {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for EmptyChoiceIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -7699,6 +7670,24 @@ pub mod degenerate {
             ) -> ::std::io::Result<()> {
                 match (self, atlas) {
                     (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl EmptyChoiceIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
                 }
             }
         }
@@ -7765,162 +7754,15 @@ pub mod schema_evolution {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for ExampleStructIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                let mut _required_to_required: Option<String> = None;
-                let mut _required_to_asymmetric: Option<String> = None;
-                let mut _required_to_optional: Option<String> = None;
-                let mut _asymmetric_to_required: Option<String> = None;
-                let mut _asymmetric_to_asymmetric: Option<String> = None;
-                let mut _asymmetric_to_optional: Option<String> = None;
-                let mut _optional_to_required: Option<String> = None;
-                let mut _optional_to_asymmetric: Option<String> = None;
-                let mut _optional_to_optional: Option<String> = None;
-                let mut _nonexistent_to_asymmetric: Option<()> = None;
-                let mut _nonexistent_to_optional: Option<()> = None;
-
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_required.get_or_insert(payload);
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_asymmetric.get_or_insert(payload);
-                        }
-                        2 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_optional.get_or_insert(payload);
-                        }
-                        4 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_required.get_or_insert(payload);
-                        }
-                        5 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_asymmetric.get_or_insert(payload);
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_optional.get_or_insert(payload);
-                        }
-                        8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_required.get_or_insert(payload);
-                        }
-                        9 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_asymmetric.get_or_insert(payload);
-                        }
-                        10 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_optional.get_or_insert(payload);
-                        }
-                        13 => {
-                            let payload = ();
-                            _nonexistent_to_asymmetric.get_or_insert(payload);
-                        }
-                        14 => {
-                            let payload = ();
-                            _nonexistent_to_optional.get_or_insert(payload);
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                if _required_to_required.is_none()
-                    || _asymmetric_to_required.is_none()
-                    || _optional_to_required.is_none() {
-                    return Err(::std::io::Error::new(
-                        ::std::io::ErrorKind::InvalidData,
-                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
-                    ));
-                }
-
-                Ok(ExampleStructIn {
-                    required_to_required: _required_to_required.unwrap(),
-                    required_to_asymmetric: _required_to_asymmetric,
-                    required_to_optional: _required_to_optional,
-                    asymmetric_to_required: _asymmetric_to_required.unwrap(),
-                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
-                    asymmetric_to_optional: _asymmetric_to_optional,
-                    optional_to_required: _optional_to_required.unwrap(),
-                    optional_to_asymmetric: _optional_to_asymmetric,
-                    optional_to_optional: _optional_to_optional,
-                    nonexistent_to_asymmetric: _nonexistent_to_asymmetric,
-                    nonexistent_to_optional: _nonexistent_to_optional,
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -8059,6 +7901,130 @@ pub mod schema_evolution {
             }
         }
 
+        impl ExampleStructIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                let mut _required_to_required: Option<String> = None;
+                let mut _required_to_asymmetric: Option<String> = None;
+                let mut _required_to_optional: Option<String> = None;
+                let mut _asymmetric_to_required: Option<String> = None;
+                let mut _asymmetric_to_asymmetric: Option<String> = None;
+                let mut _asymmetric_to_optional: Option<String> = None;
+                let mut _optional_to_required: Option<String> = None;
+                let mut _optional_to_asymmetric: Option<String> = None;
+                let mut _optional_to_optional: Option<String> = None;
+                let mut _nonexistent_to_asymmetric: Option<()> = None;
+                let mut _nonexistent_to_optional: Option<()> = None;
+
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_required.get_or_insert(payload);
+                        }
+                        1 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_asymmetric.get_or_insert(payload);
+                        }
+                        2 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_optional.get_or_insert(payload);
+                        }
+                        4 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_required.get_or_insert(payload);
+                        }
+                        5 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_asymmetric.get_or_insert(payload);
+                        }
+                        6 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_optional.get_or_insert(payload);
+                        }
+                        8 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_required.get_or_insert(payload);
+                        }
+                        9 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_asymmetric.get_or_insert(payload);
+                        }
+                        10 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_optional.get_or_insert(payload);
+                        }
+                        13 => {
+                            let payload = ();
+                            _nonexistent_to_asymmetric.get_or_insert(payload);
+                        }
+                        14 => {
+                            let payload = ();
+                            _nonexistent_to_optional.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                if _required_to_required.is_none()
+                    || _asymmetric_to_required.is_none()
+                    || _optional_to_required.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
+                    ));
+                }
+
+                Ok(ExampleStructIn {
+                    required_to_required: _required_to_required.unwrap(),
+                    required_to_asymmetric: _required_to_asymmetric,
+                    required_to_optional: _required_to_optional,
+                    asymmetric_to_required: _asymmetric_to_required.unwrap(),
+                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
+                    asymmetric_to_optional: _asymmetric_to_optional,
+                    optional_to_required: _optional_to_required.unwrap(),
+                    optional_to_asymmetric: _optional_to_asymmetric,
+                    optional_to_optional: _optional_to_optional,
+                    nonexistent_to_asymmetric: _nonexistent_to_asymmetric,
+                    nonexistent_to_optional: _nonexistent_to_optional,
+                })
+            }
+        }
+
         impl ExampleStructAtlas {
             pub fn size(&self) -> usize {
                 self._size
@@ -8115,124 +8081,15 @@ pub mod schema_evolution {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for ExampleChoiceIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::RequiredToRequired(payload));
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
-                        }
-                        4 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
-                        }
-                        5 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::AsymmetricToOptional(payload, fallback));
-                        }
-                        8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::OptionalToRequired(payload));
-                        }
-                        9 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload));
-                        }
-                        10 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
-                        }
-                        12 => {
-                            let payload = ();
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::NonexistentToRequired);
-                        }
-                        13 => {
-                            let payload = ();
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::NonexistentToAsymmetric);
-                        }
-                        14 => {
-                            let payload = ();
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::NonexistentToOptional(fallback));
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -8388,6 +8245,95 @@ pub mod schema_evolution {
             }
         }
 
+        impl ExampleChoiceIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::RequiredToRequired(payload));
+                        }
+                        1 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
+                        }
+                        4 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
+                        }
+                        5 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
+                        }
+                        6 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::AsymmetricToOptional(payload, fallback));
+                        }
+                        8 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::OptionalToRequired(payload));
+                        }
+                        9 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload));
+                        }
+                        10 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
+                        }
+                        12 => {
+                            let payload = ();
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::NonexistentToRequired);
+                        }
+                        13 => {
+                            let payload = ();
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::NonexistentToAsymmetric);
+                        }
+                        14 => {
+                            let payload = ();
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::NonexistentToOptional(fallback));
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+            }
+        }
+
         impl ExampleChoiceAtlas {
             pub fn size(&self) -> usize {
                 match *self {
@@ -8462,184 +8408,15 @@ pub mod schema_evolution {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for ExampleStructIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                let mut _required_to_required: Option<String> = None;
-                let mut _required_to_asymmetric: Option<String> = None;
-                let mut _required_to_optional: Option<String> = None;
-                let mut _required_to_nonexistent: Option<String> = None;
-                let mut _asymmetric_to_required: Option<String> = None;
-                let mut _asymmetric_to_asymmetric: Option<String> = None;
-                let mut _asymmetric_to_optional: Option<String> = None;
-                let mut _asymmetric_to_nonexistent: Option<String> = None;
-                let mut _optional_to_required: Option<String> = None;
-                let mut _optional_to_asymmetric: Option<String> = None;
-                let mut _optional_to_optional: Option<String> = None;
-                let mut _optional_to_nonexistent: Option<String> = None;
-
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_required.get_or_insert(payload);
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_asymmetric.get_or_insert(payload);
-                        }
-                        2 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_optional.get_or_insert(payload);
-                        }
-                        3 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _required_to_nonexistent.get_or_insert(payload);
-                        }
-                        4 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_required.get_or_insert(payload);
-                        }
-                        5 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_asymmetric.get_or_insert(payload);
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_optional.get_or_insert(payload);
-                        }
-                        7 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _asymmetric_to_nonexistent.get_or_insert(payload);
-                        }
-                        8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_required.get_or_insert(payload);
-                        }
-                        9 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_asymmetric.get_or_insert(payload);
-                        }
-                        10 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_optional.get_or_insert(payload);
-                        }
-                        11 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _optional_to_nonexistent.get_or_insert(payload);
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                if _required_to_required.is_none()
-                    || _required_to_asymmetric.is_none()
-                    || _required_to_optional.is_none()
-                    || _required_to_nonexistent.is_none() {
-                    return Err(::std::io::Error::new(
-                        ::std::io::ErrorKind::InvalidData,
-                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
-                    ));
-                }
-
-                Ok(ExampleStructIn {
-                    required_to_required: _required_to_required.unwrap(),
-                    required_to_asymmetric: _required_to_asymmetric.unwrap(),
-                    required_to_optional: _required_to_optional.unwrap(),
-                    required_to_nonexistent: _required_to_nonexistent.unwrap(),
-                    asymmetric_to_required: _asymmetric_to_required,
-                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
-                    asymmetric_to_optional: _asymmetric_to_optional,
-                    asymmetric_to_nonexistent: _asymmetric_to_nonexistent,
-                    optional_to_required: _optional_to_required,
-                    optional_to_asymmetric: _optional_to_asymmetric,
-                    optional_to_optional: _optional_to_optional,
-                    optional_to_nonexistent: _optional_to_nonexistent,
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -8791,6 +8568,143 @@ pub mod schema_evolution {
             }
         }
 
+        impl ExampleStructIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                let mut _required_to_required: Option<String> = None;
+                let mut _required_to_asymmetric: Option<String> = None;
+                let mut _required_to_optional: Option<String> = None;
+                let mut _required_to_nonexistent: Option<String> = None;
+                let mut _asymmetric_to_required: Option<String> = None;
+                let mut _asymmetric_to_asymmetric: Option<String> = None;
+                let mut _asymmetric_to_optional: Option<String> = None;
+                let mut _asymmetric_to_nonexistent: Option<String> = None;
+                let mut _optional_to_required: Option<String> = None;
+                let mut _optional_to_asymmetric: Option<String> = None;
+                let mut _optional_to_optional: Option<String> = None;
+                let mut _optional_to_nonexistent: Option<String> = None;
+
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_required.get_or_insert(payload);
+                        }
+                        1 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_asymmetric.get_or_insert(payload);
+                        }
+                        2 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_optional.get_or_insert(payload);
+                        }
+                        3 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _required_to_nonexistent.get_or_insert(payload);
+                        }
+                        4 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_required.get_or_insert(payload);
+                        }
+                        5 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_asymmetric.get_or_insert(payload);
+                        }
+                        6 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_optional.get_or_insert(payload);
+                        }
+                        7 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _asymmetric_to_nonexistent.get_or_insert(payload);
+                        }
+                        8 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_required.get_or_insert(payload);
+                        }
+                        9 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_asymmetric.get_or_insert(payload);
+                        }
+                        10 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_optional.get_or_insert(payload);
+                        }
+                        11 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _optional_to_nonexistent.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                if _required_to_required.is_none()
+                    || _required_to_asymmetric.is_none()
+                    || _required_to_optional.is_none()
+                    || _required_to_nonexistent.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
+                    ));
+                }
+
+                Ok(ExampleStructIn {
+                    required_to_required: _required_to_required.unwrap(),
+                    required_to_asymmetric: _required_to_asymmetric.unwrap(),
+                    required_to_optional: _required_to_optional.unwrap(),
+                    required_to_nonexistent: _required_to_nonexistent.unwrap(),
+                    asymmetric_to_required: _asymmetric_to_required,
+                    asymmetric_to_asymmetric: _asymmetric_to_asymmetric,
+                    asymmetric_to_optional: _asymmetric_to_optional,
+                    asymmetric_to_nonexistent: _asymmetric_to_nonexistent,
+                    optional_to_required: _optional_to_required,
+                    optional_to_asymmetric: _optional_to_asymmetric,
+                    optional_to_optional: _optional_to_optional,
+                    optional_to_nonexistent: _optional_to_nonexistent,
+                })
+            }
+        }
+
         impl ExampleStructAtlas {
             pub fn size(&self) -> usize {
                 self._size
@@ -8844,129 +8758,15 @@ pub mod schema_evolution {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for ExampleChoiceIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::RequiredToRequired(payload));
-                        }
-                        1 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
-                        }
-                        4 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
-                        }
-                        5 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
-                        }
-                        6 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToOptional(payload));
-                        }
-                        7 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
-                        }
-                        8 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
-                        }
-                        9 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
-                        }
-                        10 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
-                        }
-                        11 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            let fallback = Box::new(<ExampleChoiceIn as super::super::Deserialize>::deserialize(&mut *reader)?);
-                            return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -9112,6 +8912,94 @@ pub mod schema_evolution {
             }
         }
 
+        impl ExampleChoiceIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::RequiredToRequired(payload));
+                        }
+                        1 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::RequiredToAsymmetric(payload));
+                        }
+                        4 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToRequired(payload));
+                        }
+                        5 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToAsymmetric(payload));
+                        }
+                        6 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToOptional(payload));
+                        }
+                        7 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(ExampleChoiceIn::AsymmetricToNonexistent(payload));
+                        }
+                        8 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToRequired(payload, fallback));
+                        }
+                        9 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToAsymmetric(payload, fallback));
+                        }
+                        10 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToOptional(payload, fallback));
+                        }
+                        11 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            let fallback = Box::new(ExampleChoiceIn::deserialize_from_reader_ref(&mut *reader)?);
+                            return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+            }
+        }
+
         impl ExampleChoiceAtlas {
             pub fn size(&self) -> usize {
                 match *self {
@@ -9152,60 +9040,15 @@ pub mod schema_evolution {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for SingletonStructIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                let mut _x: Option<String> = None;
-
-                loop {
-                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
-                        Ok(header) => header,
-                        Err(err) => {
-                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
-                                break;
-                            }
-
-                            return Err(err);
-                        }
-                    };
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            _x.get_or_insert(payload);
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
-
-                if _x.is_none() {
-                    return Err(::std::io::Error::new(
-                        ::std::io::ErrorKind::InvalidData,
-                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
-                    ));
-                }
-
-                Ok(SingletonStructIn {
-                    x: _x.unwrap(),
-                })
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -9244,6 +9087,52 @@ pub mod schema_evolution {
             }
         }
 
+        impl SingletonStructIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                let mut _x: Option<String> = None;
+
+                loop {
+                    let (index, payload_size) = match super::super::deserialize_field_header(&mut *reader) {
+                        Ok(header) => header,
+                        Err(err) => {
+                            if let std::io::ErrorKind::UnexpectedEof = err.kind() {
+                                break;
+                            }
+
+                            return Err(err);
+                        }
+                    };
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            _x.get_or_insert(payload);
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
+                }
+
+                if _x.is_none() {
+                    return Err(::std::io::Error::new(
+                        ::std::io::ErrorKind::InvalidData,
+                        super::super::MISSING_FIELDS_ERROR_MESSAGE,
+                    ));
+                }
+
+                Ok(SingletonStructIn {
+                    x: _x.unwrap(),
+                })
+            }
+        }
+
         impl SingletonStructAtlas {
             pub fn size(&self) -> usize {
                 self._size
@@ -9270,39 +9159,15 @@ pub mod schema_evolution {
                 self.atlas().size()
             }
 
-            fn serialize<T: ::std::io::Write>(&self, writer: &mut T) -> ::std::io::Result<()> {
+            fn serialize<T: ::std::io::Write>(&self, mut writer: T) -> ::std::io::Result<()> {
                 let atlas = self.atlas();
-                self.serialize_with_atlas(writer, &atlas)
+                self.serialize_with_atlas(&mut writer, &atlas)
             }
         }
 
         impl super::super::Deserialize for SingletonChoiceIn {
-            fn deserialize<T>(reader: &mut T) -> ::std::io::Result<Self>
-            where
-                Self: Sized,
-                T: ::std::io::BufRead,
-            {
-                loop {
-                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
-
-                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
-
-                    match index {
-                        0 => {
-                            let mut buffer = vec![];
-                            ::std::io::Read::read_to_end(&mut sub_reader, &mut buffer)?;
-                            let payload = std::str::from_utf8(&buffer).map_or_else(
-                                |err| Err(::std::io::Error::new(::std::io::ErrorKind::Other, err)),
-                                |result| Ok(result.to_owned()),
-                            )?;
-                            super::super::finish(&mut *reader)?;
-                            return Ok(SingletonChoiceIn::X(payload));
-                        }
-                        _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
-                        }
-                    }
-                }
+            fn deserialize<T: ::std::io::BufRead>(mut reader: T) -> ::std::io::Result<Self> {
+                Self::deserialize_from_reader_ref(&mut reader)
             }
         }
 
@@ -9337,6 +9202,31 @@ pub mod schema_evolution {
                         Ok(())
                     }
                     (_, _) => panic!(),
+                }
+            }
+        }
+
+        impl SingletonChoiceIn {
+            pub fn deserialize_from_reader_ref<T: ::std::io::BufRead>(
+                reader: &mut T,
+            ) -> ::std::io::Result<Self> {
+                loop {
+                    let (index, payload_size) = super::super::deserialize_field_header(&mut *reader)?;
+
+                    let mut sub_reader = ::std::io::Read::take(&mut *reader, payload_size as u64);
+
+                    match index {
+                        0 => {
+                            let mut payload = String::new();
+                            payload.reserve_exact(payload_size);
+                            ::std::io::Read::read_to_string(&mut sub_reader, &mut payload)?;
+                            super::super::finish(&mut *reader)?;
+                            return Ok(SingletonChoiceIn::X(payload));
+                        }
+                        _ => {
+                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                        }
+                    }
                 }
             }
         }

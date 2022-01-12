@@ -38,16 +38,8 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
         .unwrap();
     file.write_all(&buffer).unwrap();
 
-    let mut slice = buffer.as_slice();
-    let replica = U::deserialize(&mut slice)?;
+    let replica = U::deserialize(buffer.as_slice())?;
     println!("Message deserialized from those bytes: {:?}", replica);
-
-    if !slice.is_empty() {
-        return Err(Error::new(
-            ErrorKind::Other,
-            "The buffer was not consumed completely!",
-        ));
-    }
 
     if format!("{:?}", replica) != format!("{:?}", expected) {
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));

@@ -13,15 +13,13 @@ In short, Typical offers two important features that are conventionally thought 
 
 Typical's design was informed by experience using Protocol Buffers at Google and Apache Thrift at Airbnb. This is not an officially supported product of either company. If you want to support Typical, you can do so [here](https://github.com/sponsors/stepchowfun).
 
-## Supported programming languages
+#### Supported programming languages
 
 The following languages are currently supported:
 
 - Rust
 - TypeScript
 - JavaScript (via TypeScript)
-
-See [below](#code-generation) for remarks about each code generator.
 
 ## Tutorial
 
@@ -84,15 +82,15 @@ let message = SendEmailRequestOut {
     body: "It makes serialization easy and safe.".to_owned(),
 };
 
-let mut file = BufWriter::new(File::create("/tmp/message")?);
-message.serialize(&mut file)?;
+let file = BufWriter::new(File::create(FILE_PATH)?);
+message.serialize(file)?;
 ```
 
 Another program could read the file and deserialize the message as follows:
 
 ```rust
-let mut file = BufReader::new(File::open("/tmp/message")?);
-let message = SendEmailRequestIn::deserialize(&mut file)?;
+let file = BufReader::new(File::open(FILE_PATH)?);
+let message = SendEmailRequestIn::deserialize(file)?;
 
 println!("to: {}", message.to);
 println!("subject: {}", message.subject);
@@ -479,15 +477,7 @@ To mitigate memory-based denial-of-service attacks, it's good practice to reject
 
 ## Code generation
 
-The code generators have a simple user interface. They have no settings to configure, and they produce a single self-contained source file regardless of the number of schema files. The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use them.
-
-The primary goal is to generate code that is amenable to compiler optimizations, though the generated code is reasonably human-readable too. For example, indentation is used as one would expect, and variables are named appropriately. For web-based applications, it's sensible to [minify](https://en.wikipedia.org/wiki/Minification_\(programming\)) the generated code along with your other application code for distribution.
-
-Typical types map to [plain old data types](https://en.wikipedia.org/wiki/Passive_data_structure), rather than objects with methods like getters and setters. That means serialization and deserialization aren't [zero-copy operations](https://en.wikipedia.org/wiki/Zero-copy), but it also means accessing individual fields of decoded messages is extremely fast.
-
-The code generators are thoroughly exercised with a comprehensive [integration test suite](https://github.com/stepchowfun/typical/tree/main/integration_tests). All of the data serialized by the test suite is recorded in a file called the [omnifile](https://github.com/stepchowfun/typical/blob/main/test_data/omnifile), and every code generator is required to produce identical results, bit-for-bit.
-
-Every programming language has its own patterns and idiosyncrasies. The sections below contain some language-specific notes.
+Each code generator produces a single self-contained source file regardless of the number of schema files. The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use them. The sections below contain some language-specific remarks.
 
 ### Rust
 
@@ -495,7 +485,7 @@ Every programming language has its own patterns and idiosyncrasies. The sections
 
 ### JavaScript and TypeScript
 
-- The generated code runs in Node.js and modern web browsers. Older browsers can be targeted with tools like [Babel](https://babeljs.io/).
+- The generated code runs in Node.js and modern web browsers. Older browsers can be targeted with tools like [Babel](https://babeljs.io/). For web applications, it's sensible to [minify](https://en.wikipedia.org/wiki/Minification_\(programming\)) the generated code along with your other application code.
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
 - Typical's integer types map to `bigint` rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
 - The generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
@@ -627,17 +617,17 @@ We have coarse-grained benchmarks [here](https://github.com/stepchowfun/typical/
 
 One benchmark serializes and deserializes a large message containing several hundred megabytes of text:
 
-|                                     | Rust        | TypeScript  |
-| ----------------------------------- | ----------- | ----------- |
-| **Per-thread serialization rate**   | 2.1 GiB/s   | 1.7 GiB/s   |
-| **Per-thread deserialization rate** | 906.0 MiB/s | 339.3 MiB/s |
+|                                     | Rust       | TypeScript   |
+| ----------------------------------- | ---------- | ------------ |
+| **Per-thread serialization rate**   | 2.17 GiB/s | 1.96 GiB/s   |
+| **Per-thread deserialization rate** | 1.12 GiB/s | 366.78 MiB/s |
 
 Another benchmark repeatedly serializes and deserializes a pathological message containing many small and deeply nested values:
 
-|                                     | Rust          | TypeScript |
-| ----------------------------------- | ------------- | ---------- |
-| **Per-thread serialization rate**   | 341.2.4 MiB/s | 20.2 MiB/s |
-| **Per-thread deserialization rate** | 94.4 MiB/s    | 1.2 MiB/s  |
+|                                     | Rust         | TypeScript  |
+| ----------------------------------- | ------------ | ----------- |
+| **Per-thread serialization rate**   | 336.23 MiB/s | 22.32 MiB/s |
+| **Per-thread deserialization rate** | 89.81 MiB/s  | 1.23 MiB/s  |
 
 These benchmarks represent two extremes. Real-world performance will be somewhere in the middle.
 
