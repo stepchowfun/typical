@@ -1,4 +1,4 @@
-# Typical: algebraic data types for data interchange
+# Typical: data interchange with algebraic data types
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
