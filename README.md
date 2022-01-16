@@ -475,7 +475,7 @@ The generated deserialization code is designed to be safe from malicious inputs 
 
 To mitigate memory-based denial-of-service attacks, it's good practice to reject implausibly large messages rather than attempting to deserialize them. In general, you can expect the size of a deserialized message in memory to be within the same order of magnitude as the size of the corresponding serialized message on the wire. However, there is one exception: for values of type `[Unit]` (array of units), only the number of elements is encoded, since the `Unit` values themselves take up zero bytes on the wire. If a field with that type is expected, an attacker can force the deserialization logic to reconstruct arbitrarily large arrays of units (see [billion laughs attack](https://en.wikipedia.org/wiki/Billion_laughs_attack)). For this reason, we strongly recommend avoiding the use of `[Unit]` in your schema if you intend to consume untrusted inputs. This isn't a major loss, however, since that type is generally useless anyway. It's only supported for the uniformity of the type system; arrays can contain anything, even if certain types of arrays have no practical purpose.
 
-Please report security issues to [typical-security@googlegroups.com](mailto:typical-security@googlegroups.com).
+Please report any security issues to [typical-security@googlegroups.com](mailto:typical-security@googlegroups.com).
 
 ## Code generation
 
