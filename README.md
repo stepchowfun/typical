@@ -73,7 +73,7 @@ It's not necessary to set up an automated build system to use Typical, but we re
 
 ### Step 3: Serialize and deserialize messages
 
-With the code generated in the previous section, let's write a simple program to construct a message and serialize it to a file. We'll use Rust for this example:
+With the code generated in the previous section, let's write a simple Rust program to serialize a message. We can write the message to an in-memory buffer, a socket, or anything that implements [`std::io::Write`](https://doc.rust-lang.org/std/io/trait.Write.html). For this example, we'll stream the data to a file.
 
 ```rust
 let message = SendEmailRequestOut {
