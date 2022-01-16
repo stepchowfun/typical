@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/stepchowfun/typical/workflows/Continuous%20integration/badge.svg?branch=main)](https://github.com/stepchowfun/typical/actions?query=branch%3Amain)
 
-Welcome, Hacker News!
+Welcome, Hacker News readers!
 
 *Typical* is a [data serialization](https://en.wikipedia.org/wiki/Serialization) framework. You define data types in a file called a *schema*, then Typical generates efficient serialization and deserialization code for various languages. The generated code can be used for marshalling messages between services, storing structured data on disk, etc. The compact [binary encoding](#binary-encoding) supports forward and backward compatibility between different versions of your schema to accommodate evolving requirements.
 
