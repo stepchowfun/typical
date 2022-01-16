@@ -8,6 +8,7 @@
     clippy::module_inception,
     clippy::module_name_repetitions,
     clippy::no_effect,
+    clippy::no_effect_underscore_binding,
     clippy::redundant_closure_for_method_calls,
     clippy::shadow_unrelated,
     clippy::similar_names,
