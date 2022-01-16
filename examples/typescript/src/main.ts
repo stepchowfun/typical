@@ -12,7 +12,7 @@ function writeToFile() {
   };
 
   const arrayBuffer = SendEmailRequest.serialize(message);
-  writeFileSync(filePath, new DataView(arrayBuffer));
+  writeFileSync(filePath, Buffer.from(arrayBuffer));
 }
 
 function readFromFile() {
