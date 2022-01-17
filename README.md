@@ -123,7 +123,7 @@ struct SendEmailRequest {
 
 The only safe way to roll out this change (as written) is to finish updating all clients before beginning to update any servers. Otherwise, a client still running the old code might send a request to an updated server, which promptly rejects the request because it lacks the new field.
 
-That kind of attentive rollout may not be feasible. You might not be in control of the order in which clients and servers are updated. Or, perhaps the clients and servers are updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
+That kind of rollout may not be feasible. You might not be in control of the order in which clients and servers are updated. Or, perhaps the clients and servers are updated together, but not atomically. The client and the server might even be part of the same replicated service, so it wouldn't be possible to update one before the other no matter how careful you are.
 
 Removing a required field can present analogous difficulties. Suppose, despite the aforementioned challenges, you were able to successfully introduce `from` as a required field. Now, an unrelated issue is forcing you to roll it back. That's just as dangerous as adding it was in the first place: if a client gets updated before a server, that client may then send the server a message without the `from` field, which the server will reject since it still expects that field to be present.
 
@@ -149,7 +149,7 @@ The trouble is that, as long as the field is optional, you can't rely on the typ
 
 You can run into similar trouble when demoting a required field to optional. Once the field has been demoted, clients might stop setting the field before the servers can handle its absence, unless you can be sure the servers are updated first.
 
-### Making every field optional isn't ergonomic
+### Making every field optional isn't ergonomic or safe
 
 Due to the trouble associated with required fields, the conventional wisdom is simply to never use them; all fields should be declared optional. For example:
 
@@ -161,7 +161,7 @@ struct SendEmailRequest {
 }
 ```
 
-However, this advice ignores the reality that some things really are *semantically required*, even if they aren't declared required in the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared optional places extra burden on both writers and readers: writers cannot rely on the type system to prevent them from accidentally forgetting to set the fields, and readers must address the case of the fields being missing to satisfy the type checker even though those fields are always supposed to be set.
+However, this advice ignores the reality that some things really are *semantically required*, even if they aren't required according to the schema. An API cannot be expected to work if it doesn't have the data it needs. Having semantically required fields declared optional places extra burden on both writers and readers: writers can't rely on the type system to prevent them from accidentally forgetting to set the fields, and readers must address the case of the fields being missing to satisfy the type checker even though those fields are always supposed to be set.
 
 ### Asymmetric fields can safely be promoted to required and vice versa
 
@@ -301,7 +301,7 @@ Any user-defined type can safely be migrated to any other user-defined type thro
 - You can safely convert a struct with exactly one field, which must be required, into a choice with just that field and vice versa. This type of change is rare, but is needed to guarantee that any user-defined type can be eventually migrated to any other user-defined type.
 - No other changes are guaranteed to be safe.
 
-In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is reflexive (every schema is compatible with itself) and symmetric (forward compatibility and backward compatibility imply each other), but not transitive (two individually safe schema changes aren't necessarily safe as a single change).
+In mathematical terms, these rules define a homogeneous compatibility [relation](https://en.wikipedia.org/wiki/Binary_relation) over schemas which is _reflexive_ (every schema is compatible with itself) and _symmetric_ (forward compatibility and backward compatibility imply each other), but not _transitive_ (two individually safe schema changes aren't necessarily safe as a single change). In particular, symmetry is the crucial property that makes Typical safer than other frameworks.
 
 ## Schema reference
 
@@ -334,7 +334,7 @@ You only need to run Typical on `types.t`. The generated code will include types
 
 Import paths are considered relative to the directory containing the schema doing the importing. Typical has no notion of a "top-level" directory on which all paths are based.
 
-A useful convention is to create a `types.t` schema that imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical for code generation. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. These are merely conventions, and Typical has no intrinsic notion of "project".
+A useful convention is to create a `types.t` schema that imports all the other schemas, directly or indirectly. Then it's clear which schema to give to Typical for code generation. Alternatively, in a large organization, you might have a separate top-level schema per project that imports only the types needed by that project. These are merely conventions, as Typical has no intrinsic notion of "project".
 
 If you import two schemas with the same name from different directories, you'll need to disambiguate usages of those schemas. Suppose, for example, you attempted the following:
 
@@ -467,7 +467,7 @@ choice SendEmailResponse {
 
 ### Identifiers
 
-An identifier (the name of a type, field, or import) must start with a letter, and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`).
+An identifier (the name of a type, field, or import) must start with a letter, and every subsequent character must be a letter, an underscore, or a digit. If you want to use a keyword (e.g., `choice`) as an identifier, you can do so by prefixing it with a `$` (e.g., `$choice`). The `$` isn't included in the generated code.
 
 ## Security
 
@@ -479,7 +479,7 @@ Please report any security issues to [typical-security@googlegroups.com](mailto:
 
 ## Code generation
 
-Each code generator produces a single self-contained source file regardless of the number of schema files. The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use them. The sections below contain some language-specific remarks.
+Each code generator produces a single self-contained source file regardless of the number of schema files. The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use the code generated for each language. The sections below contain some language-specific remarks.
 
 ### Rust
 
@@ -571,9 +571,9 @@ A struct is encoded as the contiguous arrangement of (*header*, *value*) pairs, 
       - `0`: The size of the value is 0 bytes.
       - `1`: The size of the value is 8 bytes.
       - `2`: The value is encoded as a variable-width integer, so its size can be determined from its first byte. The size of the value is neither 0 nor 8 bytes, since otherwise the size mode would be `0` or `1`, respectively.
-      - `3`: The size of the value is given by the second part of the header (below). It's neither 0 nor 8 bytes, since otherwise the size mode would be `0` or `1`, respectively.
+      - `3`: The size of the value is given by the second part of the header (below). It's neither 0 nor 8 bytes, since otherwise the size mode would be `0` or `1`, respectively. The value isn't encoded as a variable-width integer, since otherwise the size mode would be `2`.
     - The remaining bits of the tag (not its variable-width encoding) represent the index of the field as an unsigned integer.
-  - The second part of the header is the size of the value encoded as a variable-width integer. It's only present if the size mode is `3`.
+  - The second part of the header, if applicable, is the size of the value encoded as a variable-width integer. It's only present if the size mode is `3`.
 
 For fields of type `Unit`, `F64`, `U64`, `S64`, or `Bool` for which the index is less than 32, the header is encoded as a single byte.
 
@@ -605,7 +605,7 @@ For a simple enumerated type (such as `Weekday` above), a field with an index le
 - `S64` is first converted into the unsigned ZigZag representation, which is then encoded in the same way as a `U64`, including the special behavior for field values if applicable.
 - `Bool` is first converted into an integer with `0` representing `false` and `1` representing `true`. The value is then encoded in the same way as a `U64`, including the special behavior for field values if applicable.
 - `Bytes` is encoded verbatim.
-- `String` is encoded as UTF-8.
+- `String` is encoded as UTF-8. The original code point sequence is preserved; no normalization is performed.
 - Arrays (e.g., `[U64]`) are encoded in one of three ways, depending on the element type:
   - Arrays of `Unit` are represented by the number of elements encoded the same way as a `U64`, including the special behavior for field values if applicable. Since the elements (of type `Unit`) take 0 bytes to encode, there's no way to infer the number of elements from the size of the buffer. Thus, it's encoded explicitly.
   - Arrays of `F64`, `U64`, `S64`, or `Bool` are represented as the contiguous arrangement of the respective encodings of the elements. The number of elements isn't explicitly encoded.
