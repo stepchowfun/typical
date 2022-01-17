@@ -207,7 +207,7 @@ impl Deserialize for SendEmailRequestIn {
 }
 ```
 
-We can see the effect of `from` being an asymmetric field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) aren't yet allowed to rely on it. Once this change has been rolled out (at least to clients), we can safely promote the field to required in a subsequent change.
+We can see the effect of `from` being an asymmetric field: its type is `String` in `SendEmailRequestOut`, but its type is `Option<String>` in `SendEmailRequestIn`. That means clients (which use `SendEmailRequestOut`) are now required to set the new field, but servers (which use `SendEmailRequestIn`) aren't yet allowed to rely on it. To roll out this schema change, we would start with the (reading) servers: they are now ready for the new field, but don't require it. Next we would update the (writing) clients: they now guarantee the new field will be present. After all the writers are updated, we can safely promote the field to required.
 
 It works in reverse too. Suppose we now want to remove a required field. It may be unsafe to delete the field directly, since then clients might stop setting it before servers can handle its absence. But we can demote it to asymmetric, which forces servers to consider it optional and handle its potential absence, even though clients are still required to set it. Once that change has been rolled out (at least to servers), we can confidently delete the field (or demote it to optional), as the servers no longer rely on it.
 
