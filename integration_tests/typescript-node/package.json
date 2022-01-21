@@ -1,7 +1,6 @@
 {
   "name": "integration-tests",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "main": "typical generate ../types/types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
     "dev": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript integration_tests/typescript-node/generated/types.ts) && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
