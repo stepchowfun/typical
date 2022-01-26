@@ -183,6 +183,7 @@ export default function run(): void {
     },
   );
 
+  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   const secondFallbacks = choiceTestCases(
@@ -196,6 +197,8 @@ export default function run(): void {
     },
   );
 
+  /* eslint-disable @typescript-eslint/prefer-for-of -- The Airbnb lint rules forbid this. */
+  /* eslint-disable @typescript-eslint/no-magic-numbers -- Loop counter math is not too magical. */
   for (let i = 0; i < secondFallbacks.length; i += 1) {
     const firstFallbacks = choiceTestCases(...secondFallbacks[i]);
 
@@ -215,7 +218,10 @@ export default function run(): void {
       }
     }
   }
+  /* eslint-enable @typescript-eslint/no-magic-numbers -- Re-enable this rule. */
+  /* eslint-enable @typescript-eslint/prefer-for-of -- Re-enable this rule. */
 
+  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   assertMatch(

@@ -19,6 +19,8 @@ export function assertMatch<T, U>(
   actual: T,
   expected: U,
 ): void {
+  /* eslint-disable no-console -- Allow logging for this function. */
+
   console.log('Message to be serialized:', actual);
 
   const actualSize = size(actual);
@@ -35,6 +37,8 @@ export function assertMatch<T, U>(
   const replica = deserialize(dataView);
   deepStrictEqual(replica, expected);
   console.log('Message deserialized from those bytes:', replica);
+
+  /* eslint-enable no-console -- Re-enable this rule. */
 }
 
 export function assertRoundTrip<U, T extends U>(

@@ -10,6 +10,8 @@ document.body.appendChild(startingParagraph);
 
 window.requestAnimationFrame(() => {
   try {
+    /* eslint-disable no-console -- Allow logging for this file. */
+
     console.log('Running circular dependency integration test\u2026\n');
     runCircularDependency();
 
@@ -24,6 +26,8 @@ window.requestAnimationFrame(() => {
 
     console.log('\nVerifying omnifile\u2026\n');
     verifyOmnifile();
+
+    /* eslint-enable no-console -- Re-enable this rule. */
   } catch (e) {
     const failureParagraph = document.createElement('p');
     failureParagraph.innerHTML =

@@ -6,7 +6,8 @@ import { sha256 } from 'js-sha256';
 // generators.
 const omnifileHash =
   'cfe2ae57b1bb6467c87f11d50829d0b8301566f645dabc19b38c861cd577b0a1';
-const omnifileBuffer = new ArrayBuffer(80_395);
+const omnifileSize = 80_395;
+const omnifileBuffer = new ArrayBuffer(omnifileSize);
 const omnifileArray = new Uint8Array(omnifileBuffer);
 let omnifileOffset = 0;
 
@@ -23,6 +24,8 @@ export function assertMatch<T, U>(
   actual: T,
   expected: U,
 ): void {
+  /* eslint-disable no-console -- Allow logging for this function. */
+
   console.log('Message to be serialized:', actual);
 
   const actualSize = size(actual);
@@ -41,6 +44,8 @@ export function assertMatch<T, U>(
   const replica = deserialize(dataView);
   deepStrictEqual(replica, expected);
   console.log('Message deserialized from those bytes:', replica);
+
+  /* eslint-enable no-console -- Re-enable this rule. */
 }
 
 export function assertRoundTrip<U, T extends U>(
@@ -56,5 +61,6 @@ export function verifyOmnifile(): void {
   deepStrictEqual(omnifileOffset, omnifileBuffer.byteLength);
   deepStrictEqual(sha256(omnifileBuffer), omnifileHash);
 
+  // eslint-disable-next-line no-console -- Allow us to log this confirmation message.
   console.log('Integration tests passed.');
 }
