@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Allowed just for this file. */
+
 import { Comprehensive } from '../generated/types';
 import { assertMatch, assertRoundTrip } from './assertions';
 
@@ -215,6 +217,7 @@ export default function run(): void {
     },
   );
 
+  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   assertRoundTrip(
@@ -399,6 +402,7 @@ export default function run(): void {
     },
   );
 
+  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   assertRoundTrip(
@@ -4403,3 +4407,5 @@ export default function run(): void {
     },
   );
 }
+
+/* eslint-enable @typescript-eslint/no-magic-numbers -- Re-enable this rule. */
