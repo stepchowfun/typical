@@ -47,6 +47,9 @@ module.exports = {
     // https://github.com/typescript-eslint/typescript-eslint/issues/4476
     '@typescript-eslint/prefer-readonly-parameter-types': 'off',
 
+    // This allows us to define algebraic data types.
+    '@typescript-eslint/no-type-alias': 'off',
+
     // These built-in rules need to be disabled since they have TypeScript-aware versions in
     // `plugin:@typescript-eslint/all`. The set of rules was obtained by searching the
     // `https://github.com/typescript-eslint/typescript-eslint` repository for the string
