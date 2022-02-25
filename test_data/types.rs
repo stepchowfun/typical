@@ -1310,7 +1310,7 @@ pub mod comprehensive {
                     let payload_atlas = &atlas.e_required;
                     super::super::serialize_field_header(writer, 4_u64, *payload_atlas, true)?;
                     {
-                        let varint = *payload as u64;
+                        let varint = u64::from(*payload);
                         match varint {
                             0_u64 => {}
                             1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -1400,7 +1400,7 @@ pub mod comprehensive {
                     super::super::serialize_field_header(writer, 13_u64, *payload_atlas, false)?;
                     for payload in payload {
                         {
-                            let varint = *payload as u64;
+                            let varint = u64::from(*payload);
                             super::super::serialize_varint(varint, writer)?;
                         }
                     }
@@ -1509,7 +1509,7 @@ pub mod comprehensive {
                         super::super::serialize_varint(*payload_atlas as u64, writer)?;
                         for payload in payload {
                             {
-                                let varint = *payload as u64;
+                                let varint = u64::from(*payload);
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -1616,7 +1616,7 @@ pub mod comprehensive {
                     let payload_atlas = &atlas.e_asymmetric;
                     super::super::serialize_field_header(writer, 32_u64, *payload_atlas, true)?;
                     {
-                        let varint = *payload as u64;
+                        let varint = u64::from(*payload);
                         match varint {
                             0_u64 => {}
                             1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -1706,7 +1706,7 @@ pub mod comprehensive {
                     super::super::serialize_field_header(writer, 41_u64, *payload_atlas, false)?;
                     for payload in payload {
                         {
-                            let varint = *payload as u64;
+                            let varint = u64::from(*payload);
                             super::super::serialize_varint(varint, writer)?;
                         }
                     }
@@ -1815,7 +1815,7 @@ pub mod comprehensive {
                         super::super::serialize_varint(*payload_atlas as u64, writer)?;
                         for payload in payload {
                             {
-                                let varint = *payload as u64;
+                                let varint = u64::from(*payload);
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -1912,7 +1912,7 @@ pub mod comprehensive {
                 if let (Some(payload), Some(payload_atlas)) = (&self.e_optional, &atlas.e_optional) {
                     super::super::serialize_field_header(writer, 60_u64, *payload_atlas, true)?;
                     {
-                        let varint = *payload as u64;
+                        let varint = u64::from(*payload);
                         match varint {
                             0_u64 => {}
                             1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -1984,7 +1984,7 @@ pub mod comprehensive {
                     super::super::serialize_field_header(writer, 69_u64, *payload_atlas, false)?;
                     for payload in payload {
                         {
-                            let varint = *payload as u64;
+                            let varint = u64::from(*payload);
                             super::super::serialize_varint(varint, writer)?;
                         }
                     }
@@ -2075,7 +2075,7 @@ pub mod comprehensive {
                         super::super::serialize_varint(*payload_atlas as u64, writer)?;
                         for payload in payload {
                             {
-                                let varint = *payload as u64;
+                                let varint = u64::from(*payload);
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -4926,7 +4926,7 @@ pub mod comprehensive {
                     (BarOut::ERequired(payload), BarAtlas::ERequired(_, payload_atlas)) => {
                         super::super::serialize_field_header(writer, 4_u64, *payload_atlas, true)?;
                         {
-                            let varint = *payload as u64;
+                            let varint = u64::from(*payload);
                             match varint {
                                 0_u64 => {}
                                 1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -4998,7 +4998,7 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 13_u64, *payload_atlas, false)?;
                         for payload in payload {
                             {
-                                let varint = *payload as u64;
+                                let varint = u64::from(*payload);
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -5089,7 +5089,7 @@ pub mod comprehensive {
                             super::super::serialize_varint(*payload_atlas as u64, writer)?;
                             for payload in payload {
                                 {
-                                    let varint = *payload as u64;
+                                    let varint = u64::from(*payload);
                                     super::super::serialize_varint(varint, writer)?;
                                 }
                             }
@@ -5178,7 +5178,7 @@ pub mod comprehensive {
                     (BarOut::EAsymmetric(payload, fallback), BarAtlas::EAsymmetric(_, payload_atlas, fallback_atlas)) => {
                         super::super::serialize_field_header(writer, 32_u64, *payload_atlas, true)?;
                         {
-                            let varint = *payload as u64;
+                            let varint = u64::from(*payload);
                             match varint {
                                 0_u64 => {}
                                 1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -5250,7 +5250,7 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 41_u64, *payload_atlas, false)?;
                         for payload in payload {
                             {
-                                let varint = *payload as u64;
+                                let varint = u64::from(*payload);
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -5341,7 +5341,7 @@ pub mod comprehensive {
                             super::super::serialize_varint(*payload_atlas as u64, writer)?;
                             for payload in payload {
                                 {
-                                    let varint = *payload as u64;
+                                    let varint = u64::from(*payload);
                                     super::super::serialize_varint(varint, writer)?;
                                 }
                             }
@@ -5430,7 +5430,7 @@ pub mod comprehensive {
                     (BarOut::EOptional(payload, fallback), BarAtlas::EOptional(_, payload_atlas, fallback_atlas)) => {
                         super::super::serialize_field_header(writer, 60_u64, *payload_atlas, true)?;
                         {
-                            let varint = *payload as u64;
+                            let varint = u64::from(*payload);
                             match varint {
                                 0_u64 => {}
                                 1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -5502,7 +5502,7 @@ pub mod comprehensive {
                         super::super::serialize_field_header(writer, 69_u64, *payload_atlas, false)?;
                         for payload in payload {
                             {
-                                let varint = *payload as u64;
+                                let varint = u64::from(*payload);
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -5593,7 +5593,7 @@ pub mod comprehensive {
                             super::super::serialize_varint(*payload_atlas as u64, writer)?;
                             for payload in payload {
                                 {
-                                    let varint = *payload as u64;
+                                    let varint = u64::from(*payload);
                                     super::super::serialize_varint(varint, writer)?;
                                 }
                             }

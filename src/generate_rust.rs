@@ -1961,7 +1961,7 @@ fn write_serialization_invocation<T: Write>(
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "{{")?;
             write_indentation(buffer, indentation + 1)?;
-            writeln!(buffer, "let varint = *payload as u64;")?;
+            writeln!(buffer, "let varint = u64::from(*payload);")?;
             write_u64_serialization_invocation(buffer, indentation + 1, supers, is_field)?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "}}")
