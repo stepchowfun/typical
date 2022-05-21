@@ -99,8 +99,7 @@ impl Identifier {
                                 }
                             }
                         })
-                        .collect::<Vec<_>>()
-                        .join("")
+                        .collect::<String>()
             }
         }
     }
@@ -120,8 +119,7 @@ impl Identifier {
                     }
                 }
             })
-            .collect::<Vec<_>>()
-            .join("")
+            .collect::<String>()
     }
 
     // This function concatenates two identifiers.
