@@ -17,7 +17,7 @@ macro_rules! assert_fails {
 
             for error in &errors {
                 let error_string = error.to_string();
-                all_errors_string.push_str(&format!("{}\n", error_string));
+                let _ = write!(all_errors_string, "{}\n", error_string);
 
                 if error_string.contains(search_str) {
                     found_error = true;
@@ -58,7 +58,10 @@ macro_rules! assert_same {
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_fails, assert_same, error::Error};
+    use {
+        crate::{assert_fails, assert_same, error::Error},
+        std::fmt::Write,
+    };
 
     #[test]
     #[should_panic(expected = "The expression was supposed to fail, but it succeeded.")]

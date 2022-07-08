@@ -22,6 +22,7 @@
     dead_code,
     unreachable_code,
     unreachable_patterns,
+    unused_mut,
     unused_parens,
     unused_variables
 )]

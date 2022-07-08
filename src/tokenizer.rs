@@ -401,7 +401,7 @@ mod tests {
             },
             tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
         },
-        std::path::Path,
+        std::{fmt::Write, path::Path},
     };
 
     #[test]

@@ -871,6 +871,7 @@ mod tests {
         },
         std::{
             collections::{BTreeMap, BTreeSet},
+            fmt::Write,
             path::Path,
         },
     };

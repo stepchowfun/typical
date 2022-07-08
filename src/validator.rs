@@ -372,7 +372,7 @@ mod tests {
             assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
             validator::validate,
         },
-        std::{collections::BTreeMap, path::Path},
+        std::{collections::BTreeMap, fmt::Write, path::Path},
     };
 
     #[test]
