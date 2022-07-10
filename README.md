@@ -448,7 +448,7 @@ struct SendEmailRequest {
     # To whom the email is addressed
     to: String = 0
 
-    # Who is sending the email
+    # The subject line of the email
     subject: String = 1
 
     # The contents of the email
