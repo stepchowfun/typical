@@ -381,7 +381,7 @@ mod tests {
             components: vec!["foo".into()],
         };
         let path = Path::new("foo.t").to_owned();
-        let contents = "".to_owned();
+        let contents = String::new();
 
         let tokens = tokenize(&path, &contents).unwrap();
         let schema = parse(&path, &contents, &tokens).unwrap();

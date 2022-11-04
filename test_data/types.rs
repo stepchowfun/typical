@@ -1012,7 +1012,7 @@ pub mod comprehensive {
                 let _b_required = { let payload = &self.b_required; (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize }) };
                 let _c_required = { let payload = &self.c_required; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) };
                 let _d_required = { let payload = &self.d_required; ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }) };
-                let _e_required = { let payload = &self.e_required; (if *payload { 1_usize } else { 0_usize }) };
+                let _e_required = { let payload = &self.e_required; (usize::from(*payload)) };
                 let _f_required = { let payload = &self.f_required; (payload.len()) };
                 let _g_required = { let payload = &self.g_required; (payload.len()) };
                 let _h_required = { let payload = &self.h_required; (payload.atlas()) };
@@ -1039,7 +1039,7 @@ pub mod comprehensive {
                 let _b_asymmetric = { let payload = &self.b_asymmetric; (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize }) };
                 let _c_asymmetric = { let payload = &self.c_asymmetric; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) };
                 let _d_asymmetric = { let payload = &self.d_asymmetric; ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }) };
-                let _e_asymmetric = { let payload = &self.e_asymmetric; (if *payload { 1_usize } else { 0_usize }) };
+                let _e_asymmetric = { let payload = &self.e_asymmetric; (usize::from(*payload)) };
                 let _f_asymmetric = { let payload = &self.f_asymmetric; (payload.len()) };
                 let _g_asymmetric = { let payload = &self.g_asymmetric; (payload.len()) };
                 let _h_asymmetric = { let payload = &self.h_asymmetric; (payload.atlas()) };
@@ -1066,7 +1066,7 @@ pub mod comprehensive {
                 let _b_optional = self.b_optional.as_ref().map(|payload| (if payload.to_bits() == 0_u64 { 0_usize } else { 8_usize }));
                 let _c_optional = self.c_optional.as_ref().map(|payload| (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }));
                 let _d_optional = self.d_optional.as_ref().map(|payload| ({ let zigzag = super::super::zigzag_encode(*payload); let payload = &zigzag; (match *payload { 0_u64 => { 0_usize }, 1_u64..=567_382_630_219_903_u64 => { super::super::varint_size_from_value(*payload) }, 567_382_630_219_904_u64..=18_446_744_073_709_551_615_u64 => { 8_usize } }) }));
-                let _e_optional = self.e_optional.as_ref().map(|payload| (if *payload { 1_usize } else { 0_usize }));
+                let _e_optional = self.e_optional.as_ref().map(|payload| (usize::from(*payload)));
                 let _f_optional = self.f_optional.as_ref().map(|payload| (payload.len()));
                 let _g_optional = self.g_optional.as_ref().map(|payload| (payload.len()));
                 let _h_optional = self.h_optional.as_ref().map(|payload| (payload.atlas()));
@@ -4439,7 +4439,7 @@ pub mod comprehensive {
                         BarAtlas::DRequired(super::super::field_header_size(3_u64, payload_size, true) + payload_size, payload_atlas)
                     }
                     BarOut::ERequired(ref payload) => {
-                        let payload_atlas = (if *payload { 1_usize } else { 0_usize });
+                        let payload_atlas = (usize::from(*payload));
                         let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
                         BarAtlas::ERequired(super::super::field_header_size(4_u64, payload_size, true) + payload_size, payload_atlas)
                     }
@@ -4579,7 +4579,7 @@ pub mod comprehensive {
                         BarAtlas::DAsymmetric(super::super::field_header_size(31_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
                     }
                     BarOut::EAsymmetric(ref payload, ref fallback) => {
-                        let payload_atlas = (if *payload { 1_usize } else { 0_usize });
+                        let payload_atlas = (usize::from(*payload));
                         let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
                         let fallback_atlas = fallback.atlas();
                         BarAtlas::EAsymmetric(super::super::field_header_size(32_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
@@ -4742,7 +4742,7 @@ pub mod comprehensive {
                         BarAtlas::DOptional(super::super::field_header_size(59_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))
                     }
                     BarOut::EOptional(ref payload, ref fallback) => {
-                        let payload_atlas = (if *payload { 1_usize } else { 0_usize });
+                        let payload_atlas = (usize::from(*payload));
                         let payload_size = { let payload_atlas = &payload_atlas; *payload_atlas };
                         let fallback_atlas = fallback.atlas();
                         BarAtlas::EOptional(super::super::field_header_size(60_u64, payload_size, true) + payload_size + fallback_atlas.size(), payload_atlas, Box::new(fallback_atlas))

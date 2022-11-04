@@ -85,7 +85,7 @@ pub fn run() -> io::Result<()> {
         n_required: vec![false, true, false],
         o_required: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_required: vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -126,10 +126,10 @@ pub fn run() -> io::Result<()> {
             vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_required: vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
@@ -162,7 +162,7 @@ pub fn run() -> io::Result<()> {
         n_asymmetric: vec![false, true, false],
         o_asymmetric: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_asymmetric: vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -203,10 +203,10 @@ pub fn run() -> io::Result<()> {
             vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_asymmetric: vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
@@ -271,7 +271,7 @@ pub fn run() -> io::Result<()> {
         n_required: vec![false, true, false],
         o_required: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_required: vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -312,10 +312,10 @@ pub fn run() -> io::Result<()> {
             vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_required: vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
@@ -348,7 +348,7 @@ pub fn run() -> io::Result<()> {
         n_asymmetric: vec![false, true, false],
         o_asymmetric: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         p_asymmetric: vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -389,10 +389,10 @@ pub fn run() -> io::Result<()> {
             vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ],
         y_asymmetric: vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
@@ -425,7 +425,7 @@ pub fn run() -> io::Result<()> {
         n_optional: Some(vec![false, true, false]),
         o_optional: Some(vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]]),
         p_optional: Some(vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ]),
@@ -474,10 +474,10 @@ pub fn run() -> io::Result<()> {
             vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
         ]),
         y_optional: Some(vec![
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
@@ -520,7 +520,7 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::FRequired(vec![0, 42]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::FRequired(vec![0, 42, 255]))?;
 
-    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("".to_owned()))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired(String::new()))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("=8 bytes".to_owned()))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GRequired("Hello, \u{5e78}\u{798f}!".to_owned()))?;
 
@@ -566,13 +566,13 @@ pub fn run() -> io::Result<()> {
     ]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec!["".to_owned()]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![String::new()]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![
-        "".to_owned(),
+        String::new(),
         "=8 bytes".to_owned(),
     ]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::PRequired(vec![
-        "".to_owned(),
+        String::new(),
         "=8 bytes".to_owned(),
         "Hello, \u{5e78}\u{798f}!".to_owned(),
     ]))?;
@@ -679,19 +679,19 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![]]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec!["".to_owned()]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![String::new()]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![], vec![], vec![]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![vec![
-        "".to_owned(),
+        String::new(),
         "=8 bytes".to_owned(),
         "Hello, \u{5e78}\u{798f}!".to_owned(),
     ]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YRequired(vec![
         vec![],
-        vec!["".to_owned()],
-        vec!["".to_owned(), "=8 bytes".to_owned()],
+        vec![String::new()],
+        vec![String::new(), "=8 bytes".to_owned()],
         vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -769,7 +769,7 @@ pub fn run() -> io::Result<()> {
     ))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::GAsymmetric(
-        "".to_owned(),
+        String::new(),
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GAsymmetric(
@@ -886,16 +886,16 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(
-        vec!["".to_owned()],
+        vec![String::new()],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(
-        vec!["".to_owned(), "=8 bytes".to_owned()],
+        vec![String::new(), "=8 bytes".to_owned()],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::PAsymmetric(
         vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -1093,7 +1093,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
-        vec![vec!["".to_owned()]],
+        vec![vec![String::new()]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
@@ -1102,7 +1102,7 @@ pub fn run() -> io::Result<()> {
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ]],
@@ -1111,10 +1111,10 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::YAsymmetric(
         vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],
@@ -1213,7 +1213,7 @@ pub fn run() -> io::Result<()> {
     ))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::GOptional(
-        "".to_owned(),
+        String::new(),
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::GOptional(
@@ -1327,16 +1327,16 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(
-        vec!["".to_owned()],
+        vec![String::new()],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(
-        vec!["".to_owned(), "=8 bytes".to_owned()],
+        vec![String::new(), "=8 bytes".to_owned()],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::POptional(
         vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ],
@@ -1534,7 +1534,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
-        vec![vec!["".to_owned()]],
+        vec![vec![String::new()]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
@@ -1543,7 +1543,7 @@ pub fn run() -> io::Result<()> {
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
         vec![vec![
-            "".to_owned(),
+            String::new(),
             "=8 bytes".to_owned(),
             "Hello, \u{5e78}\u{798f}!".to_owned(),
         ]],
@@ -1552,10 +1552,10 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::YOptional(
         vec![
             vec![],
-            vec!["".to_owned()],
-            vec!["".to_owned(), "=8 bytes".to_owned()],
+            vec![String::new()],
+            vec![String::new(), "=8 bytes".to_owned()],
             vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, \u{5e78}\u{798f}!".to_owned(),
             ],

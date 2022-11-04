@@ -13,7 +13,7 @@ macro_rules! assert_fails {
         // Check that `$expr` fails and that the failure contains `$search_str`.
         if let Err(errors) = expr {
             let mut found_error = false;
-            let mut all_errors_string = "".to_owned();
+            let mut all_errors_string = String::new();
 
             for error in &errors {
                 let error_string = error.to_string();

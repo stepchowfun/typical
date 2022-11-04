@@ -174,7 +174,7 @@ pub fn listing(source_contents: &str, source_range: SourceRange) -> String {
                 &line[*section_start..*section_end].red(),
                 &line[*section_end..],
                 if colorized {
-                    "".to_owned()
+                    String::new()
                 } else if section_start == section_end {
                     format!(
                         "\n{} {}",

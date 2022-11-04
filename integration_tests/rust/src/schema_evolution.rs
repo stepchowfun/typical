@@ -13,7 +13,7 @@ fn choice_test_cases(
     fallback_before: before::ExampleChoiceOut,
     fallback_after: after::ExampleChoiceIn,
 ) -> Vec<(before::ExampleChoiceOut, after::ExampleChoiceIn)> {
-    return vec![
+    vec![
         (
             before::ExampleChoiceOut::RequiredToRequired("required_to_required".to_owned()),
             after::ExampleChoiceIn::RequiredToRequired("required_to_required".to_owned()),
@@ -84,7 +84,7 @@ fn choice_test_cases(
             ),
             fallback_after,
         ),
-    ];
+    ]
 }
 
 #[allow(clippy::too_many_lines)]

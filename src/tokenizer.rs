@@ -319,7 +319,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 }
 
                 let mut paragraphs = vec![];
-                let mut paragraph = "".to_owned();
+                let mut paragraph = String::new();
 
                 for line in lines {
                     if line.is_empty() && !paragraph.is_empty() {

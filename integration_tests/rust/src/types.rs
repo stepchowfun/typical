@@ -7,6 +7,7 @@
     clippy::match_single_binding,
     clippy::module_inception,
     clippy::module_name_repetitions,
+    clippy::needless_borrow,
     clippy::no_effect,
     clippy::no_effect_underscore_binding,
     clippy::redundant_closure_for_method_calls,

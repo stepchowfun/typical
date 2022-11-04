@@ -1801,7 +1801,7 @@ fn write_atlas_calculation<T: Write>(
         },
         schema::TypeVariant::Bool => {
             if is_field {
-                write!(buffer, "if *payload {{ 1_usize }} else {{ 0_usize }}")?;
+                write!(buffer, "usize::from(*payload)")?;
             } else {
                 write!(buffer, "1_usize")?;
             }
