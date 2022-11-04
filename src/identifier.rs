@@ -362,8 +362,8 @@ mod tests {
         assert_eq!(
             Identifier::from(""),
             Identifier {
-                original: "".to_owned(),
-                snake_case: "".to_owned(),
+                original: String::new(),
+                snake_case: String::new(),
             },
         );
     }
@@ -492,7 +492,7 @@ mod tests {
 
     #[test]
     fn original_empty() {
-        assert_eq!(Identifier::from("").original(), "".to_owned());
+        assert_eq!(Identifier::from("").original(), String::new());
     }
 
     #[test]
@@ -545,7 +545,7 @@ mod tests {
 
     #[test]
     fn snake_case_empty() {
-        assert_eq!(Identifier::from("").snake_case(), "".to_owned());
+        assert_eq!(Identifier::from("").snake_case(), String::new());
     }
 
     #[test]
@@ -598,7 +598,7 @@ mod tests {
 
     #[test]
     fn camel_case_empty() {
-        assert_eq!(Identifier::from("").camel_case(), "".to_owned());
+        assert_eq!(Identifier::from("").camel_case(), String::new());
     }
 
     #[test]
@@ -651,7 +651,7 @@ mod tests {
 
     #[test]
     fn pascal_case_empty() {
-        assert_eq!(Identifier::from("").pascal_case(), "".to_owned());
+        assert_eq!(Identifier::from("").pascal_case(), String::new());
     }
 
     #[test]

@@ -145,7 +145,7 @@ fn main() -> io::Result<()> {
             n: vec![false, true, false],
             o: vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
             p: vec![
-                "".to_owned(),
+                String::new(),
                 "=8 bytes".to_owned(),
                 "Hello, World!".to_owned(),
             ],
@@ -200,10 +200,10 @@ fn main() -> io::Result<()> {
                 vec![vec![], vec![0, 42, 255], vec![7, 6, 5, 4, 3, 2, 1, 0]],
             ],
             y: vec![
-                vec!["".to_owned()],
-                vec!["".to_owned(), "=8 bytes".to_owned()],
+                vec![String::new()],
+                vec![String::new(), "=8 bytes".to_owned()],
                 vec![
-                    "".to_owned(),
+                    String::new(),
                     "=8 bytes".to_owned(),
                     "Hello, World!".to_owned(),
                 ],
