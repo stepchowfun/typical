@@ -29,12 +29,13 @@ tasks:
     command: |
       # Install the following packages:
       #
-      # - build-essential - Used for linking the binary
-      # - curl            - Used for installing Tagref and Rust
-      # - ripgrep         - Used for various linting tasks
-      # - shellcheck      - Used for linting shell scripts
+      # - curl                  - Used for installing Tagref and Rust
+      # - gcc-aarch64-linux-gnu - Used for linking the binary for AArch64
+      # - gcc-x86-64-linux-gnu  - Used for linking the binary for x86-64
+      # - ripgrep               - Used for various linting tasks
+      # - shellcheck            - Used for linting shell scripts
       apt-get update
-      apt-get install --yes build-essential curl ripgrep shellcheck
+      apt-get install --yes curl gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu ripgrep shellcheck
 
       # Install the following packages:
       #
@@ -313,10 +314,17 @@ tasks:
       # Add the targets. It's likely that this script is currently running in one of them.
       rustup target add x86_64-unknown-linux-gnu
       rustup target add x86_64-unknown-linux-musl
+      rustup target add aarch64-unknown-linux-gnu
 
-      # Build the project for both Linux targets with Cargo.
+      # Set the linkers.
+      export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-linux-gnu-gcc
+      export CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=x86_64-linux-gnu-gcc
+      export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
+
+      # Build the project with Cargo for each Linux target.
       cargo-online build --release --target x86_64-unknown-linux-gnu
       cargo-online build --release --target x86_64-unknown-linux-musl
+      cargo-online build --release --target aarch64-unknown-linux-gnu
 
       # Move the binaries to a more conveniennt location for exporting.
       mkdir artifacts
@@ -326,6 +334,9 @@ tasks:
       cp \
         target/x86_64-unknown-linux-musl/release/typical \
         artifacts/typical-x86_64-unknown-linux-musl
+      cp \
+        target/aarch64-unknown-linux-gnu/release/typical \
+        artifacts/typical-aarch64-unknown-linux-gnu
 
   publish:
     description: Publish the crate to crates.io.
