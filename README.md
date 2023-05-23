@@ -690,9 +690,9 @@ ARGS:
 
 ## Installation instructions
 
-### Installation on macOS (AArch64 or x86-64) or Linux (x86-64)
+### Installation on macOS or Linux (AArch64 or x86-64)
 
-If you're running macOS (AArch64 or x86-64) or Linux (x86-64), you can install Typical with this command:
+If you're running macOS or Linux (AArch64 or x86-64), you can install Typical with this command:
 
 ```sh
 curl https://raw.githubusercontent.com/stepchowfun/typical/main/install.sh -LSfs | sh
