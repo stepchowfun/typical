@@ -44,11 +44,23 @@ jobs:
     - run: |
         # Make Bash not silently ignore errors.
         set -euo pipefail
+
         # The artifact name will contain the target triple, so the file name doesn't need to.
         mv artifacts/typical-aarch64-unknown-linux-gnu artifacts/typical
     - uses: actions/upload-artifact@v2
       with:
         name: aarch64-unknown-linux-gnu
+        path: artifacts/typical
+        if-no-files-found: error
+    - run: |
+        # Make Bash not silently ignore errors.
+        set -euo pipefail
+
+        # The artifact name will contain the target triple, so the file name doesn't need to.
+        mv artifacts/typical-aarch64-unknown-linux-musl artifacts/typical
+    - uses: actions/upload-artifact@v2
+      with:
+        name: aarch64-unknown-linux-musl
         path: artifacts/typical
         if-no-files-found: error
   ci-windows:
@@ -183,6 +195,9 @@ jobs:
           artifacts/aarch64-unknown-linux-gnu/typical \
           artifacts/typical-aarch64-unknown-linux-gnu
         mv \
+          artifacts/aarch64-unknown-linux-musl/typical \
+          artifacts/typical-aarch64-unknown-linux-musl
+        mv \
           artifacts/x86_64-apple-darwin/typical \
           artifacts/typical-x86_64-apple-darwin
         mv \
@@ -199,6 +214,7 @@ jobs:
           --attach 'artifacts/typical-x86_64-unknown-linux-gnu' \
           --attach 'artifacts/typical-x86_64-unknown-linux-musl' \
           --attach 'artifacts/typical-aarch64-unknown-linux-gnu' \
+          --attach 'artifacts/typical-aarch64-unknown-linux-musl' \
           --attach 'artifacts/typical-x86_64-apple-darwin' \
           --attach 'artifacts/typical-aarch64-apple-darwin' \
           --attach 'artifacts/typical-x86_64-pc-windows-msvc.exe' \
