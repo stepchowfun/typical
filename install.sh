@@ -14,7 +14,7 @@
   DESTINATION="${PREFIX:-/usr/local/bin}/typical"
 
   # Which version to download
-  RELEASE="v${VERSION:-0.9.4}"
+  RELEASE="v${VERSION:-0.9.5}"
 
   # Determine which binary to download.
   FILENAME=''
@@ -27,6 +27,9 @@
   elif uname -a | grep -qi 'aarch64.*GNU/Linux'; then
     echo 'AArch64 GNU Linux detected.'
     FILENAME=typical-aarch64-unknown-linux-gnu
+  elif uname -a | grep -qi 'aarch64.*Linux'; then
+    echo 'AArch64 non-GNU Linux detected.'
+    FILENAME=typical-aarch64-unknown-linux-musl
   elif uname -a | grep -qi 'Darwin.*x86_64'; then
     echo 'x86-64 macOS detected.'
     FILENAME=typical-x86_64-apple-darwin
