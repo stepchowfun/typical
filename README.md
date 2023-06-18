@@ -719,6 +719,16 @@ If you're running Windows (AArch64 or x86-64), download the latest binary from t
 
 To update to an existing installation, simply replace the existing binary.
 
+### Installation with Homebrew
+
+If you have [Homebrew](https://brew.sh/), you can install Typical as follows:
+
+```sh
+brew install typical
+```
+
+You can update an existing installation with `brew upgrade typical`.
+
 ### Installation with Cargo
 
 If you have [Cargo](https://doc.rust-lang.org/cargo/), you can install Typical as follows:
