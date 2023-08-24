@@ -396,7 +396,7 @@ fn entry() -> Result<(), Error> {
 fn main() {
     // Jump to the entrypoint and report any resulting errors.
     if let Err(e) = entry() {
-        eprintln!("{}", e);
+        eprintln!("{e}");
         exit(1);
     }
 }

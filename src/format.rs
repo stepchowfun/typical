@@ -14,7 +14,7 @@ impl CodeStr for str {
         if SHOULD_COLORIZE.should_colorize() {
             self.magenta()
         } else {
-            ColoredString::from(&format!("`{}`", self) as &Self)
+            ColoredString::from(&format!("`{self}`") as &Self)
         }
     }
 }

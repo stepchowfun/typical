@@ -18,14 +18,14 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     actual: &T,
     expected: &U,
 ) -> io::Result<()> {
-    println!("Message to be serialized: {:?}", actual);
+    println!("Message to be serialized: {actual:?}");
 
     let size = actual.size();
-    println!("Expected size of the serialized value: {:?}", size);
+    println!("Expected size of the serialized value: {size:?}");
 
     let mut buffer = Vec::<u8>::new();
     actual.serialize(&mut buffer)?;
-    println!("Bytes from serialization: {:?}", buffer);
+    println!("Bytes from serialization: {buffer:?}");
     println!("Size of the serialized value: {:?}", buffer.len());
     if buffer.len() != size {
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));
@@ -39,9 +39,9 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     file.write_all(&buffer).unwrap();
 
     let replica = U::deserialize(buffer.as_slice())?;
-    println!("Message deserialized from those bytes: {:?}", replica);
+    println!("Message deserialized from those bytes: {replica:?}");
 
-    if format!("{:?}", replica) != format!("{:?}", expected) {
+    if format!("{replica:?}") != format!("{expected:?}") {
         return Err(Error::new(ErrorKind::Other, "Mismatch!"));
     }
 

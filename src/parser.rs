@@ -61,14 +61,14 @@ fn unexpected_token(
 
     if tokens.is_empty() {
         throw::<Error>(
-            &format!("Expected {}, but the file is empty.", expectation),
+            &format!("Expected {expectation}, but the file is empty."),
             Some(source_path),
             Some(&listing(source_contents, source_range)),
             None,
         )
     } else if position == tokens.len() {
         throw::<Error>(
-            &format!("Expected {} at the end of the file.", expectation),
+            &format!("Expected {expectation} at the end of the file."),
             Some(source_path),
             Some(&listing(source_contents, source_range)),
             None,

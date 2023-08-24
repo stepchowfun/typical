@@ -217,7 +217,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 let mut end = schema_contents.len();
 
                 while let Some((j, d)) = iter.peek() {
-                    if ('0'..='9').contains(d) {
+                    if d.is_ascii_digit() {
                         iter.next();
                     } else {
                         end = *j;
@@ -664,7 +664,7 @@ mod tests {
         assert_same!(
             tokenize(
                 Path::new("foo.t"),
-                &format!("{}{}", RAW_IDENTIFIER_SIGIL, STRUCT_KEYWORD),
+                &format!("{RAW_IDENTIFIER_SIGIL}{STRUCT_KEYWORD}"),
             )
             .unwrap(),
             vec![Token {

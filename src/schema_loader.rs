@@ -49,9 +49,7 @@ pub fn load_schemas(
     let mut errors = vec![];
 
     // The base directory for the schema's dependencies is the directory containing the schema.
-    let base_path = if let Some(base_path) = schema_path.parent() {
-        base_path
-    } else {
+    let Some(base_path) = schema_path.parent() else {
         errors.push(throw::<Error>(
             &format!(
                 "{} is not a file.",
