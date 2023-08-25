@@ -336,7 +336,7 @@ pub mod circular_dependency {
                                 _x.get_or_insert(payload);
                             }
                             _ => {
-                                super::super::super::skip(&mut sub_reader, payload_size as usize)?;
+                                super::super::super::skip(&mut sub_reader, payload_size)?;
                             }
                         }
                     }
@@ -522,7 +522,7 @@ pub mod circular_dependency {
                             _fallback.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -629,7 +629,7 @@ pub mod comprehensive {
 
                     match index {
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -1352,7 +1352,7 @@ pub mod comprehensive {
                     let payload_atlas = &atlas.j_required;
                     super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
                     {
-                        let varint = payload.len() as u64 as u64;
+                        let varint = payload.len() as u64;
                         match varint {
                             0_u64 => {}
                             1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -1453,7 +1453,7 @@ pub mod comprehensive {
                     for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
                         super::super::serialize_varint(*payload_atlas as u64, writer)?;
                         {
-                            let varint = payload.len() as u64 as u64;
+                            let varint = payload.len() as u64;
                             super::super::serialize_varint(varint, writer)?;
                         }
                     }
@@ -1658,7 +1658,7 @@ pub mod comprehensive {
                     let payload_atlas = &atlas.j_asymmetric;
                     super::super::serialize_field_header(writer, 37_u64, *payload_atlas, false)?;
                     {
-                        let varint = payload.len() as u64 as u64;
+                        let varint = payload.len() as u64;
                         match varint {
                             0_u64 => {}
                             1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -1759,7 +1759,7 @@ pub mod comprehensive {
                     for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
                         super::super::serialize_varint(*payload_atlas as u64, writer)?;
                         {
-                            let varint = payload.len() as u64 as u64;
+                            let varint = payload.len() as u64;
                             super::super::serialize_varint(varint, writer)?;
                         }
                     }
@@ -1944,7 +1944,7 @@ pub mod comprehensive {
                 if let (Some(payload), Some(payload_atlas)) = (&self.j_optional, &atlas.j_optional) {
                     super::super::serialize_field_header(writer, 65_u64, *payload_atlas, false)?;
                     {
-                        let varint = payload.len() as u64 as u64;
+                        let varint = payload.len() as u64;
                         match varint {
                             0_u64 => {}
                             1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -2027,7 +2027,7 @@ pub mod comprehensive {
                     for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
                         super::super::serialize_varint(*payload_atlas as u64, writer)?;
                         {
-                            let varint = payload.len() as u64 as u64;
+                            let varint = payload.len() as u64;
                             super::super::serialize_varint(varint, writer)?;
                         }
                     }
@@ -3924,7 +3924,7 @@ pub mod comprehensive {
                             _aa_optional.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -4958,7 +4958,7 @@ pub mod comprehensive {
                     (BarOut::JRequired(payload), BarAtlas::JRequired(_, payload_atlas)) => {
                         super::super::serialize_field_header(writer, 9_u64, *payload_atlas, false)?;
                         {
-                            let varint = payload.len() as u64 as u64;
+                            let varint = payload.len() as u64;
                             match varint {
                                 0_u64 => {}
                                 1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -5041,7 +5041,7 @@ pub mod comprehensive {
                         for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
                             super::super::serialize_varint(*payload_atlas as u64, writer)?;
                             {
-                                let varint = payload.len() as u64 as u64;
+                                let varint = payload.len() as u64;
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -5210,7 +5210,7 @@ pub mod comprehensive {
                     (BarOut::JAsymmetric(payload, fallback), BarAtlas::JAsymmetric(_, payload_atlas, fallback_atlas)) => {
                         super::super::serialize_field_header(writer, 37_u64, *payload_atlas, false)?;
                         {
-                            let varint = payload.len() as u64 as u64;
+                            let varint = payload.len() as u64;
                             match varint {
                                 0_u64 => {}
                                 1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -5293,7 +5293,7 @@ pub mod comprehensive {
                         for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
                             super::super::serialize_varint(*payload_atlas as u64, writer)?;
                             {
-                                let varint = payload.len() as u64 as u64;
+                                let varint = payload.len() as u64;
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -5462,7 +5462,7 @@ pub mod comprehensive {
                     (BarOut::JOptional(payload, fallback), BarAtlas::JOptional(_, payload_atlas, fallback_atlas)) => {
                         super::super::serialize_field_header(writer, 65_u64, *payload_atlas, false)?;
                         {
-                            let varint = payload.len() as u64 as u64;
+                            let varint = payload.len() as u64;
                             match varint {
                                 0_u64 => {}
                                 1_u64..=567_382_630_219_903_u64 => super::super::serialize_varint(varint, writer)?,
@@ -5545,7 +5545,7 @@ pub mod comprehensive {
                         for (payload, payload_atlas) in payload.iter().zip(payload_atlas.1.iter()) {
                             super::super::serialize_varint(*payload_atlas as u64, writer)?;
                             {
-                                let varint = payload.len() as u64 as u64;
+                                let varint = payload.len() as u64;
                                 super::super::serialize_varint(varint, writer)?;
                             }
                         }
@@ -7433,7 +7433,7 @@ pub mod comprehensive {
                             return Ok(BarIn::AaOptional(payload, fallback));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -7605,7 +7605,7 @@ pub mod degenerate {
 
                     match index {
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -7685,7 +7685,7 @@ pub mod degenerate {
 
                     match index {
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -7995,7 +7995,7 @@ pub mod schema_evolution {
                             _nonexistent_to_optional.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -8327,7 +8327,7 @@ pub mod schema_evolution {
                             return Ok(ExampleChoiceIn::NonexistentToOptional(fallback));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -8673,7 +8673,7 @@ pub mod schema_evolution {
                             _optional_to_nonexistent.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -8993,7 +8993,7 @@ pub mod schema_evolution {
                             return Ok(ExampleChoiceIn::OptionalToNonexistent(payload, fallback));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -9115,7 +9115,7 @@ pub mod schema_evolution {
                             _x.get_or_insert(payload);
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }
@@ -9224,7 +9224,7 @@ pub mod schema_evolution {
                             return Ok(SingletonChoiceIn::X(payload));
                         }
                         _ => {
-                            super::super::skip(&mut sub_reader, payload_size as usize)?;
+                            super::super::skip(&mut sub_reader, payload_size)?;
                         }
                     }
                 }

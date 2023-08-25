@@ -69,11 +69,11 @@ impl Display for Token {
 impl Display for Variant {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self {
-            Self::As => write!(f, "{}", AS_KEYWORD),
-            Self::Asymmetric => write!(f, "{}", ASYMMETRIC_KEYWORD),
-            Self::Bool => write!(f, "{}", BOOL_KEYWORD),
-            Self::Bytes => write!(f, "{}", BYTES_KEYWORD),
-            Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
+            Self::As => write!(f, "{AS_KEYWORD}"),
+            Self::Asymmetric => write!(f, "{ASYMMETRIC_KEYWORD}"),
+            Self::Bool => write!(f, "{BOOL_KEYWORD}"),
+            Self::Bytes => write!(f, "{BYTES_KEYWORD}"),
+            Self::Choice => write!(f, "{CHOICE_KEYWORD}"),
             Self::Colon => write!(f, ":"),
             Self::Comment(paragraphs) => {
                 for (i, paragraph) in paragraphs.iter().enumerate() {
@@ -81,29 +81,29 @@ impl Display for Variant {
                         writeln!(f, "#")?;
                     }
 
-                    writeln!(f, "# {}", paragraph)?;
+                    writeln!(f, "# {paragraph}")?;
                 }
 
                 Ok(())
             }
-            Self::Deleted => write!(f, "{}", DELETED_KEYWORD),
+            Self::Deleted => write!(f, "{DELETED_KEYWORD}"),
             Self::Dot => write!(f, "."),
             Self::Equals => write!(f, "="),
-            Self::F64 => write!(f, "{}", F64_KEYWORD),
+            Self::F64 => write!(f, "{F64_KEYWORD}"),
             Self::Identifier(name) => write!(f, "{}", name.original()),
-            Self::Import => write!(f, "{}", IMPORT_KEYWORD),
-            Self::Integer(integer) => write!(f, "{}", integer),
+            Self::Import => write!(f, "{IMPORT_KEYWORD}"),
+            Self::Integer(integer) => write!(f, "{integer}"),
             Self::LeftCurly => write!(f, "{{"),
             Self::LeftSquare => write!(f, "["),
-            Self::Optional => write!(f, "{}", OPTIONAL_KEYWORD),
+            Self::Optional => write!(f, "{OPTIONAL_KEYWORD}"),
             Self::Path(path) => write!(f, "'{}'", path.display()),
             Self::RightCurly => write!(f, "}}"),
             Self::RightSquare => write!(f, "]"),
-            Self::S64 => write!(f, "{}", S64_KEYWORD),
-            Self::String => write!(f, "{}", STRING_KEYWORD),
-            Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
-            Self::U64 => write!(f, "{}", U64_KEYWORD),
-            Self::Unit => write!(f, "{}", UNIT_KEYWORD),
+            Self::S64 => write!(f, "{S64_KEYWORD}"),
+            Self::String => write!(f, "{STRING_KEYWORD}"),
+            Self::Struct => write!(f, "{STRUCT_KEYWORD}"),
+            Self::U64 => write!(f, "{U64_KEYWORD}"),
+            Self::Unit => write!(f, "{UNIT_KEYWORD}"),
         }
     }
 }

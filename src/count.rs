@@ -2,9 +2,9 @@
 // multiplicity (pluralizing if necessary). For example, `count(3, "cow")` becomes "3 cows".
 pub fn count(n: usize, noun: &str) -> String {
     if n == 1 {
-        format!("{} {}", n, noun)
+        format!("{n} {noun}")
     } else {
-        format!("{} {}s", n, noun)
+        format!("{n} {noun}s")
     }
 }
 

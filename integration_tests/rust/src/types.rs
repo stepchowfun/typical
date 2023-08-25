@@ -5,6 +5,7 @@
     clippy::let_unit_value,
     clippy::match_same_arms,
     clippy::match_single_binding,
+    clippy::misnamed_getters,
     clippy::module_inception,
     clippy::module_name_repetitions,
     clippy::needless_borrow,

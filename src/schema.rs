@@ -124,11 +124,11 @@ pub fn relativize_namespace(namespace1: &Namespace, namespace2: &Namespace) -> (
 fn write_comment<W: Write>(indentation: &str, paragraphs: &[String], f: &mut W) -> fmt::Result {
     for (i, paragraph) in paragraphs.iter().enumerate() {
         if i != 0 {
-            writeln!(f, "{}#", indentation)?;
+            writeln!(f, "{indentation}#")?;
         }
 
         for line in textwrap::fill(paragraph, MAX_COLUMNS - indentation.len() - 2).lines() {
-            writeln!(f, "{}# {}", indentation, line)?;
+            writeln!(f, "{indentation}# {line}")?;
         }
     }
 
@@ -211,10 +211,10 @@ impl Declaration {
         }
 
         if !self.deleted.is_empty() {
-            write!(f, "    {}", DELETED_KEYWORD)?;
+            write!(f, "    {DELETED_KEYWORD}")?;
 
             for deleted_index in &self.deleted {
-                write!(f, " {}", deleted_index)?;
+                write!(f, " {deleted_index}")?;
             }
 
             writeln!(f)?;
@@ -227,8 +227,8 @@ impl Declaration {
 impl DeclarationVariant {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
-            Self::Struct => write!(f, "{}", STRUCT_KEYWORD),
-            Self::Choice => write!(f, "{}", CHOICE_KEYWORD),
+            Self::Struct => write!(f, "{STRUCT_KEYWORD}"),
+            Self::Choice => write!(f, "{CHOICE_KEYWORD}"),
         }
     }
 }
@@ -239,10 +239,10 @@ impl Field {
 
         match self.rule {
             Rule::Asymmetric => {
-                write!(f, "    {} ", ASYMMETRIC_KEYWORD)?;
+                write!(f, "    {ASYMMETRIC_KEYWORD} ")?;
             }
             Rule::Optional => {
-                write!(f, "    {} ", OPTIONAL_KEYWORD)?;
+                write!(f, "    {OPTIONAL_KEYWORD} ")?;
             }
             Rule::Required => {
                 write!(f, "    ")?;
@@ -271,13 +271,13 @@ impl TypeVariant {
     fn write<W: Write>(&self, f: &mut W) -> fmt::Result {
         match self {
             Self::Array(inner_type) => {
-                write!(f, "[{}]", inner_type)?;
+                write!(f, "[{inner_type}]")?;
             }
             Self::Bool => {
-                write!(f, "{}", BOOL_KEYWORD)?;
+                write!(f, "{BOOL_KEYWORD}")?;
             }
             Self::Bytes => {
-                write!(f, "{}", BYTES_KEYWORD)?;
+                write!(f, "{BYTES_KEYWORD}")?;
             }
             Self::Custom(import, name) => {
                 if let Some(import) = import {
@@ -287,19 +287,19 @@ impl TypeVariant {
                 }
             }
             Self::F64 => {
-                write!(f, "{}", F64_KEYWORD)?;
+                write!(f, "{F64_KEYWORD}")?;
             }
             Self::S64 => {
-                write!(f, "{}", S64_KEYWORD)?;
+                write!(f, "{S64_KEYWORD}")?;
             }
             Self::String => {
-                write!(f, "{}", STRING_KEYWORD)?;
+                write!(f, "{STRING_KEYWORD}")?;
             }
             Self::U64 => {
-                write!(f, "{}", U64_KEYWORD)?;
+                write!(f, "{U64_KEYWORD}")?;
             }
             Self::Unit => {
-                write!(f, "{}", UNIT_KEYWORD)?;
+                write!(f, "{UNIT_KEYWORD}")?;
             }
         }
         Ok(())

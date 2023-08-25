@@ -76,7 +76,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
     let mut buffer = Vec::<u8>::new();
     buffer.reserve(message_size);
 
-    println!("Message size: {}", message_size);
+    println!("Message size: {message_size}");
 
     let serialization_instant = Instant::now();
 
@@ -87,7 +87,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
     let serialization_duration = serialization_instant.elapsed();
 
     println!("Wrote {} bytes.", buffer.len());
-    println!("Serialization duration: {:?}", serialization_duration);
+    println!("Serialization duration: {serialization_duration:?}");
     println!(
         "Serialization rate: {} bytes/second",
         (buffer.len() as f64) / serialization_duration.as_secs_f64()
@@ -102,7 +102,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
 
     let deserialization_duration = deserialization_instant.elapsed();
 
-    println!("Deserialization duration: {:?}", deserialization_duration);
+    println!("Deserialization duration: {deserialization_duration:?}");
     println!(
         "Deserialization rate: {} bytes/second",
         (buffer.len() as f64) / deserialization_duration.as_secs_f64()
