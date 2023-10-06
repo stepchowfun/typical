@@ -32,7 +32,7 @@ impl Eq for Identifier {}
 
 impl PartialOrd for Identifier {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.snake_case.partial_cmp(&other.snake_case)
+        Some(self.cmp(other))
     }
 }
 
