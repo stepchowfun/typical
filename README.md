@@ -293,7 +293,7 @@ Typical has no notion of a "default" value for each type. This means, for exampl
 
 ## Summary of what kinds of schema changes are safe
 
-Any user-defined type can safely be migrated to any other user-defined type through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
+Assuming each schema change takes finite time to propagate, any user-defined type can safely be migrated to any other user-defined type through a series of backward and forward compatible changes. Here are the rules for what is allowed in a single change:
 
 - You can safely rename and reorder fields, as long as you don't change their indices.
 - You can safely add and remove optional and asymmetric fields.
