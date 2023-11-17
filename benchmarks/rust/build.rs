@@ -23,9 +23,9 @@ fn main() {
 
     assert!(output.status.success());
 
-    for line in output.stdout.lines().map(|line| line.unwrap()) {
+    for line in output.stdout.lines().map(Result::unwrap) {
         if !line.is_empty() {
-            println!("cargo:rerun-if-changed={}", line);
+            println!("cargo:rerun-if-changed={line}");
         }
     }
 }
