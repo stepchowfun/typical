@@ -73,8 +73,7 @@ const S64_TEST_VALUES: &[i64] = &[
 #[allow(clippy::cast_precision_loss)]
 fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io::Result<()> {
     let message_size = message.size();
-    let mut buffer = Vec::<u8>::new();
-    buffer.reserve(message_size);
+    let mut buffer = Vec::with_capacity(message_size);
 
     println!("Message size: {message_size}");
 
