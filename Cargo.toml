@@ -10,6 +10,11 @@ homepage = "https://github.com/stepchowfun/typical"
 repository = "https://github.com/stepchowfun/typical"
 readme = "README.md"
 
+[lints]
+clippy.all = "deny"
+clippy.pedantic = "deny"
+rust.warnings = "deny"
+
 [dependencies]
 colored = "1"
 pad = "0.1"

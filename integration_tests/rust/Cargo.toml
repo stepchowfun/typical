@@ -4,4 +4,9 @@ version = "0.1.0"
 authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
 edition = "2018"
 
+[lints]
+clippy.all = "deny"
+clippy.pedantic = "deny"
+rust.warnings = "deny"
+
 [dependencies]

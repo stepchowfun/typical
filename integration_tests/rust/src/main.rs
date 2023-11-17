@@ -1,5 +1,3 @@
-#![deny(clippy::all, clippy::pedantic, warnings)]
-
 mod assertions;
 mod circular_dependency;
 mod comprehensive;
