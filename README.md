@@ -491,10 +491,35 @@ Each code generator produces a single self-contained source file regardless of t
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
 - Typical's integer types map to `bigint` rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
 - The generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
-- The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching as follows:
+- The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching. For example, suppose you have the following schema:
+
+  ```
+  struct Square {
+    sideLength: F64 = 0
+  }
+
+  struct Rectangle {
+    width: F64 = 0
+    height: F64 = 1
+  }
+
+  struct Circle {
+    radius: F64 = 0
+  }
+
+  choice Shape {
+    square: Square = 0
+    rectangle: Rectangle = 1
+    circle: Circle = 2
+  }
+  ```
+
+  Then you might pattern match on a `Shape` as follows:
 
   ```typescript
-  function area(shape: ShapeIn): number {
+  import { Types, unreachable } from '../generated/types';
+
+  function area(shape: Types.ShapeIn): number {
     switch (shape.$field) {
       case 'square':
         return shape.square.sideLength * shape.square.sideLength;
@@ -508,7 +533,7 @@ Each code generator produces a single self-contained source file regardless of t
   }
   ```
 
-  If a new field is added to the choice, TypeScript will force you to add the appropriate `case` to this `switch` statement.
+  If a new field is added to the choice, TypeScript will force you to add the appropriate `case` to that `switch` statement.
 
 ## Binary encoding
 
