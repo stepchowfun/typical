@@ -33,4 +33,4 @@ Releasing a new version is a three-step process:
 1. Run `(cd integration_tests/typescript-web && npm ci && npm run dev)` to run the browser-based integration tests. This is the only test suite that isn't automated.
 2. Bump the version in `Cargo.toml`, run `cargo build` to update `Cargo.lock`, and update `CHANGELOG.md` with information about the new version. Ship those changes as a single commit.
 3. Once the GitHub workflow has finished on the `main` branch, update the version in `install.sh` to point to the new release.
-4. Create a pull request in the `Homebrew/homebrew-core` repository on GitHub to bump the version in [this file](https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/typical.rb).
+4. Create a pull request in the `Homebrew/homebrew-core` repository on GitHub to bump the version in [this file](https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/t/typical.rb).
