@@ -6,6 +6,7 @@ edition = "2018"
 
 [lints]
 clippy.all = "deny"
+clippy.default_numeric_fallback = "deny"
 clippy.pedantic = "deny"
 rust.warnings = "deny"
 

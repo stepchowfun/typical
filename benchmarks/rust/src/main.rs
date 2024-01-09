@@ -165,9 +165,9 @@ fn main() -> io::Result<()> {
             s: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
             t: vec![
                 vec![],
-                vec![0.0],
-                vec![0.0, PI],
-                vec![0.0, PI, f64::EPSILON],
+                vec![0.0_f64],
+                vec![0.0_f64, PI],
+                vec![0.0_f64, PI, f64::EPSILON],
                 F64_TEST_VALUES.to_owned(),
             ],
             u: vec![
