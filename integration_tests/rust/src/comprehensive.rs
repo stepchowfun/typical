@@ -94,9 +94,9 @@ pub fn run() -> io::Result<()> {
         s_required: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
         t_required: vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
             F64_TEST_VALUES.to_owned(),
         ],
         u_required: vec![
@@ -171,9 +171,9 @@ pub fn run() -> io::Result<()> {
         s_asymmetric: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
         t_asymmetric: vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
             F64_TEST_VALUES.to_owned(),
         ],
         u_asymmetric: vec![
@@ -280,9 +280,9 @@ pub fn run() -> io::Result<()> {
         s_required: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
         t_required: vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
             F64_TEST_VALUES.to_owned(),
         ],
         u_required: vec![
@@ -357,9 +357,9 @@ pub fn run() -> io::Result<()> {
         s_asymmetric: vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]],
         t_asymmetric: vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
             F64_TEST_VALUES.to_owned(),
         ],
         u_asymmetric: vec![
@@ -442,9 +442,9 @@ pub fn run() -> io::Result<()> {
         s_optional: Some(vec![vec![], vec![()], vec![(), ()], vec![(), (), ()]]),
         t_optional: Some(vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
             F64_TEST_VALUES.to_owned(),
         ]),
         u_optional: Some(vec![
@@ -534,9 +534,9 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::JRequired(vec![(), (), ()]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0, PI]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0, PI, f64::EPSILON]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0_f64]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0_f64, PI]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(vec![0.0_f64, PI, f64::EPSILON]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KRequired(F64_TEST_VALUES.to_owned()))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::LRequired(vec![]))?;
@@ -615,14 +615,14 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![]]))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![0.0]]))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![0.0_f64]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![vec![], vec![], vec![]]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![F64_TEST_VALUES.to_owned()]))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TRequired(vec![
         vec![],
-        vec![0.0],
-        vec![0.0, PI],
-        vec![0.0, PI, f64::EPSILON],
+        vec![0.0_f64],
+        vec![0.0_f64, PI],
+        vec![0.0_f64, PI, f64::EPSILON],
     ]))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::URequired(vec![]))?;
@@ -804,15 +804,15 @@ pub fn run() -> io::Result<()> {
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(vec![], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
-        vec![0.0],
+        vec![0.0_f64],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
-        vec![0.0, PI],
+        vec![0.0_f64, PI],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
-        vec![0.0, PI, f64::EPSILON],
+        vec![0.0_f64, PI, f64::EPSILON],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KAsymmetric(
@@ -958,7 +958,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
-        vec![vec![0.0]],
+        vec![vec![0.0_f64]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
@@ -972,9 +972,9 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::TAsymmetric(
         vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
         ],
         Box::new(fallback.clone()),
     ))?;
@@ -1247,13 +1247,16 @@ pub fn run() -> io::Result<()> {
     ))?;
 
     assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(vec![], Box::new(fallback.clone())))?;
-    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(vec![0.0], Box::new(fallback.clone())))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
-        vec![0.0, PI],
+        vec![0.0_f64],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
-        vec![0.0, PI, f64::EPSILON],
+        vec![0.0_f64, PI],
+        Box::new(fallback.clone()),
+    ))?;
+    assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
+        vec![0.0_f64, PI, f64::EPSILON],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::KOptional(
@@ -1399,7 +1402,7 @@ pub fn run() -> io::Result<()> {
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
-        vec![vec![0.0]],
+        vec![vec![0.0_f64]],
         Box::new(fallback.clone()),
     ))?;
     assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
@@ -1413,9 +1416,9 @@ pub fn run() -> io::Result<()> {
     assert_round_trip::<BarOut, BarIn>(&BarOut::TOptional(
         vec![
             vec![],
-            vec![0.0],
-            vec![0.0, PI],
-            vec![0.0, PI, f64::EPSILON],
+            vec![0.0_f64],
+            vec![0.0_f64, PI],
+            vec![0.0_f64, PI, f64::EPSILON],
         ],
         Box::new(fallback.clone()),
     ))?;

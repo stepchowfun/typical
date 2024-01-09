@@ -125,12 +125,12 @@ mod tests {
 
     #[test]
     fn assert_same_match() {
-        assert_same!(42, 42);
+        assert_same!(42_i32, 42_i32);
     }
 
     #[test]
     #[should_panic(expected = "42")]
     fn assert_same_mismatch() {
-        assert_same!(42, 43);
+        assert_same!(42_i32, 43_i32);
     }
 }
