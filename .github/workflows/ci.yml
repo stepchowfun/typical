@@ -22,7 +22,7 @@ jobs:
       with:
         tasks: build test_units test_rust_integration test_typescript_integration lint release run
         docker_repo: stephanmisc/toast
-        read_remote_cache: ${{ github.event_name == 'push' }}
+        read_remote_cache: true
         write_remote_cache: ${{ github.event_name == 'push' }}
     - run: |
         # Make Bash not silently ignore errors.
