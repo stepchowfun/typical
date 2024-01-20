@@ -495,7 +495,7 @@ Each code generator produces a single self-contained source file regardless of t
 
   ```perl
   struct Square {
-      sideLength: F64 = 0
+      side_length: F64 = 0
   }
 
   struct Rectangle {
