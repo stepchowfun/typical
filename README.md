@@ -493,24 +493,24 @@ Each code generator produces a single self-contained source file regardless of t
 - The generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
 - The generated code exports a function called `unreachable` which can be used to perform exhaustive pattern matching. For example, suppose you have the following schema:
 
-  ```
+  ```perl
   struct Square {
-    sideLength: F64 = 0
+      sideLength: F64 = 0
   }
 
   struct Rectangle {
-    width: F64 = 0
-    height: F64 = 1
+      width: F64 = 0
+      height: F64 = 1
   }
 
   struct Circle {
-    radius: F64 = 0
+      radius: F64 = 0
   }
 
   choice Shape {
-    square: Square = 0
-    rectangle: Rectangle = 1
-    circle: Circle = 2
+      square: Square = 0
+      rectangle: Rectangle = 1
+      circle: Circle = 2
   }
   ```
 
