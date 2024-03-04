@@ -25,11 +25,12 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
     schema::Namespace {
         components: path
             .components()
-            .map(|component| match component {
-                Component::Normal(component) => {
+            .map(|component| {
+                if let Component::Normal(component) = component {
                     component.to_string_lossy().to_string().as_str().into()
+                } else {
+                    panic!()
                 }
-                _ => panic!(),
             })
             .collect(),
     }
