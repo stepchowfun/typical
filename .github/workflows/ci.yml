@@ -237,7 +237,7 @@ jobs:
           artifacts/typical-aarch64-pc-windows-msvc.exe
 
         # Create the release.
-        gh release create "v$VERSION" --title "v$VERSION" --notes '' \
+        gh release create "v$VERSION_TO_PUBLISH" --title "v$VERSION_TO_PUBLISH" --notes '' \
           'artifacts/typical-x86_64-unknown-linux-gnu' \
           'artifacts/typical-x86_64-unknown-linux-musl' \
           'artifacts/typical-aarch64-unknown-linux-gnu' \
