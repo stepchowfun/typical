@@ -5,9 +5,9 @@ authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
 edition = "2018"
 
 [lints]
-clippy.all = "deny"
+clippy.all = { level = "deny", priority = -1 }
 clippy.default_numeric_fallback = "deny"
-clippy.pedantic = "deny"
+clippy.pedantic = { level = "deny", priority = -1 }
 rust.warnings = "deny"
 
 [dependencies]

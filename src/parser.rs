@@ -252,17 +252,17 @@ fn parse_schema(
                         if tokens[*position].source_range.end + 1
                             < tokens[*position + 1].source_range.start
                         {
-                            comment = paragraphs.clone();
+                            comment.clone_from(paragraphs);
                             *position += 1;
                         }
                     }
                     _ => {
-                        comment = paragraphs.clone();
+                        comment.clone_from(paragraphs);
                         *position += 1;
                     }
                 }
             } else {
-                comment = paragraphs.clone();
+                comment.clone_from(paragraphs);
                 *position += 1;
             }
         }
