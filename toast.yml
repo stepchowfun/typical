@@ -1,4 +1,4 @@
-image: ubuntu:22.04
+image: ubuntu:24.04
 default: build
 user: user
 command_prefix: |
@@ -29,13 +29,20 @@ tasks:
     command: |
       # Install the following packages:
       #
+      # - build-essential       - Used to link some crates
       # - curl                  - Used for installing Tagref and Rust
       # - gcc-aarch64-linux-gnu - Used for linking the binary for AArch64
       # - gcc-x86-64-linux-gnu  - Used for linking the binary for x86-64
       # - ripgrep               - Used for various linting tasks
       # - shellcheck            - Used for linting shell scripts
       apt-get update
-      apt-get install --yes curl gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu ripgrep shellcheck
+      apt-get install --yes \
+        build-essential \
+        curl \
+        gcc-aarch64-linux-gnu \
+        gcc-x86-64-linux-gnu \
+        ripgrep \
+        shellcheck
 
       # Install the following packages:
       #
@@ -56,8 +63,8 @@ tasks:
     description: Create a user who doesn't have root privileges.
     user: root
     command: |
-      # Create a user named `user` with a home directory.
-      adduser --disabled-password --gecos '' user
+      # Create a user named `user` with a home directory and with Bash as the login shell.
+      useradd user --create-home --shell /bin/bash
 
   install_rust:
     description: Install Rust, a systems programming language.
