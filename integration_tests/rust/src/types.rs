@@ -14,6 +14,7 @@
     clippy::redundant_closure_for_method_calls,
     clippy::shadow_unrelated,
     clippy::similar_names,
+    clippy::single_match_else,
     clippy::too_many_lines,
     clippy::type_complexity,
     clippy::unit_arg,
