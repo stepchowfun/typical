@@ -2,7 +2,7 @@
 name = "integration-tests"
 version = "0.1.0"
 authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
-edition = "2018"
+edition = "2021"
 
 [lints]
 clippy.all = { level = "deny", priority = -1 }
