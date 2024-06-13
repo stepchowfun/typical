@@ -9,10 +9,10 @@
 /benchmarks/typescript/generated/
 /benchmarks/typescript/node_modules/
 /integration_tests/rust/target/
-/integration_tests/typescript-node/dist/
-/integration_tests/typescript-node/generated/
-/integration_tests/typescript-node/node_modules/
-/integration_tests/typescript-web/dist/
-/integration_tests/typescript-web/generated/
-/integration_tests/typescript-web/node_modules/
+/integration_tests/typescript_node/dist/
+/integration_tests/typescript_node/generated/
+/integration_tests/typescript_node/node_modules/
+/integration_tests/typescript_web/dist/
+/integration_tests/typescript_web/generated/
+/integration_tests/typescript_web/node_modules/
 /target/
