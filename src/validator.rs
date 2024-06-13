@@ -123,6 +123,21 @@ pub fn validate(
                     &field.r#type,
                 );
             }
+
+            // Check that all index gaps are marked as deleted.
+            for index in 0..(field_indices.len() + declaration.deleted.len()) {
+                if !field_indices.contains(&index) && !declaration.deleted.contains(&index) {
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "Field index gap found. Unused index {} is not marked as deleted.",
+                            index.to_string().code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, declaration.source_range)),
+                        None,
+                    ));
+                }
+            }
         }
     }
 
@@ -539,6 +554,34 @@ mod tests {
     }
 
     #[test]
+    fn validate_struct_field_index_gap() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            struct Foo {
+                x: Bool = 0
+                y: Bool = 3
+
+                deleted 1
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "Field index gap found. Unused index `2` is not marked as deleted.",
+        );
+    }
+
+
+    #[test]
     fn validate_duplicate_choice_field_names() {
         let namespace = Namespace {
             components: vec!["foo".into()],
@@ -611,6 +654,33 @@ mod tests {
         assert_fails!(
             validate(&schemas),
             "Field index `0` is marked as deleted in this declaration.",
+        );
+    }
+
+    #[test]
+    fn validate_choice_field_index_gap() {
+        let namespace = Namespace {
+            components: vec!["foo".into()],
+        };
+        let path = Path::new("foo.t").to_owned();
+        let contents = "
+            choice Foo {
+                x: Bool = 0
+                y: Bool = 3
+
+                deleted 1
+            }
+        "
+        .to_owned();
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(
+            validate(&schemas),
+            "Field index gap found. Unused index `2` is not marked as deleted.",
         );
     }
 

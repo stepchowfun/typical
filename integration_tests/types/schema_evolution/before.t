@@ -27,5 +27,5 @@ choice ExampleChoice {
     optional optional_to_optional: String = 10
     optional optional_to_nonexistent: String = 11
 
-    deleted 3 12 13 14 15
+    deleted 2 3 12 13 14 15
 }

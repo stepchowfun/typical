@@ -11,7 +11,7 @@ struct ExampleStruct {
     asymmetric nonexistent_to_asymmetric = 13
     optional nonexistent_to_optional = 14
 
-    deleted 3 7 11 12 15
+    deleted 3 7 11 12 15 16
 }
 
 choice ExampleChoice {
@@ -27,5 +27,5 @@ choice ExampleChoice {
     asymmetric nonexistent_to_asymmetric = 13
     optional nonexistent_to_optional = 14
 
-    deleted 3 7 11 15
+    deleted 2 3 7 11 15 16
 }
