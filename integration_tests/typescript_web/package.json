@@ -1,14 +1,14 @@
 {
-  "name": "benchmark",
+  "name": "integration-tests",
   "version": "1.0.0",
   "scripts": {
-    "main": "npm run typical && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
+    "main": "npm run typical && rm -rf dist && webpack --config webpack.js && echo 'Please open `dist/index.html` in a web browser.'",
     "lint": "npm run typical && eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
     "format": "prettier --config .prettierrc.js --ignore-path .ignore --write .",
-    "typical": "(cd ../.. && cargo run -- generate benchmarks/types.t --typescript benchmarks/typescript/generated/types.ts)"
+    "typical": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript integration_tests/typescript_web/generated/types.ts)"
   },
   "devDependencies": {
-    "@types/node": "^18.17.0",
+    "@types/lodash": "^4.14.178",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "eslint": "^8.7.0",
@@ -16,7 +16,15 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.25.4",
+    "html-webpack-plugin": "^5.5.0",
     "prettier": "^2.5.1",
-    "typescript": "^4.5.5"
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.5",
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "js-sha256": "^0.9.0",
+    "lodash": "^4.17.21"
   }
 }

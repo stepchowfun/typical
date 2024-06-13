@@ -2,8 +2,8 @@ image: ubuntu:24.04
 default: build
 user: user
 command_prefix: |
-  # Make Bash log commands and not silently ignore errors.
-  set -euxo pipefail
+  # Make not silently ignore errors.
+  set -euo pipefail
 
   # Load the Rust startup file, if it exists.
   if [ -f "$HOME/.cargo/env" ]; then
@@ -22,6 +22,15 @@ command_prefix: |
   # according to this page:
   #   https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu.html
   cargo-fmt () { cargo +nightly-2024-05-04 --frozen --offline fmt --all -- "$@"; }
+
+  # Load the NVM startup file, if it exists.
+  if [ -f "$HOME/.nvm/nvm.sh" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    . "$HOME/.nvm/nvm.sh"
+  fi
+
+  # Make Bash log commands.
+  set -x
 tasks:
   install_packages:
     description: Install system packages.
@@ -43,12 +52,6 @@ tasks:
         gcc-x86-64-linux-gnu \
         ripgrep \
         shellcheck
-
-      # Install the following packages:
-      #
-      # - nodejs - Used for the TypeScript integration test
-      curl -fsSL https://deb.nodesource.com/setup_21.x | bash -
-      apt-get install --yes nodejs
 
   install_tagref:
     description: Install Tagref, a reference checking tool.
@@ -85,9 +88,22 @@ tasks:
       # Install nightly Rust [ref:rust_fmt_nightly_2024-05-04].
       rustup toolchain install nightly-2024-05-04 --profile minimal --component rustfmt
 
+  install_node:
+    description: Install Node.js, a JavaScript runtime environment.
+    dependencies:
+      - install_packages
+      - create_user
+    command: |
+      # Install Node.js 18.17.0.
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+      export NVM_DIR="$HOME/.nvm"
+      . "$NVM_DIR/nvm.sh"
+      nvm install 18.17.0
+
   install_tools:
     description: Install the tools needed to build and validate the program.
     dependencies:
+      - install_node
       - install_rust
       - install_tagref
 
@@ -138,12 +154,12 @@ tasks:
       - benchmarks/typescript/generated
       - benchmarks/typescript/node_modules
       - integration_tests/rust/target
-      - integration_tests/typescript-node/dist
-      - integration_tests/typescript-node/generated
-      - integration_tests/typescript-node/node_modules
-      - integration_tests/typescript-web/dist
-      - integration_tests/typescript-web/generated
-      - integration_tests/typescript-web/node_modules
+      - integration_tests/typescript_node/dist
+      - integration_tests/typescript_node/generated
+      - integration_tests/typescript_node/node_modules
+      - integration_tests/typescript_web/dist
+      - integration_tests/typescript_web/generated
+      - integration_tests/typescript_web/node_modules
       - target/
 
   build:
@@ -203,8 +219,8 @@ tasks:
       for SCENARIO in \
         benchmarks/typescript \
         examples/typescript \
-        integration_tests/typescript-node \
-        integration_tests/typescript-web
+        integration_tests/typescript_node \
+        integration_tests/typescript_web
       do
         echo "Validating $SCENARIO..."
         (cd "$SCENARIO" && npm ci && npm run main && npm run lint)
@@ -221,42 +237,66 @@ tasks:
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
-      # Lint the code with Clippy.
-      cargo-offline clippy --all-features --all-targets --workspace
-
       # Check references with Tagref.
       tagref
 
       # Lint shell files with ShellCheck.
       find . -type f -name '*.sh' | xargs shellcheck
 
-      # Check code formatting with Rustfmt. See [ref:format_macros] for an explanation of the `rg`
-      # commands.
-      rg '!\(' --type rust --files-with-matches src | xargs sed -i 's/!(/_(/g'
-      if ! cargo-fmt --check; then
-        echo 'ERROR: Please correct the formatting errors above.' 1>&2
-        exit 1
-      fi
-      rg '_\(' --type rust --files-with-matches src | xargs sed -i 's/_(/!(/g'
-
-      # Forbid unconsolidated `use` declarations.
-      if rg --line-number --type rust --multiline '}[[:space]]*;[[:space:]]*\n[[:space:]]*use' src
-      then
-        echo 'Please consolidate these `use` declarations.' >&2
-        exit 1
-      fi
-
-      # Enforce that lines span no more than 100 columns.
-      if rg --line-number --type rust '.{101}' src; then
-        echo 'There are lines spanning more than 100 columns.' >&2
-        exit 1
-      fi
-
-      # Check schema formatting with Typical.
+      # Check the formatting of the schemas with Typical.
       typical format --check benchmarks/types.t
       typical format --check examples/rust/types.t
       typical format --check examples/typescript/types.t
       typical format --check integration_tests/types/types.t
+
+      # Lint the Rust projects.
+      for PROJECT_PATH in benchmarks/rust examples/rust integration_tests/rust; do
+        (
+          cd "$PROJECT_PATH" &&
+
+          # Lint the code with Clippy.
+          cargo-offline clippy --all-features --all-targets --workspace &&
+
+          # Check code formatting with Rustfmt. See [ref:format_macros] for an explanation of the
+          # `rg` commands.
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/!(/_(/g' &&
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/^\([^ (]*\)_(/\1!(/g' &&
+          if ! cargo-fmt --check; then
+            echo 'ERROR: Please correct the formatting errors above.' 1>&2
+            exit 1
+          fi &&
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/_(/!(/g'
+
+          # Forbid unconsolidated `use` declarations.
+          if rg --line-number --type rust --multiline \
+            '}[[:space]]*;[[:space:]]*\n[[:space:]]*use' \
+            src
+          then
+            echo 'Please consolidate these `use` declarations.' >&2
+            exit 1
+          fi
+
+          # Enforce that lines span no more than 100 columns.
+          if rg --line-number --type rust '.{101}' src; then
+            echo 'There are lines spanning more than 100 columns.' >&2
+            exit 1
+          fi
+        )
+      done
+
+      # Lint the TypeScript projects.
+      for PROJECT_PATH in \
+        benchmarks/typescript \
+        examples/typescript \
+        integration_tests/typescript_node \
+        integration_tests/typescript_web
+      do
+        (
+          cd "$PROJECT_PATH" &&
+          npm ci &&
+          npm run lint
+        )
+      done
 
   run:
     description: Run the program.
@@ -280,33 +320,42 @@ tasks:
       - examples/typescript/types.t
       - integration_tests/rust/src
       - integration_tests/types
-      - integration_tests/typescript-node/src
-      - integration_tests/typescript-web/src
+      - integration_tests/typescript_node/src
+      - integration_tests/typescript_web/src
       - src
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
 
-      # Format schemas with Typical.
+      # Format the schemas with Typical.
       typical format benchmarks/types.t
       typical format examples/rust/types.t
-      typical format examples/typescript/types.t
+      typical format examples/typescript/types.t # Or `npm run format` in [dir:examples/typescript]
       typical format integration_tests/types/types.t
 
-      # Format the code with Rustfmt. We temporarily convert macro invocations into function calls
-      # so Rustfmt's `trailing_comma` feature applies to macro arguments [tag:format_macros].
-      rg '!\(' --type rust --files-with-matches src | xargs sed -i 's/!(/_(/g'
-      cargo-fmt
-      rg '_\(' --type rust --files-with-matches src | xargs sed -i 's/_(/!(/g'
+      # Format the Rust projects.
+      for PROJECT_PATH in benchmarks/rust examples/rust integration_tests/rust; do
+        (
+          cd "$PROJECT_PATH" &&
 
-      # Format the examples and integration tests.
-      (cd benchmarks/rust && cargo-fmt)
-      (cd benchmarks/typescript && npm ci && npm run format)
-      (cd examples/rust && cargo-fmt)
-      (cd examples/typescript && npm ci && npm run format)
-      (cd integration_tests/rust && cargo-fmt)
-      (cd integration_tests/typescript-node && npm ci && npm run format)
-      (cd integration_tests/typescript-web && npm ci && npm run format)
+          # We temporarily convert macro invocations into function calls so Rustfmt's
+          # `trailing_comma` feature applies to macro arguments [tag:format_macros].
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/!(/_(/g' &&
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/^\([^ (]*\)_(/\1!(/g' &&
+          cargo-fmt &&
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/_(/!(/g'
+        )
+      done
+
+      # Format the TypeScript projects.
+      for PROJECT_PATH in \
+        benchmarks/typescript \
+        examples/typescript \
+        integration_tests/typescript_node \
+        integration_tests/typescript_web
+      do
+        (cd "$PROJECT_PATH" && npm ci && npm run format)
+      done
 
   release:
     description: Build and output the release binaries for Linux.

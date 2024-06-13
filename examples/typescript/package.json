@@ -2,12 +2,13 @@
   "name": "example",
   "version": "1.0.0",
   "scripts": {
-    "main": "typical generate types.t --typescript generated/types.ts && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
-    "lint": "eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
-    "format": "prettier --config .prettierrc.js --ignore-path .ignore --write ."
+    "main": "npm run typical && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
+    "lint": "npm run typical && eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
+    "format": "prettier --config .prettierrc.js --ignore-path .ignore --write . && typical format types.t",
+    "typical": "typical generate types.t --typescript generated/types.ts"
   },
   "devDependencies": {
-    "@types/node": "^17.0.6",
+    "@types/node": "^18.17.0",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "eslint": "^8.7.0",

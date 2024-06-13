@@ -87,7 +87,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
     println!("Serialization duration: {serialization_duration:?}");
     println!(
         "Serialization rate: {} bytes/second",
-        (buffer.len() as f64) / serialization_duration.as_secs_f64()
+        (buffer.len() as f64) / serialization_duration.as_secs_f64(),
     );
 
     let deserialization_instant = Instant::now();
@@ -102,7 +102,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
     println!("Deserialization duration: {deserialization_duration:?}");
     println!(
         "Deserialization rate: {} bytes/second",
-        (buffer.len() as f64) / deserialization_duration.as_secs_f64()
+        (buffer.len() as f64) / deserialization_duration.as_secs_f64(),
     );
 
     Ok(())
