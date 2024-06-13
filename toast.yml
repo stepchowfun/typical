@@ -94,7 +94,7 @@ tasks:
       - install_packages
       - create_user
     command: |
-      # Install Node.js 18.17.0.
+      # Install Node.js.
       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
       export NVM_DIR="$HOME/.nvm"
       . "$NVM_DIR/nvm.sh"
