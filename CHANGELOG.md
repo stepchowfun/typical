@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Typical now requires field index gaps to be marked as deleted.
 
-## [0.9.7] - 2024-05-04
+## [0.9.7] - 2024-06-14
 
 ### Changed
 - Some redundant conversions are no longer emitted by the Rust code generator.
