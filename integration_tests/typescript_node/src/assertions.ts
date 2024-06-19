@@ -12,12 +12,12 @@ try {
   // Attempting to delete the file will fail if the file doesn't exist. This is harmless.
 }
 
-export function assertMatch<T, U>(
-  size: (message: T) => number,
-  serialize: (message: T) => ArrayBuffer,
-  deserialize: (dataView: DataView) => U,
-  actual: T,
-  expected: U,
+export function assertMatch<O, I>(
+  size: (message: O) => number,
+  serialize: (message: O) => ArrayBuffer,
+  deserialize: (dataView: DataView) => I,
+  actual: O,
+  expected: unknown,
 ): void {
   /* eslint-disable no-console -- Allow logging for this function. */
 
@@ -41,11 +41,11 @@ export function assertMatch<T, U>(
   /* eslint-enable no-console -- Re-enable this rule. */
 }
 
-export function assertRoundTrip<U, T extends U>(
-  size: (message: T) => number,
-  serialize: (message: T) => ArrayBuffer,
-  deserialize: (dataView: DataView) => U,
-  message: T,
+export function assertRoundTrip<O, I, V extends O>(
+  size: (message: O) => number,
+  serialize: (message: O) => ArrayBuffer,
+  deserialize: (dataView: DataView) => I,
+  message: V,
 ): void {
   assertMatch(size, serialize, deserialize, message, message);
 }
