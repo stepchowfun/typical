@@ -223,7 +223,7 @@ The code generated for choices supports case analysis, so clients can take diffe
 fn handle_response(response: SendEmailResponseIn) {
     match response {
         Success => println!("The email was sent!"),
-        Error(message) => println!("An error occurred: {}", message),
+        Error(message) => println!("An error occurred: {message}"),
     }
 }
 ```
