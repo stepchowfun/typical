@@ -3,3 +3,8 @@ struct SendEmailRequest {
     subject: String = 1
     body: String = 2
 }
+
+choice SendEmailResponse {
+    success = 0
+    error: String = 1
+}
