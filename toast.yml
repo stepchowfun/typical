@@ -250,7 +250,7 @@ tasks:
       typical format --check integration_tests/types/types.t
 
       # Lint the Rust projects.
-      for PROJECT_PATH in benchmarks/rust examples/rust integration_tests/rust; do
+      for PROJECT_PATH in . benchmarks/rust examples/rust integration_tests/rust; do
         (
           cd "$PROJECT_PATH" &&
 
@@ -334,7 +334,7 @@ tasks:
       typical format integration_tests/types/types.t
 
       # Format the Rust projects.
-      for PROJECT_PATH in benchmarks/rust examples/rust integration_tests/rust; do
+      for PROJECT_PATH in . benchmarks/rust examples/rust integration_tests/rust; do
         (
           cd "$PROJECT_PATH" &&
 

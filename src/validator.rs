@@ -580,7 +580,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn validate_duplicate_choice_field_names() {
         let namespace = Namespace {
