@@ -9939,7 +9939,7 @@ export namespace Comprehensive {
           }
           case 'bRequired': {
             const payload = message.bRequired;
-            const payloadAtlas = (atlas as any).bRequired;
+            const payloadAtlas = (atlas as any).bRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             if (payloadAtlas !== 0) {
@@ -9950,7 +9950,7 @@ export namespace Comprehensive {
           }
           case 'cRequired': {
             const payload = message.cRequired;
-            const payloadAtlas = (atlas as any).cRequired;
+            const payloadAtlas = (atlas as any).cRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
             {
@@ -9966,7 +9966,7 @@ export namespace Comprehensive {
           }
           case 'dRequired': {
             const payload = message.dRequired;
-            const payloadAtlas = (atlas as any).dRequired;
+            const payloadAtlas = (atlas as any).dRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
             {
@@ -9982,7 +9982,7 @@ export namespace Comprehensive {
           }
           case 'eRequired': {
             const payload = message.eRequired;
-            const payloadAtlas = (atlas as any).eRequired;
+            const payloadAtlas = (atlas as any).eRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
             {
@@ -9998,7 +9998,7 @@ export namespace Comprehensive {
           }
           case 'fRequired': {
             const payload = message.fRequired;
-            const payloadAtlas = (atlas as any).fRequired;
+            const payloadAtlas = (atlas as any).fRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
@@ -10015,7 +10015,7 @@ export namespace Comprehensive {
           }
           case 'gRequired': {
             const payload = message.gRequired;
-            const payloadAtlas = (atlas as any).gRequired;
+            const payloadAtlas = (atlas as any).gRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
@@ -10031,7 +10031,7 @@ export namespace Comprehensive {
           }
           case 'hRequired': {
             const payload = message.hRequired;
-            const payloadAtlas = (atlas as any).hRequired;
+            const payloadAtlas = (atlas as any).hRequired as Comprehensive.Types.LocalStructAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
@@ -10039,7 +10039,7 @@ export namespace Comprehensive {
           }
           case 'iRequired': {
             const payload = message.iRequired;
-            const payloadAtlas = (atlas as any).iRequired;
+            const payloadAtlas = (atlas as any).iRequired as Degenerate.Types.EmptyStructAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
@@ -10047,7 +10047,7 @@ export namespace Comprehensive {
           }
           case 'jRequired': {
             const payload = message.jRequired;
-            const payloadAtlas = (atlas as any).jRequired;
+            const payloadAtlas = (atlas as any).jRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
@@ -10063,7 +10063,7 @@ export namespace Comprehensive {
           }
           case 'kRequired': {
             const payload = message.kRequired;
-            const payloadAtlas = (atlas as any).kRequired;
+            const payloadAtlas = (atlas as any).kRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
@@ -10078,7 +10078,7 @@ export namespace Comprehensive {
           }
           case 'lRequired': {
             const payload = message.lRequired;
-            const payloadAtlas = (atlas as any).lRequired;
+            const payloadAtlas = (atlas as any).lRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
@@ -10095,7 +10095,7 @@ export namespace Comprehensive {
           }
           case 'mRequired': {
             const payload = message.mRequired;
-            const payloadAtlas = (atlas as any).mRequired;
+            const payloadAtlas = (atlas as any).mRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
             {
@@ -10112,7 +10112,7 @@ export namespace Comprehensive {
           }
           case 'nRequired': {
             const payload = message.nRequired;
-            const payloadAtlas = (atlas as any).nRequired;
+            const payloadAtlas = (atlas as any).nRequired as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
             {
@@ -10129,7 +10129,7 @@ export namespace Comprehensive {
           }
           case 'oRequired': {
             const payload = message.oRequired;
-            const payloadAtlas = (atlas as any).oRequired;
+            const payloadAtlas = (atlas as any).oRequired as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
             {
@@ -10155,7 +10155,7 @@ export namespace Comprehensive {
           }
           case 'pRequired': {
             const payload = message.pRequired;
-            const payloadAtlas = (atlas as any).pRequired;
+            const payloadAtlas = (atlas as any).pRequired as { $size: number; $elements: Uint8Array[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
             {
@@ -10180,7 +10180,7 @@ export namespace Comprehensive {
           }
           case 'qRequired': {
             const payload = message.qRequired;
-            const payloadAtlas = (atlas as any).qRequired;
+            const payloadAtlas = (atlas as any).qRequired as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
             {
@@ -10197,7 +10197,7 @@ export namespace Comprehensive {
           }
           case 'rRequired': {
             const payload = message.rRequired;
-            const payloadAtlas = (atlas as any).rRequired;
+            const payloadAtlas = (atlas as any).rRequired as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
             {
@@ -10214,7 +10214,7 @@ export namespace Comprehensive {
           }
           case 'sRequired': {
             const payload = message.sRequired;
-            const payloadAtlas = (atlas as any).sRequired;
+            const payloadAtlas = (atlas as any).sRequired as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
             {
@@ -10234,7 +10234,7 @@ export namespace Comprehensive {
           }
           case 'tRequired': {
             const payload = message.tRequired;
-            const payloadAtlas = (atlas as any).tRequired;
+            const payloadAtlas = (atlas as any).tRequired as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
             {
@@ -10258,7 +10258,7 @@ export namespace Comprehensive {
           }
           case 'uRequired': {
             const payload = message.uRequired;
-            const payloadAtlas = (atlas as any).uRequired;
+            const payloadAtlas = (atlas as any).uRequired as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
             {
@@ -10284,7 +10284,7 @@ export namespace Comprehensive {
           }
           case 'vRequired': {
             const payload = message.vRequired;
-            const payloadAtlas = (atlas as any).vRequired;
+            const payloadAtlas = (atlas as any).vRequired as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
             {
@@ -10310,7 +10310,7 @@ export namespace Comprehensive {
           }
           case 'wRequired': {
             const payload = message.wRequired;
-            const payloadAtlas = (atlas as any).wRequired;
+            const payloadAtlas = (atlas as any).wRequired as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
             {
@@ -10336,7 +10336,7 @@ export namespace Comprehensive {
           }
           case 'xRequired': {
             const payload = message.xRequired;
-            const payloadAtlas = (atlas as any).xRequired;
+            const payloadAtlas = (atlas as any).xRequired as { $size: number; $elements: { $size: number; $elements: number[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
             {
@@ -10371,7 +10371,7 @@ export namespace Comprehensive {
           }
           case 'yRequired': {
             const payload = message.yRequired;
-            const payloadAtlas = (atlas as any).yRequired;
+            const payloadAtlas = (atlas as any).yRequired as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
             {
@@ -10405,7 +10405,7 @@ export namespace Comprehensive {
           }
           case 'zRequired': {
             const payload = message.zRequired;
-            const payloadAtlas = (atlas as any).zRequired;
+            const payloadAtlas = (atlas as any).zRequired as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
             {
@@ -10431,7 +10431,7 @@ export namespace Comprehensive {
           }
           case 'aaRequired': {
             const payload = message.aaRequired;
-            const payloadAtlas = (atlas as any).aaRequired;
+            const payloadAtlas = (atlas as any).aaRequired as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
             {
@@ -10460,24 +10460,24 @@ export namespace Comprehensive {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'bAsymmetric': {
             const payload = message.bAsymmetric;
-            const payloadAtlas = (atlas as any).bAsymmetric;
+            const payloadAtlas = (atlas as any).bAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
             if (payloadAtlas !== 0) {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'cAsymmetric': {
             const payload = message.cAsymmetric;
-            const payloadAtlas = (atlas as any).cAsymmetric;
+            const payloadAtlas = (atlas as any).cAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
             {
@@ -10489,12 +10489,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'dAsymmetric': {
             const payload = message.dAsymmetric;
-            const payloadAtlas = (atlas as any).dAsymmetric;
+            const payloadAtlas = (atlas as any).dAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
             {
@@ -10506,12 +10506,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'eAsymmetric': {
             const payload = message.eAsymmetric;
-            const payloadAtlas = (atlas as any).eAsymmetric;
+            const payloadAtlas = (atlas as any).eAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
             {
@@ -10523,12 +10523,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'fAsymmetric': {
             const payload = message.fAsymmetric;
-            const payloadAtlas = (atlas as any).fAsymmetric;
+            const payloadAtlas = (atlas as any).fAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
             {
@@ -10541,12 +10541,12 @@ export namespace Comprehensive {
               targetBuffer.set(sourceBuffer, offset);
               offset += sourceBuffer.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'gAsymmetric': {
             const payload = message.gAsymmetric;
-            const payloadAtlas = (atlas as any).gAsymmetric;
+            const payloadAtlas = (atlas as any).gAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
             {
@@ -10558,30 +10558,30 @@ export namespace Comprehensive {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'hAsymmetric': {
             const payload = message.hAsymmetric;
-            const payloadAtlas = (atlas as any).hAsymmetric;
+            const payloadAtlas = (atlas as any).hAsymmetric as Comprehensive.Types.LocalStructAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
             offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'iAsymmetric': {
             const payload = message.iAsymmetric;
-            const payloadAtlas = (atlas as any).iAsymmetric;
+            const payloadAtlas = (atlas as any).iAsymmetric as Degenerate.Types.EmptyStructAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
             offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'jAsymmetric': {
             const payload = message.jAsymmetric;
-            const payloadAtlas = (atlas as any).jAsymmetric;
+            const payloadAtlas = (atlas as any).jAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
             {
@@ -10593,12 +10593,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'kAsymmetric': {
             const payload = message.kAsymmetric;
-            const payloadAtlas = (atlas as any).kAsymmetric;
+            const payloadAtlas = (atlas as any).kAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
             {
@@ -10609,12 +10609,12 @@ export namespace Comprehensive {
                 offset += 8;
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'lAsymmetric': {
             const payload = message.lAsymmetric;
-            const payloadAtlas = (atlas as any).lAsymmetric;
+            const payloadAtlas = (atlas as any).lAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
             {
@@ -10627,12 +10627,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'mAsymmetric': {
             const payload = message.mAsymmetric;
-            const payloadAtlas = (atlas as any).mAsymmetric;
+            const payloadAtlas = (atlas as any).mAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
             {
@@ -10645,12 +10645,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'nAsymmetric': {
             const payload = message.nAsymmetric;
-            const payloadAtlas = (atlas as any).nAsymmetric;
+            const payloadAtlas = (atlas as any).nAsymmetric as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
             {
@@ -10663,12 +10663,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'oAsymmetric': {
             const payload = message.oAsymmetric;
-            const payloadAtlas = (atlas as any).oAsymmetric;
+            const payloadAtlas = (atlas as any).oAsymmetric as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
             {
@@ -10690,12 +10690,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'pAsymmetric': {
             const payload = message.pAsymmetric;
-            const payloadAtlas = (atlas as any).pAsymmetric;
+            const payloadAtlas = (atlas as any).pAsymmetric as { $size: number; $elements: Uint8Array[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
             {
@@ -10716,12 +10716,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'qAsymmetric': {
             const payload = message.qAsymmetric;
-            const payloadAtlas = (atlas as any).qAsymmetric;
+            const payloadAtlas = (atlas as any).qAsymmetric as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
             {
@@ -10734,12 +10734,12 @@ export namespace Comprehensive {
                 offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'rAsymmetric': {
             const payload = message.rAsymmetric;
-            const payloadAtlas = (atlas as any).rAsymmetric;
+            const payloadAtlas = (atlas as any).rAsymmetric as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
             {
@@ -10752,12 +10752,12 @@ export namespace Comprehensive {
                 offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'sAsymmetric': {
             const payload = message.sAsymmetric;
-            const payloadAtlas = (atlas as any).sAsymmetric;
+            const payloadAtlas = (atlas as any).sAsymmetric as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
             {
@@ -10773,12 +10773,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'tAsymmetric': {
             const payload = message.tAsymmetric;
-            const payloadAtlas = (atlas as any).tAsymmetric;
+            const payloadAtlas = (atlas as any).tAsymmetric as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
             {
@@ -10798,12 +10798,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'uAsymmetric': {
             const payload = message.uAsymmetric;
-            const payloadAtlas = (atlas as any).uAsymmetric;
+            const payloadAtlas = (atlas as any).uAsymmetric as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
             {
@@ -10825,12 +10825,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'vAsymmetric': {
             const payload = message.vAsymmetric;
-            const payloadAtlas = (atlas as any).vAsymmetric;
+            const payloadAtlas = (atlas as any).vAsymmetric as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
             {
@@ -10852,12 +10852,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'wAsymmetric': {
             const payload = message.wAsymmetric;
-            const payloadAtlas = (atlas as any).wAsymmetric;
+            const payloadAtlas = (atlas as any).wAsymmetric as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
             {
@@ -10879,12 +10879,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'xAsymmetric': {
             const payload = message.xAsymmetric;
-            const payloadAtlas = (atlas as any).xAsymmetric;
+            const payloadAtlas = (atlas as any).xAsymmetric as { $size: number; $elements: { $size: number; $elements: number[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
             {
@@ -10915,12 +10915,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'yAsymmetric': {
             const payload = message.yAsymmetric;
-            const payloadAtlas = (atlas as any).yAsymmetric;
+            const payloadAtlas = (atlas as any).yAsymmetric as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
             {
@@ -10950,12 +10950,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'zAsymmetric': {
             const payload = message.zAsymmetric;
-            const payloadAtlas = (atlas as any).zAsymmetric;
+            const payloadAtlas = (atlas as any).zAsymmetric as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
             {
@@ -10977,12 +10977,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'aaAsymmetric': {
             const payload = message.aaAsymmetric;
-            const payloadAtlas = (atlas as any).aaAsymmetric;
+            const payloadAtlas = (atlas as any).aaAsymmetric as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
             {
@@ -11004,7 +11004,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'aOptional': {
@@ -11012,24 +11012,24 @@ export namespace Comprehensive {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'bOptional': {
             const payload = message.bOptional;
-            const payloadAtlas = (atlas as any).bOptional;
+            const payloadAtlas = (atlas as any).bOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
             if (payloadAtlas !== 0) {
               dataView.setFloat64(offset, payload, true);
               offset += 8;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'cOptional': {
             const payload = message.cOptional;
-            const payloadAtlas = (atlas as any).cOptional;
+            const payloadAtlas = (atlas as any).cOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
             {
@@ -11041,12 +11041,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'dOptional': {
             const payload = message.dOptional;
-            const payloadAtlas = (atlas as any).dOptional;
+            const payloadAtlas = (atlas as any).dOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
             {
@@ -11058,12 +11058,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'eOptional': {
             const payload = message.eOptional;
-            const payloadAtlas = (atlas as any).eOptional;
+            const payloadAtlas = (atlas as any).eOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
             {
@@ -11075,12 +11075,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'fOptional': {
             const payload = message.fOptional;
-            const payloadAtlas = (atlas as any).fOptional;
+            const payloadAtlas = (atlas as any).fOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
             {
@@ -11093,12 +11093,12 @@ export namespace Comprehensive {
               targetBuffer.set(sourceBuffer, offset);
               offset += sourceBuffer.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'gOptional': {
             const payload = message.gOptional;
-            const payloadAtlas = (atlas as any).gOptional;
+            const payloadAtlas = (atlas as any).gOptional as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
             {
@@ -11110,30 +11110,30 @@ export namespace Comprehensive {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'hOptional': {
             const payload = message.hOptional;
-            const payloadAtlas = (atlas as any).hOptional;
+            const payloadAtlas = (atlas as any).hOptional as Comprehensive.Types.LocalStructAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
             offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'iOptional': {
             const payload = message.iOptional;
-            const payloadAtlas = (atlas as any).iOptional;
+            const payloadAtlas = (atlas as any).iOptional as Degenerate.Types.EmptyStructAtlas;
             const payloadSize = (payloadAtlas as { $size: number }).$size;
             offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
             offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'jOptional': {
             const payload = message.jOptional;
-            const payloadAtlas = (atlas as any).jOptional;
+            const payloadAtlas = (atlas as any).jOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
             {
@@ -11145,12 +11145,12 @@ export namespace Comprehensive {
                 offset = serializeVarint(dataView, offset, varint);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'kOptional': {
             const payload = message.kOptional;
-            const payloadAtlas = (atlas as any).kOptional;
+            const payloadAtlas = (atlas as any).kOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
             {
@@ -11161,12 +11161,12 @@ export namespace Comprehensive {
                 offset += 8;
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'lOptional': {
             const payload = message.lOptional;
-            const payloadAtlas = (atlas as any).lOptional;
+            const payloadAtlas = (atlas as any).lOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
             {
@@ -11179,12 +11179,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'mOptional': {
             const payload = message.mOptional;
-            const payloadAtlas = (atlas as any).mOptional;
+            const payloadAtlas = (atlas as any).mOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
             {
@@ -11197,12 +11197,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'nOptional': {
             const payload = message.nOptional;
-            const payloadAtlas = (atlas as any).nOptional;
+            const payloadAtlas = (atlas as any).nOptional as number;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
             {
@@ -11215,12 +11215,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'oOptional': {
             const payload = message.oOptional;
-            const payloadAtlas = (atlas as any).oOptional;
+            const payloadAtlas = (atlas as any).oOptional as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
             {
@@ -11242,12 +11242,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'pOptional': {
             const payload = message.pOptional;
-            const payloadAtlas = (atlas as any).pOptional;
+            const payloadAtlas = (atlas as any).pOptional as { $size: number; $elements: Uint8Array[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
             {
@@ -11268,12 +11268,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'qOptional': {
             const payload = message.qOptional;
-            const payloadAtlas = (atlas as any).qOptional;
+            const payloadAtlas = (atlas as any).qOptional as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
             {
@@ -11286,12 +11286,12 @@ export namespace Comprehensive {
                 offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'rOptional': {
             const payload = message.rOptional;
-            const payloadAtlas = (atlas as any).rOptional;
+            const payloadAtlas = (atlas as any).rOptional as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
             {
@@ -11304,12 +11304,12 @@ export namespace Comprehensive {
                 offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'sOptional': {
             const payload = message.sOptional;
-            const payloadAtlas = (atlas as any).sOptional;
+            const payloadAtlas = (atlas as any).sOptional as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
             {
@@ -11325,12 +11325,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'tOptional': {
             const payload = message.tOptional;
-            const payloadAtlas = (atlas as any).tOptional;
+            const payloadAtlas = (atlas as any).tOptional as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
             {
@@ -11350,12 +11350,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'uOptional': {
             const payload = message.uOptional;
-            const payloadAtlas = (atlas as any).uOptional;
+            const payloadAtlas = (atlas as any).uOptional as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
             {
@@ -11377,12 +11377,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'vOptional': {
             const payload = message.vOptional;
-            const payloadAtlas = (atlas as any).vOptional;
+            const payloadAtlas = (atlas as any).vOptional as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
             {
@@ -11404,12 +11404,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'wOptional': {
             const payload = message.wOptional;
-            const payloadAtlas = (atlas as any).wOptional;
+            const payloadAtlas = (atlas as any).wOptional as { $size: number; $elements: number[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
             {
@@ -11431,12 +11431,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'xOptional': {
             const payload = message.xOptional;
-            const payloadAtlas = (atlas as any).xOptional;
+            const payloadAtlas = (atlas as any).xOptional as { $size: number; $elements: { $size: number; $elements: number[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
             {
@@ -11467,12 +11467,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'yOptional': {
             const payload = message.yOptional;
-            const payloadAtlas = (atlas as any).yOptional;
+            const payloadAtlas = (atlas as any).yOptional as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
             {
@@ -11502,12 +11502,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'zOptional': {
             const payload = message.zOptional;
-            const payloadAtlas = (atlas as any).zOptional;
+            const payloadAtlas = (atlas as any).zOptional as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
             {
@@ -11529,12 +11529,12 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           case 'aaOptional': {
             const payload = message.aaOptional;
-            const payloadAtlas = (atlas as any).aaOptional;
+            const payloadAtlas = (atlas as any).aaOptional as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
             const payloadSize = payloadAtlas.$size;
             offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
             {
@@ -11556,7 +11556,7 @@ export namespace Comprehensive {
                 }
               }
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
             return offset;
           }
           default:
@@ -16208,7 +16208,7 @@ export namespace SchemaEvolution {
         switch (message.$field) {
           case 'requiredToRequired': {
             const payload = message.requiredToRequired;
-            const payloadAtlas = (atlas as any).requiredToRequired;
+            const payloadAtlas = (atlas as any).requiredToRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
@@ -16224,7 +16224,7 @@ export namespace SchemaEvolution {
           }
           case 'requiredToAsymmetric': {
             const payload = message.requiredToAsymmetric;
-            const payloadAtlas = (atlas as any).requiredToAsymmetric;
+            const payloadAtlas = (atlas as any).requiredToAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
@@ -16236,12 +16236,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'asymmetricToRequired': {
             const payload = message.asymmetricToRequired;
-            const payloadAtlas = (atlas as any).asymmetricToRequired;
+            const payloadAtlas = (atlas as any).asymmetricToRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
@@ -16257,7 +16257,7 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToAsymmetric': {
             const payload = message.asymmetricToAsymmetric;
-            const payloadAtlas = (atlas as any).asymmetricToAsymmetric;
+            const payloadAtlas = (atlas as any).asymmetricToAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
@@ -16269,12 +16269,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'asymmetricToOptional': {
             const payload = message.asymmetricToOptional;
-            const payloadAtlas = (atlas as any).asymmetricToOptional;
+            const payloadAtlas = (atlas as any).asymmetricToOptional as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
@@ -16286,12 +16286,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'optionalToRequired': {
             const payload = message.optionalToRequired;
-            const payloadAtlas = (atlas as any).optionalToRequired;
+            const payloadAtlas = (atlas as any).optionalToRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
@@ -16307,7 +16307,7 @@ export namespace SchemaEvolution {
           }
           case 'optionalToAsymmetric': {
             const payload = message.optionalToAsymmetric;
-            const payloadAtlas = (atlas as any).optionalToAsymmetric;
+            const payloadAtlas = (atlas as any).optionalToAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
@@ -16319,12 +16319,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'optionalToOptional': {
             const payload = message.optionalToOptional;
-            const payloadAtlas = (atlas as any).optionalToOptional;
+            const payloadAtlas = (atlas as any).optionalToOptional as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
@@ -16336,7 +16336,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'nonexistentToRequired': {
@@ -16351,7 +16351,7 @@ export namespace SchemaEvolution {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'nonexistentToOptional': {
@@ -16359,7 +16359,7 @@ export namespace SchemaEvolution {
             const payloadAtlas = 0;
             const payloadSize = payloadAtlas;
             offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           default:
@@ -17485,7 +17485,7 @@ export namespace SchemaEvolution {
         switch (message.$field) {
           case 'requiredToRequired': {
             const payload = message.requiredToRequired;
-            const payloadAtlas = (atlas as any).requiredToRequired;
+            const payloadAtlas = (atlas as any).requiredToRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
@@ -17501,7 +17501,7 @@ export namespace SchemaEvolution {
           }
           case 'requiredToAsymmetric': {
             const payload = message.requiredToAsymmetric;
-            const payloadAtlas = (atlas as any).requiredToAsymmetric;
+            const payloadAtlas = (atlas as any).requiredToAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
             {
@@ -17517,7 +17517,7 @@ export namespace SchemaEvolution {
           }
           case 'asymmetricToRequired': {
             const payload = message.asymmetricToRequired;
-            const payloadAtlas = (atlas as any).asymmetricToRequired;
+            const payloadAtlas = (atlas as any).asymmetricToRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
             {
@@ -17529,12 +17529,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'asymmetricToAsymmetric': {
             const payload = message.asymmetricToAsymmetric;
-            const payloadAtlas = (atlas as any).asymmetricToAsymmetric;
+            const payloadAtlas = (atlas as any).asymmetricToAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
             {
@@ -17546,12 +17546,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'asymmetricToOptional': {
             const payload = message.asymmetricToOptional;
-            const payloadAtlas = (atlas as any).asymmetricToOptional;
+            const payloadAtlas = (atlas as any).asymmetricToOptional as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
             {
@@ -17563,12 +17563,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'asymmetricToNonexistent': {
             const payload = message.asymmetricToNonexistent;
-            const payloadAtlas = (atlas as any).asymmetricToNonexistent;
+            const payloadAtlas = (atlas as any).asymmetricToNonexistent as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
             {
@@ -17580,12 +17580,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'optionalToRequired': {
             const payload = message.optionalToRequired;
-            const payloadAtlas = (atlas as any).optionalToRequired;
+            const payloadAtlas = (atlas as any).optionalToRequired as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
             {
@@ -17597,12 +17597,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'optionalToAsymmetric': {
             const payload = message.optionalToAsymmetric;
-            const payloadAtlas = (atlas as any).optionalToAsymmetric;
+            const payloadAtlas = (atlas as any).optionalToAsymmetric as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
             {
@@ -17614,12 +17614,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'optionalToOptional': {
             const payload = message.optionalToOptional;
-            const payloadAtlas = (atlas as any).optionalToOptional;
+            const payloadAtlas = (atlas as any).optionalToOptional as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
             {
@@ -17631,12 +17631,12 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           case 'optionalToNonexistent': {
             const payload = message.optionalToNonexistent;
-            const payloadAtlas = (atlas as any).optionalToNonexistent;
+            const payloadAtlas = (atlas as any).optionalToNonexistent as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
             {
@@ -17648,7 +17648,7 @@ export namespace SchemaEvolution {
               targetBuffer.set(payloadAtlas, offset);
               offset += payloadAtlas.byteLength;
             }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback);
+            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
             return offset;
           }
           default:
@@ -18121,7 +18121,7 @@ export namespace SchemaEvolution {
         switch (message.$field) {
           case 'x': {
             const payload = message.x;
-            const payloadAtlas = (atlas as any).x;
+            const payloadAtlas = (atlas as any).x as Uint8Array;
             const payloadSize = payloadAtlas.byteLength;
             offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
             {
