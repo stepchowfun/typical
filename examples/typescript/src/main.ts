@@ -5,7 +5,7 @@ const requestFilePath = '/tmp/request';
 const responseFilePath = '/tmp/response';
 const { SendEmailRequest, SendEmailResponse } = Types;
 
-function writeToFile(): void {
+function writeToFiles(): void {
   const requestMessage = {
     to: 'typical@example.com',
     subject: 'I love Typical!',
@@ -23,29 +23,15 @@ function writeToFile(): void {
   writeFileSync(responseFilePath, Buffer.from(responseArrayBuffer));
 }
 
-function readFromFile(): void {
+function readFromFiles(): void {
   const requestFileContents = readFileSync(requestFilePath);
-  const requestMessage = SendEmailRequest.deserialize(
-    new DataView(
-      requestFileContents.buffer,
-      requestFileContents.byteOffset,
-      requestFileContents.byteLength,
-    ),
-  );
-
+  const requestMessage = SendEmailRequest.deserialize(requestFileContents);
   if (requestMessage instanceof Error) {
     throw requestMessage;
   }
 
   const responseFileContents = readFileSync(responseFilePath);
-  const responseMessage = SendEmailResponse.deserialize(
-    new DataView(
-      responseFileContents.buffer,
-      responseFileContents.byteOffset,
-      responseFileContents.byteLength,
-    ),
-  );
-
+  const responseMessage = SendEmailResponse.deserialize(responseFileContents);
   if (responseMessage instanceof Error) {
     throw responseMessage;
   }
@@ -72,7 +58,7 @@ function readFromFile(): void {
   return undefined; // To satisfy ESLint's `consistent-return` rule
 }
 
-writeToFile();
-readFromFile();
+writeToFiles();
+readFromFiles();
 unlinkSync(requestFilePath);
 unlinkSync(responseFilePath);

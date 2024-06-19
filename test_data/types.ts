@@ -3,6 +3,21 @@
 
 /* eslint-disable */
 
+export type Deserializable =
+  | ArrayBuffer
+  | DataView
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array
+  | BigInt64Array
+  | BigUint64Array;
+
 export function unreachable(x: never): never {
   return x;
 }
@@ -305,15 +320,21 @@ export namespace CircularDependency {
 
         export function serialize(message: StructFromBelowOut): ArrayBuffer {
           const messageAtlas = atlas(message);
-          const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+          const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
           const dataView = new DataView(arrayBuffer);
           serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
           return arrayBuffer;
         }
 
-        export function deserialize(dataView: DataView): StructFromBelowIn | Error {
+        export function deserialize(bytes: Deserializable): StructFromBelowIn | Error {
           try {
-            return deserializeUnsafe(dataView);
+            if (bytes instanceof ArrayBuffer) {
+              return deserializeUnsafe(new DataView(bytes));
+            }
+            if (bytes instanceof DataView) {
+              return deserializeUnsafe(bytes);
+            }
+            return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
           } catch (e) {
             return e as Error;
           }
@@ -439,15 +460,21 @@ export namespace CircularDependency {
 
       export function serialize(message: StructFromAboveOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): StructFromAboveIn | Error {
+      export function deserialize(bytes: Deserializable): StructFromAboveIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -720,15 +747,21 @@ export namespace Comprehensive {
 
       export function serialize(message: LocalStructOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): LocalStructIn | Error {
+      export function deserialize(bytes: Deserializable): LocalStructIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -1041,15 +1074,21 @@ export namespace Comprehensive {
 
       export function serialize(message: FooOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): FooIn | Error {
+      export function deserialize(bytes: Deserializable): FooIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -8295,15 +8334,21 @@ export namespace Comprehensive {
 
       export function serialize(message: BarOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): BarIn | Error {
+      export function deserialize(bytes: Deserializable): BarIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -15264,15 +15309,21 @@ export namespace Degenerate {
 
       export function serialize(message: EmptyStructOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): EmptyStructIn | Error {
+      export function deserialize(bytes: Deserializable): EmptyStructIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -15337,16 +15388,18 @@ export namespace Degenerate {
       }
 
       export function serialize(message: EmptyChoiceOut): ArrayBuffer {
-        const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
-        const dataView = new DataView(arrayBuffer);
-        serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
-        return arrayBuffer;
+        return unreachable(message);
       }
 
-      export function deserialize(dataView: DataView): EmptyChoiceIn | Error {
+      export function deserialize(bytes: Deserializable): EmptyChoiceIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -15437,15 +15490,21 @@ export namespace SchemaEvolution {
 
       export function serialize(message: ExampleStructOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): ExampleStructIn | Error {
+      export function deserialize(bytes: Deserializable): ExampleStructIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -16055,15 +16114,21 @@ export namespace SchemaEvolution {
 
       export function serialize(message: ExampleChoiceOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): ExampleChoiceIn | Error {
+      export function deserialize(bytes: Deserializable): ExampleChoiceIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -16632,15 +16697,21 @@ export namespace SchemaEvolution {
 
       export function serialize(message: ExampleStructOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): ExampleStructIn | Error {
+      export function deserialize(bytes: Deserializable): ExampleStructIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -17327,15 +17398,21 @@ export namespace SchemaEvolution {
 
       export function serialize(message: ExampleChoiceOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): ExampleChoiceIn | Error {
+      export function deserialize(bytes: Deserializable): ExampleChoiceIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -17886,15 +17963,21 @@ export namespace SchemaEvolution {
 
       export function serialize(message: SingletonStructOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): SingletonStructIn | Error {
+      export function deserialize(bytes: Deserializable): SingletonStructIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }
@@ -18019,15 +18102,21 @@ export namespace SchemaEvolution {
 
       export function serialize(message: SingletonChoiceOut): ArrayBuffer {
         const messageAtlas = atlas(message);
-        const arrayBuffer = new ArrayBuffer((messageAtlas as { $size: number }).$size);
+        const arrayBuffer = new ArrayBuffer(messageAtlas.$size);
         const dataView = new DataView(arrayBuffer);
         serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);
         return arrayBuffer;
       }
 
-      export function deserialize(dataView: DataView): SingletonChoiceIn | Error {
+      export function deserialize(bytes: Deserializable): SingletonChoiceIn | Error {
         try {
-          return deserializeUnsafe(dataView);
+          if (bytes instanceof ArrayBuffer) {
+            return deserializeUnsafe(new DataView(bytes));
+          }
+          if (bytes instanceof DataView) {
+            return deserializeUnsafe(bytes);
+          }
+          return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
         } catch (e) {
           return e as Error;
         }

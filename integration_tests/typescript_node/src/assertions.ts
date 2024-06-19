@@ -15,7 +15,7 @@ try {
 export function assertMatch<O, I>(
   size: (message: O) => number,
   serialize: (message: O) => ArrayBuffer,
-  deserialize: (dataView: DataView) => I,
+  deserialize: (bytes: ArrayBuffer) => I,
   actual: O,
   expected: unknown,
 ): void {
@@ -27,14 +27,13 @@ export function assertMatch<O, I>(
   console.log('Expected size of the serialized message:', actualSize);
 
   const arrayBuffer = serialize(actual);
-  const dataView = new DataView(arrayBuffer);
   deepStrictEqual(arrayBuffer.byteLength, actualSize);
   console.log('Bytes from serialization:', arrayBuffer);
   console.log('Size of the serialized message:', arrayBuffer.byteLength);
 
   writeFileSync(omnifilePath, Buffer.from(arrayBuffer), { flag: 'as' });
 
-  const replica = deserialize(dataView);
+  const replica = deserialize(arrayBuffer);
   deepStrictEqual(replica, expected);
   console.log('Message deserialized from those bytes:', replica);
 
@@ -44,7 +43,7 @@ export function assertMatch<O, I>(
 export function assertRoundTrip<O, I, V extends O>(
   size: (message: O) => number,
   serialize: (message: O) => ArrayBuffer,
-  deserialize: (dataView: DataView) => I,
+  deserialize: (bytes: ArrayBuffer) => I,
   message: V,
 ): void {
   assertMatch(size, serialize, deserialize, message, message);

@@ -82,8 +82,9 @@ let message = SendEmailRequestOut {
     body: "It makes serialization easy and safe.".to_owned(),
 };
 
-let file = BufWriter::new(File::create(FILE_PATH)?);
-message.serialize(file)?;
+let mut file = BufWriter::new(File::create(REQUEST_FILE_PATH)?);
+message.serialize(&mut file)?;
+file.flush()?;
 ```
 
 Another program could read the file and deserialize the message as follows:

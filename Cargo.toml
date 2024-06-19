@@ -1,6 +1,6 @@
 [package]
 name = "typical"
-version = "0.12.0"
+version = "0.12.1"
 authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
 edition = "2021"
 description = "Data interchange with algebraic data types."

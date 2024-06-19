@@ -3,7 +3,7 @@ mod types;
 use {
     std::{
         fs::{remove_file, File},
-        io::{self, BufReader, BufWriter},
+        io::{self, BufReader, BufWriter, Write},
     },
     types::{
         types::{
@@ -16,7 +16,7 @@ use {
 const REQUEST_FILE_PATH: &str = "/tmp/request";
 const RESPONSE_FILE_PATH: &str = "/tmp/response";
 
-fn write_to_file() -> io::Result<()> {
+fn write_to_files() -> io::Result<()> {
     let request_message = SendEmailRequestOut {
         to: "typical@example.com".to_owned(),
         subject: "I love Typical!".to_owned(),
@@ -25,14 +25,16 @@ fn write_to_file() -> io::Result<()> {
 
     let response_message = SendEmailResponseOut::Error("Example error".to_string());
 
-    let request_file = BufWriter::new(File::create(REQUEST_FILE_PATH)?);
-    request_message.serialize(request_file)?;
+    let mut request_file = BufWriter::new(File::create(REQUEST_FILE_PATH)?);
+    request_message.serialize(&mut request_file)?;
+    request_file.flush()?;
 
-    let response_file = BufWriter::new(File::create(RESPONSE_FILE_PATH)?);
-    response_message.serialize(response_file)
+    let mut response_file = BufWriter::new(File::create(RESPONSE_FILE_PATH)?);
+    response_message.serialize(&mut response_file)?;
+    response_file.flush()
 }
 
-fn read_from_file() -> io::Result<()> {
+fn read_from_files() -> io::Result<()> {
     let request_file = BufReader::new(File::open(REQUEST_FILE_PATH)?);
     let request_message = SendEmailRequestIn::deserialize(request_file)?;
 
@@ -52,8 +54,8 @@ fn read_from_file() -> io::Result<()> {
 }
 
 fn main() -> io::Result<()> {
-    write_to_file()?;
-    read_from_file()?;
+    write_to_files()?;
+    read_from_files()?;
     remove_file(REQUEST_FILE_PATH)?;
     remove_file(RESPONSE_FILE_PATH)
 }

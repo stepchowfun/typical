@@ -155,6 +155,21 @@ pub fn generate(
 
 /* eslint-disable */
 
+export type Deserializable =
+  | ArrayBuffer
+  | DataView
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array
+  | BigInt64Array
+  | BigUint64Array;
+
 export function unreachable(x: never): never {{
   return x;
 }}
@@ -614,7 +629,13 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
-                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
+                write_serialize_function(
+                    buffer,
+                    indentation + 1,
+                    &declaration.variant,
+                    &declaration.name,
+                    &declaration.fields,
+                )?;
 
                 writeln!(buffer)?;
 
@@ -1001,7 +1022,13 @@ fn write_schema<T: Write>(
 
                 writeln!(buffer)?;
 
-                write_serialize_function(buffer, indentation + 1, &declaration.name)?;
+                write_serialize_function(
+                    buffer,
+                    indentation + 1,
+                    &declaration.variant,
+                    &declaration.name,
+                    &declaration.fields,
+                )?;
 
                 writeln!(buffer)?;
 
@@ -1452,29 +1479,35 @@ fn write_size_function<T: Write>(
 fn write_serialize_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
+    declaration_variant: &schema::DeclarationVariant,
     name: &Identifier,
+    fields: &[schema::Field],
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
     write!(buffer, "export function serialize(message: ")?;
     write_identifier(buffer, name, Pascal, Some(Out))?;
     writeln!(buffer, "): ArrayBuffer {{")?;
-    write_indentation(buffer, indentation + 1)?;
-    writeln!(buffer, "const messageAtlas = atlas(message);")?;
-    write_indentation(buffer, indentation + 1)?;
-    writeln!(
-        buffer,
-        "const arrayBuffer = \
-        new ArrayBuffer((messageAtlas as {{ $size: number }}).$size);",
-    )?;
-    write_indentation(buffer, indentation + 1)?;
-    writeln!(buffer, "const dataView = new DataView(arrayBuffer);")?;
-    write_indentation(buffer, indentation + 1)?;
-    writeln!(
-        buffer,
-        "serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);",
-    )?;
-    write_indentation(buffer, indentation + 1)?;
-    writeln!(buffer, "return arrayBuffer;")?;
+    if let (schema::DeclarationVariant::Choice, true) = (declaration_variant, fields.is_empty()) {
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(buffer, "return unreachable(message);")?;
+    } else {
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(buffer, "const messageAtlas = atlas(message);")?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(
+            buffer,
+            "const arrayBuffer = new ArrayBuffer(messageAtlas.$size);",
+        )?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(buffer, "const dataView = new DataView(arrayBuffer);")?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(
+            buffer,
+            "serializeWithAtlasUnsafe(dataView, 0, message, messageAtlas);",
+        )?;
+        write_indentation(buffer, indentation + 1)?;
+        writeln!(buffer, "return arrayBuffer;")?;
+    }
     write_indentation(buffer, indentation)?;
     writeln!(buffer, "}}")
 }
@@ -1486,13 +1519,31 @@ fn write_deserialize_function<T: Write>(
     name: &Identifier,
 ) -> Result<(), fmt::Error> {
     write_indentation(buffer, indentation)?;
-    write!(buffer, "export function deserialize(dataView: DataView): ")?;
+    write!(
+        buffer,
+        "export function deserialize(bytes: Deserializable): ",
+    )?;
     write_identifier(buffer, name, Pascal, Some(In))?;
     writeln!(buffer, " | Error {{")?;
     write_indentation(buffer, indentation + 1)?;
     writeln!(buffer, "try {{")?;
     write_indentation(buffer, indentation + 2)?;
-    writeln!(buffer, "return deserializeUnsafe(dataView);")?;
+    writeln!(buffer, "if (bytes instanceof ArrayBuffer) {{")?;
+    write_indentation(buffer, indentation + 3)?;
+    writeln!(buffer, "return deserializeUnsafe(new DataView(bytes));")?;
+    write_indentation(buffer, indentation + 2)?;
+    writeln!(buffer, "}}")?;
+    write_indentation(buffer, indentation + 2)?;
+    writeln!(buffer, "if (bytes instanceof DataView) {{")?;
+    write_indentation(buffer, indentation + 3)?;
+    writeln!(buffer, "return deserializeUnsafe(bytes);")?;
+    write_indentation(buffer, indentation + 2)?;
+    writeln!(buffer, "}}")?;
+    write_indentation(buffer, indentation + 2)?;
+    writeln!(
+        buffer,
+        "return deserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));",
+    )?;
     write_indentation(buffer, indentation + 1)?;
     writeln!(buffer, "}} catch (e) {{")?;
     write_indentation(buffer, indentation + 2)?;
