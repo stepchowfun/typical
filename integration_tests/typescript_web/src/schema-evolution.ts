@@ -11,7 +11,6 @@ function choiceTestCases(
   return [
     [
       {
-        $field: 'requiredToRequired',
         requiredToRequired: 'required_to_required',
       },
       {
@@ -21,7 +20,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'requiredToAsymmetric',
         requiredToAsymmetric: 'required_to_asymmetric',
       },
       {
@@ -31,7 +29,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'asymmetricToRequired',
         asymmetricToRequired: 'asymmetric_to_required',
         $fallback: fallbackBefore,
       },
@@ -42,7 +39,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'asymmetricToAsymmetric',
         asymmetricToAsymmetric: 'asymmetric_to_asymmetric',
         $fallback: fallbackBefore,
       },
@@ -53,7 +49,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'asymmetricToOptional',
         asymmetricToOptional: 'asymmetric_to_optional',
         $fallback: fallbackBefore,
       },
@@ -65,7 +60,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'asymmetricToNonexistent',
         asymmetricToNonexistent: 'asymmetric_to_nonexistent',
         $fallback: fallbackBefore,
       },
@@ -73,7 +67,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'optionalToRequired',
         optionalToRequired: 'optional_to_required',
         $fallback: fallbackBefore,
       },
@@ -84,7 +77,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'optionalToAsymmetric',
         optionalToAsymmetric: 'optional_to_asymmetric',
         $fallback: fallbackBefore,
       },
@@ -95,7 +87,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'optionalToOptional',
         optionalToOptional: 'optional_to_optional',
         $fallback: fallbackBefore,
       },
@@ -107,7 +98,6 @@ function choiceTestCases(
     ],
     [
       {
-        $field: 'optionalToNonexistent',
         optionalToNonexistent: 'optional_to_nonexistent',
         $fallback: fallbackBefore,
       },
@@ -188,7 +178,6 @@ export default function run(): void {
 
   const secondFallbacks = choiceTestCases(
     {
-      $field: 'requiredToRequired',
       requiredToRequired: 'required_to_required',
     },
     {
@@ -242,7 +231,6 @@ export default function run(): void {
     SchemaEvolution.Types.SingletonChoice.serialize,
     SchemaEvolution.Types.SingletonStruct.deserialize,
     {
-      $field: 'x',
       x: 'foo',
     },
     {

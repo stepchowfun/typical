@@ -161,7 +161,7 @@ benchmark(
     f: new Uint8Array([0, 42, 255]).buffer,
     g: 'Hello, World!',
     h: { x: 'Hello, World!' },
-    i: { $field: 'x' as const, x: 'Hello, World!' },
+    i: { x: 'Hello, World!' },
     j: [null, null, null],
     k: f64TestValues,
     l: u64TestValues,
@@ -174,11 +174,7 @@ benchmark(
     ],
     p: ['', '=8 bytes', 'Hello, World!'],
     q: [{ x: 'Hello, World!' }, { x: 'Hello, World!' }, { x: 'Hello, World!' }],
-    r: [
-      { $field: 'x' as const, x: 'Hello, World!' },
-      { $field: 'x' as const, x: 'Hello, World!' },
-      { $field: 'x' as const, x: 'Hello, World!' },
-    ],
+    r: [{ x: 'Hello, World!' }, { x: 'Hello, World!' }, { x: 'Hello, World!' }],
     s: [[], [null], [null, null], [null, null, null]],
     t: [
       [],
@@ -209,16 +205,9 @@ benchmark(
     ],
     aa: [
       [],
-      [{ $field: 'x' as const, x: 'Hello, World!' }],
-      [
-        { $field: 'x' as const, x: 'Hello, World!' },
-        { $field: 'x' as const, x: 'Hello, World!' },
-      ],
-      [
-        { $field: 'x' as const, x: 'Hello, World!' },
-        { $field: 'x' as const, x: 'Hello, World!' },
-        { $field: 'x' as const, x: 'Hello, World!' },
-      ],
+      [{ x: 'Hello, World!' }],
+      [{ x: 'Hello, World!' }, { x: 'Hello, World!' }],
+      [{ x: 'Hello, World!' }, { x: 'Hello, World!' }, { x: 'Hello, World!' }],
     ],
   },
   pathologicalIterations,

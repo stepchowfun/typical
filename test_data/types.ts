@@ -319,10 +319,6 @@ export namespace CircularDependency {
           }
         }
 
-        export function outToIn(message: StructFromBelowOut): StructFromBelowIn {
-          return message;
-        }
-
         export function atlas(message: StructFromBelowOut): StructFromBelowAtlas {
           let size = 0;
 
@@ -455,10 +451,6 @@ export namespace CircularDependency {
         } catch (e) {
           return e as Error;
         }
-      }
-
-      export function outToIn(message: StructFromAboveOut): StructFromAboveIn {
-        return message;
       }
 
       export function atlas(message: StructFromAboveOut): StructFromAboveAtlas {
@@ -740,10 +732,6 @@ export namespace Comprehensive {
         } catch (e) {
           return e as Error;
         }
-      }
-
-      export function outToIn(message: LocalStructOut): LocalStructIn {
-        return message;
       }
 
       export function atlas(message: LocalStructOut): LocalStructAtlas {
@@ -1065,10 +1053,6 @@ export namespace Comprehensive {
         } catch (e) {
           return e as Error;
         }
-      }
-
-      export function outToIn(message: FooOut): FooIn {
-        return message;
       }
 
       export function atlas(message: FooOut): FooAtlas {
@@ -8056,173 +8040,173 @@ export namespace Comprehensive {
     }
 
     export type BarAtlas =
-      | { $field: 'aRequired'; $size: number; aRequired: number }
-      | { $field: 'bRequired'; $size: number; bRequired: number }
-      | { $field: 'cRequired'; $size: number; cRequired: number }
-      | { $field: 'dRequired'; $size: number; dRequired: number }
-      | { $field: 'eRequired'; $size: number; eRequired: number }
-      | { $field: 'fRequired'; $size: number; fRequired: number }
-      | { $field: 'gRequired'; $size: number; gRequired: Uint8Array }
-      | { $field: 'hRequired'; $size: number; hRequired: Comprehensive.Types.LocalStructAtlas }
-      | { $field: 'iRequired'; $size: number; iRequired: Degenerate.Types.EmptyStructAtlas }
-      | { $field: 'jRequired'; $size: number; jRequired: number }
-      | { $field: 'kRequired'; $size: number; kRequired: number }
-      | { $field: 'lRequired'; $size: number; lRequired: number }
-      | { $field: 'mRequired'; $size: number; mRequired: number }
-      | { $field: 'nRequired'; $size: number; nRequired: number }
-      | { $field: 'oRequired'; $size: number; oRequired: { $size: number; $elements: number[] } }
-      | { $field: 'pRequired'; $size: number; pRequired: { $size: number; $elements: Uint8Array[] } }
-      | { $field: 'qRequired'; $size: number; qRequired: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] } }
-      | { $field: 'rRequired'; $size: number; rRequired: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] } }
-      | { $field: 'sRequired'; $size: number; sRequired: { $size: number; $elements: number[] } }
-      | { $field: 'tRequired'; $size: number; tRequired: { $size: number; $elements: number[] } }
-      | { $field: 'uRequired'; $size: number; uRequired: { $size: number; $elements: number[] } }
-      | { $field: 'vRequired'; $size: number; vRequired: { $size: number; $elements: number[] } }
-      | { $field: 'wRequired'; $size: number; wRequired: { $size: number; $elements: number[] } }
-      | { $field: 'xRequired'; $size: number; xRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] } }
-      | { $field: 'yRequired'; $size: number; yRequired: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] } }
-      | { $field: 'zRequired'; $size: number; zRequired: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] } }
-      | { $field: 'aaRequired'; $size: number; aaRequired: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] } }
-      | { $field: 'aAsymmetric'; $size: number; aAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'bAsymmetric'; $size: number; bAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'cAsymmetric'; $size: number; cAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'dAsymmetric'; $size: number; dAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'eAsymmetric'; $size: number; eAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'fAsymmetric'; $size: number; fAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'gAsymmetric'; $size: number; gAsymmetric: Uint8Array; $fallback: BarAtlas }
-      | { $field: 'hAsymmetric'; $size: number; hAsymmetric: Comprehensive.Types.LocalStructAtlas; $fallback: BarAtlas }
-      | { $field: 'iAsymmetric'; $size: number; iAsymmetric: Degenerate.Types.EmptyStructAtlas; $fallback: BarAtlas }
-      | { $field: 'jAsymmetric'; $size: number; jAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'kAsymmetric'; $size: number; kAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'lAsymmetric'; $size: number; lAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'mAsymmetric'; $size: number; mAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'nAsymmetric'; $size: number; nAsymmetric: number; $fallback: BarAtlas }
-      | { $field: 'oAsymmetric'; $size: number; oAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'pAsymmetric'; $size: number; pAsymmetric: { $size: number; $elements: Uint8Array[] }; $fallback: BarAtlas }
-      | { $field: 'qAsymmetric'; $size: number; qAsymmetric: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }; $fallback: BarAtlas }
-      | { $field: 'rAsymmetric'; $size: number; rAsymmetric: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }; $fallback: BarAtlas }
-      | { $field: 'sAsymmetric'; $size: number; sAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'tAsymmetric'; $size: number; tAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'uAsymmetric'; $size: number; uAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'vAsymmetric'; $size: number; vAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'wAsymmetric'; $size: number; wAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'xAsymmetric'; $size: number; xAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
-      | { $field: 'yAsymmetric'; $size: number; yAsymmetric: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] }; $fallback: BarAtlas }
-      | { $field: 'zAsymmetric'; $size: number; zAsymmetric: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] }; $fallback: BarAtlas }
-      | { $field: 'aaAsymmetric'; $size: number; aaAsymmetric: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] }; $fallback: BarAtlas }
-      | { $field: 'aOptional'; $size: number; aOptional: number; $fallback: BarAtlas }
-      | { $field: 'bOptional'; $size: number; bOptional: number; $fallback: BarAtlas }
-      | { $field: 'cOptional'; $size: number; cOptional: number; $fallback: BarAtlas }
-      | { $field: 'dOptional'; $size: number; dOptional: number; $fallback: BarAtlas }
-      | { $field: 'eOptional'; $size: number; eOptional: number; $fallback: BarAtlas }
-      | { $field: 'fOptional'; $size: number; fOptional: number; $fallback: BarAtlas }
-      | { $field: 'gOptional'; $size: number; gOptional: Uint8Array; $fallback: BarAtlas }
-      | { $field: 'hOptional'; $size: number; hOptional: Comprehensive.Types.LocalStructAtlas; $fallback: BarAtlas }
-      | { $field: 'iOptional'; $size: number; iOptional: Degenerate.Types.EmptyStructAtlas; $fallback: BarAtlas }
-      | { $field: 'jOptional'; $size: number; jOptional: number; $fallback: BarAtlas }
-      | { $field: 'kOptional'; $size: number; kOptional: number; $fallback: BarAtlas }
-      | { $field: 'lOptional'; $size: number; lOptional: number; $fallback: BarAtlas }
-      | { $field: 'mOptional'; $size: number; mOptional: number; $fallback: BarAtlas }
-      | { $field: 'nOptional'; $size: number; nOptional: number; $fallback: BarAtlas }
-      | { $field: 'oOptional'; $size: number; oOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'pOptional'; $size: number; pOptional: { $size: number; $elements: Uint8Array[] }; $fallback: BarAtlas }
-      | { $field: 'qOptional'; $size: number; qOptional: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }; $fallback: BarAtlas }
-      | { $field: 'rOptional'; $size: number; rOptional: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }; $fallback: BarAtlas }
-      | { $field: 'sOptional'; $size: number; sOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'tOptional'; $size: number; tOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'uOptional'; $size: number; uOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'vOptional'; $size: number; vOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'wOptional'; $size: number; wOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
-      | { $field: 'xOptional'; $size: number; xOptional: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
-      | { $field: 'yOptional'; $size: number; yOptional: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] }; $fallback: BarAtlas }
-      | { $field: 'zOptional'; $size: number; zOptional: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] }; $fallback: BarAtlas }
-      | { $field: 'aaOptional'; $size: number; aaOptional: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] }; $fallback: BarAtlas };
+      | { $size: number; aRequired: number }
+      | { $size: number; bRequired: number }
+      | { $size: number; cRequired: number }
+      | { $size: number; dRequired: number }
+      | { $size: number; eRequired: number }
+      | { $size: number; fRequired: number }
+      | { $size: number; gRequired: Uint8Array }
+      | { $size: number; hRequired: Comprehensive.Types.LocalStructAtlas }
+      | { $size: number; iRequired: Degenerate.Types.EmptyStructAtlas }
+      | { $size: number; jRequired: number }
+      | { $size: number; kRequired: number }
+      | { $size: number; lRequired: number }
+      | { $size: number; mRequired: number }
+      | { $size: number; nRequired: number }
+      | { $size: number; oRequired: { $size: number; $elements: number[] } }
+      | { $size: number; pRequired: { $size: number; $elements: Uint8Array[] } }
+      | { $size: number; qRequired: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] } }
+      | { $size: number; rRequired: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] } }
+      | { $size: number; sRequired: { $size: number; $elements: number[] } }
+      | { $size: number; tRequired: { $size: number; $elements: number[] } }
+      | { $size: number; uRequired: { $size: number; $elements: number[] } }
+      | { $size: number; vRequired: { $size: number; $elements: number[] } }
+      | { $size: number; wRequired: { $size: number; $elements: number[] } }
+      | { $size: number; xRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] } }
+      | { $size: number; yRequired: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] } }
+      | { $size: number; zRequired: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] } }
+      | { $size: number; aaRequired: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] } }
+      | { $size: number; aAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; bAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; cAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; dAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; eAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; fAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; gAsymmetric: Uint8Array; $fallback: BarAtlas }
+      | { $size: number; hAsymmetric: Comprehensive.Types.LocalStructAtlas; $fallback: BarAtlas }
+      | { $size: number; iAsymmetric: Degenerate.Types.EmptyStructAtlas; $fallback: BarAtlas }
+      | { $size: number; jAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; kAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; lAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; mAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; nAsymmetric: number; $fallback: BarAtlas }
+      | { $size: number; oAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; pAsymmetric: { $size: number; $elements: Uint8Array[] }; $fallback: BarAtlas }
+      | { $size: number; qAsymmetric: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }; $fallback: BarAtlas }
+      | { $size: number; rAsymmetric: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }; $fallback: BarAtlas }
+      | { $size: number; sAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; tAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; uAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; vAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; wAsymmetric: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; xAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
+      | { $size: number; yAsymmetric: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] }; $fallback: BarAtlas }
+      | { $size: number; zAsymmetric: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] }; $fallback: BarAtlas }
+      | { $size: number; aaAsymmetric: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] }; $fallback: BarAtlas }
+      | { $size: number; aOptional: number; $fallback: BarAtlas }
+      | { $size: number; bOptional: number; $fallback: BarAtlas }
+      | { $size: number; cOptional: number; $fallback: BarAtlas }
+      | { $size: number; dOptional: number; $fallback: BarAtlas }
+      | { $size: number; eOptional: number; $fallback: BarAtlas }
+      | { $size: number; fOptional: number; $fallback: BarAtlas }
+      | { $size: number; gOptional: Uint8Array; $fallback: BarAtlas }
+      | { $size: number; hOptional: Comprehensive.Types.LocalStructAtlas; $fallback: BarAtlas }
+      | { $size: number; iOptional: Degenerate.Types.EmptyStructAtlas; $fallback: BarAtlas }
+      | { $size: number; jOptional: number; $fallback: BarAtlas }
+      | { $size: number; kOptional: number; $fallback: BarAtlas }
+      | { $size: number; lOptional: number; $fallback: BarAtlas }
+      | { $size: number; mOptional: number; $fallback: BarAtlas }
+      | { $size: number; nOptional: number; $fallback: BarAtlas }
+      | { $size: number; oOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; pOptional: { $size: number; $elements: Uint8Array[] }; $fallback: BarAtlas }
+      | { $size: number; qOptional: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }; $fallback: BarAtlas }
+      | { $size: number; rOptional: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }; $fallback: BarAtlas }
+      | { $size: number; sOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; tOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; uOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; vOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; wOptional: { $size: number; $elements: number[] }; $fallback: BarAtlas }
+      | { $size: number; xOptional: { $size: number; $elements: { $size: number; $elements: number[] }[] }; $fallback: BarAtlas }
+      | { $size: number; yOptional: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] }; $fallback: BarAtlas }
+      | { $size: number; zOptional: { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] }; $fallback: BarAtlas }
+      | { $size: number; aaOptional: { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] }; $fallback: BarAtlas };
 
     export type BarOut =
-      | { $field: 'aRequired' }
-      | { $field: 'bRequired'; bRequired: number }
-      | { $field: 'cRequired'; cRequired: bigint }
-      | { $field: 'dRequired'; dRequired: bigint }
-      | { $field: 'eRequired'; eRequired: boolean }
-      | { $field: 'fRequired'; fRequired: ArrayBuffer }
-      | { $field: 'gRequired'; gRequired: string }
-      | { $field: 'hRequired'; hRequired: Comprehensive.Types.LocalStructOut }
-      | { $field: 'iRequired'; iRequired: Degenerate.Types.EmptyStructOut }
-      | { $field: 'jRequired'; jRequired: null[] }
-      | { $field: 'kRequired'; kRequired: number[] }
-      | { $field: 'lRequired'; lRequired: bigint[] }
-      | { $field: 'mRequired'; mRequired: bigint[] }
-      | { $field: 'nRequired'; nRequired: boolean[] }
-      | { $field: 'oRequired'; oRequired: ArrayBuffer[] }
-      | { $field: 'pRequired'; pRequired: string[] }
-      | { $field: 'qRequired'; qRequired: Comprehensive.Types.LocalStructOut[] }
-      | { $field: 'rRequired'; rRequired: Degenerate.Types.EmptyStructOut[] }
-      | { $field: 'sRequired'; sRequired: null[][] }
-      | { $field: 'tRequired'; tRequired: number[][] }
-      | { $field: 'uRequired'; uRequired: bigint[][] }
-      | { $field: 'vRequired'; vRequired: bigint[][] }
-      | { $field: 'wRequired'; wRequired: boolean[][] }
-      | { $field: 'xRequired'; xRequired: ArrayBuffer[][] }
-      | { $field: 'yRequired'; yRequired: string[][] }
-      | { $field: 'zRequired'; zRequired: Comprehensive.Types.LocalStructOut[][] }
-      | { $field: 'aaRequired'; aaRequired: Degenerate.Types.EmptyStructOut[][] }
-      | { $field: 'aAsymmetric'; $fallback: BarOut }
-      | { $field: 'bAsymmetric'; bAsymmetric: number; $fallback: BarOut }
-      | { $field: 'cAsymmetric'; cAsymmetric: bigint; $fallback: BarOut }
-      | { $field: 'dAsymmetric'; dAsymmetric: bigint; $fallback: BarOut }
-      | { $field: 'eAsymmetric'; eAsymmetric: boolean; $fallback: BarOut }
-      | { $field: 'fAsymmetric'; fAsymmetric: ArrayBuffer; $fallback: BarOut }
-      | { $field: 'gAsymmetric'; gAsymmetric: string; $fallback: BarOut }
-      | { $field: 'hAsymmetric'; hAsymmetric: Comprehensive.Types.LocalStructOut; $fallback: BarOut }
-      | { $field: 'iAsymmetric'; iAsymmetric: Degenerate.Types.EmptyStructOut; $fallback: BarOut }
-      | { $field: 'jAsymmetric'; jAsymmetric: null[]; $fallback: BarOut }
-      | { $field: 'kAsymmetric'; kAsymmetric: number[]; $fallback: BarOut }
-      | { $field: 'lAsymmetric'; lAsymmetric: bigint[]; $fallback: BarOut }
-      | { $field: 'mAsymmetric'; mAsymmetric: bigint[]; $fallback: BarOut }
-      | { $field: 'nAsymmetric'; nAsymmetric: boolean[]; $fallback: BarOut }
-      | { $field: 'oAsymmetric'; oAsymmetric: ArrayBuffer[]; $fallback: BarOut }
-      | { $field: 'pAsymmetric'; pAsymmetric: string[]; $fallback: BarOut }
-      | { $field: 'qAsymmetric'; qAsymmetric: Comprehensive.Types.LocalStructOut[]; $fallback: BarOut }
-      | { $field: 'rAsymmetric'; rAsymmetric: Degenerate.Types.EmptyStructOut[]; $fallback: BarOut }
-      | { $field: 'sAsymmetric'; sAsymmetric: null[][]; $fallback: BarOut }
-      | { $field: 'tAsymmetric'; tAsymmetric: number[][]; $fallback: BarOut }
-      | { $field: 'uAsymmetric'; uAsymmetric: bigint[][]; $fallback: BarOut }
-      | { $field: 'vAsymmetric'; vAsymmetric: bigint[][]; $fallback: BarOut }
-      | { $field: 'wAsymmetric'; wAsymmetric: boolean[][]; $fallback: BarOut }
-      | { $field: 'xAsymmetric'; xAsymmetric: ArrayBuffer[][]; $fallback: BarOut }
-      | { $field: 'yAsymmetric'; yAsymmetric: string[][]; $fallback: BarOut }
-      | { $field: 'zAsymmetric'; zAsymmetric: Comprehensive.Types.LocalStructOut[][]; $fallback: BarOut }
-      | { $field: 'aaAsymmetric'; aaAsymmetric: Degenerate.Types.EmptyStructOut[][]; $fallback: BarOut }
-      | { $field: 'aOptional'; $fallback: BarOut }
-      | { $field: 'bOptional'; bOptional: number; $fallback: BarOut }
-      | { $field: 'cOptional'; cOptional: bigint; $fallback: BarOut }
-      | { $field: 'dOptional'; dOptional: bigint; $fallback: BarOut }
-      | { $field: 'eOptional'; eOptional: boolean; $fallback: BarOut }
-      | { $field: 'fOptional'; fOptional: ArrayBuffer; $fallback: BarOut }
-      | { $field: 'gOptional'; gOptional: string; $fallback: BarOut }
-      | { $field: 'hOptional'; hOptional: Comprehensive.Types.LocalStructOut; $fallback: BarOut }
-      | { $field: 'iOptional'; iOptional: Degenerate.Types.EmptyStructOut; $fallback: BarOut }
-      | { $field: 'jOptional'; jOptional: null[]; $fallback: BarOut }
-      | { $field: 'kOptional'; kOptional: number[]; $fallback: BarOut }
-      | { $field: 'lOptional'; lOptional: bigint[]; $fallback: BarOut }
-      | { $field: 'mOptional'; mOptional: bigint[]; $fallback: BarOut }
-      | { $field: 'nOptional'; nOptional: boolean[]; $fallback: BarOut }
-      | { $field: 'oOptional'; oOptional: ArrayBuffer[]; $fallback: BarOut }
-      | { $field: 'pOptional'; pOptional: string[]; $fallback: BarOut }
-      | { $field: 'qOptional'; qOptional: Comprehensive.Types.LocalStructOut[]; $fallback: BarOut }
-      | { $field: 'rOptional'; rOptional: Degenerate.Types.EmptyStructOut[]; $fallback: BarOut }
-      | { $field: 'sOptional'; sOptional: null[][]; $fallback: BarOut }
-      | { $field: 'tOptional'; tOptional: number[][]; $fallback: BarOut }
-      | { $field: 'uOptional'; uOptional: bigint[][]; $fallback: BarOut }
-      | { $field: 'vOptional'; vOptional: bigint[][]; $fallback: BarOut }
-      | { $field: 'wOptional'; wOptional: boolean[][]; $fallback: BarOut }
-      | { $field: 'xOptional'; xOptional: ArrayBuffer[][]; $fallback: BarOut }
-      | { $field: 'yOptional'; yOptional: string[][]; $fallback: BarOut }
-      | { $field: 'zOptional'; zOptional: Comprehensive.Types.LocalStructOut[][]; $fallback: BarOut }
-      | { $field: 'aaOptional'; aaOptional: Degenerate.Types.EmptyStructOut[][]; $fallback: BarOut };
+      | { aRequired: null }
+      | { bRequired: number }
+      | { cRequired: bigint }
+      | { dRequired: bigint }
+      | { eRequired: boolean }
+      | { fRequired: ArrayBuffer }
+      | { gRequired: string }
+      | { hRequired: Comprehensive.Types.LocalStructOut }
+      | { iRequired: Degenerate.Types.EmptyStructOut }
+      | { jRequired: null[] }
+      | { kRequired: number[] }
+      | { lRequired: bigint[] }
+      | { mRequired: bigint[] }
+      | { nRequired: boolean[] }
+      | { oRequired: ArrayBuffer[] }
+      | { pRequired: string[] }
+      | { qRequired: Comprehensive.Types.LocalStructOut[] }
+      | { rRequired: Degenerate.Types.EmptyStructOut[] }
+      | { sRequired: null[][] }
+      | { tRequired: number[][] }
+      | { uRequired: bigint[][] }
+      | { vRequired: bigint[][] }
+      | { wRequired: boolean[][] }
+      | { xRequired: ArrayBuffer[][] }
+      | { yRequired: string[][] }
+      | { zRequired: Comprehensive.Types.LocalStructOut[][] }
+      | { aaRequired: Degenerate.Types.EmptyStructOut[][] }
+      | { aAsymmetric: null; $fallback: BarOut }
+      | { bAsymmetric: number; $fallback: BarOut }
+      | { cAsymmetric: bigint; $fallback: BarOut }
+      | { dAsymmetric: bigint; $fallback: BarOut }
+      | { eAsymmetric: boolean; $fallback: BarOut }
+      | { fAsymmetric: ArrayBuffer; $fallback: BarOut }
+      | { gAsymmetric: string; $fallback: BarOut }
+      | { hAsymmetric: Comprehensive.Types.LocalStructOut; $fallback: BarOut }
+      | { iAsymmetric: Degenerate.Types.EmptyStructOut; $fallback: BarOut }
+      | { jAsymmetric: null[]; $fallback: BarOut }
+      | { kAsymmetric: number[]; $fallback: BarOut }
+      | { lAsymmetric: bigint[]; $fallback: BarOut }
+      | { mAsymmetric: bigint[]; $fallback: BarOut }
+      | { nAsymmetric: boolean[]; $fallback: BarOut }
+      | { oAsymmetric: ArrayBuffer[]; $fallback: BarOut }
+      | { pAsymmetric: string[]; $fallback: BarOut }
+      | { qAsymmetric: Comprehensive.Types.LocalStructOut[]; $fallback: BarOut }
+      | { rAsymmetric: Degenerate.Types.EmptyStructOut[]; $fallback: BarOut }
+      | { sAsymmetric: null[][]; $fallback: BarOut }
+      | { tAsymmetric: number[][]; $fallback: BarOut }
+      | { uAsymmetric: bigint[][]; $fallback: BarOut }
+      | { vAsymmetric: bigint[][]; $fallback: BarOut }
+      | { wAsymmetric: boolean[][]; $fallback: BarOut }
+      | { xAsymmetric: ArrayBuffer[][]; $fallback: BarOut }
+      | { yAsymmetric: string[][]; $fallback: BarOut }
+      | { zAsymmetric: Comprehensive.Types.LocalStructOut[][]; $fallback: BarOut }
+      | { aaAsymmetric: Degenerate.Types.EmptyStructOut[][]; $fallback: BarOut }
+      | { aOptional: null; $fallback: BarOut }
+      | { bOptional: number; $fallback: BarOut }
+      | { cOptional: bigint; $fallback: BarOut }
+      | { dOptional: bigint; $fallback: BarOut }
+      | { eOptional: boolean; $fallback: BarOut }
+      | { fOptional: ArrayBuffer; $fallback: BarOut }
+      | { gOptional: string; $fallback: BarOut }
+      | { hOptional: Comprehensive.Types.LocalStructOut; $fallback: BarOut }
+      | { iOptional: Degenerate.Types.EmptyStructOut; $fallback: BarOut }
+      | { jOptional: null[]; $fallback: BarOut }
+      | { kOptional: number[]; $fallback: BarOut }
+      | { lOptional: bigint[]; $fallback: BarOut }
+      | { mOptional: bigint[]; $fallback: BarOut }
+      | { nOptional: boolean[]; $fallback: BarOut }
+      | { oOptional: ArrayBuffer[]; $fallback: BarOut }
+      | { pOptional: string[]; $fallback: BarOut }
+      | { qOptional: Comprehensive.Types.LocalStructOut[]; $fallback: BarOut }
+      | { rOptional: Degenerate.Types.EmptyStructOut[]; $fallback: BarOut }
+      | { sOptional: null[][]; $fallback: BarOut }
+      | { tOptional: number[][]; $fallback: BarOut }
+      | { uOptional: bigint[][]; $fallback: BarOut }
+      | { vOptional: bigint[][]; $fallback: BarOut }
+      | { wOptional: boolean[][]; $fallback: BarOut }
+      | { xOptional: ArrayBuffer[][]; $fallback: BarOut }
+      | { yOptional: string[][]; $fallback: BarOut }
+      | { zOptional: Comprehensive.Types.LocalStructOut[][]; $fallback: BarOut }
+      | { aaOptional: Degenerate.Types.EmptyStructOut[][]; $fallback: BarOut };
 
     export type BarIn =
-      | { $field: 'aRequired' }
+      | { $field: 'aRequired'; aRequired: null }
       | { $field: 'bRequired'; bRequired: number }
       | { $field: 'cRequired'; cRequired: bigint }
       | { $field: 'dRequired'; dRequired: bigint }
@@ -8249,7 +8233,7 @@ export namespace Comprehensive {
       | { $field: 'yRequired'; yRequired: string[][] }
       | { $field: 'zRequired'; zRequired: Comprehensive.Types.LocalStructIn[][] }
       | { $field: 'aaRequired'; aaRequired: Degenerate.Types.EmptyStructIn[][] }
-      | { $field: 'aAsymmetric' }
+      | { $field: 'aAsymmetric'; aAsymmetric: null }
       | { $field: 'bAsymmetric'; bAsymmetric: number }
       | { $field: 'cAsymmetric'; cAsymmetric: bigint }
       | { $field: 'dAsymmetric'; dAsymmetric: bigint }
@@ -8276,7 +8260,7 @@ export namespace Comprehensive {
       | { $field: 'yAsymmetric'; yAsymmetric: string[][] }
       | { $field: 'zAsymmetric'; zAsymmetric: Comprehensive.Types.LocalStructIn[][] }
       | { $field: 'aaAsymmetric'; aaAsymmetric: Degenerate.Types.EmptyStructIn[][] }
-      | { $field: 'aOptional'; $fallback: BarIn }
+      | { $field: 'aOptional'; aOptional: null; $fallback: BarIn }
       | { $field: 'bOptional'; bOptional: number; $fallback: BarIn }
       | { $field: 'cOptional'; cOptional: bigint; $fallback: BarIn }
       | { $field: 'dOptional'; dOptional: bigint; $fallback: BarIn }
@@ -8325,1602 +8309,1595 @@ export namespace Comprehensive {
         }
       }
 
-      export function outToIn(message: BarOut): BarIn {
-        return message;
-      }
-
       export function atlas(message: BarOut): BarAtlas {
-        switch (message.$field) {
-          case 'aRequired': {
-            let payloadAtlas;
-            const payload = null;
-            payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            return { $field: 'aRequired', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, aRequired: payloadAtlas };
-          }
-          case 'bRequired': {
-            let payloadAtlas;
-            const payload = message.bRequired;
-            if (Object.is(payload, 0)) {
-              payloadAtlas = 0;
-            } else {
-              payloadAtlas = 8;
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'bRequired', $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize, bRequired: payloadAtlas };
-          }
-          case 'cRequired': {
-            let payloadAtlas;
-            const payload = message.cRequired;
-            if (payload === 0n) {
-              payloadAtlas = 0;
-            } else if (payload < 567_382_630_219_904n) {
-              payloadAtlas = varintSizeFromValue(payload);
-            } else {
-              payloadAtlas = 8;
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'cRequired', $size: fieldHeaderSize(2n, payloadSize, true) + payloadSize, cRequired: payloadAtlas };
-          }
-          case 'dRequired': {
-            let payloadAtlas;
-            const payload = message.dRequired;
-            {
-              const zigzag = zigzagEncode(payload);
-              if (zigzag === 0n) {
-                payloadAtlas = 0;
-              } else if (zigzag < 567_382_630_219_904n) {
-                payloadAtlas = varintSizeFromValue(zigzag);
-              } else {
-                payloadAtlas = 8;
-              }
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'dRequired', $size: fieldHeaderSize(3n, payloadSize, true) + payloadSize, dRequired: payloadAtlas };
-          }
-          case 'eRequired': {
-            let payloadAtlas;
-            const payload = message.eRequired;
-            if (payload) {
-              payloadAtlas = 1;
-            } else {
-              payloadAtlas = 0;
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'eRequired', $size: fieldHeaderSize(4n, payloadSize, true) + payloadSize, eRequired: payloadAtlas };
-          }
-          case 'fRequired': {
-            let payloadAtlas;
-            const payload = message.fRequired;
-            payloadAtlas = payload.byteLength;
-            const payloadSize = payloadAtlas;
-            return { $field: 'fRequired', $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize, fRequired: payloadAtlas };
-          }
-          case 'gRequired': {
-            let payloadAtlas;
-            const payload = message.gRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'gRequired', $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize, gRequired: payloadAtlas };
-          }
-          case 'hRequired': {
-            let payloadAtlas;
-            const payload = message.hRequired;
-            payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            return { $field: 'hRequired', $size: fieldHeaderSize(7n, payloadSize, false) + payloadSize, hRequired: payloadAtlas };
-          }
-          case 'iRequired': {
-            let payloadAtlas;
-            const payload = message.iRequired;
-            payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            return { $field: 'iRequired', $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize, iRequired: payloadAtlas };
-          }
-          case 'jRequired': {
-            let payloadAtlas;
-            const payload = message.jRequired;
-            {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadAtlas = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadAtlas = varintSizeFromValue(payload);
-                } else {
-                  payloadAtlas = 8;
-                }
-              }
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'jRequired', $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize, jRequired: payloadAtlas };
-          }
-          case 'kRequired': {
-            let payloadAtlas;
-            const payload = message.kRequired;
-            payloadAtlas = 8 * payload.length;
-            const payloadSize = payloadAtlas;
-            return { $field: 'kRequired', $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize, kRequired: payloadAtlas };
-          }
-          case 'lRequired': {
-            let payloadAtlas;
-            const payload = message.lRequired;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = varintSizeFromValue(payload);
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'lRequired', $size: fieldHeaderSize(11n, payloadSize, false) + payloadSize, lRequired: payloadAtlas };
-          }
-          case 'mRequired': {
-            let payloadAtlas;
-            const payload = message.mRequired;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'mRequired', $size: fieldHeaderSize(12n, payloadSize, false) + payloadSize, mRequired: payloadAtlas };
-          }
-          case 'nRequired': {
-            let payloadAtlas;
-            const payload = message.nRequired;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = 1;
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            return { $field: 'nRequired', $size: fieldHeaderSize(13n, payloadSize, false) + payloadSize, nRequired: payloadAtlas };
-          }
-          case 'oRequired': {
-            let payloadAtlas;
-            const payload = message.oRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = payload.byteLength;
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'oRequired', $size: fieldHeaderSize(14n, payloadSize, false) + payloadSize, oRequired: payloadAtlas };
-          }
-          case 'pRequired': {
-            let payloadAtlas;
-            const payload = message.pRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.byteLength;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'pRequired', $size: fieldHeaderSize(15n, payloadSize, false) + payloadSize, pRequired: payloadAtlas };
-          }
-          case 'qRequired': {
-            let payloadAtlas;
-            const payload = message.qRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = (payloadAtlas as { $size: number }).$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'qRequired', $size: fieldHeaderSize(16n, payloadSize, false) + payloadSize, qRequired: payloadAtlas };
-          }
-          case 'rRequired': {
-            let payloadAtlas;
-            const payload = message.rRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = (payloadAtlas as { $size: number }).$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'rRequired', $size: fieldHeaderSize(17n, payloadSize, false) + payloadSize, rRequired: payloadAtlas };
-          }
-          case 'sRequired': {
-            let payloadAtlas;
-            const payload = message.sRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  const oldPayload = payload;
-                  {
-                    const payload = BigInt(oldPayload.length);
-                    payloadAtlas = varintSizeFromValue(payload);
-                  }
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'sRequired', $size: fieldHeaderSize(18n, payloadSize, false) + payloadSize, sRequired: payloadAtlas };
-          }
-          case 'tRequired': {
-            let payloadAtlas;
-            const payload = message.tRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = 8 * payload.length;
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'tRequired', $size: fieldHeaderSize(19n, payloadSize, false) + payloadSize, tRequired: payloadAtlas };
-          }
-          case 'uRequired': {
-            let payloadAtlas;
-            const payload = message.uRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = varintSizeFromValue(payload);
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'uRequired', $size: fieldHeaderSize(20n, payloadSize, false) + payloadSize, uRequired: payloadAtlas };
-          }
-          case 'vRequired': {
-            let payloadAtlas;
-            const payload = message.vRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'vRequired', $size: fieldHeaderSize(21n, payloadSize, false) + payloadSize, vRequired: payloadAtlas };
-          }
-          case 'wRequired': {
-            let payloadAtlas;
-            const payload = message.wRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = 1;
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'wRequired', $size: fieldHeaderSize(22n, payloadSize, false) + payloadSize, wRequired: payloadAtlas };
-          }
-          case 'xRequired': {
-            let payloadAtlas;
-            const payload = message.xRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = payload.byteLength;
-                    elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'xRequired', $size: fieldHeaderSize(23n, payloadSize, false) + payloadSize, xRequired: payloadAtlas };
-          }
-          case 'yRequired': {
-            let payloadAtlas;
-            const payload = message.yRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas.byteLength;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'yRequired', $size: fieldHeaderSize(24n, payloadSize, false) + payloadSize, yRequired: payloadAtlas };
-          }
-          case 'zRequired': {
-            let payloadAtlas;
-            const payload = message.zRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'zRequired', $size: fieldHeaderSize(25n, payloadSize, false) + payloadSize, zRequired: payloadAtlas };
-          }
-          case 'aaRequired': {
-            let payloadAtlas;
-            const payload = message.aaRequired;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            return { $field: 'aaRequired', $size: fieldHeaderSize(26n, payloadSize, false) + payloadSize, aaRequired: payloadAtlas };
-          }
-          case 'aAsymmetric': {
-            let payloadAtlas;
-            const payload = null;
-            payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'aAsymmetric', $size: fieldHeaderSize(28n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'bAsymmetric': {
-            let payloadAtlas;
-            const payload = message.bAsymmetric;
-            if (Object.is(payload, 0)) {
-              payloadAtlas = 0;
-            } else {
-              payloadAtlas = 8;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'bAsymmetric', $size: fieldHeaderSize(29n, payloadSize, false) + payloadSize + fallbackAtlas.$size, bAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'cAsymmetric': {
-            let payloadAtlas;
-            const payload = message.cAsymmetric;
-            if (payload === 0n) {
-              payloadAtlas = 0;
-            } else if (payload < 567_382_630_219_904n) {
-              payloadAtlas = varintSizeFromValue(payload);
-            } else {
-              payloadAtlas = 8;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'cAsymmetric', $size: fieldHeaderSize(30n, payloadSize, true) + payloadSize + fallbackAtlas.$size, cAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'dAsymmetric': {
-            let payloadAtlas;
-            const payload = message.dAsymmetric;
-            {
-              const zigzag = zigzagEncode(payload);
-              if (zigzag === 0n) {
-                payloadAtlas = 0;
-              } else if (zigzag < 567_382_630_219_904n) {
-                payloadAtlas = varintSizeFromValue(zigzag);
-              } else {
-                payloadAtlas = 8;
-              }
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'dAsymmetric', $size: fieldHeaderSize(31n, payloadSize, true) + payloadSize + fallbackAtlas.$size, dAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'eAsymmetric': {
-            let payloadAtlas;
-            const payload = message.eAsymmetric;
-            if (payload) {
-              payloadAtlas = 1;
-            } else {
-              payloadAtlas = 0;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'eAsymmetric', $size: fieldHeaderSize(32n, payloadSize, true) + payloadSize + fallbackAtlas.$size, eAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'fAsymmetric': {
-            let payloadAtlas;
-            const payload = message.fAsymmetric;
-            payloadAtlas = payload.byteLength;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'fAsymmetric', $size: fieldHeaderSize(33n, payloadSize, false) + payloadSize + fallbackAtlas.$size, fAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'gAsymmetric': {
-            let payloadAtlas;
-            const payload = message.gAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'gAsymmetric', $size: fieldHeaderSize(34n, payloadSize, false) + payloadSize + fallbackAtlas.$size, gAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'hAsymmetric': {
-            let payloadAtlas;
-            const payload = message.hAsymmetric;
-            payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'hAsymmetric', $size: fieldHeaderSize(35n, payloadSize, false) + payloadSize + fallbackAtlas.$size, hAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'iAsymmetric': {
-            let payloadAtlas;
-            const payload = message.iAsymmetric;
-            payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'iAsymmetric', $size: fieldHeaderSize(36n, payloadSize, false) + payloadSize + fallbackAtlas.$size, iAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'jAsymmetric': {
-            let payloadAtlas;
-            const payload = message.jAsymmetric;
-            {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadAtlas = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadAtlas = varintSizeFromValue(payload);
-                } else {
-                  payloadAtlas = 8;
-                }
-              }
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'jAsymmetric', $size: fieldHeaderSize(37n, payloadSize, false) + payloadSize + fallbackAtlas.$size, jAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'kAsymmetric': {
-            let payloadAtlas;
-            const payload = message.kAsymmetric;
-            payloadAtlas = 8 * payload.length;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'kAsymmetric', $size: fieldHeaderSize(38n, payloadSize, false) + payloadSize + fallbackAtlas.$size, kAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'lAsymmetric': {
-            let payloadAtlas;
-            const payload = message.lAsymmetric;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = varintSizeFromValue(payload);
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'lAsymmetric', $size: fieldHeaderSize(39n, payloadSize, false) + payloadSize + fallbackAtlas.$size, lAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'mAsymmetric': {
-            let payloadAtlas;
-            const payload = message.mAsymmetric;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'mAsymmetric', $size: fieldHeaderSize(40n, payloadSize, false) + payloadSize + fallbackAtlas.$size, mAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'nAsymmetric': {
-            let payloadAtlas;
-            const payload = message.nAsymmetric;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = 1;
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'nAsymmetric', $size: fieldHeaderSize(41n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'oAsymmetric': {
-            let payloadAtlas;
-            const payload = message.oAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = payload.byteLength;
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'oAsymmetric', $size: fieldHeaderSize(42n, payloadSize, false) + payloadSize + fallbackAtlas.$size, oAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'pAsymmetric': {
-            let payloadAtlas;
-            const payload = message.pAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.byteLength;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'pAsymmetric', $size: fieldHeaderSize(43n, payloadSize, false) + payloadSize + fallbackAtlas.$size, pAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'qAsymmetric': {
-            let payloadAtlas;
-            const payload = message.qAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = (payloadAtlas as { $size: number }).$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'qAsymmetric', $size: fieldHeaderSize(44n, payloadSize, false) + payloadSize + fallbackAtlas.$size, qAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'rAsymmetric': {
-            let payloadAtlas;
-            const payload = message.rAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = (payloadAtlas as { $size: number }).$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'rAsymmetric', $size: fieldHeaderSize(45n, payloadSize, false) + payloadSize + fallbackAtlas.$size, rAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'sAsymmetric': {
-            let payloadAtlas;
-            const payload = message.sAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  const oldPayload = payload;
-                  {
-                    const payload = BigInt(oldPayload.length);
-                    payloadAtlas = varintSizeFromValue(payload);
-                  }
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'sAsymmetric', $size: fieldHeaderSize(46n, payloadSize, false) + payloadSize + fallbackAtlas.$size, sAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'tAsymmetric': {
-            let payloadAtlas;
-            const payload = message.tAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = 8 * payload.length;
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'tAsymmetric', $size: fieldHeaderSize(47n, payloadSize, false) + payloadSize + fallbackAtlas.$size, tAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'uAsymmetric': {
-            let payloadAtlas;
-            const payload = message.uAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = varintSizeFromValue(payload);
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'uAsymmetric', $size: fieldHeaderSize(48n, payloadSize, false) + payloadSize + fallbackAtlas.$size, uAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'vAsymmetric': {
-            let payloadAtlas;
-            const payload = message.vAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'vAsymmetric', $size: fieldHeaderSize(49n, payloadSize, false) + payloadSize + fallbackAtlas.$size, vAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'wAsymmetric': {
-            let payloadAtlas;
-            const payload = message.wAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = 1;
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'wAsymmetric', $size: fieldHeaderSize(50n, payloadSize, false) + payloadSize + fallbackAtlas.$size, wAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'xAsymmetric': {
-            let payloadAtlas;
-            const payload = message.xAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = payload.byteLength;
-                    elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'xAsymmetric', $size: fieldHeaderSize(51n, payloadSize, false) + payloadSize + fallbackAtlas.$size, xAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'yAsymmetric': {
-            let payloadAtlas;
-            const payload = message.yAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas.byteLength;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'yAsymmetric', $size: fieldHeaderSize(52n, payloadSize, false) + payloadSize + fallbackAtlas.$size, yAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'zAsymmetric': {
-            let payloadAtlas;
-            const payload = message.zAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'zAsymmetric', $size: fieldHeaderSize(53n, payloadSize, false) + payloadSize + fallbackAtlas.$size, zAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'aaAsymmetric': {
-            let payloadAtlas;
-            const payload = message.aaAsymmetric;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'aaAsymmetric', $size: fieldHeaderSize(54n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aaAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'aOptional': {
-            let payloadAtlas;
-            const payload = null;
-            payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'aOptional', $size: fieldHeaderSize(56n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'bOptional': {
-            let payloadAtlas;
-            const payload = message.bOptional;
-            if (Object.is(payload, 0)) {
-              payloadAtlas = 0;
-            } else {
-              payloadAtlas = 8;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'bOptional', $size: fieldHeaderSize(57n, payloadSize, false) + payloadSize + fallbackAtlas.$size, bOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'cOptional': {
-            let payloadAtlas;
-            const payload = message.cOptional;
-            if (payload === 0n) {
-              payloadAtlas = 0;
-            } else if (payload < 567_382_630_219_904n) {
-              payloadAtlas = varintSizeFromValue(payload);
-            } else {
-              payloadAtlas = 8;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'cOptional', $size: fieldHeaderSize(58n, payloadSize, true) + payloadSize + fallbackAtlas.$size, cOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'dOptional': {
-            let payloadAtlas;
-            const payload = message.dOptional;
-            {
-              const zigzag = zigzagEncode(payload);
-              if (zigzag === 0n) {
-                payloadAtlas = 0;
-              } else if (zigzag < 567_382_630_219_904n) {
-                payloadAtlas = varintSizeFromValue(zigzag);
-              } else {
-                payloadAtlas = 8;
-              }
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'dOptional', $size: fieldHeaderSize(59n, payloadSize, true) + payloadSize + fallbackAtlas.$size, dOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'eOptional': {
-            let payloadAtlas;
-            const payload = message.eOptional;
-            if (payload) {
-              payloadAtlas = 1;
-            } else {
-              payloadAtlas = 0;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'eOptional', $size: fieldHeaderSize(60n, payloadSize, true) + payloadSize + fallbackAtlas.$size, eOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'fOptional': {
-            let payloadAtlas;
-            const payload = message.fOptional;
-            payloadAtlas = payload.byteLength;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'fOptional', $size: fieldHeaderSize(61n, payloadSize, false) + payloadSize + fallbackAtlas.$size, fOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'gOptional': {
-            let payloadAtlas;
-            const payload = message.gOptional;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'gOptional', $size: fieldHeaderSize(62n, payloadSize, false) + payloadSize + fallbackAtlas.$size, gOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'hOptional': {
-            let payloadAtlas;
-            const payload = message.hOptional;
-            payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'hOptional', $size: fieldHeaderSize(63n, payloadSize, false) + payloadSize + fallbackAtlas.$size, hOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'iOptional': {
-            let payloadAtlas;
-            const payload = message.iOptional;
-            payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'iOptional', $size: fieldHeaderSize(64n, payloadSize, false) + payloadSize + fallbackAtlas.$size, iOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'jOptional': {
-            let payloadAtlas;
-            const payload = message.jOptional;
-            {
-              const oldPayload = payload;
-              {
-                const payload = BigInt(oldPayload.length);
-                if (payload === 0n) {
-                  payloadAtlas = 0;
-                } else if (payload < 567_382_630_219_904n) {
-                  payloadAtlas = varintSizeFromValue(payload);
-                } else {
-                  payloadAtlas = 8;
-                }
-              }
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'jOptional', $size: fieldHeaderSize(65n, payloadSize, false) + payloadSize + fallbackAtlas.$size, jOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'kOptional': {
-            let payloadAtlas;
-            const payload = message.kOptional;
-            payloadAtlas = 8 * payload.length;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'kOptional', $size: fieldHeaderSize(66n, payloadSize, false) + payloadSize + fallbackAtlas.$size, kOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'lOptional': {
-            let payloadAtlas;
-            const payload = message.lOptional;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = varintSizeFromValue(payload);
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'lOptional', $size: fieldHeaderSize(67n, payloadSize, false) + payloadSize + fallbackAtlas.$size, lOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'mOptional': {
-            let payloadAtlas;
-            const payload = message.mOptional;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'mOptional', $size: fieldHeaderSize(68n, payloadSize, false) + payloadSize + fallbackAtlas.$size, mOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'nOptional': {
-            let payloadAtlas;
-            const payload = message.nOptional;
-            {
-              let arraySize = 0;
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas = 0;
-                payloadAtlas = 1;
-                arraySize += payloadAtlas;
-              }
-              payloadAtlas = arraySize;
-            }
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'nOptional', $size: fieldHeaderSize(69n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'oOptional': {
-            let payloadAtlas;
-            const payload = message.oOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = payload.byteLength;
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'oOptional', $size: fieldHeaderSize(70n, payloadSize, false) + payloadSize + fallbackAtlas.$size, oOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'pOptional': {
-            let payloadAtlas;
-            const payload = message.pOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = textEncoder.encode(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.byteLength;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'pOptional', $size: fieldHeaderSize(71n, payloadSize, false) + payloadSize + fallbackAtlas.$size, pOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'qOptional': {
-            let payloadAtlas;
-            const payload = message.qOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = (payloadAtlas as { $size: number }).$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'qOptional', $size: fieldHeaderSize(72n, payloadSize, false) + payloadSize + fallbackAtlas.$size, qOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'rOptional': {
-            let payloadAtlas;
-            const payload = message.rOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                elements.push(payloadAtlas);
-                const payloadSize = (payloadAtlas as { $size: number }).$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'rOptional', $size: fieldHeaderSize(73n, payloadSize, false) + payloadSize + fallbackAtlas.$size, rOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'sOptional': {
-            let payloadAtlas;
-            const payload = message.sOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  const oldPayload = payload;
-                  {
-                    const payload = BigInt(oldPayload.length);
-                    payloadAtlas = varintSizeFromValue(payload);
-                  }
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'sOptional', $size: fieldHeaderSize(74n, payloadSize, false) + payloadSize + fallbackAtlas.$size, sOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'tOptional': {
-            let payloadAtlas;
-            const payload = message.tOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                payloadAtlas = 8 * payload.length;
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'tOptional', $size: fieldHeaderSize(75n, payloadSize, false) + payloadSize + fallbackAtlas.$size, tOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'uOptional': {
-            let payloadAtlas;
-            const payload = message.uOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = varintSizeFromValue(payload);
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'uOptional', $size: fieldHeaderSize(76n, payloadSize, false) + payloadSize + fallbackAtlas.$size, uOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'vOptional': {
-            let payloadAtlas;
-            const payload = message.vOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'vOptional', $size: fieldHeaderSize(77n, payloadSize, false) + payloadSize + fallbackAtlas.$size, vOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'wOptional': {
-            let payloadAtlas;
-            const payload = message.wOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let arraySize = 0;
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas = 0;
-                    payloadAtlas = 1;
-                    arraySize += payloadAtlas;
-                  }
-                  payloadAtlas = arraySize;
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'wOptional', $size: fieldHeaderSize(78n, payloadSize, false) + payloadSize + fallbackAtlas.$size, wOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'xOptional': {
-            let payloadAtlas;
-            const payload = message.xOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = payload.byteLength;
-                    elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'xOptional', $size: fieldHeaderSize(79n, payloadSize, false) + payloadSize + fallbackAtlas.$size, xOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'yOptional': {
-            let payloadAtlas;
-            const payload = message.yOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = textEncoder.encode(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = payloadAtlas.byteLength;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'yOptional', $size: fieldHeaderSize(80n, payloadSize, false) + payloadSize + fallbackAtlas.$size, yOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'zOptional': {
-            let payloadAtlas;
-            const payload = message.zOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'zOptional', $size: fieldHeaderSize(81n, payloadSize, false) + payloadSize + fallbackAtlas.$size, zOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'aaOptional': {
-            let payloadAtlas;
-            const payload = message.aaOptional;
-            {
-              let size = 0;
-              let elements = [];
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                let payloadAtlas;
-                {
-                  let size = 0;
-                  let elements = [];
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    let payloadAtlas;
-                    payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
-                    elements.push(payloadAtlas);
-                    const payloadSize = (payloadAtlas as { $size: number }).$size;
-                    size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-                  }
-                  payloadAtlas = { $size: size, $elements: elements };
-                }
-                elements.push(payloadAtlas);
-                const payloadSize = payloadAtlas.$size;
-                size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
-              }
-              payloadAtlas = { $size: size, $elements: elements };
-            }
-            const payloadSize = payloadAtlas.$size;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'aaOptional', $size: fieldHeaderSize(82n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aaOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          default:
-            return unreachable(message);
+        if ('aRequired' in message) {
+          let payloadAtlas;
+          const payload = message.aRequired;
+          payloadAtlas = 0;
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, aRequired: payloadAtlas };
         }
+        if ('bRequired' in message) {
+          let payloadAtlas;
+          const payload = message.bRequired;
+          if (Object.is(payload, 0)) {
+            payloadAtlas = 0;
+          } else {
+            payloadAtlas = 8;
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize, bRequired: payloadAtlas };
+        }
+        if ('cRequired' in message) {
+          let payloadAtlas;
+          const payload = message.cRequired;
+          if (payload === 0n) {
+            payloadAtlas = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadAtlas = varintSizeFromValue(payload);
+          } else {
+            payloadAtlas = 8;
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(2n, payloadSize, true) + payloadSize, cRequired: payloadAtlas };
+        }
+        if ('dRequired' in message) {
+          let payloadAtlas;
+          const payload = message.dRequired;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadAtlas = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadAtlas = varintSizeFromValue(zigzag);
+            } else {
+              payloadAtlas = 8;
+            }
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(3n, payloadSize, true) + payloadSize, dRequired: payloadAtlas };
+        }
+        if ('eRequired' in message) {
+          let payloadAtlas;
+          const payload = message.eRequired;
+          if (payload) {
+            payloadAtlas = 1;
+          } else {
+            payloadAtlas = 0;
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(4n, payloadSize, true) + payloadSize, eRequired: payloadAtlas };
+        }
+        if ('fRequired' in message) {
+          let payloadAtlas;
+          const payload = message.fRequired;
+          payloadAtlas = payload.byteLength;
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize, fRequired: payloadAtlas };
+        }
+        if ('gRequired' in message) {
+          let payloadAtlas;
+          const payload = message.gRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize, gRequired: payloadAtlas };
+        }
+        if ('hRequired' in message) {
+          let payloadAtlas;
+          const payload = message.hRequired;
+          payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          return { $size: fieldHeaderSize(7n, payloadSize, false) + payloadSize, hRequired: payloadAtlas };
+        }
+        if ('iRequired' in message) {
+          let payloadAtlas;
+          const payload = message.iRequired;
+          payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          return { $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize, iRequired: payloadAtlas };
+        }
+        if ('jRequired' in message) {
+          let payloadAtlas;
+          const payload = message.jRequired;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadAtlas = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadAtlas = varintSizeFromValue(payload);
+              } else {
+                payloadAtlas = 8;
+              }
+            }
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize, jRequired: payloadAtlas };
+        }
+        if ('kRequired' in message) {
+          let payloadAtlas;
+          const payload = message.kRequired;
+          payloadAtlas = 8 * payload.length;
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize, kRequired: payloadAtlas };
+        }
+        if ('lRequired' in message) {
+          let payloadAtlas;
+          const payload = message.lRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = varintSizeFromValue(payload);
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(11n, payloadSize, false) + payloadSize, lRequired: payloadAtlas };
+        }
+        if ('mRequired' in message) {
+          let payloadAtlas;
+          const payload = message.mRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(12n, payloadSize, false) + payloadSize, mRequired: payloadAtlas };
+        }
+        if ('nRequired' in message) {
+          let payloadAtlas;
+          const payload = message.nRequired;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = 1;
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(13n, payloadSize, false) + payloadSize, nRequired: payloadAtlas };
+        }
+        if ('oRequired' in message) {
+          let payloadAtlas;
+          const payload = message.oRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = payload.byteLength;
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(14n, payloadSize, false) + payloadSize, oRequired: payloadAtlas };
+        }
+        if ('pRequired' in message) {
+          let payloadAtlas;
+          const payload = message.pRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = textEncoder.encode(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.byteLength;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(15n, payloadSize, false) + payloadSize, pRequired: payloadAtlas };
+        }
+        if ('qRequired' in message) {
+          let payloadAtlas;
+          const payload = message.qRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = (payloadAtlas as { $size: number }).$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(16n, payloadSize, false) + payloadSize, qRequired: payloadAtlas };
+        }
+        if ('rRequired' in message) {
+          let payloadAtlas;
+          const payload = message.rRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = (payloadAtlas as { $size: number }).$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(17n, payloadSize, false) + payloadSize, rRequired: payloadAtlas };
+        }
+        if ('sRequired' in message) {
+          let payloadAtlas;
+          const payload = message.sRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadAtlas = varintSizeFromValue(payload);
+                }
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(18n, payloadSize, false) + payloadSize, sRequired: payloadAtlas };
+        }
+        if ('tRequired' in message) {
+          let payloadAtlas;
+          const payload = message.tRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = 8 * payload.length;
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(19n, payloadSize, false) + payloadSize, tRequired: payloadAtlas };
+        }
+        if ('uRequired' in message) {
+          let payloadAtlas;
+          const payload = message.uRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = varintSizeFromValue(payload);
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(20n, payloadSize, false) + payloadSize, uRequired: payloadAtlas };
+        }
+        if ('vRequired' in message) {
+          let payloadAtlas;
+          const payload = message.vRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(21n, payloadSize, false) + payloadSize, vRequired: payloadAtlas };
+        }
+        if ('wRequired' in message) {
+          let payloadAtlas;
+          const payload = message.wRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = 1;
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(22n, payloadSize, false) + payloadSize, wRequired: payloadAtlas };
+        }
+        if ('xRequired' in message) {
+          let payloadAtlas;
+          const payload = message.xRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = payload.byteLength;
+                  elements.push(payloadAtlas);
+                  const payloadSize = payloadAtlas;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(23n, payloadSize, false) + payloadSize, xRequired: payloadAtlas };
+        }
+        if ('yRequired' in message) {
+          let payloadAtlas;
+          const payload = message.yRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = textEncoder.encode(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = payloadAtlas.byteLength;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(24n, payloadSize, false) + payloadSize, yRequired: payloadAtlas };
+        }
+        if ('zRequired' in message) {
+          let payloadAtlas;
+          const payload = message.zRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = (payloadAtlas as { $size: number }).$size;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(25n, payloadSize, false) + payloadSize, zRequired: payloadAtlas };
+        }
+        if ('aaRequired' in message) {
+          let payloadAtlas;
+          const payload = message.aaRequired;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = (payloadAtlas as { $size: number }).$size;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          return { $size: fieldHeaderSize(26n, payloadSize, false) + payloadSize, aaRequired: payloadAtlas };
+        }
+        if ('aAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.aAsymmetric;
+          payloadAtlas = 0;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(28n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('bAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.bAsymmetric;
+          if (Object.is(payload, 0)) {
+            payloadAtlas = 0;
+          } else {
+            payloadAtlas = 8;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(29n, payloadSize, false) + payloadSize + fallbackAtlas.$size, bAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('cAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.cAsymmetric;
+          if (payload === 0n) {
+            payloadAtlas = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadAtlas = varintSizeFromValue(payload);
+          } else {
+            payloadAtlas = 8;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(30n, payloadSize, true) + payloadSize + fallbackAtlas.$size, cAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('dAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.dAsymmetric;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadAtlas = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadAtlas = varintSizeFromValue(zigzag);
+            } else {
+              payloadAtlas = 8;
+            }
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(31n, payloadSize, true) + payloadSize + fallbackAtlas.$size, dAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('eAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.eAsymmetric;
+          if (payload) {
+            payloadAtlas = 1;
+          } else {
+            payloadAtlas = 0;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(32n, payloadSize, true) + payloadSize + fallbackAtlas.$size, eAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('fAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.fAsymmetric;
+          payloadAtlas = payload.byteLength;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(33n, payloadSize, false) + payloadSize + fallbackAtlas.$size, fAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('gAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.gAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(34n, payloadSize, false) + payloadSize + fallbackAtlas.$size, gAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('hAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.hAsymmetric;
+          payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(35n, payloadSize, false) + payloadSize + fallbackAtlas.$size, hAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('iAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.iAsymmetric;
+          payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(36n, payloadSize, false) + payloadSize + fallbackAtlas.$size, iAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('jAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.jAsymmetric;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadAtlas = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadAtlas = varintSizeFromValue(payload);
+              } else {
+                payloadAtlas = 8;
+              }
+            }
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(37n, payloadSize, false) + payloadSize + fallbackAtlas.$size, jAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('kAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.kAsymmetric;
+          payloadAtlas = 8 * payload.length;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(38n, payloadSize, false) + payloadSize + fallbackAtlas.$size, kAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('lAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.lAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = varintSizeFromValue(payload);
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(39n, payloadSize, false) + payloadSize + fallbackAtlas.$size, lAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('mAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.mAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(40n, payloadSize, false) + payloadSize + fallbackAtlas.$size, mAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('nAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.nAsymmetric;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = 1;
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(41n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('oAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.oAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = payload.byteLength;
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(42n, payloadSize, false) + payloadSize + fallbackAtlas.$size, oAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('pAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.pAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = textEncoder.encode(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.byteLength;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(43n, payloadSize, false) + payloadSize + fallbackAtlas.$size, pAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('qAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.qAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = (payloadAtlas as { $size: number }).$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(44n, payloadSize, false) + payloadSize + fallbackAtlas.$size, qAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('rAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.rAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = (payloadAtlas as { $size: number }).$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(45n, payloadSize, false) + payloadSize + fallbackAtlas.$size, rAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('sAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.sAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadAtlas = varintSizeFromValue(payload);
+                }
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(46n, payloadSize, false) + payloadSize + fallbackAtlas.$size, sAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('tAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.tAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = 8 * payload.length;
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(47n, payloadSize, false) + payloadSize + fallbackAtlas.$size, tAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('uAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.uAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = varintSizeFromValue(payload);
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(48n, payloadSize, false) + payloadSize + fallbackAtlas.$size, uAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('vAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.vAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(49n, payloadSize, false) + payloadSize + fallbackAtlas.$size, vAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('wAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.wAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = 1;
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(50n, payloadSize, false) + payloadSize + fallbackAtlas.$size, wAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('xAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.xAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = payload.byteLength;
+                  elements.push(payloadAtlas);
+                  const payloadSize = payloadAtlas;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(51n, payloadSize, false) + payloadSize + fallbackAtlas.$size, xAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('yAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.yAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = textEncoder.encode(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = payloadAtlas.byteLength;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(52n, payloadSize, false) + payloadSize + fallbackAtlas.$size, yAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('zAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.zAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = (payloadAtlas as { $size: number }).$size;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(53n, payloadSize, false) + payloadSize + fallbackAtlas.$size, zAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('aaAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.aaAsymmetric;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = (payloadAtlas as { $size: number }).$size;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(54n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aaAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('aOptional' in message) {
+          let payloadAtlas;
+          const payload = message.aOptional;
+          payloadAtlas = 0;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(56n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('bOptional' in message) {
+          let payloadAtlas;
+          const payload = message.bOptional;
+          if (Object.is(payload, 0)) {
+            payloadAtlas = 0;
+          } else {
+            payloadAtlas = 8;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(57n, payloadSize, false) + payloadSize + fallbackAtlas.$size, bOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('cOptional' in message) {
+          let payloadAtlas;
+          const payload = message.cOptional;
+          if (payload === 0n) {
+            payloadAtlas = 0;
+          } else if (payload < 567_382_630_219_904n) {
+            payloadAtlas = varintSizeFromValue(payload);
+          } else {
+            payloadAtlas = 8;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(58n, payloadSize, true) + payloadSize + fallbackAtlas.$size, cOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('dOptional' in message) {
+          let payloadAtlas;
+          const payload = message.dOptional;
+          {
+            const zigzag = zigzagEncode(payload);
+            if (zigzag === 0n) {
+              payloadAtlas = 0;
+            } else if (zigzag < 567_382_630_219_904n) {
+              payloadAtlas = varintSizeFromValue(zigzag);
+            } else {
+              payloadAtlas = 8;
+            }
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(59n, payloadSize, true) + payloadSize + fallbackAtlas.$size, dOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('eOptional' in message) {
+          let payloadAtlas;
+          const payload = message.eOptional;
+          if (payload) {
+            payloadAtlas = 1;
+          } else {
+            payloadAtlas = 0;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(60n, payloadSize, true) + payloadSize + fallbackAtlas.$size, eOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('fOptional' in message) {
+          let payloadAtlas;
+          const payload = message.fOptional;
+          payloadAtlas = payload.byteLength;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(61n, payloadSize, false) + payloadSize + fallbackAtlas.$size, fOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('gOptional' in message) {
+          let payloadAtlas;
+          const payload = message.gOptional;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(62n, payloadSize, false) + payloadSize + fallbackAtlas.$size, gOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('hOptional' in message) {
+          let payloadAtlas;
+          const payload = message.hOptional;
+          payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(63n, payloadSize, false) + payloadSize + fallbackAtlas.$size, hOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('iOptional' in message) {
+          let payloadAtlas;
+          const payload = message.iOptional;
+          payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(64n, payloadSize, false) + payloadSize + fallbackAtlas.$size, iOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('jOptional' in message) {
+          let payloadAtlas;
+          const payload = message.jOptional;
+          {
+            const oldPayload = payload;
+            {
+              const payload = BigInt(oldPayload.length);
+              if (payload === 0n) {
+                payloadAtlas = 0;
+              } else if (payload < 567_382_630_219_904n) {
+                payloadAtlas = varintSizeFromValue(payload);
+              } else {
+                payloadAtlas = 8;
+              }
+            }
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(65n, payloadSize, false) + payloadSize + fallbackAtlas.$size, jOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('kOptional' in message) {
+          let payloadAtlas;
+          const payload = message.kOptional;
+          payloadAtlas = 8 * payload.length;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(66n, payloadSize, false) + payloadSize + fallbackAtlas.$size, kOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('lOptional' in message) {
+          let payloadAtlas;
+          const payload = message.lOptional;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = varintSizeFromValue(payload);
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(67n, payloadSize, false) + payloadSize + fallbackAtlas.$size, lOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('mOptional' in message) {
+          let payloadAtlas;
+          const payload = message.mOptional;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(68n, payloadSize, false) + payloadSize + fallbackAtlas.$size, mOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('nOptional' in message) {
+          let payloadAtlas;
+          const payload = message.nOptional;
+          {
+            let arraySize = 0;
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas = 0;
+              payloadAtlas = 1;
+              arraySize += payloadAtlas;
+            }
+            payloadAtlas = arraySize;
+          }
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(69n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('oOptional' in message) {
+          let payloadAtlas;
+          const payload = message.oOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = payload.byteLength;
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(70n, payloadSize, false) + payloadSize + fallbackAtlas.$size, oOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('pOptional' in message) {
+          let payloadAtlas;
+          const payload = message.pOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = textEncoder.encode(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.byteLength;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(71n, payloadSize, false) + payloadSize + fallbackAtlas.$size, pOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('qOptional' in message) {
+          let payloadAtlas;
+          const payload = message.qOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = (payloadAtlas as { $size: number }).$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(72n, payloadSize, false) + payloadSize + fallbackAtlas.$size, qOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('rOptional' in message) {
+          let payloadAtlas;
+          const payload = message.rOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+              elements.push(payloadAtlas);
+              const payloadSize = (payloadAtlas as { $size: number }).$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(73n, payloadSize, false) + payloadSize + fallbackAtlas.$size, rOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('sOptional' in message) {
+          let payloadAtlas;
+          const payload = message.sOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                const oldPayload = payload;
+                {
+                  const payload = BigInt(oldPayload.length);
+                  payloadAtlas = varintSizeFromValue(payload);
+                }
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(74n, payloadSize, false) + payloadSize + fallbackAtlas.$size, sOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('tOptional' in message) {
+          let payloadAtlas;
+          const payload = message.tOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              payloadAtlas = 8 * payload.length;
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(75n, payloadSize, false) + payloadSize + fallbackAtlas.$size, tOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('uOptional' in message) {
+          let payloadAtlas;
+          const payload = message.uOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = varintSizeFromValue(payload);
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(76n, payloadSize, false) + payloadSize + fallbackAtlas.$size, uOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('vOptional' in message) {
+          let payloadAtlas;
+          const payload = message.vOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = varintSizeFromValue(zigzagEncode(payload));
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(77n, payloadSize, false) + payloadSize + fallbackAtlas.$size, vOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('wOptional' in message) {
+          let payloadAtlas;
+          const payload = message.wOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let arraySize = 0;
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas = 0;
+                  payloadAtlas = 1;
+                  arraySize += payloadAtlas;
+                }
+                payloadAtlas = arraySize;
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(78n, payloadSize, false) + payloadSize + fallbackAtlas.$size, wOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('xOptional' in message) {
+          let payloadAtlas;
+          const payload = message.xOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = payload.byteLength;
+                  elements.push(payloadAtlas);
+                  const payloadSize = payloadAtlas;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(79n, payloadSize, false) + payloadSize + fallbackAtlas.$size, xOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('yOptional' in message) {
+          let payloadAtlas;
+          const payload = message.yOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = textEncoder.encode(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = payloadAtlas.byteLength;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(80n, payloadSize, false) + payloadSize + fallbackAtlas.$size, yOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('zOptional' in message) {
+          let payloadAtlas;
+          const payload = message.zOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = Comprehensive.Types.LocalStruct.atlas(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = (payloadAtlas as { $size: number }).$size;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(81n, payloadSize, false) + payloadSize + fallbackAtlas.$size, zOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('aaOptional' in message) {
+          let payloadAtlas;
+          const payload = message.aaOptional;
+          {
+            let size = 0;
+            let elements = [];
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              let payloadAtlas;
+              {
+                let size = 0;
+                let elements = [];
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  let payloadAtlas;
+                  payloadAtlas = Degenerate.Types.EmptyStruct.atlas(payload);
+                  elements.push(payloadAtlas);
+                  const payloadSize = (payloadAtlas as { $size: number }).$size;
+                  size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+                }
+                payloadAtlas = { $size: size, $elements: elements };
+              }
+              elements.push(payloadAtlas);
+              const payloadSize = payloadAtlas.$size;
+              size += varintSizeFromValue(BigInt(payloadSize)) + payloadSize;
+            }
+            payloadAtlas = { $size: size, $elements: elements };
+          }
+          const payloadSize = payloadAtlas.$size;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(82n, payloadSize, false) + payloadSize + fallbackAtlas.$size, aaOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        return unreachable(message);
       }
 
       export function serializeWithAtlasUnsafe(
@@ -9929,1639 +9906,1636 @@ export namespace Comprehensive {
         message: BarOut,
         atlas: BarAtlas,
       ): number {
-        switch (message.$field) {
-          case 'aRequired': {
-            const payload = null;
-            const payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-            return offset;
-          }
-          case 'bRequired': {
-            const payload = message.bRequired;
-            const payloadAtlas = (atlas as any).bRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-            if (payloadAtlas !== 0) {
-              dataView.setFloat64(offset, payload, true);
-              offset += 8;
-            }
-            return offset;
-          }
-          case 'cRequired': {
-            const payload = message.cRequired;
-            const payloadAtlas = (atlas as any).cRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
-            {
-              const varint = payload;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            return offset;
-          }
-          case 'dRequired': {
-            const payload = message.dRequired;
-            const payloadAtlas = (atlas as any).dRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
-            {
-              const varint = zigzagEncode(payload);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            return offset;
-          }
-          case 'eRequired': {
-            const payload = message.eRequired;
-            const payloadAtlas = (atlas as any).eRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
-            {
-              const varint = payload ? 1n : 0n;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            return offset;
-          }
-          case 'fRequired': {
-            const payload = message.fRequired;
-            const payloadAtlas = (atlas as any).fRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
-            {
-              const sourceBuffer = new Uint8Array(payload);
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
-            }
-            return offset;
-          }
-          case 'gRequired': {
-            const payload = message.gRequired;
-            const payloadAtlas = (atlas as any).gRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
-          }
-          case 'hRequired': {
-            const payload = message.hRequired;
-            const payloadAtlas = (atlas as any).hRequired as Comprehensive.Types.LocalStructAtlas;
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            return offset;
-          }
-          case 'iRequired': {
-            const payload = message.iRequired;
-            const payloadAtlas = (atlas as any).iRequired as Degenerate.Types.EmptyStructAtlas;
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            return offset;
-          }
-          case 'jRequired': {
-            const payload = message.jRequired;
-            const payloadAtlas = (atlas as any).jRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
-            {
-              const varint = BigInt(payload.length);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            return offset;
-          }
-          case 'kRequired': {
-            const payload = message.kRequired;
-            const payloadAtlas = (atlas as any).kRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                dataView.setFloat64(offset, payload, true);
-                offset += 8;
-              }
-            }
-            return offset;
-          }
-          case 'lRequired': {
-            const payload = message.lRequired;
-            const payloadAtlas = (atlas as any).lRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            return offset;
-          }
-          case 'mRequired': {
-            const payload = message.mRequired;
-            const payloadAtlas = (atlas as any).mRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            return offset;
-          }
-          case 'nRequired': {
-            const payload = message.nRequired;
-            const payloadAtlas = (atlas as any).nRequired as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = payload ? 1n : 0n;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            return offset;
-          }
-          case 'oRequired': {
-            const payload = message.oRequired;
-            const payloadAtlas = (atlas as any).oRequired as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const sourceBuffer = new Uint8Array(payload);
-                  const targetBuffer = new Uint8Array(
-                    dataView.buffer,
-                    dataView.byteOffset,
-                    dataView.byteLength,
-                  );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
-                }
-              }
-            }
-            return offset;
-          }
-          case 'pRequired': {
-            const payload = message.pRequired;
-            const payloadAtlas = (atlas as any).pRequired as { $size: number; $elements: Uint8Array[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
-                {
-                  const targetBuffer = new Uint8Array(
-                    dataView.buffer,
-                    dataView.byteOffset,
-                    dataView.byteLength,
-                  );
-                  targetBuffer.set(payloadAtlas, offset);
-                  offset += payloadAtlas.byteLength;
-                }
-              }
-            }
-            return offset;
-          }
-          case 'qRequired': {
-            const payload = message.qRequired;
-            const payloadAtlas = (atlas as any).qRequired as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-              }
-            }
-            return offset;
-          }
-          case 'rRequired': {
-            const payload = message.rRequired;
-            const payloadAtlas = (atlas as any).rRequired as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-              }
-            }
-            return offset;
-          }
-          case 'sRequired': {
-            const payload = message.sRequired;
-            const payloadAtlas = (atlas as any).sRequired as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const varint = BigInt(payload.length);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            return offset;
-          }
-          case 'tRequired': {
-            const payload = message.tRequired;
-            const payloadAtlas = (atlas as any).tRequired as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    dataView.setFloat64(offset, payload, true);
-                    offset += 8;
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'uRequired': {
-            const payload = message.uRequired;
-            const payloadAtlas = (atlas as any).uRequired as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = payload;
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'vRequired': {
-            const payload = message.vRequired;
-            const payloadAtlas = (atlas as any).vRequired as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = zigzagEncode(payload);
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'wRequired': {
-            const payload = message.wRequired;
-            const payloadAtlas = (atlas as any).wRequired as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = payload ? 1n : 0n;
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'xRequired': {
-            const payload = message.xRequired;
-            const payloadAtlas = (atlas as any).xRequired as { $size: number; $elements: { $size: number; $elements: number[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                    {
-                      const sourceBuffer = new Uint8Array(payload);
-                      const targetBuffer = new Uint8Array(
-                        dataView.buffer,
-                        dataView.byteOffset,
-                        dataView.byteLength,
-                      );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
-                    }
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'yRequired': {
-            const payload = message.yRequired;
-            const payloadAtlas = (atlas as any).yRequired as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
-                    {
-                      const targetBuffer = new Uint8Array(
-                        dataView.buffer,
-                        dataView.byteOffset,
-                        dataView.byteLength,
-                      );
-                      targetBuffer.set(payloadAtlas, offset);
-                      offset += payloadAtlas.byteLength;
-                    }
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'zRequired': {
-            const payload = message.zRequired;
-            const payloadAtlas = (atlas as any).zRequired as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'aaRequired': {
-            const payload = message.aaRequired;
-            const payloadAtlas = (atlas as any).aaRequired as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-                  }
-                }
-              }
-            }
-            return offset;
-          }
-          case 'aAsymmetric': {
-            const payload = null;
-            const payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'bAsymmetric': {
-            const payload = message.bAsymmetric;
-            const payloadAtlas = (atlas as any).bAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
-            if (payloadAtlas !== 0) {
-              dataView.setFloat64(offset, payload, true);
-              offset += 8;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'cAsymmetric': {
-            const payload = message.cAsymmetric;
-            const payloadAtlas = (atlas as any).cAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
-            {
-              const varint = payload;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'dAsymmetric': {
-            const payload = message.dAsymmetric;
-            const payloadAtlas = (atlas as any).dAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
-            {
-              const varint = zigzagEncode(payload);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'eAsymmetric': {
-            const payload = message.eAsymmetric;
-            const payloadAtlas = (atlas as any).eAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
-            {
-              const varint = payload ? 1n : 0n;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'fAsymmetric': {
-            const payload = message.fAsymmetric;
-            const payloadAtlas = (atlas as any).fAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
-            {
-              const sourceBuffer = new Uint8Array(payload);
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'gAsymmetric': {
-            const payload = message.gAsymmetric;
-            const payloadAtlas = (atlas as any).gAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'hAsymmetric': {
-            const payload = message.hAsymmetric;
-            const payloadAtlas = (atlas as any).hAsymmetric as Comprehensive.Types.LocalStructAtlas;
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'iAsymmetric': {
-            const payload = message.iAsymmetric;
-            const payloadAtlas = (atlas as any).iAsymmetric as Degenerate.Types.EmptyStructAtlas;
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'jAsymmetric': {
-            const payload = message.jAsymmetric;
-            const payloadAtlas = (atlas as any).jAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
-            {
-              const varint = BigInt(payload.length);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'kAsymmetric': {
-            const payload = message.kAsymmetric;
-            const payloadAtlas = (atlas as any).kAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                dataView.setFloat64(offset, payload, true);
-                offset += 8;
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'lAsymmetric': {
-            const payload = message.lAsymmetric;
-            const payloadAtlas = (atlas as any).lAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'mAsymmetric': {
-            const payload = message.mAsymmetric;
-            const payloadAtlas = (atlas as any).mAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'nAsymmetric': {
-            const payload = message.nAsymmetric;
-            const payloadAtlas = (atlas as any).nAsymmetric as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = payload ? 1n : 0n;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'oAsymmetric': {
-            const payload = message.oAsymmetric;
-            const payloadAtlas = (atlas as any).oAsymmetric as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const sourceBuffer = new Uint8Array(payload);
-                  const targetBuffer = new Uint8Array(
-                    dataView.buffer,
-                    dataView.byteOffset,
-                    dataView.byteLength,
-                  );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'pAsymmetric': {
-            const payload = message.pAsymmetric;
-            const payloadAtlas = (atlas as any).pAsymmetric as { $size: number; $elements: Uint8Array[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
-                {
-                  const targetBuffer = new Uint8Array(
-                    dataView.buffer,
-                    dataView.byteOffset,
-                    dataView.byteLength,
-                  );
-                  targetBuffer.set(payloadAtlas, offset);
-                  offset += payloadAtlas.byteLength;
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'qAsymmetric': {
-            const payload = message.qAsymmetric;
-            const payloadAtlas = (atlas as any).qAsymmetric as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'rAsymmetric': {
-            const payload = message.rAsymmetric;
-            const payloadAtlas = (atlas as any).rAsymmetric as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'sAsymmetric': {
-            const payload = message.sAsymmetric;
-            const payloadAtlas = (atlas as any).sAsymmetric as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const varint = BigInt(payload.length);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'tAsymmetric': {
-            const payload = message.tAsymmetric;
-            const payloadAtlas = (atlas as any).tAsymmetric as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    dataView.setFloat64(offset, payload, true);
-                    offset += 8;
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'uAsymmetric': {
-            const payload = message.uAsymmetric;
-            const payloadAtlas = (atlas as any).uAsymmetric as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = payload;
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'vAsymmetric': {
-            const payload = message.vAsymmetric;
-            const payloadAtlas = (atlas as any).vAsymmetric as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = zigzagEncode(payload);
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'wAsymmetric': {
-            const payload = message.wAsymmetric;
-            const payloadAtlas = (atlas as any).wAsymmetric as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = payload ? 1n : 0n;
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'xAsymmetric': {
-            const payload = message.xAsymmetric;
-            const payloadAtlas = (atlas as any).xAsymmetric as { $size: number; $elements: { $size: number; $elements: number[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                    {
-                      const sourceBuffer = new Uint8Array(payload);
-                      const targetBuffer = new Uint8Array(
-                        dataView.buffer,
-                        dataView.byteOffset,
-                        dataView.byteLength,
-                      );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'yAsymmetric': {
-            const payload = message.yAsymmetric;
-            const payloadAtlas = (atlas as any).yAsymmetric as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
-                    {
-                      const targetBuffer = new Uint8Array(
-                        dataView.buffer,
-                        dataView.byteOffset,
-                        dataView.byteLength,
-                      );
-                      targetBuffer.set(payloadAtlas, offset);
-                      offset += payloadAtlas.byteLength;
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'zAsymmetric': {
-            const payload = message.zAsymmetric;
-            const payloadAtlas = (atlas as any).zAsymmetric as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'aaAsymmetric': {
-            const payload = message.aaAsymmetric;
-            const payloadAtlas = (atlas as any).aaAsymmetric as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'aOptional': {
-            const payload = null;
-            const payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'bOptional': {
-            const payload = message.bOptional;
-            const payloadAtlas = (atlas as any).bOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
-            if (payloadAtlas !== 0) {
-              dataView.setFloat64(offset, payload, true);
-              offset += 8;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'cOptional': {
-            const payload = message.cOptional;
-            const payloadAtlas = (atlas as any).cOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
-            {
-              const varint = payload;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'dOptional': {
-            const payload = message.dOptional;
-            const payloadAtlas = (atlas as any).dOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
-            {
-              const varint = zigzagEncode(payload);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'eOptional': {
-            const payload = message.eOptional;
-            const payloadAtlas = (atlas as any).eOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
-            {
-              const varint = payload ? 1n : 0n;
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'fOptional': {
-            const payload = message.fOptional;
-            const payloadAtlas = (atlas as any).fOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
-            {
-              const sourceBuffer = new Uint8Array(payload);
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(sourceBuffer, offset);
-              offset += sourceBuffer.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'gOptional': {
-            const payload = message.gOptional;
-            const payloadAtlas = (atlas as any).gOptional as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'hOptional': {
-            const payload = message.hOptional;
-            const payloadAtlas = (atlas as any).hOptional as Comprehensive.Types.LocalStructAtlas;
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
-            offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'iOptional': {
-            const payload = message.iOptional;
-            const payloadAtlas = (atlas as any).iOptional as Degenerate.Types.EmptyStructAtlas;
-            const payloadSize = (payloadAtlas as { $size: number }).$size;
-            offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
-            offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'jOptional': {
-            const payload = message.jOptional;
-            const payloadAtlas = (atlas as any).jOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
-            {
-              const varint = BigInt(payload.length);
-              if (varint > 567_382_630_219_903n) {
-                dataView.setBigUint64(offset, varint, true);
-                offset += 8;
-              } else if (varint !== 0n) {
-                offset = serializeVarint(dataView, offset, varint);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'kOptional': {
-            const payload = message.kOptional;
-            const payloadAtlas = (atlas as any).kOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                dataView.setFloat64(offset, payload, true);
-                offset += 8;
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'lOptional': {
-            const payload = message.lOptional;
-            const payloadAtlas = (atlas as any).lOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = payload;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'mOptional': {
-            const payload = message.mOptional;
-            const payloadAtlas = (atlas as any).mOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = zigzagEncode(payload);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'nOptional': {
-            const payload = message.nOptional;
-            const payloadAtlas = (atlas as any).nOptional as number;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                {
-                  const varint = payload ? 1n : 0n;
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'oOptional': {
-            const payload = message.oOptional;
-            const payloadAtlas = (atlas as any).oOptional as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const sourceBuffer = new Uint8Array(payload);
-                  const targetBuffer = new Uint8Array(
-                    dataView.buffer,
-                    dataView.byteOffset,
-                    dataView.byteLength,
-                  );
-                  targetBuffer.set(sourceBuffer, offset);
-                  offset += sourceBuffer.byteLength;
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'pOptional': {
-            const payload = message.pOptional;
-            const payloadAtlas = (atlas as any).pOptional as { $size: number; $elements: Uint8Array[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
-                {
-                  const targetBuffer = new Uint8Array(
-                    dataView.buffer,
-                    dataView.byteOffset,
-                    dataView.byteLength,
-                  );
-                  targetBuffer.set(payloadAtlas, offset);
-                  offset += payloadAtlas.byteLength;
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'qOptional': {
-            const payload = message.qOptional;
-            const payloadAtlas = (atlas as any).qOptional as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'rOptional': {
-            const payload = message.rOptional;
-            const payloadAtlas = (atlas as any).rOptional as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'sOptional': {
-            const payload = message.sOptional;
-            const payloadAtlas = (atlas as any).sOptional as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const varint = BigInt(payload.length);
-                  offset = serializeVarint(dataView, offset, varint);
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'tOptional': {
-            const payload = message.tOptional;
-            const payloadAtlas = (atlas as any).tOptional as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    dataView.setFloat64(offset, payload, true);
-                    offset += 8;
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'uOptional': {
-            const payload = message.uOptional;
-            const payloadAtlas = (atlas as any).uOptional as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = payload;
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'vOptional': {
-            const payload = message.vOptional;
-            const payloadAtlas = (atlas as any).vOptional as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = zigzagEncode(payload);
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'wOptional': {
-            const payload = message.wOptional;
-            const payloadAtlas = (atlas as any).wOptional as { $size: number; $elements: number[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                {
-                  const oldPayload = payload;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    {
-                      const varint = payload ? 1n : 0n;
-                      offset = serializeVarint(dataView, offset, varint);
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'xOptional': {
-            const payload = message.xOptional;
-            const payloadAtlas = (atlas as any).xOptional as { $size: number; $elements: { $size: number; $elements: number[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
-                    {
-                      const sourceBuffer = new Uint8Array(payload);
-                      const targetBuffer = new Uint8Array(
-                        dataView.buffer,
-                        dataView.byteOffset,
-                        dataView.byteLength,
-                      );
-                      targetBuffer.set(sourceBuffer, offset);
-                      offset += sourceBuffer.byteLength;
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'yOptional': {
-            const payload = message.yOptional;
-            const payloadAtlas = (atlas as any).yOptional as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
-                    {
-                      const targetBuffer = new Uint8Array(
-                        dataView.buffer,
-                        dataView.byteOffset,
-                        dataView.byteLength,
-                      );
-                      targetBuffer.set(payloadAtlas, offset);
-                      offset += payloadAtlas.byteLength;
-                    }
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'zOptional': {
-            const payload = message.zOptional;
-            const payloadAtlas = (atlas as any).zOptional as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          case 'aaOptional': {
-            const payload = message.aaOptional;
-            const payloadAtlas = (atlas as any).aaOptional as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
-            const payloadSize = payloadAtlas.$size;
-            offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
-            {
-              const oldPayload = payload;
-              const oldPayloadAtlas = payloadAtlas;
-              for (let i = 0; i < oldPayload.length; i += 1) {
-                const payload = oldPayload[i];
-                const payloadAtlas = oldPayloadAtlas.$elements[i];
-                offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
-                {
-                  const oldPayload = payload;
-                  const oldPayloadAtlas = payloadAtlas;
-                  for (let i = 0; i < oldPayload.length; i += 1) {
-                    const payload = oldPayload[i];
-                    const payloadAtlas = oldPayloadAtlas.$elements[i];
-                    offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
-                    offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
-                  }
-                }
-              }
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
-            return offset;
-          }
-          default:
-            return unreachable(message);
+        if ('aRequired' in message) {
+          const payload = message.aRequired;
+          const payloadAtlas = (atlas as any).aRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          return offset;
         }
+        if ('bRequired' in message) {
+          const payload = message.bRequired;
+          const payloadAtlas = (atlas as any).bRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          if (payloadAtlas !== 0) {
+            dataView.setFloat64(offset, payload, true);
+            offset += 8;
+          }
+          return offset;
+        }
+        if ('cRequired' in message) {
+          const payload = message.cRequired;
+          const payloadAtlas = (atlas as any).cRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          return offset;
+        }
+        if ('dRequired' in message) {
+          const payload = message.dRequired;
+          const payloadAtlas = (atlas as any).dRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          return offset;
+        }
+        if ('eRequired' in message) {
+          const payload = message.eRequired;
+          const payloadAtlas = (atlas as any).eRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, true);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          return offset;
+        }
+        if ('fRequired' in message) {
+          const payload = message.fRequired;
+          const payloadAtlas = (atlas as any).fRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const sourceBuffer = new Uint8Array(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
+          }
+          return offset;
+        }
+        if ('gRequired' in message) {
+          const payload = message.gRequired;
+          const payloadAtlas = (atlas as any).gRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          return offset;
+        }
+        if ('hRequired' in message) {
+          const payload = message.hRequired;
+          const payloadAtlas = (atlas as any).hRequired as Comprehensive.Types.LocalStructAtlas;
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+          return offset;
+        }
+        if ('iRequired' in message) {
+          const payload = message.iRequired;
+          const payloadAtlas = (atlas as any).iRequired as Degenerate.Types.EmptyStructAtlas;
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+          return offset;
+        }
+        if ('jRequired' in message) {
+          const payload = message.jRequired;
+          const payloadAtlas = (atlas as any).jRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          {
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          return offset;
+        }
+        if ('kRequired' in message) {
+          const payload = message.kRequired;
+          const payloadAtlas = (atlas as any).kRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              dataView.setFloat64(offset, payload, true);
+              offset += 8;
+            }
+          }
+          return offset;
+        }
+        if ('lRequired' in message) {
+          const payload = message.lRequired;
+          const payloadAtlas = (atlas as any).lRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          return offset;
+        }
+        if ('mRequired' in message) {
+          const payload = message.mRequired;
+          const payloadAtlas = (atlas as any).mRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          return offset;
+        }
+        if ('nRequired' in message) {
+          const payload = message.nRequired;
+          const payloadAtlas = (atlas as any).nRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          return offset;
+        }
+        if ('oRequired' in message) {
+          const payload = message.oRequired;
+          const payloadAtlas = (atlas as any).oRequired as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const sourceBuffer = new Uint8Array(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
+              }
+            }
+          }
+          return offset;
+        }
+        if ('pRequired' in message) {
+          const payload = message.pRequired;
+          const payloadAtlas = (atlas as any).pRequired as { $size: number; $elements: Uint8Array[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 15n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
+              {
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(payloadAtlas, offset);
+                offset += payloadAtlas.byteLength;
+              }
+            }
+          }
+          return offset;
+        }
+        if ('qRequired' in message) {
+          const payload = message.qRequired;
+          const payloadAtlas = (atlas as any).qRequired as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 16n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+              offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+            }
+          }
+          return offset;
+        }
+        if ('rRequired' in message) {
+          const payload = message.rRequired;
+          const payloadAtlas = (atlas as any).rRequired as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 17n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+              offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+            }
+          }
+          return offset;
+        }
+        if ('sRequired' in message) {
+          const payload = message.sRequired;
+          const payloadAtlas = (atlas as any).sRequired as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 18n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const varint = BigInt(payload.length);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          return offset;
+        }
+        if ('tRequired' in message) {
+          const payload = message.tRequired;
+          const payloadAtlas = (atlas as any).tRequired as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 19n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  dataView.setFloat64(offset, payload, true);
+                  offset += 8;
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('uRequired' in message) {
+          const payload = message.uRequired;
+          const payloadAtlas = (atlas as any).uRequired as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 20n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = payload;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('vRequired' in message) {
+          const payload = message.vRequired;
+          const payloadAtlas = (atlas as any).vRequired as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 21n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = zigzagEncode(payload);
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('wRequired' in message) {
+          const payload = message.wRequired;
+          const payloadAtlas = (atlas as any).wRequired as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 22n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = payload ? 1n : 0n;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('xRequired' in message) {
+          const payload = message.xRequired;
+          const payloadAtlas = (atlas as any).xRequired as { $size: number; $elements: { $size: number; $elements: number[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 23n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                  {
+                    const sourceBuffer = new Uint8Array(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('yRequired' in message) {
+          const payload = message.yRequired;
+          const payloadAtlas = (atlas as any).yRequired as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 24n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
+                  {
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(payloadAtlas, offset);
+                    offset += payloadAtlas.byteLength;
+                  }
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('zRequired' in message) {
+          const payload = message.zRequired;
+          const payloadAtlas = (atlas as any).zRequired as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 25n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+                  offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('aaRequired' in message) {
+          const payload = message.aaRequired;
+          const payloadAtlas = (atlas as any).aaRequired as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 26n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+                  offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+                }
+              }
+            }
+          }
+          return offset;
+        }
+        if ('aAsymmetric' in message) {
+          const payload = message.aAsymmetric;
+          const payloadAtlas = (atlas as any).aAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 28n, payloadSize, false);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('bAsymmetric' in message) {
+          const payload = message.bAsymmetric;
+          const payloadAtlas = (atlas as any).bAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 29n, payloadSize, false);
+          if (payloadAtlas !== 0) {
+            dataView.setFloat64(offset, payload, true);
+            offset += 8;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('cAsymmetric' in message) {
+          const payload = message.cAsymmetric;
+          const payloadAtlas = (atlas as any).cAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 30n, payloadSize, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('dAsymmetric' in message) {
+          const payload = message.dAsymmetric;
+          const payloadAtlas = (atlas as any).dAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 31n, payloadSize, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('eAsymmetric' in message) {
+          const payload = message.eAsymmetric;
+          const payloadAtlas = (atlas as any).eAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 32n, payloadSize, true);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('fAsymmetric' in message) {
+          const payload = message.fAsymmetric;
+          const payloadAtlas = (atlas as any).fAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 33n, payloadSize, false);
+          {
+            const sourceBuffer = new Uint8Array(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('gAsymmetric' in message) {
+          const payload = message.gAsymmetric;
+          const payloadAtlas = (atlas as any).gAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('hAsymmetric' in message) {
+          const payload = message.hAsymmetric;
+          const payloadAtlas = (atlas as any).hAsymmetric as Comprehensive.Types.LocalStructAtlas;
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          offset = serializeFieldHeader(dataView, offset, 35n, payloadSize, false);
+          offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('iAsymmetric' in message) {
+          const payload = message.iAsymmetric;
+          const payloadAtlas = (atlas as any).iAsymmetric as Degenerate.Types.EmptyStructAtlas;
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          offset = serializeFieldHeader(dataView, offset, 36n, payloadSize, false);
+          offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('jAsymmetric' in message) {
+          const payload = message.jAsymmetric;
+          const payloadAtlas = (atlas as any).jAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 37n, payloadSize, false);
+          {
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('kAsymmetric' in message) {
+          const payload = message.kAsymmetric;
+          const payloadAtlas = (atlas as any).kAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 38n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              dataView.setFloat64(offset, payload, true);
+              offset += 8;
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('lAsymmetric' in message) {
+          const payload = message.lAsymmetric;
+          const payloadAtlas = (atlas as any).lAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 39n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('mAsymmetric' in message) {
+          const payload = message.mAsymmetric;
+          const payloadAtlas = (atlas as any).mAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 40n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('nAsymmetric' in message) {
+          const payload = message.nAsymmetric;
+          const payloadAtlas = (atlas as any).nAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 41n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('oAsymmetric' in message) {
+          const payload = message.oAsymmetric;
+          const payloadAtlas = (atlas as any).oAsymmetric as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 42n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const sourceBuffer = new Uint8Array(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('pAsymmetric' in message) {
+          const payload = message.pAsymmetric;
+          const payloadAtlas = (atlas as any).pAsymmetric as { $size: number; $elements: Uint8Array[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 43n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
+              {
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(payloadAtlas, offset);
+                offset += payloadAtlas.byteLength;
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('qAsymmetric' in message) {
+          const payload = message.qAsymmetric;
+          const payloadAtlas = (atlas as any).qAsymmetric as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 44n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+              offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('rAsymmetric' in message) {
+          const payload = message.rAsymmetric;
+          const payloadAtlas = (atlas as any).rAsymmetric as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 45n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+              offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('sAsymmetric' in message) {
+          const payload = message.sAsymmetric;
+          const payloadAtlas = (atlas as any).sAsymmetric as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 46n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const varint = BigInt(payload.length);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('tAsymmetric' in message) {
+          const payload = message.tAsymmetric;
+          const payloadAtlas = (atlas as any).tAsymmetric as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 47n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  dataView.setFloat64(offset, payload, true);
+                  offset += 8;
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('uAsymmetric' in message) {
+          const payload = message.uAsymmetric;
+          const payloadAtlas = (atlas as any).uAsymmetric as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 48n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = payload;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('vAsymmetric' in message) {
+          const payload = message.vAsymmetric;
+          const payloadAtlas = (atlas as any).vAsymmetric as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 49n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = zigzagEncode(payload);
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('wAsymmetric' in message) {
+          const payload = message.wAsymmetric;
+          const payloadAtlas = (atlas as any).wAsymmetric as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 50n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = payload ? 1n : 0n;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('xAsymmetric' in message) {
+          const payload = message.xAsymmetric;
+          const payloadAtlas = (atlas as any).xAsymmetric as { $size: number; $elements: { $size: number; $elements: number[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 51n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                  {
+                    const sourceBuffer = new Uint8Array(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('yAsymmetric' in message) {
+          const payload = message.yAsymmetric;
+          const payloadAtlas = (atlas as any).yAsymmetric as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 52n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
+                  {
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(payloadAtlas, offset);
+                    offset += payloadAtlas.byteLength;
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('zAsymmetric' in message) {
+          const payload = message.zAsymmetric;
+          const payloadAtlas = (atlas as any).zAsymmetric as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 53n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+                  offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('aaAsymmetric' in message) {
+          const payload = message.aaAsymmetric;
+          const payloadAtlas = (atlas as any).aaAsymmetric as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 54n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+                  offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('aOptional' in message) {
+          const payload = message.aOptional;
+          const payloadAtlas = (atlas as any).aOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 56n, payloadSize, false);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('bOptional' in message) {
+          const payload = message.bOptional;
+          const payloadAtlas = (atlas as any).bOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 57n, payloadSize, false);
+          if (payloadAtlas !== 0) {
+            dataView.setFloat64(offset, payload, true);
+            offset += 8;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('cOptional' in message) {
+          const payload = message.cOptional;
+          const payloadAtlas = (atlas as any).cOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 58n, payloadSize, true);
+          {
+            const varint = payload;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('dOptional' in message) {
+          const payload = message.dOptional;
+          const payloadAtlas = (atlas as any).dOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 59n, payloadSize, true);
+          {
+            const varint = zigzagEncode(payload);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('eOptional' in message) {
+          const payload = message.eOptional;
+          const payloadAtlas = (atlas as any).eOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 60n, payloadSize, true);
+          {
+            const varint = payload ? 1n : 0n;
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('fOptional' in message) {
+          const payload = message.fOptional;
+          const payloadAtlas = (atlas as any).fOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 61n, payloadSize, false);
+          {
+            const sourceBuffer = new Uint8Array(payload);
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(sourceBuffer, offset);
+            offset += sourceBuffer.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('gOptional' in message) {
+          const payload = message.gOptional;
+          const payloadAtlas = (atlas as any).gOptional as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('hOptional' in message) {
+          const payload = message.hOptional;
+          const payloadAtlas = (atlas as any).hOptional as Comprehensive.Types.LocalStructAtlas;
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          offset = serializeFieldHeader(dataView, offset, 63n, payloadSize, false);
+          offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('iOptional' in message) {
+          const payload = message.iOptional;
+          const payloadAtlas = (atlas as any).iOptional as Degenerate.Types.EmptyStructAtlas;
+          const payloadSize = (payloadAtlas as { $size: number }).$size;
+          offset = serializeFieldHeader(dataView, offset, 64n, payloadSize, false);
+          offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('jOptional' in message) {
+          const payload = message.jOptional;
+          const payloadAtlas = (atlas as any).jOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 65n, payloadSize, false);
+          {
+            const varint = BigInt(payload.length);
+            if (varint > 567_382_630_219_903n) {
+              dataView.setBigUint64(offset, varint, true);
+              offset += 8;
+            } else if (varint !== 0n) {
+              offset = serializeVarint(dataView, offset, varint);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('kOptional' in message) {
+          const payload = message.kOptional;
+          const payloadAtlas = (atlas as any).kOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 66n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              dataView.setFloat64(offset, payload, true);
+              offset += 8;
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('lOptional' in message) {
+          const payload = message.lOptional;
+          const payloadAtlas = (atlas as any).lOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 67n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = payload;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('mOptional' in message) {
+          const payload = message.mOptional;
+          const payloadAtlas = (atlas as any).mOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 68n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = zigzagEncode(payload);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('nOptional' in message) {
+          const payload = message.nOptional;
+          const payloadAtlas = (atlas as any).nOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 69n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              {
+                const varint = payload ? 1n : 0n;
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('oOptional' in message) {
+          const payload = message.oOptional;
+          const payloadAtlas = (atlas as any).oOptional as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 70n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const sourceBuffer = new Uint8Array(payload);
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(sourceBuffer, offset);
+                offset += sourceBuffer.byteLength;
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('pOptional' in message) {
+          const payload = message.pOptional;
+          const payloadAtlas = (atlas as any).pOptional as { $size: number; $elements: Uint8Array[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 71n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
+              {
+                const targetBuffer = new Uint8Array(
+                  dataView.buffer,
+                  dataView.byteOffset,
+                  dataView.byteLength,
+                );
+                targetBuffer.set(payloadAtlas, offset);
+                offset += payloadAtlas.byteLength;
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('qOptional' in message) {
+          const payload = message.qOptional;
+          const payloadAtlas = (atlas as any).qOptional as { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 72n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+              offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('rOptional' in message) {
+          const payload = message.rOptional;
+          const payloadAtlas = (atlas as any).rOptional as { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 73n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+              offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('sOptional' in message) {
+          const payload = message.sOptional;
+          const payloadAtlas = (atlas as any).sOptional as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 74n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const varint = BigInt(payload.length);
+                offset = serializeVarint(dataView, offset, varint);
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('tOptional' in message) {
+          const payload = message.tOptional;
+          const payloadAtlas = (atlas as any).tOptional as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 75n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  dataView.setFloat64(offset, payload, true);
+                  offset += 8;
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('uOptional' in message) {
+          const payload = message.uOptional;
+          const payloadAtlas = (atlas as any).uOptional as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 76n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = payload;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('vOptional' in message) {
+          const payload = message.vOptional;
+          const payloadAtlas = (atlas as any).vOptional as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 77n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = zigzagEncode(payload);
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('wOptional' in message) {
+          const payload = message.wOptional;
+          const payloadAtlas = (atlas as any).wOptional as { $size: number; $elements: number[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 78n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+              {
+                const oldPayload = payload;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  {
+                    const varint = payload ? 1n : 0n;
+                    offset = serializeVarint(dataView, offset, varint);
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('xOptional' in message) {
+          const payload = message.xOptional;
+          const payloadAtlas = (atlas as any).xOptional as { $size: number; $elements: { $size: number; $elements: number[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 79n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas));
+                  {
+                    const sourceBuffer = new Uint8Array(payload);
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(sourceBuffer, offset);
+                    offset += sourceBuffer.byteLength;
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('yOptional' in message) {
+          const payload = message.yOptional;
+          const payloadAtlas = (atlas as any).yOptional as { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 80n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
+                  {
+                    const targetBuffer = new Uint8Array(
+                      dataView.buffer,
+                      dataView.byteOffset,
+                      dataView.byteLength,
+                    );
+                    targetBuffer.set(payloadAtlas, offset);
+                    offset += payloadAtlas.byteLength;
+                  }
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('zOptional' in message) {
+          const payload = message.zOptional;
+          const payloadAtlas = (atlas as any).zOptional as { $size: number; $elements: { $size: number; $elements: Comprehensive.Types.LocalStructAtlas[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 81n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+                  offset = Comprehensive.Types.LocalStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        if ('aaOptional' in message) {
+          const payload = message.aaOptional;
+          const payloadAtlas = (atlas as any).aaOptional as { $size: number; $elements: { $size: number; $elements: Degenerate.Types.EmptyStructAtlas[] }[] };
+          const payloadSize = payloadAtlas.$size;
+          offset = serializeFieldHeader(dataView, offset, 82n, payloadSize, false);
+          {
+            const oldPayload = payload;
+            const oldPayloadAtlas = payloadAtlas;
+            for (let i = 0; i < oldPayload.length; i += 1) {
+              const payload = oldPayload[i];
+              const payloadAtlas = oldPayloadAtlas.$elements[i];
+              offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.$size));
+              {
+                const oldPayload = payload;
+                const oldPayloadAtlas = payloadAtlas;
+                for (let i = 0; i < oldPayload.length; i += 1) {
+                  const payload = oldPayload[i];
+                  const payloadAtlas = oldPayloadAtlas.$elements[i];
+                  offset = serializeVarint(dataView, offset, BigInt((payloadAtlas as { $size: number }).$size));
+                  offset = Degenerate.Types.EmptyStruct.serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);
+                }
+              }
+            }
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as BarAtlas);
+          return offset;
+        }
+        return unreachable(message);
       }
 
       export function deserializeUnsafe(dataView: DataView): BarIn {
@@ -11585,6 +11559,7 @@ export namespace Comprehensive {
               let payload = null;
               return {
                 $field: 'aRequired',
+                aRequired: payload,
               };
             }
             case 1n: {
@@ -12732,6 +12707,7 @@ export namespace Comprehensive {
               let payload = null;
               return {
                 $field: 'aAsymmetric',
+                aAsymmetric: payload,
               };
             }
             case 29n: {
@@ -13887,6 +13863,7 @@ export namespace Comprehensive {
               );
               return {
                 $field: 'aOptional',
+                aOptional: payload,
                 $fallback,
               };
             }
@@ -15301,10 +15278,6 @@ export namespace Degenerate {
         }
       }
 
-      export function outToIn(message: EmptyStructOut): EmptyStructIn {
-        return message;
-      }
-
       export function atlas(message: EmptyStructOut): EmptyStructAtlas {
         let size = 0;
 
@@ -15377,10 +15350,6 @@ export namespace Degenerate {
         } catch (e) {
           return e as Error;
         }
-      }
-
-      export function outToIn(message: EmptyChoiceOut): EmptyChoiceIn {
-        return message;
       }
 
       export function atlas(message: EmptyChoiceOut): EmptyChoiceAtlas {
@@ -15480,10 +15449,6 @@ export namespace SchemaEvolution {
         } catch (e) {
           return e as Error;
         }
-      }
-
-      export function outToIn(message: ExampleStructOut): ExampleStructIn {
-        return message;
       }
 
       export function atlas(message: ExampleStructOut): ExampleStructAtlas {
@@ -16045,30 +16010,30 @@ export namespace SchemaEvolution {
     }
 
     export type ExampleChoiceAtlas =
-      | { $field: 'requiredToRequired'; $size: number; requiredToRequired: Uint8Array }
-      | { $field: 'requiredToAsymmetric'; $size: number; requiredToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToRequired'; $size: number; asymmetricToRequired: Uint8Array }
-      | { $field: 'asymmetricToAsymmetric'; $size: number; asymmetricToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToOptional'; $size: number; asymmetricToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToRequired'; $size: number; optionalToRequired: Uint8Array }
-      | { $field: 'optionalToAsymmetric'; $size: number; optionalToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToOptional'; $size: number; optionalToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'nonexistentToRequired'; $size: number; nonexistentToRequired: number }
-      | { $field: 'nonexistentToAsymmetric'; $size: number; nonexistentToAsymmetric: number; $fallback: ExampleChoiceAtlas }
-      | { $field: 'nonexistentToOptional'; $size: number; nonexistentToOptional: number; $fallback: ExampleChoiceAtlas };
+      | { $size: number; requiredToRequired: Uint8Array }
+      | { $size: number; requiredToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; asymmetricToRequired: Uint8Array }
+      | { $size: number; asymmetricToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; asymmetricToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; optionalToRequired: Uint8Array }
+      | { $size: number; optionalToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; optionalToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; nonexistentToRequired: number }
+      | { $size: number; nonexistentToAsymmetric: number; $fallback: ExampleChoiceAtlas }
+      | { $size: number; nonexistentToOptional: number; $fallback: ExampleChoiceAtlas };
 
     export type ExampleChoiceOut =
-      | { $field: 'requiredToRequired'; requiredToRequired: string }
-      | { $field: 'requiredToAsymmetric'; requiredToAsymmetric: string; $fallback: ExampleChoiceOut }
-      | { $field: 'asymmetricToRequired'; asymmetricToRequired: string }
-      | { $field: 'asymmetricToAsymmetric'; asymmetricToAsymmetric: string; $fallback: ExampleChoiceOut }
-      | { $field: 'asymmetricToOptional'; asymmetricToOptional: string; $fallback: ExampleChoiceOut }
-      | { $field: 'optionalToRequired'; optionalToRequired: string }
-      | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string; $fallback: ExampleChoiceOut }
-      | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceOut }
-      | { $field: 'nonexistentToRequired' }
-      | { $field: 'nonexistentToAsymmetric'; $fallback: ExampleChoiceOut }
-      | { $field: 'nonexistentToOptional'; $fallback: ExampleChoiceOut };
+      | { requiredToRequired: string }
+      | { requiredToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { asymmetricToRequired: string }
+      | { asymmetricToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { asymmetricToOptional: string; $fallback: ExampleChoiceOut }
+      | { optionalToRequired: string }
+      | { optionalToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { optionalToOptional: string; $fallback: ExampleChoiceOut }
+      | { nonexistentToRequired: null }
+      | { nonexistentToAsymmetric: null; $fallback: ExampleChoiceOut }
+      | { nonexistentToOptional: null; $fallback: ExampleChoiceOut };
 
     export type ExampleChoiceIn =
       | { $field: 'requiredToRequired'; requiredToRequired: string }
@@ -16079,9 +16044,9 @@ export namespace SchemaEvolution {
       | { $field: 'optionalToRequired'; optionalToRequired: string }
       | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string }
       | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceIn }
-      | { $field: 'nonexistentToRequired' }
-      | { $field: 'nonexistentToAsymmetric' }
-      | { $field: 'nonexistentToOptional'; $fallback: ExampleChoiceIn };
+      | { $field: 'nonexistentToRequired'; nonexistentToRequired: null }
+      | { $field: 'nonexistentToAsymmetric'; nonexistentToAsymmetric: null }
+      | { $field: 'nonexistentToOptional'; nonexistentToOptional: null; $fallback: ExampleChoiceIn };
 
     export namespace ExampleChoice {
       export function size(message: ExampleChoiceOut): number {
@@ -16104,99 +16069,92 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function outToIn(message: ExampleChoiceOut): ExampleChoiceIn {
-        return message;
-      }
-
       export function atlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
-        switch (message.$field) {
-          case 'requiredToRequired': {
-            let payloadAtlas;
-            const payload = message.requiredToRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'requiredToRequired', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, requiredToRequired: payloadAtlas };
-          }
-          case 'requiredToAsymmetric': {
-            let payloadAtlas;
-            const payload = message.requiredToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'requiredToAsymmetric', $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize + fallbackAtlas.$size, requiredToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'asymmetricToRequired': {
-            let payloadAtlas;
-            const payload = message.asymmetricToRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'asymmetricToRequired', $size: fieldHeaderSize(4n, payloadSize, false) + payloadSize, asymmetricToRequired: payloadAtlas };
-          }
-          case 'asymmetricToAsymmetric': {
-            let payloadAtlas;
-            const payload = message.asymmetricToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'asymmetricToAsymmetric', $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'asymmetricToOptional': {
-            let payloadAtlas;
-            const payload = message.asymmetricToOptional;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'asymmetricToOptional', $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'optionalToRequired': {
-            let payloadAtlas;
-            const payload = message.optionalToRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'optionalToRequired', $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize, optionalToRequired: payloadAtlas };
-          }
-          case 'optionalToAsymmetric': {
-            let payloadAtlas;
-            const payload = message.optionalToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'optionalToAsymmetric', $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'optionalToOptional': {
-            let payloadAtlas;
-            const payload = message.optionalToOptional;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'optionalToOptional', $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'nonexistentToRequired': {
-            let payloadAtlas;
-            const payload = null;
-            payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            return { $field: 'nonexistentToRequired', $size: fieldHeaderSize(12n, payloadSize, false) + payloadSize, nonexistentToRequired: payloadAtlas };
-          }
-          case 'nonexistentToAsymmetric': {
-            let payloadAtlas;
-            const payload = null;
-            payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'nonexistentToAsymmetric', $size: fieldHeaderSize(13n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nonexistentToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'nonexistentToOptional': {
-            let payloadAtlas;
-            const payload = null;
-            payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'nonexistentToOptional', $size: fieldHeaderSize(14n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nonexistentToOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          default:
-            return unreachable(message);
+        if ('requiredToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.requiredToRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, requiredToRequired: payloadAtlas };
         }
+        if ('requiredToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.requiredToAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize + fallbackAtlas.$size, requiredToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('asymmetricToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(4n, payloadSize, false) + payloadSize, asymmetricToRequired: payloadAtlas };
+        }
+        if ('asymmetricToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('asymmetricToOptional' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToOptional;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('optionalToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize, optionalToRequired: payloadAtlas };
+        }
+        if ('optionalToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('optionalToOptional' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToOptional;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('nonexistentToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.nonexistentToRequired;
+          payloadAtlas = 0;
+          const payloadSize = payloadAtlas;
+          return { $size: fieldHeaderSize(12n, payloadSize, false) + payloadSize, nonexistentToRequired: payloadAtlas };
+        }
+        if ('nonexistentToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.nonexistentToAsymmetric;
+          payloadAtlas = 0;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(13n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nonexistentToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('nonexistentToOptional' in message) {
+          let payloadAtlas;
+          const payload = message.nonexistentToOptional;
+          payloadAtlas = 0;
+          const payloadSize = payloadAtlas;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(14n, payloadSize, false) + payloadSize + fallbackAtlas.$size, nonexistentToOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        return unreachable(message);
       }
 
       export function serializeWithAtlasUnsafe(
@@ -16205,166 +16163,163 @@ export namespace SchemaEvolution {
         message: ExampleChoiceOut,
         atlas: ExampleChoiceAtlas,
       ): number {
-        switch (message.$field) {
-          case 'requiredToRequired': {
-            const payload = message.requiredToRequired;
-            const payloadAtlas = (atlas as any).requiredToRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
+        if ('requiredToRequired' in message) {
+          const payload = message.requiredToRequired;
+          const payloadAtlas = (atlas as any).requiredToRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
-          case 'requiredToAsymmetric': {
-            const payload = message.requiredToAsymmetric;
-            const payloadAtlas = (atlas as any).requiredToAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'asymmetricToRequired': {
-            const payload = message.asymmetricToRequired;
-            const payloadAtlas = (atlas as any).asymmetricToRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
-          }
-          case 'asymmetricToAsymmetric': {
-            const payload = message.asymmetricToAsymmetric;
-            const payloadAtlas = (atlas as any).asymmetricToAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'asymmetricToOptional': {
-            const payload = message.asymmetricToOptional;
-            const payloadAtlas = (atlas as any).asymmetricToOptional as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'optionalToRequired': {
-            const payload = message.optionalToRequired;
-            const payloadAtlas = (atlas as any).optionalToRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
-          }
-          case 'optionalToAsymmetric': {
-            const payload = message.optionalToAsymmetric;
-            const payloadAtlas = (atlas as any).optionalToAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'optionalToOptional': {
-            const payload = message.optionalToOptional;
-            const payloadAtlas = (atlas as any).optionalToOptional as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'nonexistentToRequired': {
-            const payload = null;
-            const payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
-            return offset;
-          }
-          case 'nonexistentToAsymmetric': {
-            const payload = null;
-            const payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'nonexistentToOptional': {
-            const payload = null;
-            const payloadAtlas = 0;
-            const payloadSize = payloadAtlas;
-            offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          default:
-            return unreachable(message);
+          return offset;
         }
+        if ('requiredToAsymmetric' in message) {
+          const payload = message.requiredToAsymmetric;
+          const payloadAtlas = (atlas as any).requiredToAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('asymmetricToRequired' in message) {
+          const payload = message.asymmetricToRequired;
+          const payloadAtlas = (atlas as any).asymmetricToRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          return offset;
+        }
+        if ('asymmetricToAsymmetric' in message) {
+          const payload = message.asymmetricToAsymmetric;
+          const payloadAtlas = (atlas as any).asymmetricToAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('asymmetricToOptional' in message) {
+          const payload = message.asymmetricToOptional;
+          const payloadAtlas = (atlas as any).asymmetricToOptional as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('optionalToRequired' in message) {
+          const payload = message.optionalToRequired;
+          const payloadAtlas = (atlas as any).optionalToRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          return offset;
+        }
+        if ('optionalToAsymmetric' in message) {
+          const payload = message.optionalToAsymmetric;
+          const payloadAtlas = (atlas as any).optionalToAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('optionalToOptional' in message) {
+          const payload = message.optionalToOptional;
+          const payloadAtlas = (atlas as any).optionalToOptional as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('nonexistentToRequired' in message) {
+          const payload = message.nonexistentToRequired;
+          const payloadAtlas = (atlas as any).nonexistentToRequired as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 12n, payloadSize, false);
+          return offset;
+        }
+        if ('nonexistentToAsymmetric' in message) {
+          const payload = message.nonexistentToAsymmetric;
+          const payloadAtlas = (atlas as any).nonexistentToAsymmetric as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 13n, payloadSize, false);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('nonexistentToOptional' in message) {
+          const payload = message.nonexistentToOptional;
+          const payloadAtlas = (atlas as any).nonexistentToOptional as number;
+          const payloadSize = payloadAtlas;
+          offset = serializeFieldHeader(dataView, offset, 14n, payloadSize, false);
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        return unreachable(message);
       }
 
       export function deserializeUnsafe(dataView: DataView): ExampleChoiceIn {
@@ -16574,6 +16529,7 @@ export namespace SchemaEvolution {
               let payload = null;
               return {
                 $field: 'nonexistentToRequired',
+                nonexistentToRequired: payload,
               };
             }
             case 13n: {
@@ -16587,6 +16543,7 @@ export namespace SchemaEvolution {
               let payload = null;
               return {
                 $field: 'nonexistentToAsymmetric',
+                nonexistentToAsymmetric: payload,
               };
             }
             case 14n: {
@@ -16608,6 +16565,7 @@ export namespace SchemaEvolution {
               );
               return {
                 $field: 'nonexistentToOptional',
+                nonexistentToOptional: payload,
                 $fallback,
               };
             }
@@ -16686,10 +16644,6 @@ export namespace SchemaEvolution {
         } catch (e) {
           return e as Error;
         }
-      }
-
-      export function outToIn(message: ExampleStructOut): ExampleStructIn {
-        return message;
       }
 
       export function atlas(message: ExampleStructOut): ExampleStructAtlas {
@@ -17331,28 +17285,28 @@ export namespace SchemaEvolution {
     }
 
     export type ExampleChoiceAtlas =
-      | { $field: 'requiredToRequired'; $size: number; requiredToRequired: Uint8Array }
-      | { $field: 'requiredToAsymmetric'; $size: number; requiredToAsymmetric: Uint8Array }
-      | { $field: 'asymmetricToRequired'; $size: number; asymmetricToRequired: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToAsymmetric'; $size: number; asymmetricToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToOptional'; $size: number; asymmetricToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'asymmetricToNonexistent'; $size: number; asymmetricToNonexistent: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToRequired'; $size: number; optionalToRequired: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToAsymmetric'; $size: number; optionalToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToOptional'; $size: number; optionalToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
-      | { $field: 'optionalToNonexistent'; $size: number; optionalToNonexistent: Uint8Array; $fallback: ExampleChoiceAtlas };
+      | { $size: number; requiredToRequired: Uint8Array }
+      | { $size: number; requiredToAsymmetric: Uint8Array }
+      | { $size: number; asymmetricToRequired: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; asymmetricToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; asymmetricToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; asymmetricToNonexistent: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; optionalToRequired: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; optionalToAsymmetric: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; optionalToOptional: Uint8Array; $fallback: ExampleChoiceAtlas }
+      | { $size: number; optionalToNonexistent: Uint8Array; $fallback: ExampleChoiceAtlas };
 
     export type ExampleChoiceOut =
-      | { $field: 'requiredToRequired'; requiredToRequired: string }
-      | { $field: 'requiredToAsymmetric'; requiredToAsymmetric: string }
-      | { $field: 'asymmetricToRequired'; asymmetricToRequired: string; $fallback: ExampleChoiceOut }
-      | { $field: 'asymmetricToAsymmetric'; asymmetricToAsymmetric: string; $fallback: ExampleChoiceOut }
-      | { $field: 'asymmetricToOptional'; asymmetricToOptional: string; $fallback: ExampleChoiceOut }
-      | { $field: 'asymmetricToNonexistent'; asymmetricToNonexistent: string; $fallback: ExampleChoiceOut }
-      | { $field: 'optionalToRequired'; optionalToRequired: string; $fallback: ExampleChoiceOut }
-      | { $field: 'optionalToAsymmetric'; optionalToAsymmetric: string; $fallback: ExampleChoiceOut }
-      | { $field: 'optionalToOptional'; optionalToOptional: string; $fallback: ExampleChoiceOut }
-      | { $field: 'optionalToNonexistent'; optionalToNonexistent: string; $fallback: ExampleChoiceOut };
+      | { requiredToRequired: string }
+      | { requiredToAsymmetric: string }
+      | { asymmetricToRequired: string; $fallback: ExampleChoiceOut }
+      | { asymmetricToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { asymmetricToOptional: string; $fallback: ExampleChoiceOut }
+      | { asymmetricToNonexistent: string; $fallback: ExampleChoiceOut }
+      | { optionalToRequired: string; $fallback: ExampleChoiceOut }
+      | { optionalToAsymmetric: string; $fallback: ExampleChoiceOut }
+      | { optionalToOptional: string; $fallback: ExampleChoiceOut }
+      | { optionalToNonexistent: string; $fallback: ExampleChoiceOut };
 
     export type ExampleChoiceIn =
       | { $field: 'requiredToRequired'; requiredToRequired: string }
@@ -17387,93 +17341,86 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function outToIn(message: ExampleChoiceOut): ExampleChoiceIn {
-        return message;
-      }
-
       export function atlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
-        switch (message.$field) {
-          case 'requiredToRequired': {
-            let payloadAtlas;
-            const payload = message.requiredToRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'requiredToRequired', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, requiredToRequired: payloadAtlas };
-          }
-          case 'requiredToAsymmetric': {
-            let payloadAtlas;
-            const payload = message.requiredToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'requiredToAsymmetric', $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize, requiredToAsymmetric: payloadAtlas };
-          }
-          case 'asymmetricToRequired': {
-            let payloadAtlas;
-            const payload = message.asymmetricToRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'asymmetricToRequired', $size: fieldHeaderSize(4n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToRequired: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'asymmetricToAsymmetric': {
-            let payloadAtlas;
-            const payload = message.asymmetricToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'asymmetricToAsymmetric', $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'asymmetricToOptional': {
-            let payloadAtlas;
-            const payload = message.asymmetricToOptional;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'asymmetricToOptional', $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'asymmetricToNonexistent': {
-            let payloadAtlas;
-            const payload = message.asymmetricToNonexistent;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'asymmetricToNonexistent', $size: fieldHeaderSize(7n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToNonexistent: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'optionalToRequired': {
-            let payloadAtlas;
-            const payload = message.optionalToRequired;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'optionalToRequired', $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToRequired: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'optionalToAsymmetric': {
-            let payloadAtlas;
-            const payload = message.optionalToAsymmetric;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'optionalToAsymmetric', $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'optionalToOptional': {
-            let payloadAtlas;
-            const payload = message.optionalToOptional;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'optionalToOptional', $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToOptional: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          case 'optionalToNonexistent': {
-            let payloadAtlas;
-            const payload = message.optionalToNonexistent;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            const fallbackAtlas = atlas(message.$fallback);
-            return { $field: 'optionalToNonexistent', $size: fieldHeaderSize(11n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToNonexistent: payloadAtlas, $fallback: fallbackAtlas };
-          }
-          default:
-            return unreachable(message);
+        if ('requiredToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.requiredToRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, requiredToRequired: payloadAtlas };
         }
+        if ('requiredToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.requiredToAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(1n, payloadSize, false) + payloadSize, requiredToAsymmetric: payloadAtlas };
+        }
+        if ('asymmetricToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(4n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToRequired: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('asymmetricToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(5n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('asymmetricToOptional' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToOptional;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(6n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('asymmetricToNonexistent' in message) {
+          let payloadAtlas;
+          const payload = message.asymmetricToNonexistent;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(7n, payloadSize, false) + payloadSize + fallbackAtlas.$size, asymmetricToNonexistent: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('optionalToRequired' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToRequired;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(8n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToRequired: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('optionalToAsymmetric' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToAsymmetric;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(9n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToAsymmetric: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('optionalToOptional' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToOptional;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(10n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToOptional: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        if ('optionalToNonexistent' in message) {
+          let payloadAtlas;
+          const payload = message.optionalToNonexistent;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          const fallbackAtlas = atlas(message.$fallback);
+          return { $size: fieldHeaderSize(11n, payloadSize, false) + payloadSize + fallbackAtlas.$size, optionalToNonexistent: payloadAtlas, $fallback: fallbackAtlas };
+        }
+        return unreachable(message);
       }
 
       export function serializeWithAtlasUnsafe(
@@ -17482,178 +17429,175 @@ export namespace SchemaEvolution {
         message: ExampleChoiceOut,
         atlas: ExampleChoiceAtlas,
       ): number {
-        switch (message.$field) {
-          case 'requiredToRequired': {
-            const payload = message.requiredToRequired;
-            const payloadAtlas = (atlas as any).requiredToRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
+        if ('requiredToRequired' in message) {
+          const payload = message.requiredToRequired;
+          const payloadAtlas = (atlas as any).requiredToRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
-          case 'requiredToAsymmetric': {
-            const payload = message.requiredToAsymmetric;
-            const payloadAtlas = (atlas as any).requiredToAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
-          }
-          case 'asymmetricToRequired': {
-            const payload = message.asymmetricToRequired;
-            const payloadAtlas = (atlas as any).asymmetricToRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'asymmetricToAsymmetric': {
-            const payload = message.asymmetricToAsymmetric;
-            const payloadAtlas = (atlas as any).asymmetricToAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'asymmetricToOptional': {
-            const payload = message.asymmetricToOptional;
-            const payloadAtlas = (atlas as any).asymmetricToOptional as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'asymmetricToNonexistent': {
-            const payload = message.asymmetricToNonexistent;
-            const payloadAtlas = (atlas as any).asymmetricToNonexistent as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'optionalToRequired': {
-            const payload = message.optionalToRequired;
-            const payloadAtlas = (atlas as any).optionalToRequired as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'optionalToAsymmetric': {
-            const payload = message.optionalToAsymmetric;
-            const payloadAtlas = (atlas as any).optionalToAsymmetric as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'optionalToOptional': {
-            const payload = message.optionalToOptional;
-            const payloadAtlas = (atlas as any).optionalToOptional as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          case 'optionalToNonexistent': {
-            const payload = message.optionalToNonexistent;
-            const payloadAtlas = (atlas as any).optionalToNonexistent as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
-            return offset;
-          }
-          default:
-            return unreachable(message);
+          return offset;
         }
+        if ('requiredToAsymmetric' in message) {
+          const payload = message.requiredToAsymmetric;
+          const payloadAtlas = (atlas as any).requiredToAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          return offset;
+        }
+        if ('asymmetricToRequired' in message) {
+          const payload = message.asymmetricToRequired;
+          const payloadAtlas = (atlas as any).asymmetricToRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('asymmetricToAsymmetric' in message) {
+          const payload = message.asymmetricToAsymmetric;
+          const payloadAtlas = (atlas as any).asymmetricToAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('asymmetricToOptional' in message) {
+          const payload = message.asymmetricToOptional;
+          const payloadAtlas = (atlas as any).asymmetricToOptional as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('asymmetricToNonexistent' in message) {
+          const payload = message.asymmetricToNonexistent;
+          const payloadAtlas = (atlas as any).asymmetricToNonexistent as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('optionalToRequired' in message) {
+          const payload = message.optionalToRequired;
+          const payloadAtlas = (atlas as any).optionalToRequired as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('optionalToAsymmetric' in message) {
+          const payload = message.optionalToAsymmetric;
+          const payloadAtlas = (atlas as any).optionalToAsymmetric as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('optionalToOptional' in message) {
+          const payload = message.optionalToOptional;
+          const payloadAtlas = (atlas as any).optionalToOptional as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        if ('optionalToNonexistent' in message) {
+          const payload = message.optionalToNonexistent;
+          const payloadAtlas = (atlas as any).optionalToNonexistent as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
+          }
+          offset = serializeWithAtlasUnsafe(dataView, offset, message.$fallback, (atlas as any).$fallback as ExampleChoiceAtlas);
+          return offset;
+        }
+        return unreachable(message);
       }
 
       export function deserializeUnsafe(dataView: DataView): ExampleChoiceIn {
@@ -17956,10 +17900,6 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function outToIn(message: SingletonStructOut): SingletonStructIn {
-        return message;
-      }
-
       export function atlas(message: SingletonStructOut): SingletonStructAtlas {
         let size = 0;
 
@@ -18063,11 +18003,10 @@ export namespace SchemaEvolution {
     }
 
     export type SingletonChoiceAtlas =
-      | { $field: 'x'; $size: number; x: Uint8Array };
+      | { $size: number; x: Uint8Array };
 
     export type SingletonChoiceOut =
-      | { $field: 'x'; x: string }
-      | { $field: never };
+      | { x: string };
 
     export type SingletonChoiceIn =
       | { $field: 'x'; x: string }
@@ -18094,22 +18033,15 @@ export namespace SchemaEvolution {
         }
       }
 
-      export function outToIn(message: SingletonChoiceOut): SingletonChoiceIn {
-        return message;
-      }
-
       export function atlas(message: SingletonChoiceOut): SingletonChoiceAtlas {
-        switch (message.$field) {
-          case 'x': {
-            let payloadAtlas;
-            const payload = message.x;
-            payloadAtlas = textEncoder.encode(payload);
-            const payloadSize = payloadAtlas.byteLength;
-            return { $field: 'x', $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, x: payloadAtlas };
-          }
-          default:
-            return unreachable(message);
+        if ('x' in message) {
+          let payloadAtlas;
+          const payload = message.x;
+          payloadAtlas = textEncoder.encode(payload);
+          const payloadSize = payloadAtlas.byteLength;
+          return { $size: fieldHeaderSize(0n, payloadSize, false) + payloadSize, x: payloadAtlas };
         }
+        return unreachable(message);
       }
 
       export function serializeWithAtlasUnsafe(
@@ -18118,26 +18050,23 @@ export namespace SchemaEvolution {
         message: SingletonChoiceOut,
         atlas: SingletonChoiceAtlas,
       ): number {
-        switch (message.$field) {
-          case 'x': {
-            const payload = message.x;
-            const payloadAtlas = (atlas as any).x as Uint8Array;
-            const payloadSize = payloadAtlas.byteLength;
-            offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
-            {
-              const targetBuffer = new Uint8Array(
-                dataView.buffer,
-                dataView.byteOffset,
-                dataView.byteLength,
-              );
-              targetBuffer.set(payloadAtlas, offset);
-              offset += payloadAtlas.byteLength;
-            }
-            return offset;
+        if ('x' in message) {
+          const payload = message.x;
+          const payloadAtlas = (atlas as any).x as Uint8Array;
+          const payloadSize = payloadAtlas.byteLength;
+          offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
+          {
+            const targetBuffer = new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset,
+              dataView.byteLength,
+            );
+            targetBuffer.set(payloadAtlas, offset);
+            offset += payloadAtlas.byteLength;
           }
-          default:
-            return unreachable(message);
+          return offset;
         }
+        return unreachable(message);
       }
 
       export function deserializeUnsafe(dataView: DataView): SingletonChoiceIn {

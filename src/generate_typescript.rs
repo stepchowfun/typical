@@ -623,19 +623,6 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function outToIn(message: ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
-                write!(buffer, "): ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return message;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-
-                writeln!(buffer)?;
-
-                write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function atlas(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "): ")?;
@@ -1023,80 +1010,58 @@ fn write_schema<T: Write>(
                 writeln!(buffer)?;
 
                 write_indentation(buffer, indentation + 1)?;
-                write!(buffer, "export function outToIn(message: ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
-                write!(buffer, "): ")?;
-                write_identifier(buffer, &declaration.name, Pascal, Some(In))?;
-                writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 2)?;
-                writeln!(buffer, "return message;")?;
-                write_indentation(buffer, indentation + 1)?;
-                writeln!(buffer, "}}")?;
-
-                writeln!(buffer)?;
-
-                write_indentation(buffer, indentation + 1)?;
                 write!(buffer, "export function atlas(message: ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Out))?;
                 write!(buffer, "): ")?;
                 write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
                 writeln!(buffer, " {{")?;
-                write_indentation(buffer, indentation + 2)?;
                 if declaration.fields.is_empty() {
+                    write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "return unreachable(message);")?;
                 } else {
-                    writeln!(buffer, "switch (message.$field) {{")?;
                     for field in &declaration.fields {
-                        write_indentation(buffer, indentation + 3)?;
-                        write!(buffer, "case '")?;
+                        write_indentation(buffer, indentation + 2)?;
+                        write!(buffer, "if ('")?;
                         write_identifier(buffer, &field.name, Camel, None)?;
-                        writeln!(buffer, "': {{")?;
-                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "' in message) {{")?;
+                        write_indentation(buffer, indentation + 3)?;
                         writeln!(buffer, "let payloadAtlas;")?;
-                        write_indentation(buffer, indentation + 4)?;
-                        if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                            writeln!(buffer, "const payload = null;")?;
-                        } else {
-                            write!(buffer, "const payload = message.")?;
-                            write_identifier(buffer, &field.name, Camel, None)?;
-                            writeln!(buffer, ";")?;
-                        }
+                        write_indentation(buffer, indentation + 3)?;
+                        write!(buffer, "const payload = message.")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, ";")?;
                         write_atlas_calculation(
                             buffer,
-                            indentation + 4,
+                            indentation + 3,
                             &imports,
                             namespace,
                             &field.r#type.variant,
                             true,
                         )?;
-                        write_indentation(buffer, indentation + 4)?;
+                        write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "const payloadSize = ")?;
                         write_atlas_lookup(buffer, &field.r#type.variant)?;
                         writeln!(buffer, ";")?;
-                        write_indentation(buffer, indentation + 4)?;
+                        write_indentation(buffer, indentation + 3)?;
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {
                                 writeln!(
                                     buffer,
                                     "const fallbackAtlas = atlas(message.$fallback);",
                                 )?;
-                                write_indentation(buffer, indentation + 4)?;
-                                write!(buffer, "return {{ $field: '")?;
-                                write_identifier(buffer, &field.name, Camel, None)?;
+                                write_indentation(buffer, indentation + 3)?;
                                 write!(
                                     buffer,
-                                    "', $size: fieldHeaderSize({}n, payloadSize, {}) + \
+                                    "return {{ $size: fieldHeaderSize({}n, payloadSize, {}) + \
                                         payloadSize + fallbackAtlas.$size, ",
                                     field.index,
                                     integer_encoded(&field.r#type),
                                 )?;
                             }
                             schema::Rule::Required => {
-                                write!(buffer, "return {{ $field: '")?;
-                                write_identifier(buffer, &field.name, Camel, None)?;
                                 write!(
                                     buffer,
-                                    "', $size: fieldHeaderSize({}n, payloadSize, {}) + \
+                                    "return {{ $size: fieldHeaderSize({}n, payloadSize, {}) + \
                                         payloadSize, ",
                                     field.index,
                                     integer_encoded(&field.r#type),
@@ -1113,15 +1078,11 @@ fn write_schema<T: Write>(
                                 writeln!(buffer, " }};")?;
                             }
                         }
-                        write_indentation(buffer, indentation + 3)?;
+                        write_indentation(buffer, indentation + 2)?;
                         writeln!(buffer, "}}")?;
                     }
-                    write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "default:")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "return unreachable(message);")?;
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "}}")?;
+                    writeln!(buffer, "return unreachable(message);")?;
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
@@ -1146,43 +1107,36 @@ fn write_schema<T: Write>(
                 writeln!(buffer, ",")?;
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "): number {{")?;
-                write_indentation(buffer, indentation + 2)?;
                 if declaration.fields.is_empty() {
+                    write_indentation(buffer, indentation + 2)?;
                     writeln!(buffer, "return unreachable(message);")?;
                 } else {
-                    writeln!(buffer, "switch (message.$field) {{")?;
                     for field in &declaration.fields {
-                        write_indentation(buffer, indentation + 3)?;
-                        write!(buffer, "case '")?;
+                        write_indentation(buffer, indentation + 2)?;
+                        write!(buffer, "if ('")?;
                         write_identifier(buffer, &field.name, Camel, None)?;
-                        writeln!(buffer, "': {{")?;
-                        write_indentation(buffer, indentation + 4)?;
-                        if matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                            writeln!(buffer, "const payload = null;")?;
-                            write_indentation(buffer, indentation + 4)?;
-                            writeln!(buffer, "const payloadAtlas = 0;")?;
-                        } else {
-                            write!(buffer, "const payload = message.")?;
-                            write_identifier(buffer, &field.name, Camel, None)?;
-                            writeln!(buffer, ";")?;
-                            write_indentation(buffer, indentation + 4)?;
-                            write!(buffer, "const payloadAtlas = (atlas as any).")?;
-                            write_identifier(buffer, &field.name, Camel, None)?;
-                            write!(buffer, " as ")?;
-                            write_type(
-                                buffer,
-                                &imports,
-                                namespace,
-                                &field.r#type.variant,
-                                Direction::Atlas,
-                            )?;
-                            writeln!(buffer, ";")?;
-                        }
-                        write_indentation(buffer, indentation + 4)?;
+                        writeln!(buffer, "' in message) {{")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        write!(buffer, "const payload = message.")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        writeln!(buffer, ";")?;
+                        write_indentation(buffer, indentation + 3)?;
+                        write!(buffer, "const payloadAtlas = (atlas as any).")?;
+                        write_identifier(buffer, &field.name, Camel, None)?;
+                        write!(buffer, " as ")?;
+                        write_type(
+                            buffer,
+                            &imports,
+                            namespace,
+                            &field.r#type.variant,
+                            Direction::Atlas,
+                        )?;
+                        writeln!(buffer, ";")?;
+                        write_indentation(buffer, indentation + 3)?;
                         write!(buffer, "const payloadSize = ")?;
                         write_atlas_lookup(buffer, &field.r#type.variant)?;
                         writeln!(buffer, ";")?;
-                        write_indentation(buffer, indentation + 4)?;
+                        write_indentation(buffer, indentation + 3)?;
                         writeln!(
                             buffer,
                             "offset = serializeFieldHeader(dataView, offset, {}n, \
@@ -1192,7 +1146,7 @@ fn write_schema<T: Write>(
                         )?;
                         write_serialization_invocation(
                             buffer,
-                            indentation + 4,
+                            indentation + 3,
                             &imports,
                             namespace,
                             &field.r#type.variant,
@@ -1200,7 +1154,7 @@ fn write_schema<T: Write>(
                         )?;
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {
-                                write_indentation(buffer, indentation + 4)?;
+                                write_indentation(buffer, indentation + 3)?;
                                 write!(
                                     buffer,
                                     "offset = serializeWithAtlasUnsafe(dataView, offset, \
@@ -1211,17 +1165,13 @@ fn write_schema<T: Write>(
                             }
                             schema::Rule::Required => {}
                         }
-                        write_indentation(buffer, indentation + 4)?;
-                        writeln!(buffer, "return offset;")?;
                         write_indentation(buffer, indentation + 3)?;
+                        writeln!(buffer, "return offset;")?;
+                        write_indentation(buffer, indentation + 2)?;
                         writeln!(buffer, "}}")?;
                     }
-                    write_indentation(buffer, indentation + 3)?;
-                    writeln!(buffer, "default:")?;
-                    write_indentation(buffer, indentation + 4)?;
-                    writeln!(buffer, "return unreachable(message);")?;
                     write_indentation(buffer, indentation + 2)?;
-                    writeln!(buffer, "}}")?;
+                    writeln!(buffer, "return unreachable(message);")?;
                 }
                 write_indentation(buffer, indentation + 1)?;
                 writeln!(buffer, "}}")?;
@@ -1308,11 +1258,9 @@ fn write_schema<T: Write>(
                     write!(buffer, "$field: '")?;
                     write_identifier(buffer, &field.name, Camel, None)?;
                     writeln!(buffer, "',")?;
-                    if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                        write_indentation(buffer, indentation + 6)?;
-                        write_identifier(buffer, &field.name, Camel, None)?;
-                        writeln!(buffer, ": payload,")?;
-                    }
+                    write_indentation(buffer, indentation + 6)?;
+                    write_identifier(buffer, &field.name, Camel, None)?;
+                    writeln!(buffer, ": payload,")?;
                     match field.rule {
                         schema::Rule::Asymmetric | schema::Rule::Required => {}
                         schema::Rule::Optional => {
@@ -1418,24 +1366,27 @@ fn write_choice<T: Write>(
     for field in fields {
         writeln!(buffer)?;
         write_indentation(buffer, indentation + 1)?;
-        write!(buffer, "| {{ $field: '")?;
-        write_identifier(buffer, &field.name, Camel, None)?;
-        write!(buffer, "'")?;
+        write!(buffer, "| {{ ")?;
 
         match direction {
             Direction::Atlas => {
-                write!(buffer, "; $size: number; ")?;
+                write!(buffer, "$size: number; ")?;
                 write_identifier(buffer, &field.name, Camel, None)?;
                 write!(buffer, ": ")?;
                 write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
             }
-            Direction::In | Direction::Out => {
-                if !matches!(field.r#type.variant, schema::TypeVariant::Unit) {
-                    write!(buffer, "; ")?;
-                    write_identifier(buffer, &field.name, Camel, None)?;
-                    write!(buffer, ": ")?;
-                    write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
-                }
+            Direction::In => {
+                write!(buffer, "$field: '")?;
+                write_identifier(buffer, &field.name, Camel, None)?;
+                write!(buffer, "'; ")?;
+                write_identifier(buffer, &field.name, Camel, None)?;
+                write!(buffer, ": ")?;
+                write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
+            }
+            Direction::Out => {
+                write_identifier(buffer, &field.name, Camel, None)?;
+                write!(buffer, ": ")?;
+                write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
             }
         };
 
@@ -1455,8 +1406,8 @@ fn write_choice<T: Write>(
     }
 
     match direction {
-        Direction::Atlas => {}
-        Direction::In | Direction::Out => {
+        Direction::Atlas | Direction::Out => {}
+        Direction::In => {
             // See https://github.com/microsoft/TypeScript/issues/46978#issuecomment-984093435 for
             // an explanation of this extra case.
             if fields.len() == 1 {
