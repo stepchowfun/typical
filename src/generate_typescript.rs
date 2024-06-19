@@ -1367,20 +1367,20 @@ fn write_struct<T: Write>(
     for field in fields {
         write_indentation(buffer, indentation + 1)?;
         write_identifier(buffer, &field.name, Camel, None)?;
+        write!(buffer, ": ")?;
+        write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         match field.rule {
             schema::Rule::Asymmetric => match direction {
                 Direction::Atlas | Direction::Out => {}
                 Direction::In => {
-                    write!(buffer, "?")?;
+                    write!(buffer, " | undefined")?;
                 }
             },
             schema::Rule::Optional => {
-                write!(buffer, "?")?;
+                write!(buffer, " | undefined")?;
             }
             schema::Rule::Required => {}
         }
-        write!(buffer, ": ")?;
-        write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
         writeln!(buffer, ";")?;
     }
 

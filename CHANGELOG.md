@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2024-06-18
+
+### Changed
+- Typical now requires optional struct fields to be explicitly set to `undefined` in TypeScript to avoid setting them. Previously, such fields could be omitted entirely, but that meant typos in optional field names could go unnoticed.
+
 ## [0.10.0] - 2024-06-13
 
 ### Added
