@@ -405,7 +405,7 @@ export default function run(): void {
   // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -413,21 +413,13 @@ export default function run(): void {
       $field: 'aRequired',
       aRequired: null,
     },
-    {
-      $field: 'aRequired',
-      aRequired: null,
-    },
   );
 
   f64TestValues.forEach((bRequired) => {
-    assertMatch(
+    assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
-      {
-        $field: 'bRequired',
-        bRequired,
-      },
       {
         $field: 'bRequired',
         bRequired,
@@ -436,14 +428,10 @@ export default function run(): void {
   });
 
   u64TestValues.forEach((cRequired) => {
-    assertMatch(
+    assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
-      {
-        $field: 'cRequired',
-        cRequired,
-      },
       {
         $field: 'cRequired',
         cRequired,
@@ -452,7 +440,7 @@ export default function run(): void {
   });
 
   s64TestValues.forEach((dRequired) => {
-    assertMatch(
+    assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
@@ -460,14 +448,10 @@ export default function run(): void {
         $field: 'dRequired',
         dRequired,
       },
-      {
-        $field: 'dRequired',
-        dRequired,
-      },
     );
   });
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -475,13 +459,9 @@ export default function run(): void {
       $field: 'eRequired',
       eRequired: false,
     },
-    {
-      $field: 'eRequired',
-      eRequired: false,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -489,13 +469,9 @@ export default function run(): void {
       $field: 'eRequired',
       eRequired: true,
     },
-    {
-      $field: 'eRequired',
-      eRequired: true,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -503,13 +479,9 @@ export default function run(): void {
       $field: 'fRequired',
       fRequired: new Uint8Array([]).buffer,
     },
-    {
-      $field: 'fRequired',
-      fRequired: new Uint8Array([]).buffer,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -517,13 +489,9 @@ export default function run(): void {
       $field: 'fRequired',
       fRequired: new Uint8Array([0]).buffer,
     },
-    {
-      $field: 'fRequired',
-      fRequired: new Uint8Array([0]).buffer,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -531,13 +499,9 @@ export default function run(): void {
       $field: 'fRequired',
       fRequired: new Uint8Array([0, 42]).buffer,
     },
-    {
-      $field: 'fRequired',
-      fRequired: new Uint8Array([0, 42]).buffer,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -545,13 +509,9 @@ export default function run(): void {
       $field: 'fRequired',
       fRequired: new Uint8Array([0, 42, 255]).buffer,
     },
-    {
-      $field: 'fRequired',
-      fRequired: new Uint8Array([0, 42, 255]).buffer,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -559,13 +519,9 @@ export default function run(): void {
       $field: 'gRequired',
       gRequired: '',
     },
-    {
-      $field: 'gRequired',
-      gRequired: '',
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -573,13 +529,9 @@ export default function run(): void {
       $field: 'gRequired',
       gRequired: '=8 bytes',
     },
-    {
-      $field: 'gRequired',
-      gRequired: '=8 bytes',
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -587,13 +539,9 @@ export default function run(): void {
       $field: 'gRequired',
       gRequired: 'Hello, 幸福!',
     },
-    {
-      $field: 'gRequired',
-      gRequired: 'Hello, 幸福!',
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -601,13 +549,9 @@ export default function run(): void {
       $field: 'hRequired',
       hRequired: {},
     },
-    {
-      $field: 'hRequired',
-      hRequired: {},
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -615,13 +559,9 @@ export default function run(): void {
       $field: 'iRequired',
       iRequired: {},
     },
-    {
-      $field: 'iRequired',
-      iRequired: {},
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -629,13 +569,9 @@ export default function run(): void {
       $field: 'jRequired',
       jRequired: [],
     },
-    {
-      $field: 'jRequired',
-      jRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -643,13 +579,9 @@ export default function run(): void {
       $field: 'jRequired',
       jRequired: [null],
     },
-    {
-      $field: 'jRequired',
-      jRequired: [null],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -657,13 +589,9 @@ export default function run(): void {
       $field: 'jRequired',
       jRequired: [null, null],
     },
-    {
-      $field: 'jRequired',
-      jRequired: [null, null],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -671,13 +599,9 @@ export default function run(): void {
       $field: 'jRequired',
       jRequired: [null, null, null],
     },
-    {
-      $field: 'jRequired',
-      jRequired: [null, null, null],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -685,13 +609,9 @@ export default function run(): void {
       $field: 'kRequired',
       kRequired: [],
     },
-    {
-      $field: 'kRequired',
-      kRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -699,13 +619,9 @@ export default function run(): void {
       $field: 'kRequired',
       kRequired: [0.0],
     },
-    {
-      $field: 'kRequired',
-      kRequired: [0.0],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -713,13 +629,9 @@ export default function run(): void {
       $field: 'kRequired',
       kRequired: [0.0, Math.PI],
     },
-    {
-      $field: 'kRequired',
-      kRequired: [0.0, Math.PI],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -727,13 +639,9 @@ export default function run(): void {
       $field: 'kRequired',
       kRequired: [0.0, Math.PI, Number.EPSILON],
     },
-    {
-      $field: 'kRequired',
-      kRequired: [0.0, Math.PI, Number.EPSILON],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -741,13 +649,9 @@ export default function run(): void {
       $field: 'kRequired',
       kRequired: f64TestValues,
     },
-    {
-      $field: 'kRequired',
-      kRequired: f64TestValues,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -755,13 +659,9 @@ export default function run(): void {
       $field: 'lRequired',
       lRequired: [],
     },
-    {
-      $field: 'lRequired',
-      lRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -769,13 +669,9 @@ export default function run(): void {
       $field: 'lRequired',
       lRequired: [u64Min],
     },
-    {
-      $field: 'lRequired',
-      lRequired: [u64Min],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -783,13 +679,9 @@ export default function run(): void {
       $field: 'lRequired',
       lRequired: [u64Min, 256n],
     },
-    {
-      $field: 'lRequired',
-      lRequired: [u64Min, 256n],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -797,13 +689,9 @@ export default function run(): void {
       $field: 'lRequired',
       lRequired: [u64Min, 256n, u64Max],
     },
-    {
-      $field: 'lRequired',
-      lRequired: [u64Min, 256n, u64Max],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -811,13 +699,9 @@ export default function run(): void {
       $field: 'lRequired',
       lRequired: u64TestValues,
     },
-    {
-      $field: 'lRequired',
-      lRequired: u64TestValues,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -825,13 +709,9 @@ export default function run(): void {
       $field: 'mRequired',
       mRequired: [],
     },
-    {
-      $field: 'mRequired',
-      mRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -839,13 +719,9 @@ export default function run(): void {
       $field: 'mRequired',
       mRequired: [s64Min],
     },
-    {
-      $field: 'mRequired',
-      mRequired: [s64Min],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -853,13 +729,9 @@ export default function run(): void {
       $field: 'mRequired',
       mRequired: [s64Min, 0n],
     },
-    {
-      $field: 'mRequired',
-      mRequired: [s64Min, 0n],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -867,13 +739,9 @@ export default function run(): void {
       $field: 'mRequired',
       mRequired: [s64Min, 0n, s64Max],
     },
-    {
-      $field: 'mRequired',
-      mRequired: [s64Min, 0n, s64Max],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -881,13 +749,9 @@ export default function run(): void {
       $field: 'mRequired',
       mRequired: s64TestValues,
     },
-    {
-      $field: 'mRequired',
-      mRequired: s64TestValues,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -895,13 +759,9 @@ export default function run(): void {
       $field: 'nRequired',
       nRequired: [],
     },
-    {
-      $field: 'nRequired',
-      nRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -909,13 +769,9 @@ export default function run(): void {
       $field: 'nRequired',
       nRequired: [false],
     },
-    {
-      $field: 'nRequired',
-      nRequired: [false],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -923,13 +779,9 @@ export default function run(): void {
       $field: 'nRequired',
       nRequired: [false, true],
     },
-    {
-      $field: 'nRequired',
-      nRequired: [false, true],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -937,13 +789,9 @@ export default function run(): void {
       $field: 'nRequired',
       nRequired: [false, true, false],
     },
-    {
-      $field: 'nRequired',
-      nRequired: [false, true, false],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -951,13 +799,9 @@ export default function run(): void {
       $field: 'oRequired',
       oRequired: [],
     },
-    {
-      $field: 'oRequired',
-      oRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -965,13 +809,9 @@ export default function run(): void {
       $field: 'oRequired',
       oRequired: [new Uint8Array([]).buffer],
     },
-    {
-      $field: 'oRequired',
-      oRequired: [new Uint8Array([]).buffer],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -982,16 +822,9 @@ export default function run(): void {
         new Uint8Array([0, 42, 255]).buffer,
       ],
     },
-    {
-      $field: 'oRequired',
-      oRequired: [
-        new Uint8Array([]).buffer,
-        new Uint8Array([0, 42, 255]).buffer,
-      ],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1003,17 +836,9 @@ export default function run(): void {
         new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
       ],
     },
-    {
-      $field: 'oRequired',
-      oRequired: [
-        new Uint8Array([]).buffer,
-        new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
-      ],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1021,13 +846,9 @@ export default function run(): void {
       $field: 'pRequired',
       pRequired: [],
     },
-    {
-      $field: 'pRequired',
-      pRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1035,13 +856,9 @@ export default function run(): void {
       $field: 'pRequired',
       pRequired: [''],
     },
-    {
-      $field: 'pRequired',
-      pRequired: [''],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1049,13 +866,9 @@ export default function run(): void {
       $field: 'pRequired',
       pRequired: ['', '=8 bytes'],
     },
-    {
-      $field: 'pRequired',
-      pRequired: ['', '=8 bytes'],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1063,13 +876,9 @@ export default function run(): void {
       $field: 'pRequired',
       pRequired: ['', '=8 bytes', 'Hello, 幸福!'],
     },
-    {
-      $field: 'pRequired',
-      pRequired: ['', '=8 bytes', 'Hello, 幸福!'],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1077,13 +886,9 @@ export default function run(): void {
       $field: 'qRequired',
       qRequired: [],
     },
-    {
-      $field: 'qRequired',
-      qRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1091,13 +896,9 @@ export default function run(): void {
       $field: 'qRequired',
       qRequired: [{}],
     },
-    {
-      $field: 'qRequired',
-      qRequired: [{}],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1105,13 +906,9 @@ export default function run(): void {
       $field: 'qRequired',
       qRequired: [{}, {}],
     },
-    {
-      $field: 'qRequired',
-      qRequired: [{}, {}],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1119,13 +916,9 @@ export default function run(): void {
       $field: 'qRequired',
       qRequired: [{}, {}, {}],
     },
-    {
-      $field: 'qRequired',
-      qRequired: [{}, {}, {}],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1133,13 +926,9 @@ export default function run(): void {
       $field: 'rRequired',
       rRequired: [],
     },
-    {
-      $field: 'rRequired',
-      rRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1147,13 +936,9 @@ export default function run(): void {
       $field: 'rRequired',
       rRequired: [{}],
     },
-    {
-      $field: 'rRequired',
-      rRequired: [{}],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1161,13 +946,9 @@ export default function run(): void {
       $field: 'rRequired',
       rRequired: [{}, {}],
     },
-    {
-      $field: 'rRequired',
-      rRequired: [{}, {}],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1175,13 +956,9 @@ export default function run(): void {
       $field: 'rRequired',
       rRequired: [{}, {}, {}],
     },
-    {
-      $field: 'rRequired',
-      rRequired: [{}, {}, {}],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1189,13 +966,9 @@ export default function run(): void {
       $field: 'sRequired',
       sRequired: [],
     },
-    {
-      $field: 'sRequired',
-      sRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1203,13 +976,9 @@ export default function run(): void {
       $field: 'sRequired',
       sRequired: [[]],
     },
-    {
-      $field: 'sRequired',
-      sRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1217,13 +986,9 @@ export default function run(): void {
       $field: 'sRequired',
       sRequired: [[null]],
     },
-    {
-      $field: 'sRequired',
-      sRequired: [[null]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1231,13 +996,9 @@ export default function run(): void {
       $field: 'sRequired',
       sRequired: [[], [], []],
     },
-    {
-      $field: 'sRequired',
-      sRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1245,13 +1006,9 @@ export default function run(): void {
       $field: 'sRequired',
       sRequired: [[null, null, null]],
     },
-    {
-      $field: 'sRequired',
-      sRequired: [[null, null, null]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1259,13 +1016,9 @@ export default function run(): void {
       $field: 'sRequired',
       sRequired: [[], [null], [null, null], [null, null, null]],
     },
-    {
-      $field: 'sRequired',
-      sRequired: [[], [null], [null, null], [null, null, null]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1273,13 +1026,9 @@ export default function run(): void {
       $field: 'tRequired',
       tRequired: [],
     },
-    {
-      $field: 'tRequired',
-      tRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1287,13 +1036,9 @@ export default function run(): void {
       $field: 'tRequired',
       tRequired: [[]],
     },
-    {
-      $field: 'tRequired',
-      tRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1301,13 +1046,9 @@ export default function run(): void {
       $field: 'tRequired',
       tRequired: [[0.0]],
     },
-    {
-      $field: 'tRequired',
-      tRequired: [[0.0]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1315,13 +1056,9 @@ export default function run(): void {
       $field: 'tRequired',
       tRequired: [[], [], []],
     },
-    {
-      $field: 'tRequired',
-      tRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1329,13 +1066,9 @@ export default function run(): void {
       $field: 'tRequired',
       tRequired: [f64TestValues],
     },
-    {
-      $field: 'tRequired',
-      tRequired: [f64TestValues],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1343,13 +1076,9 @@ export default function run(): void {
       $field: 'tRequired',
       tRequired: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
     },
-    {
-      $field: 'tRequired',
-      tRequired: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1357,13 +1086,9 @@ export default function run(): void {
       $field: 'uRequired',
       uRequired: [],
     },
-    {
-      $field: 'uRequired',
-      uRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1371,13 +1096,9 @@ export default function run(): void {
       $field: 'uRequired',
       uRequired: [[]],
     },
-    {
-      $field: 'uRequired',
-      uRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1385,13 +1106,9 @@ export default function run(): void {
       $field: 'uRequired',
       uRequired: [[u64Min]],
     },
-    {
-      $field: 'uRequired',
-      uRequired: [[u64Min]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1399,13 +1116,9 @@ export default function run(): void {
       $field: 'uRequired',
       uRequired: [[], [], []],
     },
-    {
-      $field: 'uRequired',
-      uRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1413,13 +1126,9 @@ export default function run(): void {
       $field: 'uRequired',
       uRequired: [u64TestValues],
     },
-    {
-      $field: 'uRequired',
-      uRequired: [u64TestValues],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1427,13 +1136,9 @@ export default function run(): void {
       $field: 'uRequired',
       uRequired: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
     },
-    {
-      $field: 'uRequired',
-      uRequired: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1441,13 +1146,9 @@ export default function run(): void {
       $field: 'vRequired',
       vRequired: [],
     },
-    {
-      $field: 'vRequired',
-      vRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1455,13 +1156,9 @@ export default function run(): void {
       $field: 'vRequired',
       vRequired: [[]],
     },
-    {
-      $field: 'vRequired',
-      vRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1469,13 +1166,9 @@ export default function run(): void {
       $field: 'vRequired',
       vRequired: [[s64Min]],
     },
-    {
-      $field: 'vRequired',
-      vRequired: [[s64Min]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1483,13 +1176,9 @@ export default function run(): void {
       $field: 'vRequired',
       vRequired: [[], [], []],
     },
-    {
-      $field: 'vRequired',
-      vRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1497,13 +1186,9 @@ export default function run(): void {
       $field: 'vRequired',
       vRequired: [s64TestValues],
     },
-    {
-      $field: 'vRequired',
-      vRequired: [s64TestValues],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1511,13 +1196,9 @@ export default function run(): void {
       $field: 'vRequired',
       vRequired: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
     },
-    {
-      $field: 'vRequired',
-      vRequired: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1525,13 +1206,9 @@ export default function run(): void {
       $field: 'wRequired',
       wRequired: [],
     },
-    {
-      $field: 'wRequired',
-      wRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1539,13 +1216,9 @@ export default function run(): void {
       $field: 'wRequired',
       wRequired: [[]],
     },
-    {
-      $field: 'wRequired',
-      wRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1553,13 +1226,9 @@ export default function run(): void {
       $field: 'wRequired',
       wRequired: [[false]],
     },
-    {
-      $field: 'wRequired',
-      wRequired: [[false]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1567,13 +1236,9 @@ export default function run(): void {
       $field: 'wRequired',
       wRequired: [[], [], []],
     },
-    {
-      $field: 'wRequired',
-      wRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1581,13 +1246,9 @@ export default function run(): void {
       $field: 'wRequired',
       wRequired: [[false, true, false]],
     },
-    {
-      $field: 'wRequired',
-      wRequired: [[false, true, false]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1595,13 +1256,9 @@ export default function run(): void {
       $field: 'wRequired',
       wRequired: [[], [false], [false, true], [false, true, false]],
     },
-    {
-      $field: 'wRequired',
-      wRequired: [[], [false], [false, true], [false, true, false]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1609,13 +1266,9 @@ export default function run(): void {
       $field: 'xRequired',
       xRequired: [],
     },
-    {
-      $field: 'xRequired',
-      xRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1623,13 +1276,9 @@ export default function run(): void {
       $field: 'xRequired',
       xRequired: [[]],
     },
-    {
-      $field: 'xRequired',
-      xRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1637,13 +1286,9 @@ export default function run(): void {
       $field: 'xRequired',
       xRequired: [[new Uint8Array([]).buffer]],
     },
-    {
-      $field: 'xRequired',
-      xRequired: [[new Uint8Array([]).buffer]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1651,13 +1296,9 @@ export default function run(): void {
       $field: 'xRequired',
       xRequired: [[], [], []],
     },
-    {
-      $field: 'xRequired',
-      xRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1671,19 +1312,9 @@ export default function run(): void {
         ],
       ],
     },
-    {
-      $field: 'xRequired',
-      xRequired: [
-        [
-          new Uint8Array([]).buffer,
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
-        ],
-      ],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1700,22 +1331,9 @@ export default function run(): void {
         ],
       ],
     },
-    {
-      $field: 'xRequired',
-      xRequired: [
-        [],
-        [new Uint8Array([]).buffer],
-        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
-        [
-          new Uint8Array([]).buffer,
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
-        ],
-      ],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1723,13 +1341,9 @@ export default function run(): void {
       $field: 'yRequired',
       yRequired: [],
     },
-    {
-      $field: 'yRequired',
-      yRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1737,13 +1351,9 @@ export default function run(): void {
       $field: 'yRequired',
       yRequired: [[]],
     },
-    {
-      $field: 'yRequired',
-      yRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1751,13 +1361,9 @@ export default function run(): void {
       $field: 'yRequired',
       yRequired: [['']],
     },
-    {
-      $field: 'yRequired',
-      yRequired: [['']],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1765,13 +1371,9 @@ export default function run(): void {
       $field: 'yRequired',
       yRequired: [[], [], []],
     },
-    {
-      $field: 'yRequired',
-      yRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1779,13 +1381,9 @@ export default function run(): void {
       $field: 'yRequired',
       yRequired: [['', '=8 bytes', 'Hello, 幸福!']],
     },
-    {
-      $field: 'yRequired',
-      yRequired: [['', '=8 bytes', 'Hello, 幸福!']],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1793,13 +1391,9 @@ export default function run(): void {
       $field: 'yRequired',
       yRequired: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
     },
-    {
-      $field: 'yRequired',
-      yRequired: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1807,13 +1401,9 @@ export default function run(): void {
       $field: 'zRequired',
       zRequired: [],
     },
-    {
-      $field: 'zRequired',
-      zRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1821,13 +1411,9 @@ export default function run(): void {
       $field: 'zRequired',
       zRequired: [[]],
     },
-    {
-      $field: 'zRequired',
-      zRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1835,13 +1421,9 @@ export default function run(): void {
       $field: 'zRequired',
       zRequired: [[{}]],
     },
-    {
-      $field: 'zRequired',
-      zRequired: [[{}]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1849,13 +1431,9 @@ export default function run(): void {
       $field: 'zRequired',
       zRequired: [[], [], []],
     },
-    {
-      $field: 'zRequired',
-      zRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1863,13 +1441,9 @@ export default function run(): void {
       $field: 'zRequired',
       zRequired: [[{}, {}, {}]],
     },
-    {
-      $field: 'zRequired',
-      zRequired: [[{}, {}, {}]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1877,13 +1451,9 @@ export default function run(): void {
       $field: 'zRequired',
       zRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
     },
-    {
-      $field: 'zRequired',
-      zRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1891,13 +1461,9 @@ export default function run(): void {
       $field: 'aaRequired',
       aaRequired: [],
     },
-    {
-      $field: 'aaRequired',
-      aaRequired: [],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1905,13 +1471,9 @@ export default function run(): void {
       $field: 'aaRequired',
       aaRequired: [[]],
     },
-    {
-      $field: 'aaRequired',
-      aaRequired: [[]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1919,13 +1481,9 @@ export default function run(): void {
       $field: 'aaRequired',
       aaRequired: [[{}]],
     },
-    {
-      $field: 'aaRequired',
-      aaRequired: [[{}]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1933,13 +1491,9 @@ export default function run(): void {
       $field: 'aaRequired',
       aaRequired: [[], [], []],
     },
-    {
-      $field: 'aaRequired',
-      aaRequired: [[], [], []],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1947,13 +1501,9 @@ export default function run(): void {
       $field: 'aaRequired',
       aaRequired: [[{}, {}, {}]],
     },
-    {
-      $field: 'aaRequired',
-      aaRequired: [[{}, {}, {}]],
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -1961,22 +1511,16 @@ export default function run(): void {
       $field: 'aaRequired',
       aaRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
     },
-    {
-      $field: 'aaRequired',
-      aaRequired: [[], [{}], [{}, {}], [{}, {}, {}]],
-    },
   );
 
-  const $fallback: { $field: 'aRequired'; aRequired: null } = {
-    $field: 'aRequired',
-    aRequired: null,
-  };
+  const $fallback = { $field: 'aRequired', aRequired: null };
 
   assertMatch(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
     {
+      $field: 'aAsymmetric',
       aAsymmetric: null,
       $fallback,
     },
@@ -3651,7 +3195,7 @@ export default function run(): void {
     },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3660,23 +3204,13 @@ export default function run(): void {
       aOptional: null,
       $fallback,
     },
-    {
-      $field: 'aOptional',
-      aOptional: null,
-      $fallback,
-    },
   );
 
   f64TestValues.forEach((bOptional) => {
-    assertMatch(
+    assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
-      {
-        $field: 'bOptional',
-        bOptional,
-        $fallback,
-      },
       {
         $field: 'bOptional',
         bOptional,
@@ -3686,15 +3220,10 @@ export default function run(): void {
   });
 
   u64TestValues.forEach((cOptional) => {
-    assertMatch(
+    assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
-      {
-        $field: 'cOptional',
-        cOptional,
-        $fallback,
-      },
       {
         $field: 'cOptional',
         cOptional,
@@ -3704,7 +3233,7 @@ export default function run(): void {
   });
 
   s64TestValues.forEach((dOptional) => {
-    assertMatch(
+    assertRoundTrip(
       Comprehensive.Types.Bar.size,
       Comprehensive.Types.Bar.serialize,
       Comprehensive.Types.Bar.deserialize,
@@ -3713,15 +3242,10 @@ export default function run(): void {
         dOptional,
         $fallback,
       },
-      {
-        $field: 'dOptional',
-        dOptional,
-        $fallback,
-      },
     );
   });
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3730,14 +3254,9 @@ export default function run(): void {
       eOptional: false,
       $fallback,
     },
-    {
-      $field: 'eOptional',
-      eOptional: false,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3746,14 +3265,9 @@ export default function run(): void {
       eOptional: true,
       $fallback,
     },
-    {
-      $field: 'eOptional',
-      eOptional: true,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3762,14 +3276,9 @@ export default function run(): void {
       fOptional: new Uint8Array([]).buffer,
       $fallback,
     },
-    {
-      $field: 'fOptional',
-      fOptional: new Uint8Array([]).buffer,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3778,14 +3287,9 @@ export default function run(): void {
       fOptional: new Uint8Array([0]).buffer,
       $fallback,
     },
-    {
-      $field: 'fOptional',
-      fOptional: new Uint8Array([0]).buffer,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3794,14 +3298,9 @@ export default function run(): void {
       fOptional: new Uint8Array([0, 42]).buffer,
       $fallback,
     },
-    {
-      $field: 'fOptional',
-      fOptional: new Uint8Array([0, 42]).buffer,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3810,14 +3309,9 @@ export default function run(): void {
       fOptional: new Uint8Array([0, 42, 255]).buffer,
       $fallback,
     },
-    {
-      $field: 'fOptional',
-      fOptional: new Uint8Array([0, 42, 255]).buffer,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3826,14 +3320,9 @@ export default function run(): void {
       gOptional: '',
       $fallback,
     },
-    {
-      $field: 'gOptional',
-      gOptional: '',
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3842,14 +3331,9 @@ export default function run(): void {
       gOptional: '=8 bytes',
       $fallback,
     },
-    {
-      $field: 'gOptional',
-      gOptional: '=8 bytes',
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3858,14 +3342,9 @@ export default function run(): void {
       gOptional: 'Hello, 幸福!',
       $fallback,
     },
-    {
-      $field: 'gOptional',
-      gOptional: 'Hello, 幸福!',
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3874,14 +3353,9 @@ export default function run(): void {
       hOptional: {},
       $fallback,
     },
-    {
-      $field: 'hOptional',
-      hOptional: {},
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3890,14 +3364,9 @@ export default function run(): void {
       iOptional: {},
       $fallback,
     },
-    {
-      $field: 'iOptional',
-      iOptional: {},
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3906,14 +3375,9 @@ export default function run(): void {
       jOptional: [],
       $fallback,
     },
-    {
-      $field: 'jOptional',
-      jOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3922,14 +3386,9 @@ export default function run(): void {
       jOptional: [null],
       $fallback,
     },
-    {
-      $field: 'jOptional',
-      jOptional: [null],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3938,14 +3397,9 @@ export default function run(): void {
       jOptional: [null, null],
       $fallback,
     },
-    {
-      $field: 'jOptional',
-      jOptional: [null, null],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3954,14 +3408,9 @@ export default function run(): void {
       jOptional: [null, null, null],
       $fallback,
     },
-    {
-      $field: 'jOptional',
-      jOptional: [null, null, null],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3970,14 +3419,9 @@ export default function run(): void {
       kOptional: [],
       $fallback,
     },
-    {
-      $field: 'kOptional',
-      kOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -3986,14 +3430,9 @@ export default function run(): void {
       kOptional: [0.0],
       $fallback,
     },
-    {
-      $field: 'kOptional',
-      kOptional: [0.0],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4002,14 +3441,9 @@ export default function run(): void {
       kOptional: [0.0, Math.PI],
       $fallback,
     },
-    {
-      $field: 'kOptional',
-      kOptional: [0.0, Math.PI],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4018,14 +3452,9 @@ export default function run(): void {
       kOptional: [0.0, Math.PI, Number.EPSILON],
       $fallback,
     },
-    {
-      $field: 'kOptional',
-      kOptional: [0.0, Math.PI, Number.EPSILON],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4034,14 +3463,9 @@ export default function run(): void {
       kOptional: f64TestValues,
       $fallback,
     },
-    {
-      $field: 'kOptional',
-      kOptional: f64TestValues,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4050,14 +3474,9 @@ export default function run(): void {
       lOptional: [],
       $fallback,
     },
-    {
-      $field: 'lOptional',
-      lOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4066,14 +3485,9 @@ export default function run(): void {
       lOptional: [u64Min],
       $fallback,
     },
-    {
-      $field: 'lOptional',
-      lOptional: [u64Min],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4082,14 +3496,9 @@ export default function run(): void {
       lOptional: [u64Min, 256n],
       $fallback,
     },
-    {
-      $field: 'lOptional',
-      lOptional: [u64Min, 256n],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4098,14 +3507,9 @@ export default function run(): void {
       lOptional: [u64Min, 256n, u64Max],
       $fallback,
     },
-    {
-      $field: 'lOptional',
-      lOptional: [u64Min, 256n, u64Max],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4114,14 +3518,9 @@ export default function run(): void {
       lOptional: u64TestValues,
       $fallback,
     },
-    {
-      $field: 'lOptional',
-      lOptional: u64TestValues,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4130,14 +3529,9 @@ export default function run(): void {
       mOptional: [],
       $fallback,
     },
-    {
-      $field: 'mOptional',
-      mOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4146,14 +3540,9 @@ export default function run(): void {
       mOptional: [s64Min],
       $fallback,
     },
-    {
-      $field: 'mOptional',
-      mOptional: [s64Min],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4162,14 +3551,9 @@ export default function run(): void {
       mOptional: [s64Min, 0n],
       $fallback,
     },
-    {
-      $field: 'mOptional',
-      mOptional: [s64Min, 0n],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4178,14 +3562,9 @@ export default function run(): void {
       mOptional: [s64Min, 0n, s64Max],
       $fallback,
     },
-    {
-      $field: 'mOptional',
-      mOptional: [s64Min, 0n, s64Max],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4194,14 +3573,9 @@ export default function run(): void {
       mOptional: s64TestValues,
       $fallback,
     },
-    {
-      $field: 'mOptional',
-      mOptional: s64TestValues,
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4210,14 +3584,9 @@ export default function run(): void {
       nOptional: [],
       $fallback,
     },
-    {
-      $field: 'nOptional',
-      nOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4226,14 +3595,9 @@ export default function run(): void {
       nOptional: [false],
       $fallback,
     },
-    {
-      $field: 'nOptional',
-      nOptional: [false],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4242,14 +3606,9 @@ export default function run(): void {
       nOptional: [false, true],
       $fallback,
     },
-    {
-      $field: 'nOptional',
-      nOptional: [false, true],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4258,14 +3617,9 @@ export default function run(): void {
       nOptional: [false, true, false],
       $fallback,
     },
-    {
-      $field: 'nOptional',
-      nOptional: [false, true, false],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4274,14 +3628,9 @@ export default function run(): void {
       oOptional: [],
       $fallback,
     },
-    {
-      $field: 'oOptional',
-      oOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4290,14 +3639,9 @@ export default function run(): void {
       oOptional: [new Uint8Array([]).buffer],
       $fallback,
     },
-    {
-      $field: 'oOptional',
-      oOptional: [new Uint8Array([]).buffer],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4309,17 +3653,9 @@ export default function run(): void {
       ],
       $fallback,
     },
-    {
-      $field: 'oOptional',
-      oOptional: [
-        new Uint8Array([]).buffer,
-        new Uint8Array([0, 42, 255]).buffer,
-      ],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4332,18 +3668,9 @@ export default function run(): void {
       ],
       $fallback,
     },
-    {
-      $field: 'oOptional',
-      oOptional: [
-        new Uint8Array([]).buffer,
-        new Uint8Array([0, 42, 255]).buffer,
-        new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
-      ],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4352,14 +3679,9 @@ export default function run(): void {
       pOptional: [],
       $fallback,
     },
-    {
-      $field: 'pOptional',
-      pOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4368,14 +3690,9 @@ export default function run(): void {
       pOptional: [''],
       $fallback,
     },
-    {
-      $field: 'pOptional',
-      pOptional: [''],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4384,14 +3701,9 @@ export default function run(): void {
       pOptional: ['', '=8 bytes'],
       $fallback,
     },
-    {
-      $field: 'pOptional',
-      pOptional: ['', '=8 bytes'],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4400,14 +3712,9 @@ export default function run(): void {
       pOptional: ['', '=8 bytes', 'Hello, 幸福!'],
       $fallback,
     },
-    {
-      $field: 'pOptional',
-      pOptional: ['', '=8 bytes', 'Hello, 幸福!'],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4416,14 +3723,9 @@ export default function run(): void {
       qOptional: [],
       $fallback,
     },
-    {
-      $field: 'qOptional',
-      qOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4432,14 +3734,9 @@ export default function run(): void {
       qOptional: [{}],
       $fallback,
     },
-    {
-      $field: 'qOptional',
-      qOptional: [{}],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4448,14 +3745,9 @@ export default function run(): void {
       qOptional: [{}, {}],
       $fallback,
     },
-    {
-      $field: 'qOptional',
-      qOptional: [{}, {}],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4464,14 +3756,9 @@ export default function run(): void {
       qOptional: [{}, {}, {}],
       $fallback,
     },
-    {
-      $field: 'qOptional',
-      qOptional: [{}, {}, {}],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4480,14 +3767,9 @@ export default function run(): void {
       rOptional: [],
       $fallback,
     },
-    {
-      $field: 'rOptional',
-      rOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4496,14 +3778,9 @@ export default function run(): void {
       rOptional: [{}],
       $fallback,
     },
-    {
-      $field: 'rOptional',
-      rOptional: [{}],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4512,14 +3789,9 @@ export default function run(): void {
       rOptional: [{}, {}],
       $fallback,
     },
-    {
-      $field: 'rOptional',
-      rOptional: [{}, {}],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4528,14 +3800,9 @@ export default function run(): void {
       rOptional: [{}, {}, {}],
       $fallback,
     },
-    {
-      $field: 'rOptional',
-      rOptional: [{}, {}, {}],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4544,14 +3811,9 @@ export default function run(): void {
       sOptional: [],
       $fallback,
     },
-    {
-      $field: 'sOptional',
-      sOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4560,14 +3822,9 @@ export default function run(): void {
       sOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'sOptional',
-      sOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4576,14 +3833,9 @@ export default function run(): void {
       sOptional: [[null]],
       $fallback,
     },
-    {
-      $field: 'sOptional',
-      sOptional: [[null]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4592,14 +3844,9 @@ export default function run(): void {
       sOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'sOptional',
-      sOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4608,14 +3855,9 @@ export default function run(): void {
       sOptional: [[null, null, null]],
       $fallback,
     },
-    {
-      $field: 'sOptional',
-      sOptional: [[null, null, null]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4624,14 +3866,9 @@ export default function run(): void {
       sOptional: [[], [null], [null, null], [null, null, null]],
       $fallback,
     },
-    {
-      $field: 'sOptional',
-      sOptional: [[], [null], [null, null], [null, null, null]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4640,14 +3877,9 @@ export default function run(): void {
       tOptional: [],
       $fallback,
     },
-    {
-      $field: 'tOptional',
-      tOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4656,14 +3888,9 @@ export default function run(): void {
       tOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'tOptional',
-      tOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4672,14 +3899,9 @@ export default function run(): void {
       tOptional: [[0.0]],
       $fallback,
     },
-    {
-      $field: 'tOptional',
-      tOptional: [[0.0]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4688,14 +3910,9 @@ export default function run(): void {
       tOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'tOptional',
-      tOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4704,14 +3921,9 @@ export default function run(): void {
       tOptional: [f64TestValues],
       $fallback,
     },
-    {
-      $field: 'tOptional',
-      tOptional: [f64TestValues],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4720,14 +3932,9 @@ export default function run(): void {
       tOptional: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
       $fallback,
     },
-    {
-      $field: 'tOptional',
-      tOptional: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4736,14 +3943,9 @@ export default function run(): void {
       uOptional: [],
       $fallback,
     },
-    {
-      $field: 'uOptional',
-      uOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4752,14 +3954,9 @@ export default function run(): void {
       uOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'uOptional',
-      uOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4768,14 +3965,9 @@ export default function run(): void {
       uOptional: [[u64Min]],
       $fallback,
     },
-    {
-      $field: 'uOptional',
-      uOptional: [[u64Min]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4784,14 +3976,9 @@ export default function run(): void {
       uOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'uOptional',
-      uOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4800,14 +3987,9 @@ export default function run(): void {
       uOptional: [u64TestValues],
       $fallback,
     },
-    {
-      $field: 'uOptional',
-      uOptional: [u64TestValues],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4816,14 +3998,9 @@ export default function run(): void {
       uOptional: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
       $fallback,
     },
-    {
-      $field: 'uOptional',
-      uOptional: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4832,14 +4009,9 @@ export default function run(): void {
       vOptional: [],
       $fallback,
     },
-    {
-      $field: 'vOptional',
-      vOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4848,14 +4020,9 @@ export default function run(): void {
       vOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'vOptional',
-      vOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4864,14 +4031,9 @@ export default function run(): void {
       vOptional: [[s64Min]],
       $fallback,
     },
-    {
-      $field: 'vOptional',
-      vOptional: [[s64Min]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4880,14 +4042,9 @@ export default function run(): void {
       vOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'vOptional',
-      vOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4896,14 +4053,9 @@ export default function run(): void {
       vOptional: [s64TestValues],
       $fallback,
     },
-    {
-      $field: 'vOptional',
-      vOptional: [s64TestValues],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4912,14 +4064,9 @@ export default function run(): void {
       vOptional: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
       $fallback,
     },
-    {
-      $field: 'vOptional',
-      vOptional: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4928,14 +4075,9 @@ export default function run(): void {
       wOptional: [],
       $fallback,
     },
-    {
-      $field: 'wOptional',
-      wOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4944,14 +4086,9 @@ export default function run(): void {
       wOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'wOptional',
-      wOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4960,14 +4097,9 @@ export default function run(): void {
       wOptional: [[false]],
       $fallback,
     },
-    {
-      $field: 'wOptional',
-      wOptional: [[false]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4976,14 +4108,9 @@ export default function run(): void {
       wOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'wOptional',
-      wOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -4992,14 +4119,9 @@ export default function run(): void {
       wOptional: [[false, true, false]],
       $fallback,
     },
-    {
-      $field: 'wOptional',
-      wOptional: [[false, true, false]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5008,14 +4130,9 @@ export default function run(): void {
       wOptional: [[], [false], [false, true], [false, true, false]],
       $fallback,
     },
-    {
-      $field: 'wOptional',
-      wOptional: [[], [false], [false, true], [false, true, false]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5024,14 +4141,9 @@ export default function run(): void {
       xOptional: [],
       $fallback,
     },
-    {
-      $field: 'xOptional',
-      xOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5040,14 +4152,9 @@ export default function run(): void {
       xOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'xOptional',
-      xOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5056,14 +4163,9 @@ export default function run(): void {
       xOptional: [[new Uint8Array([]).buffer]],
       $fallback,
     },
-    {
-      $field: 'xOptional',
-      xOptional: [[new Uint8Array([]).buffer]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5072,14 +4174,9 @@ export default function run(): void {
       xOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'xOptional',
-      xOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5094,20 +4191,9 @@ export default function run(): void {
       ],
       $fallback,
     },
-    {
-      $field: 'xOptional',
-      xOptional: [
-        [
-          new Uint8Array([]).buffer,
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
-        ],
-      ],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5125,23 +4211,9 @@ export default function run(): void {
       ],
       $fallback,
     },
-    {
-      $field: 'xOptional',
-      xOptional: [
-        [],
-        [new Uint8Array([]).buffer],
-        [new Uint8Array([]).buffer, new Uint8Array([0, 42, 255]).buffer],
-        [
-          new Uint8Array([]).buffer,
-          new Uint8Array([0, 42, 255]).buffer,
-          new Uint8Array([7, 6, 5, 4, 3, 2, 1, 0]).buffer,
-        ],
-      ],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5150,14 +4222,9 @@ export default function run(): void {
       yOptional: [],
       $fallback,
     },
-    {
-      $field: 'yOptional',
-      yOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5166,14 +4233,9 @@ export default function run(): void {
       yOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'yOptional',
-      yOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5182,14 +4244,9 @@ export default function run(): void {
       yOptional: [['']],
       $fallback,
     },
-    {
-      $field: 'yOptional',
-      yOptional: [['']],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5198,14 +4255,9 @@ export default function run(): void {
       yOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'yOptional',
-      yOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5214,14 +4266,9 @@ export default function run(): void {
       yOptional: [['', '=8 bytes', 'Hello, 幸福!']],
       $fallback,
     },
-    {
-      $field: 'yOptional',
-      yOptional: [['', '=8 bytes', 'Hello, 幸福!']],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5230,14 +4277,9 @@ export default function run(): void {
       yOptional: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
       $fallback,
     },
-    {
-      $field: 'yOptional',
-      yOptional: [[], [''], ['', '=8 bytes'], ['', '=8 bytes', 'Hello, 幸福!']],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5246,14 +4288,9 @@ export default function run(): void {
       zOptional: [],
       $fallback,
     },
-    {
-      $field: 'zOptional',
-      zOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5262,14 +4299,9 @@ export default function run(): void {
       zOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'zOptional',
-      zOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5278,14 +4310,9 @@ export default function run(): void {
       zOptional: [[{}]],
       $fallback,
     },
-    {
-      $field: 'zOptional',
-      zOptional: [[{}]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5294,14 +4321,9 @@ export default function run(): void {
       zOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'zOptional',
-      zOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5310,14 +4332,9 @@ export default function run(): void {
       zOptional: [[{}, {}, {}]],
       $fallback,
     },
-    {
-      $field: 'zOptional',
-      zOptional: [[{}, {}, {}]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5326,14 +4343,9 @@ export default function run(): void {
       zOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
       $fallback,
     },
-    {
-      $field: 'zOptional',
-      zOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5342,14 +4354,9 @@ export default function run(): void {
       aaOptional: [],
       $fallback,
     },
-    {
-      $field: 'aaOptional',
-      aaOptional: [],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5358,14 +4365,9 @@ export default function run(): void {
       aaOptional: [[]],
       $fallback,
     },
-    {
-      $field: 'aaOptional',
-      aaOptional: [[]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5374,14 +4376,9 @@ export default function run(): void {
       aaOptional: [[{}]],
       $fallback,
     },
-    {
-      $field: 'aaOptional',
-      aaOptional: [[{}]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5390,14 +4387,9 @@ export default function run(): void {
       aaOptional: [[], [], []],
       $fallback,
     },
-    {
-      $field: 'aaOptional',
-      aaOptional: [[], [], []],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
@@ -5406,22 +4398,12 @@ export default function run(): void {
       aaOptional: [[{}, {}, {}]],
       $fallback,
     },
-    {
-      $field: 'aaOptional',
-      aaOptional: [[{}, {}, {}]],
-      $fallback,
-    },
   );
 
-  assertMatch(
+  assertRoundTrip(
     Comprehensive.Types.Bar.size,
     Comprehensive.Types.Bar.serialize,
     Comprehensive.Types.Bar.deserialize,
-    {
-      $field: 'aaOptional',
-      aaOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
-      $fallback,
-    },
     {
       $field: 'aaOptional',
       aaOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
