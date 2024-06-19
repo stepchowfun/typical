@@ -1168,6 +1168,14 @@ fn write_schema<T: Write>(
                             write_indentation(buffer, indentation + 4)?;
                             write!(buffer, "const payloadAtlas = (atlas as any).")?;
                             write_identifier(buffer, &field.name, Camel, None)?;
+                            write!(buffer, " as ")?;
+                            write_type(
+                                buffer,
+                                &imports,
+                                namespace,
+                                &field.r#type.variant,
+                                Direction::Atlas,
+                            )?;
                             writeln!(buffer, ";")?;
                         }
                         write_indentation(buffer, indentation + 4)?;
@@ -1193,11 +1201,13 @@ fn write_schema<T: Write>(
                         match field.rule {
                             schema::Rule::Asymmetric | schema::Rule::Optional => {
                                 write_indentation(buffer, indentation + 4)?;
-                                writeln!(
+                                write!(
                                     buffer,
                                     "offset = serializeWithAtlasUnsafe(dataView, offset, \
-                                        message.$fallback, (atlas as any).$fallback);",
+                                        message.$fallback, (atlas as any).$fallback as ",
                                 )?;
+                                write_identifier(buffer, &declaration.name, Pascal, Some(Atlas))?;
+                                writeln!(buffer, ");")?;
                             }
                             schema::Rule::Required => {}
                         }
