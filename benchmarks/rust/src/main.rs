@@ -1,7 +1,7 @@
 mod types;
 
 use {
-    std::{f64::consts::PI, io, time::Instant},
+    std::{f64::consts::PI, io, mem::forget, time::Instant},
     types::{
         types::{ChoiceOut, MessageIn, MessageOut, StructIn, StructOut},
         Deserialize, Serialize,
@@ -94,7 +94,11 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
 
     for i in 0..iterations {
         let offset = message_size * i;
-        U::deserialize(&buffer[offset..offset + message_size])?;
+        let message = U::deserialize(&buffer[offset..offset + message_size])?;
+
+        // Don't deallocate the memory in this loop, since that isn't what the benchmark is
+        // intended to measure.
+        forget(message);
     }
 
     let deserialization_duration = deserialization_instant.elapsed();
