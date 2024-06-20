@@ -648,14 +648,14 @@ One benchmark serializes and deserializes a large message containing several hun
 |                                     | Rust         | TypeScript   |
 | ----------------------------------- | ------------ | ------------ |
 | **Per-thread serialization rate**   | 11.663 GiB/s | 11.092 GiB/s |
-| **Per-thread deserialization rate** | 6.030 GiB/s  | 7.915 GiB/s  |
+| **Per-thread deserialization rate** | 7.568 GiB/s  | 7.915 GiB/s  |
 
 Another benchmark repeatedly serializes and deserializes a pathological message containing many small and deeply nested values:
 
 |                                     | Rust          | TypeScript   |
 | ----------------------------------- | ------------- | ------------ |
 | **Per-thread serialization rate**   | 688.198 MiB/s | 48.992 MiB/s |
-| **Per-thread deserialization rate** | 290.701 MiB/s | 2.341 MiB/s  |
+| **Per-thread deserialization rate** | 303.313 MiB/s | 2.341 MiB/s  |
 
 These benchmarks represent two extremes. Real-world performance will be somewhere in the middle.
 
