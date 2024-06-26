@@ -166,8 +166,6 @@ tasks:
     description: Build the binary in non-release mode.
     dependencies:
       - repository
-    input_paths:
-      - src
     command: |
       # Build the project with Cargo.
       cargo-offline build
@@ -176,9 +174,6 @@ tasks:
     description: Run the unit test suite.
     dependencies:
       - repository
-    input_paths:
-      - integration_tests/types
-      - test_data
     command: |
       # Run the tests with Cargo. The `NO_COLOR` variable is used to disable colored output for
       # tests that make assertions regarding the output [tag:colorless_tests].
