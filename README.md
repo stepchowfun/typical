@@ -641,7 +641,7 @@ Notice that several types can take advantage of a more compact representation wh
 
 ## Benchmarks
 
-We have coarse-grained benchmarks [here](https://github.com/stepchowfun/typical/tree/main/benchmarks) for each code generator. The data below were averaged over 3 runs on a 2023 MacBook Pro with the Apple M2 Max chip and 32 GiB of RAM. The Rust benchmark was compiled by Rust 1.81.0 with `--release`. The TypeScript benchmark was transpiled to JavaScript by TypeScript 4.5.5 and run with Node.js 18.17.0.
+We have coarse-grained benchmarks [here](https://github.com/stepchowfun/typical/tree/main/benchmarks) for each code generator. The data below were averaged over 3 runs on a 2023 MacBook Pro with the Apple M2 Max chip and 32 GiB of RAM. The Rust benchmark was compiled by Rust 1.83.0 with `--release`. The TypeScript benchmark was transpiled to JavaScript by TypeScript 4.5.5 and run with Node.js 18.17.0.
 
 One benchmark serializes and deserializes a large message containing several hundred megabytes of text:
 
