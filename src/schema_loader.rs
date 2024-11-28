@@ -130,7 +130,7 @@ pub fn load_schemas(
     // Perform a depth-first traversal of the transitive dependencies.
     while let Some((namespace, path, origin)) = schemas_to_load.pop() {
         // Read the file.
-        let contents = match read_to_string(&base_path.join(&path)) {
+        let contents = match read_to_string(base_path.join(&path)) {
             Ok(contents) => contents,
             Err(error) => {
                 let message = format!("Unable to load {}.", path.to_string_lossy().code_str());
