@@ -191,10 +191,10 @@ tasks:
       for SCENARIO in benchmarks/rust examples/rust integration_tests/rust; do
         echo "Validating $SCENARIO..."
         (
-          cd "$SCENARIO" && \
-          cargo-offline check && \
-          cargo-offline clippy --all-features --all-targets --workspace && \
-          cargo-fmt --check && \
+          cd "$SCENARIO"
+          cargo-offline check
+          cargo-offline clippy --all-features --all-targets --workspace
+          cargo-fmt --check
           cargo-offline run
         )
       done
@@ -218,7 +218,12 @@ tasks:
         integration_tests/typescript_web
       do
         echo "Validating $SCENARIO..."
-        (cd "$SCENARIO" && npm ci && npm run main && npm run lint)
+        (
+          cd "$SCENARIO"
+          npm ci
+          npm run main
+          npm run lint
+        )
       done
 
       # Validate the data from the integration test.
@@ -247,19 +252,19 @@ tasks:
       # Lint the Rust projects.
       for PROJECT_PATH in . benchmarks/rust examples/rust integration_tests/rust; do
         (
-          cd "$PROJECT_PATH" &&
+          cd "$PROJECT_PATH"
 
           # Lint the code with Clippy.
-          cargo-offline clippy --all-features --all-targets --workspace &&
+          cargo-offline clippy --all-features --all-targets --workspace
 
           # Check code formatting with Rustfmt. See [ref:format_macros] for an explanation of the
           # `rg` commands.
-          rg --type rust --files-with-matches '' src | xargs sed -i 's/!(/_(/g' &&
-          rg --type rust --files-with-matches '' src | xargs sed -i 's/^\([^ (]*\)_(/\1!(/g' &&
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/!(/_(/g'
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/^\([^ (]*\)_(/\1!(/g'
           if ! cargo-fmt --check; then
             echo 'ERROR: Please correct the formatting errors above.' 1>&2
             exit 1
-          fi &&
+          fi
           rg --type rust --files-with-matches '' src | xargs sed -i 's/_(/!(/g'
 
           # Forbid unconsolidated `use` declarations.
@@ -287,9 +292,9 @@ tasks:
         integration_tests/typescript_web
       do
         (
-          cd "$PROJECT_PATH" &&
-          npm ci &&
-          npm run lint
+          cd "$PROJECT_PATH"
+          npm ci
+          npm run
         )
       done
 
@@ -331,13 +336,13 @@ tasks:
       # Format the Rust projects.
       for PROJECT_PATH in . benchmarks/rust examples/rust integration_tests/rust; do
         (
-          cd "$PROJECT_PATH" &&
+          cd "$PROJECT_PATH"
 
           # We temporarily convert macro invocations into function calls so Rustfmt's
           # `trailing_comma` feature applies to macro arguments [tag:format_macros].
-          rg --type rust --files-with-matches '' src | xargs sed -i 's/!(/_(/g' &&
-          rg --type rust --files-with-matches '' src | xargs sed -i 's/^\([^ (]*\)_(/\1!(/g' &&
-          cargo-fmt &&
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/!(/_(/g'
+          rg --type rust --files-with-matches '' src | xargs sed -i 's/^\([^ (]*\)_(/\1!(/g'
+          cargo-fmt
           rg --type rust --files-with-matches '' src | xargs sed -i 's/_(/!(/g'
         )
       done
@@ -349,7 +354,11 @@ tasks:
         integration_tests/typescript_node \
         integration_tests/typescript_web
       do
-        (cd "$PROJECT_PATH" && npm ci && npm run format)
+        (
+          cd "$PROJECT_PATH"
+          npm ci
+          npm run format
+        )
       done
 
   release:

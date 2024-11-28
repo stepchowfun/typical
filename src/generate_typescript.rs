@@ -1603,7 +1603,14 @@ fn write_type<T: Write>(
             }
         },
         schema::TypeVariant::Custom(import, name) => {
-            write_custom_type(buffer, imports, namespace, import, name, Some(direction))?;
+            write_custom_type(
+                buffer,
+                imports,
+                namespace,
+                import.as_ref(),
+                name,
+                Some(direction),
+            )?;
         }
         schema::TypeVariant::F64 => {
             write!(buffer, "number")?;
@@ -1642,7 +1649,7 @@ fn write_custom_type<T: Write>(
     buffer: &mut T,
     imports: &BTreeMap<Identifier, schema::Namespace>,
     namespace: &schema::Namespace,
-    import: &Option<Identifier>,
+    import: Option<&Identifier>,
     name: &Identifier,
     direction: Option<Direction>,
 ) -> Result<(), fmt::Error> {
@@ -1855,7 +1862,7 @@ fn write_atlas_calculation<T: Write>(
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
             write!(buffer, "payloadAtlas = ")?;
-            write_custom_type(buffer, imports, namespace, import, name, None)?;
+            write_custom_type(buffer, imports, namespace, import.as_ref(), name, None)?;
             writeln!(buffer, ".atlas(payload);")
         }
         schema::TypeVariant::F64 => {
@@ -2089,7 +2096,7 @@ fn write_serialization_invocation<T: Write>(
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
             write!(buffer, "offset = ")?;
-            write_custom_type(buffer, imports, namespace, import, name, None)?;
+            write_custom_type(buffer, imports, namespace, import.as_ref(), name, None)?;
             writeln!(
                 buffer,
                 ".serializeWithAtlasUnsafe(dataView, offset, payload, payloadAtlas);",
@@ -2409,7 +2416,7 @@ fn write_deserialization_invocation<T: Write>(
         schema::TypeVariant::Custom(import, name) => {
             write_indentation(buffer, indentation)?;
             write!(buffer, "let payload = ")?;
-            write_custom_type(buffer, imports, namespace, import, name, None)?;
+            write_custom_type(buffer, imports, namespace, import.as_ref(), name, None)?;
             writeln!(buffer, ".deserializeUnsafe(dataView);")?;
             write_indentation(buffer, indentation)?;
             writeln!(buffer, "offset = dataView.byteLength;")
