@@ -34,7 +34,7 @@ impl fmt::Display for Error {
 }
 
 impl error::Error for Error {
-    fn source<'a>(&'a self) -> Option<&'a (dyn error::Error + 'static)> {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         self.reason.as_deref()
     }
 }
