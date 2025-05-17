@@ -1,6 +1,6 @@
 use {
     crate::{
-        error::{listing, throw, Error, SourceRange},
+        error::{Error, SourceRange, listing, throw},
         format::CodeStr,
         identifier::Identifier,
         schema, token,
@@ -429,7 +429,7 @@ fn parse_schema(
                     break;
                 }
             }
-        };
+        }
 
         // Consume the `}`.
         consume_token_0!(

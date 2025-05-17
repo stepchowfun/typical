@@ -2,8 +2,8 @@ use {
     crate::types::{Deserialize, Serialize},
     std::{
         fmt::Debug,
-        fs::{remove_file, OpenOptions},
-        io::{self, Error, ErrorKind, Write},
+        fs::{OpenOptions, remove_file},
+        io::{self, Error, Write},
         mem::drop,
     },
 };
@@ -28,7 +28,7 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     println!("Bytes from serialization: {buffer:?}");
     println!("Size of the serialized value: {:?}", buffer.len());
     if buffer.len() != size {
-        return Err(Error::new(ErrorKind::Other, "Mismatch!"));
+        return Err(Error::other("Mismatch!"));
     }
 
     let mut file = OpenOptions::new()
@@ -42,7 +42,7 @@ pub fn assert_match<T: Debug + Serialize, U: Debug + Deserialize>(
     println!("Message deserialized from those bytes: {replica:?}");
 
     if format!("{replica:?}") != format!("{expected:?}") {
-        return Err(Error::new(ErrorKind::Other, "Mismatch!"));
+        return Err(Error::other("Mismatch!"));
     }
 
     Ok(())

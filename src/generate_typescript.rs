@@ -1415,7 +1415,7 @@ fn write_choice<T: Write>(
                 write!(buffer, ": ")?;
                 write_type(buffer, imports, namespace, &field.r#type.variant, direction)?;
             }
-        };
+        }
 
         if match field.rule {
             schema::Rule::Asymmetric => match direction {

@@ -1,6 +1,6 @@
 use {
     crate::{
-        error::{listing, throw, Error},
+        error::{Error, listing, throw},
         format::CodeStr,
         identifier::Identifier,
         schema,

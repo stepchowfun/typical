@@ -1,6 +1,6 @@
 use {
     crate::format::CodeStr,
-    colored::{control::SHOULD_COLORIZE, Colorize},
+    colored::{Colorize, control::SHOULD_COLORIZE},
     pad::{Alignment, PadStr},
     std::{
         cmp::{max, min},
@@ -210,7 +210,7 @@ mod tests {
     use {
         crate::{
             assert_same,
-            error::{listing, throw, Error, SourceRange},
+            error::{Error, SourceRange, listing, throw},
         },
         std::{path::Path, rc::Rc},
     };

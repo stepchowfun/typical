@@ -2,14 +2,14 @@ mod types;
 
 use {
     std::{
-        fs::{remove_file, File},
+        fs::{File, remove_file},
         io::{self, BufReader, BufWriter, Write},
     },
     types::{
+        Deserialize, Serialize,
         types::{
             SendEmailRequestIn, SendEmailRequestOut, SendEmailResponseIn, SendEmailResponseOut,
         },
-        Deserialize, Serialize,
     },
 };
 
