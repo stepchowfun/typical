@@ -13,7 +13,7 @@ pub fn merge_errors(errors: &[Error]) -> Error {
                     // already visually look like an empty line. See [ref:overline_u203e].
                     if acc
                         .split('\n')
-                        .last()
+                        .next_back()
                         .unwrap() // Safe since `split` always results in at least one item
                         .chars()
                         .all(|c| c == ' ' || c == '\u{203e}')

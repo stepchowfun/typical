@@ -2,7 +2,7 @@
 name = "typical"
 version = "0.12.1"
 authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
-edition = "2021"
+edition = "2024"
 description = "Data interchange with algebraic data types."
 license = "MIT"
 documentation = "https://github.com/stepchowfun/typical"

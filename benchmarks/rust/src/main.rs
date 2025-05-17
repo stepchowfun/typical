@@ -3,8 +3,8 @@ mod types;
 use {
     std::{f64::consts::PI, io, mem::forget, time::Instant},
     types::{
-        types::{ChoiceOut, MessageIn, MessageOut, StructIn, StructOut},
         Deserialize, Serialize,
+        types::{ChoiceOut, MessageIn, MessageOut, StructIn, StructOut},
     },
 };
 

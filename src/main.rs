@@ -16,7 +16,7 @@ mod validator;
 use {
     crate::{
         count::count,
-        error::{throw, Error},
+        error::{Error, throw},
         error_merger::merge_errors,
         format::CodeStr,
         schema_loader::load_schemas,

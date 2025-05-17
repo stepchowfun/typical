@@ -1,11 +1,11 @@
 use {
     crate::{
-        error::{listing, throw, Error, SourceRange},
+        error::{Error, SourceRange, listing, throw},
         format::CodeStr,
         token::{
-            Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
-            CHOICE_KEYWORD, DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD,
-            S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
+            AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+            STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
         },
     },
     std::path::Path,
@@ -348,7 +348,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
             }
 
             // Skip whitespace.
-            _ if c.is_whitespace() => continue,
+            _ if c.is_whitespace() => {}
 
             // If we made it this far, the input contains something unexpected.
             _ => {
@@ -395,11 +395,11 @@ mod tests {
             assert_fails, assert_same,
             error::SourceRange,
             token::{
-                Token, Variant, ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD,
-                CHOICE_KEYWORD, DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD,
-                S64_KEYWORD, STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
+                AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+                DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+                STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
             },
-            tokenizer::{tokenize, RAW_IDENTIFIER_SIGIL},
+            tokenizer::{RAW_IDENTIFIER_SIGIL, tokenize},
         },
         std::{fmt::Write, path::Path},
     };

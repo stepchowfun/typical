@@ -3,7 +3,7 @@ use {
         error::SourceRange,
         identifier::Identifier,
         token::{
-            ASYMMETRIC_KEYWORD, AS_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
             DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
             STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
         },
@@ -346,8 +346,8 @@ mod tests {
             assert_same,
             error::SourceRange,
             schema::{
-                relativize_namespace, Declaration, DeclarationVariant, Field, Import, Namespace,
-                Rule, Schema, Type, TypeVariant,
+                Declaration, DeclarationVariant, Field, Import, Namespace, Rule, Schema, Type,
+                TypeVariant, relativize_namespace,
             },
         },
         std::{
