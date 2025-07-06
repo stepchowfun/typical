@@ -140,7 +140,6 @@ pub fn generate(
 use std::{{
     cmp::min,
     io::{{self, BufRead, Error, ErrorKind, Write}},
-    mem::transmute,
 }};
 
 const MISSING_FIELDS_ERROR_MESSAGE: &str = \"Struct missing one or more required field(s).\";
@@ -156,11 +155,11 @@ pub trait Deserialize: Sized {{
 }}
 
 fn zigzag_encode(value: i64) -> u64 {{
-    unsafe {{ transmute::<i64, u64>(value >> 63_u32) ^ transmute::<i64, u64>(value << 1_u32) }}
+    i64::cast_unsigned(value >> 63_u32) ^ i64::cast_unsigned(value << 1_u32)
 }}
 
 fn zigzag_decode(value: u64) -> i64 {{
-    unsafe {{ transmute::<u64, i64>(value >> 1_u32) ^ -transmute::<u64, i64>(value & 1) }}
+    u64::cast_signed(value >> 1_u32) ^ -u64::cast_signed(value & 1)
 }}
 
 fn varint_size_from_value(value: u64) -> usize {{
