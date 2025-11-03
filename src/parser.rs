@@ -244,27 +244,27 @@ fn parse_schema(
     let mut declarations = vec![];
 
     // Parse the comment, if it exists.
-    if *position < tokens.len() {
-        if let token::Variant::Comment(paragraphs) = &tokens[*position].variant {
-            if *position + 1 < tokens.len() {
-                match tokens[*position + 1].variant {
-                    token::Variant::Struct | token::Variant::Choice => {
-                        if tokens[*position].source_range.end + 1
-                            < tokens[*position + 1].source_range.start
-                        {
-                            comment.clone_from(paragraphs);
-                            *position += 1;
-                        }
-                    }
-                    _ => {
+    if *position < tokens.len()
+        && let token::Variant::Comment(paragraphs) = &tokens[*position].variant
+    {
+        if *position + 1 < tokens.len() {
+            match tokens[*position + 1].variant {
+                token::Variant::Struct | token::Variant::Choice => {
+                    if tokens[*position].source_range.end + 1
+                        < tokens[*position + 1].source_range.start
+                    {
                         comment.clone_from(paragraphs);
                         *position += 1;
                     }
                 }
-            } else {
-                comment.clone_from(paragraphs);
-                *position += 1;
+                _ => {
+                    comment.clone_from(paragraphs);
+                    *position += 1;
+                }
             }
+        } else {
+            comment.clone_from(paragraphs);
+            *position += 1;
         }
     }
 
@@ -276,18 +276,17 @@ fn parse_schema(
                 // [ref:parse_import_keyword_chomp].
                 if let Some((name, import)) =
                     parse_import(source_path, source_contents, tokens, position, errors)
+                    && imports.insert(name.clone(), import.clone()).is_some()
                 {
-                    if imports.insert(name.clone(), import.clone()).is_some() {
-                        errors.push(throw::<Error>(
-                            &format!(
-                                "An import named {} already exists in this file.",
-                                name.code_str(),
-                            ),
-                            Some(source_path),
-                            Some(&listing(source_contents, import.source_range)),
-                            None,
-                        ));
-                    }
+                    errors.push(throw::<Error>(
+                        &format!(
+                            "An import named {} already exists in this file.",
+                            name.code_str(),
+                        ),
+                        Some(source_path),
+                        Some(&listing(source_contents, import.source_range)),
+                        None,
+                    ));
                 }
             }
             _ => {
