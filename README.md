@@ -673,20 +673,15 @@ Here are the supported command-line options:
 Usage: typical <COMMAND>
 
 Commands:
-  generate
-          Generates code for a schema and its transitive dependencies
-  format
-          Formats a schema and its transitive dependencies
-  shell-completion
-          Prints a shell completion script. Supports Zsh, Fish, Zsh, PowerShell, and Elvish.
-  help
-          Print this message or the help of the given subcommand(s)
+  generate          Generate code for a schema and its transitive dependencies
+  format            Format a schema and its transitive dependencies
+  shell-completion  Print a shell completion script. Supports Bash, Fish, Zsh, PowerShell, and
+                    Elvish.
+  help              Print this message or the help of the given subcommand(s)
 
 Options:
-  -v, --version
-          Print version information
-  -h, --help
-          Print help
+  -v, --version  Print version
+  -h, --help     Print help
 ```
 
 In particular, the `generate` subcommand has the following options:
@@ -695,18 +690,14 @@ In particular, the `generate` subcommand has the following options:
 Usage: typical generate [OPTIONS] <SCHEMA_PATH>
 
 Arguments:
-  <SCHEMA_PATH>
-          Sets the path of the schema
+  <SCHEMA_PATH>  Set the path to the schema
 
 Options:
-      --list-schemas
-          Lists the schemas imported by the given schema (and the given schema itself)
-      --rust <PATH>
-          Sets the path of the Rust file to emit
-      --typescript <PATH>
-          Sets the path of the TypeScript file to emit
-  -h, --help
-          Print help
+      --list-schemas       List the schemas imported by the given schema (and the given schema
+                           itself)
+      --rust <PATH>        Set the path to the Rust file to emit
+      --typescript <PATH>  Set the path to the TypeScript file to emit
+  -h, --help               Print help
 ```
 
 ## Installation instructions
