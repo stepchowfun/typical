@@ -670,48 +670,34 @@ typical generate types.t --rust types.rs --typescript types.ts
 Here are the supported command-line options:
 
 ```
-USAGE:
-    typical <SUBCOMMAND>
+Usage: typical <COMMAND>
 
-OPTIONS:
-    -h, --help
-            Prints help information
+Commands:
+  generate          Generate code for a schema and its transitive dependencies
+  format            Format a schema and its transitive dependencies
+  shell-completion  Print a shell completion script. Supports Bash, Fish, Zsh, PowerShell, and
+                    Elvish.
+  help              Print this message or the help of the given subcommand(s)
 
-    -v, --version
-            Prints version information
-
-
-SUBCOMMANDS:
-    format
-            Formats a schema and its transitive dependencies
-
-    generate
-            Generates code for a schema and its transitive dependencies
-
-    help
-            Prints this message or the help of the given subcommand(s)
-
-    shell-completion
-            Prints a shell completion script. Supports Zsh, Fish, Zsh, PowerShell, and Elvish.
+Options:
+  -v, --version  Print version
+  -h, --help     Print help
 ```
 
 In particular, the `generate` subcommand has the following options:
 
 ```
-USAGE:
-    typical generate [FLAGS] [OPTIONS] <SCHEMA_PATH>
+Usage: typical generate [OPTIONS] <SCHEMA_PATH>
 
-FLAGS:
-    -h, --help            Prints help information
-        --list-schemas    Lists the schemas imported by the given schema (and the given schema
-                          itself)
+Arguments:
+  <SCHEMA_PATH>  Set the path to the schema
 
-OPTIONS:
-        --rust <PATH>          Sets the path of the Rust file to emit
-        --typescript <PATH>    Sets the path of the TypeScript file to emit
-
-ARGS:
-    <SCHEMA_PATH>    Sets the path of the schema
+Options:
+      --list-schemas       List the schemas imported by the given schema (and the given schema
+                           itself)
+      --rust <PATH>        Set the path to the Rust file to emit
+      --typescript <PATH>  Set the path to the TypeScript file to emit
+  -h, --help               Print help
 ```
 
 ## Installation instructions

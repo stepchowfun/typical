@@ -17,11 +17,9 @@ clippy.pedantic = { level = "deny", priority = -1 }
 rust.warnings = "deny"
 
 [dependencies]
-colored = "1"
+clap = { version = "4", features = ["derive", "wrap_help"] }
+clap_complete = "4"
+colored = "3"
 pad = "0.1"
-textwrap = "0.14"
+textwrap = "0.16"
 unicode-segmentation = "1"
-
-[dependencies.clap]
-version = "2"
-features = ["wrap_help"]

@@ -22,7 +22,8 @@ use {
         schema_loader::load_schemas,
         validator::validate,
     },
-    clap::{App, AppSettings, Arg, Shell, SubCommand},
+    clap::{ArgAction, Args, CommandFactory, Parser, Subcommand as ClapSubcommand},
+    clap_complete::{Shell, generate},
     std::{
         fs::{create_dir_all, write},
         io::stdout,
@@ -37,91 +38,85 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 // The name of the program binary
 const BIN_NAME: &str = "typical";
 
-// Command-line option and subcommand names
-const GENERATE_SUBCOMMAND: &str = "generate";
-const GENERATE_SUBCOMMAND_PATH_OPTION: &str = "generate-path";
-const GENERATE_SUBCOMMAND_RUST_OPTION: &str = "rust";
-const GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION: &str = "typescript";
-const GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION: &str = "list-schemas";
-const FORMAT_SUBCOMMAND: &str = "format";
-const FORMAT_SUBCOMMAND_PATH_OPTION: &str = "format-path";
-const FORMAT_SUBCOMMAND_CHECK_OPTION: &str = "check";
-const SHELL_COMPLETION_SUBCOMMAND: &str = "shell-completion";
-const SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION: &str = "shell-completion-shell";
+// This struct represents the command-line arguments.
+#[derive(Parser)]
+#[command(
+    about = concat!(
+        env!("CARGO_PKG_DESCRIPTION"),
+        "\n\n",
+        "More information can be found at: ",
+        env!("CARGO_PKG_HOMEPAGE")
+    ),
+    version,
+    disable_version_flag = true,
+)]
+struct Cli {
+    #[arg(short, long, help = "Print version", action = ArgAction::Version)]
+    _version: Option<bool>,
 
-// Set up the command-line interface.
-fn cli<'a, 'b>() -> App<'a, 'b> {
-    App::new("Typical")
-        .version(VERSION)
-        .version_short("v")
-        .author("Stephan Boyer <stephan@stephanboyer.com>")
-        .about("Data interchange with algebraic data types.")
-        .setting(AppSettings::ColoredHelp)
-        .setting(AppSettings::NextLineHelp)
-        .setting(AppSettings::SubcommandRequiredElseHelp) // [tag:subcommand_required_else_help]
-        .setting(AppSettings::UnifiedHelpMessage)
-        .setting(AppSettings::VersionlessSubcommands)
-        .subcommand(
-            SubCommand::with_name(GENERATE_SUBCOMMAND)
-                .about("Generates code for a schema and its transitive dependencies")
-                .arg(
-                    Arg::with_name(GENERATE_SUBCOMMAND_PATH_OPTION)
-                        .value_name("SCHEMA_PATH")
-                        .help("Sets the path of the schema")
-                        .required(true), // [tag:generate_subcommand_path_required]
-                )
-                .arg(
-                    Arg::with_name(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION)
-                        .long(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION)
-                        .help(
-                            "Lists the schemas imported by the given schema (and the given schema \
-                            itself)",
-                        ),
-                )
-                .arg(
-                    Arg::with_name(GENERATE_SUBCOMMAND_RUST_OPTION)
-                        .value_name("PATH")
-                        .long(GENERATE_SUBCOMMAND_RUST_OPTION)
-                        .help("Sets the path of the Rust file to emit"),
-                )
-                .arg(
-                    Arg::with_name(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
-                        .value_name("PATH")
-                        .long(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
-                        .help("Sets the path of the TypeScript file to emit"),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name(FORMAT_SUBCOMMAND)
-                .about("Formats a schema and its transitive dependencies")
-                .arg(
-                    Arg::with_name(FORMAT_SUBCOMMAND_PATH_OPTION)
-                        .value_name("SCHEMA_PATH")
-                        .help("Sets the path of the schema")
-                        .required(true), // [tag:format_subcommand_path_required]
-                )
-                .arg(
-                    Arg::with_name(FORMAT_SUBCOMMAND_CHECK_OPTION)
-                        .long(FORMAT_SUBCOMMAND_CHECK_OPTION)
-                        .help("Check the formatting rather than actually doing it"),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name(SHELL_COMPLETION_SUBCOMMAND)
-                .about(
-                    " \
-                     Prints a shell completion script. Supports Zsh, Fish, Zsh, PowerShell, and \
-                     Elvish. \
-                     "
-                    .trim(),
-                )
-                .arg(
-                    Arg::with_name(SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION)
-                        .value_name("SHELL")
-                        .help("Bash, Fish, Zsh, PowerShell, or Elvish")
-                        .required(true), // [tag:shell_completion_subcommand_shell_required]
-                ),
-        )
+    #[command(subcommand)]
+    command: TypicalCommand,
+}
+
+#[derive(Args)]
+struct GenerateArgs {
+    #[arg(value_name = "SCHEMA_PATH", help = "Set the path to the schema")]
+    path: String,
+
+    #[arg(
+        long,
+        help = "List the schemas imported by the given schema (and the given schema itself)",
+        action = ArgAction::SetTrue
+    )]
+    list_schemas: bool,
+
+    #[arg(
+        long,
+        value_name = "PATH",
+        help = "Set the path to the Rust file to emit"
+    )]
+    rust: Option<String>,
+
+    #[arg(
+        long,
+        value_name = "PATH",
+        help = "Set the path to the TypeScript file to emit"
+    )]
+    typescript: Option<String>,
+}
+
+#[derive(Args)]
+struct FormatArgs {
+    #[arg(value_name = "SCHEMA_PATH", help = "Set the path to the schema")]
+    path: String,
+
+    #[arg(
+        long,
+        help = "Check the formatting rather than actually doing it",
+        action = ArgAction::SetTrue
+    )]
+    check: bool,
+}
+
+#[derive(Args)]
+struct ShellCompletionArgs {
+    #[arg(help = "Bash, Fish, Zsh, PowerShell, or Elvish")]
+    shell: String,
+}
+
+#[derive(ClapSubcommand)]
+enum TypicalCommand {
+    #[command(about = "Generate code for a schema and its transitive dependencies")]
+    Generate(GenerateArgs),
+
+    #[command(about = "Format a schema and its transitive dependencies")]
+    Format(FormatArgs),
+
+    #[command(
+        name = "shell-completion",
+        about = "Print a shell completion script. Supports Bash, Fish, Zsh, PowerShell, and Elvish."
+    )]
+    ShellCompletion(ShellCompletionArgs),
 }
 
 // Generate code for a schema and its transitive dependencies.
@@ -301,7 +296,8 @@ fn shell_completion(shell: &str) -> Result<(), Error> {
     };
 
     // Write the script to STDOUT.
-    cli().gen_completions_to(BIN_NAME, shell_variant, &mut stdout());
+    let mut command = Cli::command();
+    generate(shell_variant, &mut command, BIN_NAME, &mut stdout());
 
     // If we made it this far, nothing went wrong.
     Ok(())
@@ -310,80 +306,31 @@ fn shell_completion(shell: &str) -> Result<(), Error> {
 // Program entrypoint
 fn entry() -> Result<(), Error> {
     // Parse command-line arguments.
-    let matches = cli().get_matches();
+    let cli = Cli::parse();
 
     // Decide what to do based on the subcommand.
-    match matches.subcommand_name() {
+    match cli.command {
         // [tag:generate_subcommand]
-        Some(subcommand) if subcommand == GENERATE_SUBCOMMAND => {
-            // Get the subcommand matches. The `unwrap` is safe due to [ref:generate_subcommand].
-            let subcommand_matches = matches.subcommand_matches(GENERATE_SUBCOMMAND).unwrap();
-
-            // Determine the path to the schema file.
-            let path = Path::new(
-                subcommand_matches
-                    .value_of(GENERATE_SUBCOMMAND_PATH_OPTION)
-                    // [ref:generate_subcommand_path_required]
-                    .unwrap(),
-            );
-
-            // Determine if the user wants to list the schemas.
-            let list_schemas =
-                subcommand_matches.is_present(GENERATE_SUBCOMMAND_LIST_SCHEMAS_OPTION);
-
-            // Determine the path to the Rust output file, if provided.
-            let rust = subcommand_matches
-                .value_of(GENERATE_SUBCOMMAND_RUST_OPTION)
-                .map(Path::new);
-
-            // Determine the path to the TypeScript output file, if provided.
-            let typescript = subcommand_matches
-                .value_of(GENERATE_SUBCOMMAND_TYPESCRIPT_OPTION)
-                .map(Path::new);
-
+        TypicalCommand::Generate(args) => {
             // Generate code for the schema and its transitive dependencies.
-            generate_code(path, list_schemas, rust, typescript)?;
-        }
-
-        // [tag:format_subcommand]
-        Some(subcommand) if subcommand == FORMAT_SUBCOMMAND => {
-            // Get the subcommand matches. The `unwrap` is safe due to [ref:format_subcommand].
-            let subcommand_matches = matches.subcommand_matches(FORMAT_SUBCOMMAND).unwrap();
-
-            // Determine the path to the schema file.
-            let path = Path::new(
-                subcommand_matches
-                    .value_of(FORMAT_SUBCOMMAND_PATH_OPTION)
-                    // [ref:format_subcommand_path_required]
-                    .unwrap(),
-            );
-
-            // Determine if the user wants to check the formatting.
-            let check = subcommand_matches.is_present(FORMAT_SUBCOMMAND_CHECK_OPTION);
-
-            // Format the schema and its transitive dependencies.
-            format_schema(path, check)?;
-        }
-
-        // [tag:shell_completion_subcommand]
-        Some(subcommand) if subcommand == SHELL_COMPLETION_SUBCOMMAND => {
-            shell_completion(
-                matches
-                    .subcommand_matches(SHELL_COMPLETION_SUBCOMMAND)
-                    .unwrap() // [ref:shell_completion_subcommand]
-                    .value_of(SHELL_COMPLETION_SUBCOMMAND_SHELL_OPTION)
-                    // [ref:shell_completion_subcommand_shell_required]
-                    .unwrap(),
+            generate_code(
+                Path::new(&args.path),
+                args.list_schemas,
+                args.rust.as_deref().map(Path::new),
+                args.typescript.as_deref().map(Path::new),
             )?;
         }
 
-        // We should never end up in this branch, provided we handled all the subcommands
-        // above.
-        Some(_) => panic!("Subcommand not implemented."),
+        // [tag:format_subcommand]
+        TypicalCommand::Format(args) => {
+            // Format the schema and its transitive dependencies.
+            format_schema(Path::new(&args.path), args.check)?;
+        }
 
-        // If no subcommand was provided, the help message should have been printed
-        // [ref:subcommand_required_else_help].
-        None => panic!("The help message should have been printed."),
+        // [tag:shell_completion_subcommand]
+        TypicalCommand::ShellCompletion(args) => {
+            shell_completion(&args.shell)?;
+        }
     }
 
     // If we made it this far, nothing went wrong.
@@ -396,5 +343,16 @@ fn main() {
     if let Err(e) = entry() {
         eprintln!("{e}");
         exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Cli;
+    use clap::CommandFactory;
+
+    #[test]
+    fn verify_cli() {
+        Cli::command().debug_assert();
     }
 }
