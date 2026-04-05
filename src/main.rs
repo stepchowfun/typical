@@ -305,7 +305,6 @@ fn entry() -> Result<(), Error> {
 
     // Decide what to do based on the subcommand.
     match cli.command {
-        // [tag:generate_subcommand]
         TypicalCommand::Generate(args) => {
             // Generate code for the schema and its transitive dependencies.
             generate_code(
@@ -315,15 +314,12 @@ fn entry() -> Result<(), Error> {
                 args.typescript.as_deref().map(Path::new),
             )?;
         }
-
-        // [tag:format_subcommand]
         TypicalCommand::Format(args) => {
             // Format the schema and its transitive dependencies.
             format_schema(Path::new(&args.path), args.check)?;
         }
-
-        // [tag:shell_completion_subcommand]
         TypicalCommand::ShellCompletion(args) => {
+            // Generate the shell completion script.
             shell_completion(&args.shell)?;
         }
     }
