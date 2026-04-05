@@ -65,8 +65,7 @@ struct GenerateArgs {
 
     #[arg(
         long,
-        help = "List the schemas imported by the given schema (and the given schema itself)",
-        action = ArgAction::SetTrue
+        help = "List the schemas imported by the given schema (and the given schema itself)"
     )]
     list_schemas: bool,
 
@@ -90,11 +89,7 @@ struct FormatArgs {
     #[arg(value_name = "SCHEMA_PATH", help = "Set the path to the schema")]
     path: String,
 
-    #[arg(
-        long,
-        help = "Check the formatting rather than actually doing it",
-        action = ArgAction::SetTrue
-    )]
+    #[arg(long, help = "Check the formatting rather than actually doing it")]
     check: bool,
 }
 
