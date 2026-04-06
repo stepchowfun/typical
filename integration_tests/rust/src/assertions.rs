@@ -1,11 +1,9 @@
-use {
-    crate::types::{Deserialize, Serialize},
-    std::{
-        fmt::Debug,
-        fs::{OpenOptions, remove_file},
-        io::{self, Error, Write},
-        mem::drop,
-    },
+use crate::types::{Deserialize, Serialize};
+use std::{
+    fmt::Debug,
+    fs::{OpenOptions, remove_file},
+    io::{self, Error, Write},
+    mem::drop,
 };
 
 const OMNIFILE_PATH: &str = "/tmp/omnifile-rust";

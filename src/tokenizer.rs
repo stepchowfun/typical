@@ -1,16 +1,14 @@
-use {
-    crate::{
-        error::{Error, SourceRange, listing, throw},
-        format::CodeStr,
-        token::{
-            AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-            DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-            STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
-        },
+use crate::{
+    error::{Error, SourceRange, listing, throw},
+    format::CodeStr,
+    token::{
+        AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+        DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+        STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
     },
-    std::path::Path,
-    unicode_segmentation::GraphemeCursor,
 };
+use std::path::Path;
+use unicode_segmentation::GraphemeCursor;
 
 // An identifier can be prefixed with this character to avoid being parsed as a keyword.
 const RAW_IDENTIFIER_SIGIL: char = '$';
@@ -390,19 +388,17 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{
-            assert_fails, assert_same,
-            error::SourceRange,
-            token::{
-                AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-                DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-                STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
-            },
-            tokenizer::{RAW_IDENTIFIER_SIGIL, tokenize},
+    use crate::{
+        assert_fails, assert_same,
+        error::SourceRange,
+        token::{
+            AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+            STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
         },
-        std::{fmt::Write, path::Path},
+        tokenizer::{RAW_IDENTIFIER_SIGIL, tokenize},
     };
+    use std::{fmt::Write, path::Path};
 
     #[test]
     fn tokenize_example() {

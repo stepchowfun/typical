@@ -1,10 +1,8 @@
-use {
-    crate::{
-        assertions::assert_round_trip,
-        types::degenerate::types::{EmptyChoiceIn, EmptyChoiceOut, EmptyStructIn, EmptyStructOut},
-    },
-    std::io,
+use crate::{
+    assertions::assert_round_trip,
+    types::degenerate::types::{EmptyChoiceIn, EmptyChoiceOut, EmptyStructIn, EmptyStructOut},
 };
+use std::io;
 
 #[allow(clippy::needless_pass_by_value)]
 fn _initial_in<T>(x: EmptyChoiceIn) -> T {

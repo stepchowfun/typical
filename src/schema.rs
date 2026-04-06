@@ -1,18 +1,16 @@
-use {
-    crate::{
-        error::SourceRange,
-        identifier::Identifier,
-        token::{
-            AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-            DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-            STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
-        },
+use crate::{
+    error::SourceRange,
+    identifier::Identifier,
+    token::{
+        AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+        DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+        STRING_KEYWORD, STRUCT_KEYWORD, U64_KEYWORD, UNIT_KEYWORD,
     },
-    std::{
-        collections::{BTreeMap, BTreeSet},
-        fmt::{self, Display, Formatter, Write},
-        path::PathBuf,
-    },
+};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::{self, Display, Formatter, Write},
+    path::PathBuf,
 };
 
 const MAX_COLUMNS: usize = 79;
@@ -341,19 +339,17 @@ impl Display for Namespace {
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{
-            assert_same,
-            error::SourceRange,
-            schema::{
-                Declaration, DeclarationVariant, Field, Import, Namespace, Rule, Schema, Type,
-                TypeVariant, relativize_namespace,
-            },
+    use crate::{
+        assert_same,
+        error::SourceRange,
+        schema::{
+            Declaration, DeclarationVariant, Field, Import, Namespace, Rule, Schema, Type,
+            TypeVariant, relativize_namespace,
         },
-        std::{
-            collections::{BTreeMap, BTreeSet},
-            path::Path,
-        },
+    };
+    use std::{
+        collections::{BTreeMap, BTreeSet},
+        path::Path,
     };
 
     #[test]

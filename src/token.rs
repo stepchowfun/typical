@@ -1,9 +1,7 @@
-use {
-    crate::{error::SourceRange, identifier::Identifier},
-    std::{
-        fmt::{Display, Formatter, Result},
-        path::PathBuf,
-    },
+use crate::{error::SourceRange, identifier::Identifier};
+use std::{
+    fmt::{Display, Formatter, Result},
+    path::PathBuf,
 };
 
 // Keywords
@@ -110,17 +108,15 @@ impl Display for Variant {
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{
-            error::SourceRange,
-            token::{
-                AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
-                DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
-                STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
-            },
+    use crate::{
+        error::SourceRange,
+        token::{
+            AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
+            DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
+            STRING_KEYWORD, STRUCT_KEYWORD, Token, U64_KEYWORD, UNIT_KEYWORD, Variant,
         },
-        std::path::Path,
     };
+    use std::path::Path;
 
     #[test]
     fn token_display() {

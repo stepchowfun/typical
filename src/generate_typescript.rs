@@ -1,10 +1,8 @@
-use {
-    crate::{identifier::Identifier, schema},
-    std::{
-        collections::BTreeMap,
-        fmt::{self, Write},
-        path::PathBuf,
-    },
+use crate::{identifier::Identifier, schema};
+use std::{
+    collections::BTreeMap,
+    fmt::{self, Write},
+    path::PathBuf,
 };
 
 // The string to be used for each indentation level.
@@ -2547,10 +2545,8 @@ fn integer_encoded(r#type: &schema::Type) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{generate_typescript::generate, schema_loader::load_schemas, validator::validate},
-        std::{fs::read_to_string, path::Path},
-    };
+    use crate::{generate_typescript::generate, schema_loader::load_schemas, validator::validate};
+    use std::{fs::read_to_string, path::Path};
 
     #[test]
     fn generate_example() {

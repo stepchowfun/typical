@@ -58,7 +58,8 @@ macro_rules! assert_same {
 
 #[cfg(test)]
 mod tests {
-    use {crate::error::Error, std::fmt::Write};
+    use crate::error::Error;
+    use std::fmt::Write;
 
     #[test]
     #[should_panic(expected = "The expression was supposed to fail, but it succeeded.")]

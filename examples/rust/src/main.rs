@@ -1,16 +1,12 @@
 mod types;
 
-use {
-    std::{
-        fs::{File, remove_file},
-        io::{self, BufReader, BufWriter, Write},
-    },
-    types::{
-        Deserialize, Serialize,
-        types::{
-            SendEmailRequestIn, SendEmailRequestOut, SendEmailResponseIn, SendEmailResponseOut,
-        },
-    },
+use std::{
+    fs::{File, remove_file},
+    io::{self, BufReader, BufWriter, Write},
+};
+use types::{
+    Deserialize, Serialize,
+    types::{SendEmailRequestIn, SendEmailRequestOut, SendEmailResponseIn, SendEmailResponseOut},
 };
 
 const REQUEST_FILE_PATH: &str = "/tmp/request";

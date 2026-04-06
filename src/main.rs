@@ -13,23 +13,21 @@ mod token;
 mod tokenizer;
 mod validator;
 
-use {
-    crate::{
-        count::count,
-        error::{Error, throw},
-        error_merger::merge_errors,
-        format::CodeStr,
-        schema_loader::load_schemas,
-        validator::validate,
-    },
-    clap::{ArgAction, Args, CommandFactory, Parser, Subcommand as ClapSubcommand},
-    clap_complete::{Shell, generate},
-    std::{
-        fs::{create_dir_all, write},
-        io::stdout,
-        path::Path,
-        process::exit,
-    },
+use crate::{
+    count::count,
+    error::{Error, throw},
+    error_merger::merge_errors,
+    format::CodeStr,
+    schema_loader::load_schemas,
+    validator::validate,
+};
+use clap::{ArgAction, Args, CommandFactory, Parser, Subcommand as ClapSubcommand};
+use clap_complete::{Shell, generate};
+use std::{
+    fs::{create_dir_all, write},
+    io::stdout,
+    path::Path,
+    process::exit,
 };
 
 // The program version
