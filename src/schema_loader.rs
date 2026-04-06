@@ -1,19 +1,16 @@
-use {
-    crate::{
-        error::{Error, listing, throw},
-        format::CodeStr,
-        parser::parse,
-        schema,
-        tokenizer::tokenize,
-    },
-    std::{
-        borrow::ToOwned,
-        collections::{BTreeMap, HashSet},
-        fs::read_to_string,
-        io::{self, ErrorKind},
-        path::PathBuf,
-        path::{Component, Path},
-    },
+use crate::{
+    error::{Error, listing, throw},
+    format::CodeStr,
+    parser::parse,
+    schema,
+    tokenizer::tokenize,
+};
+use std::{
+    borrow::ToOwned,
+    collections::{BTreeMap, HashSet},
+    fs::read_to_string,
+    io::{self, ErrorKind},
+    path::{Component, Path, PathBuf},
 };
 
 // Convert a path to a namespace. This function will panic if the path cannot be converted into a
@@ -266,13 +263,11 @@ pub fn load_schemas(
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{
-            schema::Namespace,
-            schema_loader::{load_schemas, path_to_namespace},
-        },
-        std::path::Path,
+    use crate::{
+        schema::Namespace,
+        schema_loader::{load_schemas, path_to_namespace},
     };
+    use std::path::Path;
 
     #[test]
     fn path_to_namespace_empty() {

@@ -1,11 +1,9 @@
 mod types;
 
-use {
-    std::{f64::consts::PI, io, mem::forget, time::Instant},
-    types::{
-        Deserialize, Serialize,
-        types::{ChoiceOut, MessageIn, MessageOut, StructIn, StructOut},
-    },
+use std::{f64::consts::PI, io, mem::forget, time::Instant};
+use types::{
+    Deserialize, Serialize,
+    types::{ChoiceOut, MessageIn, MessageOut, StructIn, StructOut},
 };
 
 const PATHOLOGICAL_ITERATIONS: usize = 300_000;

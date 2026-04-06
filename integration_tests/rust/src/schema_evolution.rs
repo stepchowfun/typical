@@ -1,13 +1,11 @@
-use {
-    crate::{
-        assertions::assert_match,
-        types::schema_evolution::{
-            after, before,
-            types::{SingletonChoiceIn, SingletonChoiceOut, SingletonStructIn, SingletonStructOut},
-        },
+use crate::{
+    assertions::assert_match,
+    types::schema_evolution::{
+        after, before,
+        types::{SingletonChoiceIn, SingletonChoiceOut, SingletonStructIn, SingletonStructOut},
     },
-    std::io,
 };
+use std::io;
 
 fn choice_test_cases(
     fallback_before: before::ExampleChoiceOut,

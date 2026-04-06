@@ -1,14 +1,12 @@
-use {
-    crate::{
-        error::{Error, listing, throw},
-        format::CodeStr,
-        identifier::Identifier,
-        schema,
-    },
-    std::{
-        collections::{BTreeMap, HashMap, HashSet},
-        path::{Path, PathBuf},
-    },
+use crate::{
+    error::{Error, listing, throw},
+    format::CodeStr,
+    identifier::Identifier,
+    schema,
+};
+use std::{
+    collections::{BTreeMap, HashMap, HashSet},
+    path::{Path, PathBuf},
 };
 
 // The index will be encoded as a 64-bit integer, but two of the bits are used to help encode the
@@ -382,13 +380,11 @@ fn check_type_for_cycles(
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{
-            assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
-            validator::validate,
-        },
-        std::{collections::BTreeMap, fmt::Write, path::Path},
+    use crate::{
+        assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
+        validator::validate,
     };
+    use std::{collections::BTreeMap, fmt::Write, path::Path};
 
     #[test]
     fn validate_empty() {

@@ -1,13 +1,11 @@
-use {
-    crate::{
-        assertions::assert_round_trip,
-        types::{
-            comprehensive::types::{BarIn, BarOut, FooIn, FooOut, LocalStructOut},
-            degenerate::types::EmptyStructOut,
-        },
+use crate::{
+    assertions::assert_round_trip,
+    types::{
+        comprehensive::types::{BarIn, BarOut, FooIn, FooOut, LocalStructOut},
+        degenerate::types::EmptyStructOut,
     },
-    std::{f64::consts::PI, io},
 };
+use std::{f64::consts::PI, io};
 
 const F64_TEST_VALUES: &[f64] = &[
     0.0,

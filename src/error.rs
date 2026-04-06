@@ -1,13 +1,11 @@
-use {
-    crate::format::CodeStr,
-    colored::{Colorize, control::SHOULD_COLORIZE},
-    pad::{Alignment, PadStr},
-    std::{
-        cmp::{max, min},
-        error, fmt,
-        path::Path,
-        rc::Rc,
-    },
+use crate::format::CodeStr;
+use colored::{Colorize, control::SHOULD_COLORIZE};
+use pad::{Alignment, PadStr};
+use std::{
+    cmp::{max, min},
+    error, fmt,
+    path::Path,
+    rc::Rc,
 };
 
 // This is the primary error type we'll be using everywhere.
@@ -207,13 +205,11 @@ pub fn listing(source_contents: &str, source_range: SourceRange) -> String {
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{
-            assert_same,
-            error::{Error, SourceRange, listing, throw},
-        },
-        std::{path::Path, rc::Rc},
+    use crate::{
+        assert_same,
+        error::{Error, SourceRange, listing, throw},
     };
+    use std::{path::Path, rc::Rc};
 
     #[test]
     fn error_no_reason_display() {

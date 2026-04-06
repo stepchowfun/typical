@@ -1,10 +1,8 @@
-use {
-    crate::format::CodeStr,
-    colored::ColoredString,
-    std::{
-        cmp::Ordering,
-        hash::{Hash, Hasher},
-    },
+use crate::format::CodeStr;
+use colored::ColoredString;
+use std::{
+    cmp::Ordering,
+    hash::{Hash, Hasher},
 };
 
 // This is a case-insensitive identifier. This struct provides two benefits over just using
@@ -154,13 +152,11 @@ fn split_words(name: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use {
-        crate::{format::CodeStr, identifier::Identifier},
-        std::{
-            cmp::Ordering,
-            collections::hash_map::DefaultHasher,
-            hash::{Hash, Hasher},
-        },
+    use crate::{format::CodeStr, identifier::Identifier};
+    use std::{
+        cmp::Ordering,
+        collections::hash_map::DefaultHasher,
+        hash::{Hash, Hasher},
     };
 
     #[test]
