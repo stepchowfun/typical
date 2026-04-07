@@ -1,6 +1,7 @@
 use crate::{
     error::{Error, listing, throw},
     format::CodeStr,
+    generate_typescript::COMMON_FILE_STEM,
     identifier::Identifier,
     schema,
 };
@@ -13,6 +14,12 @@ use std::{
 // size of the field. So the maximum index is 2^62 - 1.
 const MAX_FIELD_INDEX: usize = (1 << 62) - 1;
 
+// The error message shown when there's a collision with a reserved module name.
+const TYPESCRIPT_RESERVED_MODULE_NAME_ERROR: &str = concat!(
+    "The name of this file conflicts with a reserved module name used by the generated ",
+    "TypeScript code.",
+);
+
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
 pub fn validate(
@@ -20,6 +27,22 @@ pub fn validate(
 ) -> Result<(), Vec<Error>> {
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
+
+    // [tag:typescript_common_file_collision_rejected] Check that no schema collides with the
+    // shared TypeScript library file.
+    let common_namespace = schema::Namespace {
+        components: vec![COMMON_FILE_STEM.into()],
+    };
+    for (namespace, (_, source_path, _)) in schemas {
+        if namespace == &common_namespace {
+            errors.push(throw::<Error>(
+                TYPESCRIPT_RESERVED_MODULE_NAME_ERROR,
+                Some(source_path),
+                None,
+                None,
+            ));
+        }
+    }
 
     // For the purpose of validating types, construct a map from (namespace, name) to
     // (schema, declaration).
@@ -380,11 +403,46 @@ fn check_type_for_cycles(
 
 #[cfg(test)]
 mod tests {
+    use super::TYPESCRIPT_RESERVED_MODULE_NAME_ERROR;
     use crate::{
         assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
         validator::validate,
     };
     use std::{collections::BTreeMap, fmt::Write, path::Path};
+
+    #[test]
+    fn validate_typescript_common_namespace_collision() {
+        let namespace = Namespace {
+            components: vec!["common".into()],
+        };
+        let path = Path::new("common.t").to_owned();
+        let contents = String::new();
+
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(validate(&schemas), TYPESCRIPT_RESERVED_MODULE_NAME_ERROR);
+    }
+
+    #[test]
+    fn validate_typescript_common_namespace_collision_after_snake_case() {
+        let namespace = Namespace {
+            components: vec!["Common".into()],
+        };
+        let path = Path::new("Common.t").to_owned();
+        let contents = String::new();
+
+        let tokens = tokenize(&path, &contents).unwrap();
+        let schema = parse(&path, &contents, &tokens).unwrap();
+
+        let mut schemas = BTreeMap::new();
+        schemas.insert(namespace, (schema, path, contents));
+
+        assert_fails!(validate(&schemas), TYPESCRIPT_RESERVED_MODULE_NAME_ERROR);
+    }
 
     #[test]
     fn validate_empty() {

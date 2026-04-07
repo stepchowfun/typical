@@ -144,7 +144,7 @@ fn generate_code(
     if let Some(rust_file) = rust_file {
         eprintln!("Generating Rust\u{2026}");
 
-        // Create any missing intermediate directories as needed.
+        // Create any missing ancestor directories.
         if let Some(parent) = rust_file.parent() {
             create_dir_all(parent).map_err(|error| {
                 throw(
@@ -175,24 +175,11 @@ fn generate_code(
     if let Some(typescript_directory) = typescript_directory {
         eprintln!("Generating TypeScript\u{2026}");
 
-        // Create the output directory if it doesn't already exist.
-        create_dir_all(typescript_directory).map_err(|error| {
-            throw(
-                &format!(
-                    "Unable to create {}.",
-                    typescript_directory.to_string_lossy().code_str(),
-                ),
-                None,
-                None,
-                Some(error),
-            )
-        })?;
-
         // Generate the code and write it to the files.
         for (relative_path, contents) in generate_typescript::generate(VERSION, &schemas) {
             let output_file_path = typescript_directory.join(&relative_path);
 
-            // Create any nested intermediate directories as needed.
+            // Create any missing ancestor directories.
             if let Some(parent) = output_file_path.parent() {
                 create_dir_all(parent).map_err(|error| {
                     throw(
@@ -204,6 +191,7 @@ fn generate_code(
                 })?;
             }
 
+            // Write the file.
             eprintln!(
                 "Writing {}\u{2026}",
                 output_file_path.to_string_lossy().code_str(),

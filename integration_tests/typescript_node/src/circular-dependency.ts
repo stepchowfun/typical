@@ -1,11 +1,12 @@
-import { CircularDependency } from '../generated/types';
+import { StructFromBelow } from '../generated/circular_dependency/dependency/types';
+import { StructFromAbove } from '../generated/circular_dependency/types';
 import { assertRoundTrip } from './assertions';
 
 export default function run(): void {
   assertRoundTrip(
-    CircularDependency.Types.StructFromAbove.size,
-    CircularDependency.Types.StructFromAbove.serialize,
-    CircularDependency.Types.StructFromAbove.deserialize,
+    StructFromAbove.size,
+    StructFromAbove.serialize,
+    StructFromAbove.deserialize,
     {
       field: 'field',
       size: 'size',
@@ -18,9 +19,9 @@ export default function run(): void {
   console.log();
 
   assertRoundTrip(
-    CircularDependency.Dependency.Types.StructFromBelow.size,
-    CircularDependency.Dependency.Types.StructFromBelow.serialize,
-    CircularDependency.Dependency.Types.StructFromBelow.deserialize,
+    StructFromBelow.size,
+    StructFromBelow.serialize,
+    StructFromBelow.deserialize,
     {
       x: {
         field: 'field',

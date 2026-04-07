@@ -1,7 +1,7 @@
 /* eslint-disable no-console, @typescript-eslint/no-magic-numbers -- Allowed just for this file. */
 
 import { hrtime } from 'process';
-import { Types } from '../generated/types';
+import { Message, Struct } from '../generated/types';
 
 const pathologicalIterations = 5_000;
 const massiveStringSize = 500_000_000;
@@ -138,9 +138,9 @@ function benchmark<T, U, V extends { $size: number }>(
 console.log('Massive message test.');
 
 benchmark(
-  Types.Struct.atlas,
-  Types.Struct.serializeWithAtlasUnsafe,
-  Types.Struct.deserialize,
+  Struct.atlas,
+  Struct.serializeWithAtlasUnsafe,
+  Struct.deserialize,
   { x: 'a'.repeat(massiveStringSize) },
   1,
 );
@@ -149,9 +149,9 @@ console.log();
 console.log('Pathological message test.');
 
 benchmark(
-  Types.Message.atlas,
-  Types.Message.serializeWithAtlasUnsafe,
-  Types.Message.deserialize,
+  Message.atlas,
+  Message.serializeWithAtlasUnsafe,
+  Message.deserialize,
   {
     a: null,
     b: Math.PI,
