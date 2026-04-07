@@ -61,7 +61,7 @@ typical format types.t
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust and TypeScript code with the following:
 
 ```sh
-typical generate types.t --rust types.rs --typescript types.ts
+typical generate types.t --rust-file rust/types.rs --typescript-dir typescript
 ```
 
 Refer to the [example projects](https://github.com/stepchowfun/typical/tree/main/examples) for how to automate this. In summary:
@@ -664,7 +664,7 @@ These benchmarks represent two extremes. Real-world performance will be somewher
 Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `types.t` with the following:
 
 ```sh
-typical generate types.t --rust types.rs --typescript types.ts
+typical generate types.t --rust-file rust/types.rs --typescript-dir typescript
 ```
 
 Here are the supported command-line options:
@@ -695,8 +695,8 @@ Arguments:
 Options:
       --list-schemas       List the schemas imported by the given schema (and the given schema
                            itself)
-      --rust <PATH>        Set the path to the Rust file to emit
-      --typescript <PATH>  Set the path to the TypeScript file to emit
+      --rust-file <PATH>      Set the path to the Rust file to emit
+      --typescript-dir <PATH>  Set the directory in which the TypeScript files will be emitted
   -h, --help               Print help
 ```
 

@@ -5,7 +5,7 @@
     "main": "npm run typical && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
     "lint": "npm run typical && eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
     "format": "prettier --config .prettierrc.js --ignore-path .ignore --write . && typical format types.t",
-    "typical": "typical generate types.t --typescript generated/types.ts"
+    "typical": "typical generate types.t --typescript-dir generated"
   },
   "devDependencies": {
     "@types/node": "^18.17.0",

@@ -5,7 +5,7 @@
     "main": "npm run typical && rm -rf dist && webpack --config webpack.js && echo 'Please open `dist/index.html` in a web browser.'",
     "lint": "npm run typical && eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
     "format": "prettier --config .prettierrc.js --ignore-path .ignore --write .",
-    "typical": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript integration_tests/typescript_web/generated/types.ts)"
+    "typical": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript-dir integration_tests/typescript_web/generated)"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",

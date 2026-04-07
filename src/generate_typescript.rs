@@ -119,12 +119,13 @@ enum Direction {
 
 use Direction::{Atlas, In, Out};
 
-// Generate TypeScript code from a schema and its transitive dependencies.
+// Generate TypeScript files from a schema and its transitive dependencies. The paths are relative
+// to the configured output directory.
 #[allow(clippy::too_many_lines)]
 pub fn generate(
     typical_version: &str,
     schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
-) -> String {
+) -> BTreeMap<PathBuf, String> {
     // Construct a tree of modules and schemas. We start with an empty tree.
     let mut tree = Module {
         children: BTreeMap::new(),
@@ -463,7 +464,7 @@ const textDecoder = new TextDecoder();",
         .unwrap();
     }
 
-    buffer
+    BTreeMap::from([(PathBuf::from("types.ts"), buffer)])
 }
 
 // Insert a schema into a module.
@@ -2546,7 +2547,11 @@ fn integer_encoded(r#type: &schema::Type) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::{generate_typescript::generate, schema_loader::load_schemas, validator::validate};
-    use std::{fs::read_to_string, path::Path};
+    use std::{
+        collections::BTreeMap,
+        fs::read_to_string,
+        path::{Path, PathBuf},
+    };
 
     #[test]
     fn generate_example() {
@@ -2555,7 +2560,10 @@ mod tests {
 
         assert_eq!(
             generate("0.0.0", &schemas),
-            read_to_string("test_data/types.ts").unwrap(),
+            BTreeMap::from([(
+                PathBuf::from("types.ts"),
+                read_to_string("test_data/types.ts").unwrap(),
+            )]),
         );
     }
 }
