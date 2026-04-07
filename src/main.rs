@@ -26,7 +26,7 @@ use clap_complete::{Shell, generate};
 use std::{
     fs::{create_dir_all, write},
     io::stdout,
-    path::Path,
+    path::{Path, PathBuf},
     process::exit,
 };
 
@@ -59,7 +59,7 @@ struct Cli {
 #[derive(Args)]
 struct GenerateArgs {
     #[arg(value_name = "SCHEMA_PATH", help = "Set the path to the schema")]
-    path: String,
+    path: PathBuf,
 
     #[arg(
         long,
@@ -72,20 +72,20 @@ struct GenerateArgs {
         value_name = "PATH",
         help = "Set the path to the Rust file to emit"
     )]
-    rust: Option<String>,
+    rust: Option<PathBuf>,
 
     #[arg(
         long,
         value_name = "PATH",
         help = "Set the path to the TypeScript file to emit"
     )]
-    typescript: Option<String>,
+    typescript: Option<PathBuf>,
 }
 
 #[derive(Args)]
 struct FormatArgs {
     #[arg(value_name = "SCHEMA_PATH", help = "Set the path to the schema")]
-    path: String,
+    path: PathBuf,
 
     #[arg(long, help = "Check the formatting rather than actually doing it")]
     check: bool,
@@ -306,15 +306,15 @@ fn entry() -> Result<(), Error> {
         TypicalCommand::Generate(args) => {
             // Generate code for the schema and its transitive dependencies.
             generate_code(
-                Path::new(&args.path),
+                &args.path,
                 args.list_schemas,
-                args.rust.as_deref().map(Path::new),
-                args.typescript.as_deref().map(Path::new),
+                args.rust.as_deref(),
+                args.typescript.as_deref(),
             )?;
         }
         TypicalCommand::Format(args) => {
             // Format the schema and its transitive dependencies.
-            format_schema(Path::new(&args.path), args.check)?;
+            format_schema(&args.path, args.check)?;
         }
         TypicalCommand::ShellCompletion(args) => {
             // Generate the shell completion script.
