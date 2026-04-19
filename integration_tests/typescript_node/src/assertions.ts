@@ -31,7 +31,7 @@ export function assertMatch<O, I>(
   console.log('Bytes from serialization:', arrayBuffer);
   console.log('Size of the serialized message:', arrayBuffer.byteLength);
 
-  writeFileSync(omnifilePath, Buffer.from(arrayBuffer), { flag: 'as' });
+  writeFileSync(omnifilePath, new Uint8Array(arrayBuffer), { flag: 'as' });
 
   const replica = deserialize(arrayBuffer);
   deepStrictEqual(replica, expected);

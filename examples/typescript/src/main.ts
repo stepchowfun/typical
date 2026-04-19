@@ -17,21 +17,25 @@ function writeToFiles(): void {
   };
 
   const requestArrayBuffer = SendEmailRequest.serialize(requestMessage);
-  writeFileSync(requestFilePath, Buffer.from(requestArrayBuffer));
+  writeFileSync(requestFilePath, new Uint8Array(requestArrayBuffer));
 
   const responseArrayBuffer = SendEmailResponse.serialize(responseMessage);
-  writeFileSync(responseFilePath, Buffer.from(responseArrayBuffer));
+  writeFileSync(responseFilePath, new Uint8Array(responseArrayBuffer));
 }
 
 function readFromFiles(): void {
   const requestFileContents = readFileSync(requestFilePath);
-  const requestMessage = SendEmailRequest.deserialize(requestFileContents);
+  const requestMessage = SendEmailRequest.deserialize(
+    new Uint8Array(requestFileContents),
+  );
   if (requestMessage instanceof Error) {
     throw requestMessage;
   }
 
   const responseFileContents = readFileSync(responseFilePath);
-  const responseMessage = SendEmailResponse.deserialize(responseFileContents);
+  const responseMessage = SendEmailResponse.deserialize(
+    new Uint8Array(responseFileContents),
+  );
   if (responseMessage instanceof Error) {
     throw responseMessage;
   }
