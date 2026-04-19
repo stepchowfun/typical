@@ -72,14 +72,14 @@ struct GenerateArgs {
         value_name = "PATH",
         help = "Set the path to the Rust file to emit"
     )]
-    rust: Option<PathBuf>,
+    rust_file: Option<PathBuf>,
 
     #[arg(
         long,
         value_name = "PATH",
-        help = "Set the path to the TypeScript file to emit"
+        help = "Set the directory in which the TypeScript files will be emitted"
     )]
-    typescript: Option<PathBuf>,
+    typescript_dir: Option<PathBuf>,
 }
 
 #[derive(Args)]
@@ -114,14 +114,14 @@ enum TypicalCommand {
 
 // Generate code for a schema and its transitive dependencies.
 fn generate_code(
-    path: &Path,
+    schema_path: &Path,
     list_schemas: bool,
-    rust: Option<&Path>,
-    typescript: Option<&Path>,
+    rust_file: Option<&Path>,
+    typescript_directory: Option<&Path>,
 ) -> Result<(), Error> {
     // Load the schema and its transitive dependencies.
     eprintln!("Loading schemas\u{2026}");
-    let schemas = load_schemas(path).map_err(|errors| merge_errors(&errors))?;
+    let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
     eprintln!("{} loaded.", count(schemas.len(), "schema"));
 
     // Validate the schemas.
@@ -133,7 +133,7 @@ fn generate_code(
         eprintln!("Listing schemas\u{2026}");
 
         // The `unwrap` is safe since otherwise the schema would've failed to load above.
-        let directory = path.parent().unwrap();
+        let directory = schema_path.parent().unwrap();
 
         for (_, source_path, _) in schemas.values() {
             println!("{}", directory.join(source_path).to_string_lossy());
@@ -141,11 +141,11 @@ fn generate_code(
     }
 
     // Generate Rust code, if applicable.
-    if let Some(rust) = rust {
+    if let Some(rust_file) = rust_file {
         eprintln!("Generating Rust\u{2026}");
 
-        // Create any missing intermediate directories as needed.
-        if let Some(parent) = rust.parent() {
+        // Create any missing ancestor directories.
+        if let Some(parent) = rust_file.parent() {
             create_dir_all(parent).map_err(|error| {
                 throw(
                     &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
@@ -157,43 +157,12 @@ fn generate_code(
         }
 
         // Generate the code and write it to the file.
-        eprintln!("Writing {}\u{2026}", rust.to_string_lossy().code_str());
-        write(rust, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
-            throw(
-                &format!("Unable to write {}.", rust.to_string_lossy().code_str()),
-                None,
-                None,
-                Some(error),
-            )
-        })?;
-    }
-
-    // Generate TypeScript code, if applicable.
-    if let Some(typescript) = typescript {
-        eprintln!("Generating TypeScript\u{2026}");
-
-        // Create any missing intermediate directories as needed.
-        if let Some(parent) = typescript.parent() {
-            create_dir_all(parent).map_err(|error| {
-                throw(
-                    &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
-                    None,
-                    None,
-                    Some(error),
-                )
-            })?;
-        }
-
-        // Generate the code and write it to the file.
-        eprintln!(
-            "Writing {}\u{2026}",
-            typescript.to_string_lossy().code_str(),
-        );
-        write(typescript, generate_typescript::generate(VERSION, &schemas)).map_err(|error| {
+        eprintln!("Writing {}\u{2026}", rust_file.to_string_lossy().code_str());
+        write(rust_file, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
             throw(
                 &format!(
                     "Unable to write {}.",
-                    typescript.to_string_lossy().code_str(),
+                    rust_file.to_string_lossy().code_str(),
                 ),
                 None,
                 None,
@@ -202,15 +171,54 @@ fn generate_code(
         })?;
     }
 
+    // Generate TypeScript code, if applicable.
+    if let Some(typescript_directory) = typescript_directory {
+        eprintln!("Generating TypeScript\u{2026}");
+
+        // Generate the code and write it to the files.
+        for (relative_path, contents) in generate_typescript::generate(VERSION, &schemas) {
+            let output_file_path = typescript_directory.join(&relative_path);
+
+            // Create any missing ancestor directories.
+            if let Some(parent) = output_file_path.parent() {
+                create_dir_all(parent).map_err(|error| {
+                    throw(
+                        &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
+                        None,
+                        None,
+                        Some(error),
+                    )
+                })?;
+            }
+
+            // Write the file.
+            eprintln!(
+                "Writing {}\u{2026}",
+                output_file_path.to_string_lossy().code_str(),
+            );
+            write(&output_file_path, contents).map_err(|error| {
+                throw(
+                    &format!(
+                        "Unable to write {}.",
+                        output_file_path.to_string_lossy().code_str(),
+                    ),
+                    None,
+                    None,
+                    Some(error),
+                )
+            })?;
+        }
+    }
+
     eprintln!("Done.");
     Ok(())
 }
 
 // Format a schema and its transitive dependencies.
-fn format_schema(path: &Path, check: bool) -> Result<(), Error> {
+fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
     // Load the schema and its transitive dependencies.
     eprintln!("Loading schemas\u{2026}");
-    let schemas = load_schemas(path).map_err(|errors| merge_errors(&errors))?;
+    let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
     eprintln!("{} loaded.", count(schemas.len(), "schema"));
 
     // This flag will be set if any changes were made to any of the schemas.
@@ -218,7 +226,7 @@ fn format_schema(path: &Path, check: bool) -> Result<(), Error> {
 
     // Compute the base directory for the schemas. The `unwrap` is safe since otherwise the schema
     // would've failed to load above.
-    let directory = path.parent().unwrap();
+    let directory = schema_path.parent().unwrap();
 
     // Format the schemas.
     eprintln!(
@@ -256,7 +264,7 @@ fn format_schema(path: &Path, check: bool) -> Result<(), Error> {
         return Err(throw::<Error>(
             &format!(
                 "Formatting mismatch. Please run {}.",
-                format!("typical format {}", path.to_string_lossy()).code_str(),
+                format!("typical format {}", schema_path.to_string_lossy()).code_str(),
             ),
             None,
             None,
@@ -308,8 +316,8 @@ fn entry() -> Result<(), Error> {
             generate_code(
                 &args.path,
                 args.list_schemas,
-                args.rust.as_deref(),
-                args.typescript.as_deref(),
+                args.rust_file.as_deref(),
+                args.typescript_dir.as_deref(),
             )?;
         }
         TypicalCommand::Format(args) => {

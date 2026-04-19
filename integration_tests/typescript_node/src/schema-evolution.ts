@@ -1,13 +1,23 @@
-import { SchemaEvolution } from '../generated/types';
+import {
+  ExampleChoice as AfterExampleChoice,
+  type ExampleChoiceIn as AfterExampleChoiceIn,
+  ExampleStruct as AfterExampleStruct,
+} from '../generated/schema_evolution/after';
+import {
+  ExampleChoice as BeforeExampleChoice,
+  type ExampleChoiceOut as BeforeExampleChoiceOut,
+  ExampleStruct as BeforeExampleStruct,
+} from '../generated/schema_evolution/before';
+import {
+  SingletonChoice,
+  SingletonStruct,
+} from '../generated/schema_evolution/types';
 import { assertMatch } from './assertions';
 
 function choiceTestCases(
-  fallbackBefore: SchemaEvolution.Before.ExampleChoiceOut,
-  fallbackAfter: SchemaEvolution.After.ExampleChoiceIn,
-): [
-  SchemaEvolution.Before.ExampleChoiceOut,
-  SchemaEvolution.After.ExampleChoiceIn,
-][] {
+  fallbackBefore: BeforeExampleChoiceOut,
+  fallbackAfter: AfterExampleChoiceIn,
+): [BeforeExampleChoiceOut, AfterExampleChoiceIn][] {
   return [
     [
       {
@@ -108,9 +118,9 @@ function choiceTestCases(
 
 export default function run(): void {
   assertMatch(
-    SchemaEvolution.Before.ExampleStruct.size,
-    SchemaEvolution.Before.ExampleStruct.serialize,
-    SchemaEvolution.After.ExampleStruct.deserialize,
+    BeforeExampleStruct.size,
+    BeforeExampleStruct.serialize,
+    AfterExampleStruct.deserialize,
     {
       requiredToRequired: 'required_to_required',
       requiredToAsymmetric: 'required_to_asymmetric',
@@ -141,9 +151,9 @@ export default function run(): void {
   );
 
   assertMatch(
-    SchemaEvolution.Before.ExampleStruct.size,
-    SchemaEvolution.Before.ExampleStruct.serialize,
-    SchemaEvolution.After.ExampleStruct.deserialize,
+    BeforeExampleStruct.size,
+    BeforeExampleStruct.serialize,
+    AfterExampleStruct.deserialize,
     {
       requiredToRequired: 'required_to_required',
       requiredToAsymmetric: 'required_to_asymmetric',
@@ -198,9 +208,9 @@ export default function run(): void {
         const [before, after] = tests[k];
 
         assertMatch(
-          SchemaEvolution.Before.ExampleChoice.size,
-          SchemaEvolution.Before.ExampleChoice.serialize,
-          SchemaEvolution.After.ExampleChoice.deserialize,
+          BeforeExampleChoice.size,
+          BeforeExampleChoice.serialize,
+          AfterExampleChoice.deserialize,
           before,
           after,
         );
@@ -214,9 +224,9 @@ export default function run(): void {
   console.log();
 
   assertMatch(
-    SchemaEvolution.Types.SingletonStruct.size,
-    SchemaEvolution.Types.SingletonStruct.serialize,
-    SchemaEvolution.Types.SingletonChoice.deserialize,
+    SingletonStruct.size,
+    SingletonStruct.serialize,
+    SingletonChoice.deserialize,
     {
       x: 'foo',
     },
@@ -227,9 +237,9 @@ export default function run(): void {
   );
 
   assertMatch(
-    SchemaEvolution.Types.SingletonChoice.size,
-    SchemaEvolution.Types.SingletonChoice.serialize,
-    SchemaEvolution.Types.SingletonStruct.deserialize,
+    SingletonChoice.size,
+    SingletonChoice.serialize,
+    SingletonStruct.deserialize,
     {
       x: 'foo',
     },

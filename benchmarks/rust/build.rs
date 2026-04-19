@@ -14,7 +14,7 @@ fn main() {
         .arg("generate")
         .arg(SCHEMA_PATH)
         .arg("--list-schemas")
-        .arg("--rust")
+        .arg("--rust-file")
         .arg(Path::new(&out_dir).join("types.rs"))
         .output()
         .expect("Failed to run Typical. Is it installed?");

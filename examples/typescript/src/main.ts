@@ -1,9 +1,9 @@
 import { readFileSync, writeFileSync, unlinkSync } from 'fs';
-import { Types, unreachable } from '../generated/types';
+import { unreachable } from '../generated/common';
+import { SendEmailRequest, SendEmailResponse } from '../generated/types';
 
 const requestFilePath = '/tmp/request';
 const responseFilePath = '/tmp/response';
-const { SendEmailRequest, SendEmailResponse } = Types;
 
 function writeToFiles(): void {
   const requestMessage = {

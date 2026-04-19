@@ -61,7 +61,7 @@ typical format types.t
 Now that we've defined some types, we can use Typical to generate the code for serialization and deserialization. For example, you can generate Rust and TypeScript code with the following:
 
 ```sh
-typical generate types.t --rust types.rs --typescript types.ts
+typical generate types.t --rust-file rust/types.rs --typescript-dir typescript
 ```
 
 Refer to the [example projects](https://github.com/stepchowfun/typical/tree/main/examples) for how to automate this. In summary:
@@ -480,15 +480,18 @@ Please report any security issues to [typical-security@googlegroups.com](mailto:
 
 ## Code generation
 
-Each code generator produces a single self-contained source file regardless of the number of schema files. The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use the code generated for each language. The sections below contain some language-specific remarks.
+The [example projects](https://github.com/stepchowfun/typical/tree/main/examples) demonstrate how to use the code generated for each language. The sections below contain some language-specific remarks.
 
 ### Rust
 
+- The Rust generator produces a single self-contained source file regardless of the number of schema files.
 - Typical's type system maps straightforwardly to Rust's `struct`s and `enum`s, but with slightly different naming conventions. All Typical types are written in `UpperCamelCase` (e.g., `String`), whereas Rust uses a combination of that and `lower_snake_case` (e.g., `u64`). Note that Typical's integer types are called `S64` and `U64` ("S" for signed, "U" for unsigned), but the respective types in Rust are `i64` and `u64` ("i" for integer, "u" for unsigned).
 
 ### JavaScript and TypeScript
 
+- The TypeScript generator emits one file per schema, mirroring the schema paths, plus a shared `common.ts` file with runtime helpers.
 - The generated code runs in Node.js and modern web browsers. Older browsers can be targeted with tools like [Babel](https://babeljs.io/). For web applications, it's sensible to [minify](https://en.wikipedia.org/wiki/Minification_\(programming\)) the generated code along with your other application code.
+- The generated code only uses erasable syntax (no namespaces or enums), so it can be run directly by runtimes which strip types such as Node.js.
 - The generated code never uses reflection or dynamic code evaluation, so it works in [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)-restricted environments.
 - Typical's integer types map to `bigint` rather than `number`. It's safe to use integers to represent money or other quantities that shouldn't be rounded. Typical's `F64` type maps to `number`, as one would expect.
 - The generated functions never throw exceptions when given well-typed arguments. The `deserialize` functions can return an `Error` to signal failure, and TypeScript requires callers to acknowledge that possibility.
@@ -518,9 +521,10 @@ Each code generator produces a single self-contained source file regardless of t
   Then you might pattern match on a `Shape` as follows:
 
   ```typescript
-  import { Types, unreachable } from '../generated/types';
+  import { unreachable } from '../generated/common';
+  import { type ShapeIn } from '../generated/types';
 
-  function area(shape: Types.ShapeIn): number {
+  function area(shape: ShapeIn): number {
     switch (shape.$field) {
       case 'square':
         return shape.square.sideLength * shape.square.sideLength;
@@ -664,7 +668,7 @@ These benchmarks represent two extremes. Real-world performance will be somewher
 Once Typical is [installed](#installation-instructions), you can use it to generate code for a schema called `types.t` with the following:
 
 ```sh
-typical generate types.t --rust types.rs --typescript types.ts
+typical generate types.t --rust-file rust/types.rs --typescript-dir typescript
 ```
 
 Here are the supported command-line options:
@@ -695,8 +699,8 @@ Arguments:
 Options:
       --list-schemas       List the schemas imported by the given schema (and the given schema
                            itself)
-      --rust <PATH>        Set the path to the Rust file to emit
-      --typescript <PATH>  Set the path to the TypeScript file to emit
+      --rust-file <PATH>      Set the path to the Rust file to emit
+      --typescript-dir <PATH>  Set the directory in which the TypeScript files will be emitted
   -h, --help               Print help
 ```
 
