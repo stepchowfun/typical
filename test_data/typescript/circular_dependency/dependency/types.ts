@@ -5,7 +5,7 @@
 
 import {
   Deserializable,
-  dataView64,
+  dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
   fieldHeaderSize,
@@ -15,7 +15,6 @@ import {
   textDecoder,
   textEncoder,
   unreachable,
-  varintSizeFromFirstByte,
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
@@ -39,10 +38,10 @@ export type StructFromBelowIn = {
 function structFromBelowAtlas(message: StructFromBelowOut): StructFromBelowAtlas {
   let size = 0;
 
-  let $x;
+  let $x: _Types.StructFromAboveAtlas;
 
   {
-    let payloadAtlas;
+    let payloadAtlas: _Types.StructFromAboveAtlas;
     const payload = message.x;
     payloadAtlas = _Types.StructFromAbove.atlas(payload);
     $x = payloadAtlas;
@@ -82,10 +81,11 @@ function structFromBelowDeserializeUnsafe(dataView: DataView): StructFromBelowIn
 
   let offset = 0;
 
-  let $x;
+  let $x: _Types.StructFromAboveIn | undefined;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -100,7 +100,7 @@ function structFromBelowDeserializeUnsafe(dataView: DataView): StructFromBelowIn
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -137,13 +137,7 @@ function structFromBelowSerialize(message: StructFromBelowOut): ArrayBuffer {
 
 function structFromBelowDeserialize(bytes: Deserializable): StructFromBelowIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return structFromBelowDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return structFromBelowDeserializeUnsafe(bytes);
-    }
-    return structFromBelowDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return structFromBelowDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }

@@ -5,7 +5,7 @@
 
 import {
   Deserializable,
-  dataView64,
+  dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
   fieldHeaderSize,
@@ -15,7 +15,6 @@ import {
   textDecoder,
   textEncoder,
   unreachable,
-  varintSizeFromFirstByte,
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
@@ -40,10 +39,10 @@ export type SingletonStructIn = {
 function singletonStructAtlas(message: SingletonStructOut): SingletonStructAtlas {
   let size = 0;
 
-  let $x;
+  let $x: Uint8Array;
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.x;
     payloadAtlas = textEncoder.encode(payload);
     $x = payloadAtlas;
@@ -74,7 +73,7 @@ function singletonStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -91,10 +90,11 @@ function singletonStructDeserializeUnsafe(dataView: DataView): SingletonStructIn
 
   let offset = 0;
 
-  let $x;
+  let $x: string | undefined;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -109,15 +109,15 @@ function singletonStructDeserializeUnsafe(dataView: DataView): SingletonStructIn
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -152,13 +152,7 @@ function singletonStructSerialize(message: SingletonStructOut): ArrayBuffer {
 
 function singletonStructDeserialize(bytes: Deserializable): SingletonStructIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return singletonStructDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return singletonStructDeserializeUnsafe(bytes);
-    }
-    return singletonStructDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return singletonStructDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }
@@ -185,7 +179,7 @@ export type SingletonChoiceIn =
 
 function singletonChoiceAtlas(message: SingletonChoiceOut): SingletonChoiceAtlas {
   if ('x' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.x;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -212,7 +206,7 @@ function singletonChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -237,15 +231,15 @@ function singletonChoiceDeserializeUnsafe(dataView: DataView): SingletonChoiceIn
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -273,13 +267,7 @@ function singletonChoiceSerialize(message: SingletonChoiceOut): ArrayBuffer {
 
 function singletonChoiceDeserialize(bytes: Deserializable): SingletonChoiceIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return singletonChoiceDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return singletonChoiceDeserializeUnsafe(bytes);
-    }
-    return singletonChoiceDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return singletonChoiceDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }

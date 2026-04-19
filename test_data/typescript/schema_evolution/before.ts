@@ -5,7 +5,7 @@
 
 import {
   Deserializable,
-  dataView64,
+  dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
   fieldHeaderSize,
@@ -15,7 +15,6 @@ import {
   textDecoder,
   textEncoder,
   unreachable,
-  varintSizeFromFirstByte,
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
@@ -70,10 +69,21 @@ export type ExampleStructIn = {
 function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   let size = 0;
 
-  let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
+  let $requiredToRequired: Uint8Array;
+  let $requiredToAsymmetric: Uint8Array;
+  let $requiredToOptional: Uint8Array;
+  let $requiredToNonexistent: Uint8Array;
+  let $asymmetricToRequired: Uint8Array;
+  let $asymmetricToAsymmetric: Uint8Array;
+  let $asymmetricToOptional: Uint8Array;
+  let $asymmetricToNonexistent: Uint8Array;
+  let $optionalToRequired: Uint8Array | undefined;
+  let $optionalToAsymmetric: Uint8Array | undefined;
+  let $optionalToOptional: Uint8Array | undefined;
+  let $optionalToNonexistent: Uint8Array | undefined;
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.requiredToRequired;
     payloadAtlas = textEncoder.encode(payload);
     $requiredToRequired = payloadAtlas;
@@ -82,7 +92,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.requiredToAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     $requiredToAsymmetric = payloadAtlas;
@@ -91,7 +101,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.requiredToOptional;
     payloadAtlas = textEncoder.encode(payload);
     $requiredToOptional = payloadAtlas;
@@ -100,7 +110,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.requiredToNonexistent;
     payloadAtlas = textEncoder.encode(payload);
     $requiredToNonexistent = payloadAtlas;
@@ -109,7 +119,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToRequired;
     payloadAtlas = textEncoder.encode(payload);
     $asymmetricToRequired = payloadAtlas;
@@ -118,7 +128,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     $asymmetricToAsymmetric = payloadAtlas;
@@ -127,7 +137,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToOptional;
     payloadAtlas = textEncoder.encode(payload);
     $asymmetricToOptional = payloadAtlas;
@@ -136,7 +146,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToNonexistent;
     payloadAtlas = textEncoder.encode(payload);
     $asymmetricToNonexistent = payloadAtlas;
@@ -145,7 +155,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToRequired;
     if (payload !== undefined) {
       payloadAtlas = textEncoder.encode(payload);
@@ -156,7 +166,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToAsymmetric;
     if (payload !== undefined) {
       payloadAtlas = textEncoder.encode(payload);
@@ -167,7 +177,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToOptional;
     if (payload !== undefined) {
       payloadAtlas = textEncoder.encode(payload);
@@ -178,7 +188,7 @@ function exampleStructAtlas(message: ExampleStructOut): ExampleStructAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToNonexistent;
     if (payload !== undefined) {
       payloadAtlas = textEncoder.encode(payload);
@@ -222,7 +232,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -238,7 +248,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -254,7 +264,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -270,7 +280,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -286,7 +296,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -302,7 +312,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -318,7 +328,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -334,7 +344,7 @@ function exampleStructSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -351,7 +361,7 @@ function exampleStructSerializeWithAtlasUnsafe(
       offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
       {
         const targetBuffer = new Uint8Array(
-          dataView.buffer,
+          dataView.buffer as ArrayBuffer,
           dataView.byteOffset,
           dataView.byteLength,
         );
@@ -369,7 +379,7 @@ function exampleStructSerializeWithAtlasUnsafe(
       offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
       {
         const targetBuffer = new Uint8Array(
-          dataView.buffer,
+          dataView.buffer as ArrayBuffer,
           dataView.byteOffset,
           dataView.byteLength,
         );
@@ -387,7 +397,7 @@ function exampleStructSerializeWithAtlasUnsafe(
       offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
       {
         const targetBuffer = new Uint8Array(
-          dataView.buffer,
+          dataView.buffer as ArrayBuffer,
           dataView.byteOffset,
           dataView.byteLength,
         );
@@ -405,7 +415,7 @@ function exampleStructSerializeWithAtlasUnsafe(
       offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
       {
         const targetBuffer = new Uint8Array(
-          dataView.buffer,
+          dataView.buffer as ArrayBuffer,
           dataView.byteOffset,
           dataView.byteLength,
         );
@@ -423,10 +433,22 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
 
   let offset = 0;
 
-  let $requiredToRequired, $requiredToAsymmetric, $requiredToOptional, $requiredToNonexistent, $asymmetricToRequired, $asymmetricToAsymmetric, $asymmetricToOptional, $asymmetricToNonexistent, $optionalToRequired, $optionalToAsymmetric, $optionalToOptional, $optionalToNonexistent;
+  let $requiredToRequired: string | undefined;
+  let $requiredToAsymmetric: string | undefined;
+  let $requiredToOptional: string | undefined;
+  let $requiredToNonexistent: string | undefined;
+  let $asymmetricToRequired: string | undefined;
+  let $asymmetricToAsymmetric: string | undefined;
+  let $asymmetricToOptional: string | undefined;
+  let $asymmetricToNonexistent: string | undefined;
+  let $optionalToRequired: string | undefined;
+  let $optionalToAsymmetric: string | undefined;
+  let $optionalToOptional: string | undefined;
+  let $optionalToNonexistent: string | undefined;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -441,15 +463,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -461,15 +483,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 1n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -481,15 +503,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 2n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -501,15 +523,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 3n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -521,15 +543,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 4n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -541,15 +563,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 5n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -561,15 +583,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 6n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -581,15 +603,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 7n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -601,15 +623,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 8n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -621,15 +643,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 9n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -641,15 +663,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 10n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -661,15 +683,15 @@ function exampleStructDeserializeUnsafe(dataView: DataView): ExampleStructIn {
       }
       case 11n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -718,13 +740,7 @@ function exampleStructSerialize(message: ExampleStructOut): ArrayBuffer {
 
 function exampleStructDeserialize(bytes: Deserializable): ExampleStructIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return exampleStructDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return exampleStructDeserializeUnsafe(bytes);
-    }
-    return exampleStructDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return exampleStructDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }
@@ -777,7 +793,7 @@ export type ExampleChoiceIn =
 
 function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   if ('requiredToRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.requiredToRequired;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -785,7 +801,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('requiredToAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.requiredToAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -793,7 +809,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('asymmetricToRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToRequired;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -802,7 +818,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('asymmetricToAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -811,7 +827,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('asymmetricToOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToOptional;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -820,7 +836,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('asymmetricToNonexistent' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.asymmetricToNonexistent;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -829,7 +845,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('optionalToRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToRequired;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -838,7 +854,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('optionalToAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -847,7 +863,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('optionalToOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToOptional;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -856,7 +872,7 @@ function exampleChoiceAtlas(message: ExampleChoiceOut): ExampleChoiceAtlas {
   }
 
   if ('optionalToNonexistent' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.optionalToNonexistent;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -884,7 +900,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -901,7 +917,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -918,7 +934,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 4n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -936,7 +952,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 5n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -954,7 +970,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -972,7 +988,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 7n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -990,7 +1006,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 8n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -1008,7 +1024,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 9n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -1026,7 +1042,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 10n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -1044,7 +1060,7 @@ function exampleChoiceSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 11n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -1070,15 +1086,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1091,15 +1107,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 1n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1112,15 +1128,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 4n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1133,15 +1149,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 5n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1154,15 +1170,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 6n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1175,15 +1191,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 7n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1196,15 +1212,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 8n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1213,7 +1229,7 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
         offset += oldOffset;
         const $fallback = exampleChoiceDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -1226,15 +1242,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 9n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1243,7 +1259,7 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
         offset += oldOffset;
         const $fallback = exampleChoiceDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -1256,15 +1272,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 10n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1273,7 +1289,7 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
         offset += oldOffset;
         const $fallback = exampleChoiceDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -1286,15 +1302,15 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
       }
       case 11n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -1303,7 +1319,7 @@ function exampleChoiceDeserializeUnsafe(dataView: DataView): ExampleChoiceIn {
         offset += oldOffset;
         const $fallback = exampleChoiceDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -1331,13 +1347,7 @@ function exampleChoiceSerialize(message: ExampleChoiceOut): ArrayBuffer {
 
 function exampleChoiceDeserialize(bytes: Deserializable): ExampleChoiceIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return exampleChoiceDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return exampleChoiceDeserializeUnsafe(bytes);
-    }
-    return exampleChoiceDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return exampleChoiceDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }

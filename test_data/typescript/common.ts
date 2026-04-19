@@ -22,6 +22,19 @@ export function unreachable(x: never): never {
   return x;
 }
 
+export function dataViewFromDeserializable(bytes: Deserializable): DataView {
+  if (bytes instanceof ArrayBuffer) {
+    return new DataView(bytes);
+  }
+
+  const buffer = bytes.buffer;
+  if (!(buffer instanceof ArrayBuffer)) {
+    throw new Error('Expected ArrayBuffer or ArrayBuffer-backed view.');
+  }
+
+  return new DataView(buffer, bytes.byteOffset, bytes.byteLength);
+}
+
 export function zigzagEncode(value: bigint): bigint {
   const twice = value << 1n;
   return value < 0n ? -1n - twice : twice;
@@ -66,17 +79,6 @@ export function varintSizeFromValue(value: bigint): number {
   }
 
   return 9;
-}
-
-export function varintSizeFromFirstByte(firstByte: number): number {
-  let trailingZeros = 0;
-
-  while (trailingZeros < 8 && (firstByte & 1) !== 1) {
-    trailingZeros += 1;
-    firstByte >>= 1;
-  }
-
-  return trailingZeros + 1;
 }
 
 export function serializeVarint(
@@ -163,6 +165,17 @@ export function serializeVarint(
   dataView.setUint8(offset, 0b0000_0000);
   dataView.setBigUint64(offset + 1, value, true);
   return offset + 9;
+}
+
+function varintSizeFromFirstByte(firstByte: number): number {
+  let trailingZeros = 0;
+
+  while (trailingZeros < 8 && (firstByte & 1) !== 1) {
+    trailingZeros += 1;
+    firstByte >>= 1;
+  }
+
+  return trailingZeros + 1;
 }
 
 export function deserializeVarint(
@@ -292,7 +305,7 @@ export function deserializeFieldHeader(
   }
 }
 
+const dataView64 = new DataView(new ArrayBuffer(8));
 export const missingFieldsErrorMessage = 'Struct missing one or more required field(s).';
-export const dataView64 = new DataView(new ArrayBuffer(8));
 export const textEncoder = new TextEncoder();
 export const textDecoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
