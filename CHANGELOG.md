@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-04-19
+
+### Changed
+- The TypeScript generator now emits one file per schema, rather than emitting a single file with TypeScript namespaces.
+- The `generate` subcommand now accepts `--rust-file` and `--typescript-dir` instead of `--rust` and `--typescript`, respectively.
+- The generated TypeScript code now includes more type annotations.
+
 ## [0.13.0] - 2026-04-05
 
 ### Fixed
