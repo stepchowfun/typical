@@ -5,7 +5,7 @@
 
 import {
   Deserializable,
-  dataView64,
+  dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
   fieldHeaderSize,
@@ -15,7 +15,6 @@ import {
   textDecoder,
   textEncoder,
   unreachable,
-  varintSizeFromFirstByte,
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
@@ -60,7 +59,8 @@ function localStructDeserializeUnsafe(dataView: DataView): LocalStructIn {
   let offset = 0;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -93,13 +93,7 @@ function localStructSerialize(message: LocalStructOut): ArrayBuffer {
 
 function localStructDeserialize(bytes: Deserializable): LocalStructIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return localStructDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return localStructDeserializeUnsafe(bytes);
-    }
-    return localStructDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return localStructDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }
@@ -370,10 +364,90 @@ export type FooIn = {
 function fooAtlas(message: FooOut): FooAtlas {
   let size = 0;
 
-  let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
+  let $aRequired: number;
+  let $bRequired: number;
+  let $cRequired: number;
+  let $dRequired: number;
+  let $eRequired: number;
+  let $fRequired: number;
+  let $gRequired: Uint8Array;
+  let $hRequired: LocalStructAtlas;
+  let $iRequired: _Types.EmptyStructAtlas;
+  let $jRequired: number;
+  let $kRequired: number;
+  let $lRequired: number;
+  let $mRequired: number;
+  let $nRequired: number;
+  let $oRequired: { $size: number; $elements: number[] };
+  let $pRequired: { $size: number; $elements: Uint8Array[] };
+  let $qRequired: { $size: number; $elements: LocalStructAtlas[] };
+  let $rRequired: { $size: number; $elements: _Types.EmptyStructAtlas[] };
+  let $sRequired: { $size: number; $elements: number[] };
+  let $tRequired: { $size: number; $elements: number[] };
+  let $uRequired: { $size: number; $elements: number[] };
+  let $vRequired: { $size: number; $elements: number[] };
+  let $wRequired: { $size: number; $elements: number[] };
+  let $xRequired: { $size: number; $elements: { $size: number; $elements: number[] }[] };
+  let $yRequired: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
+  let $zRequired: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
+  let $aaRequired: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
+  let $aAsymmetric: number;
+  let $bAsymmetric: number;
+  let $cAsymmetric: number;
+  let $dAsymmetric: number;
+  let $eAsymmetric: number;
+  let $fAsymmetric: number;
+  let $gAsymmetric: Uint8Array;
+  let $hAsymmetric: LocalStructAtlas;
+  let $iAsymmetric: _Types.EmptyStructAtlas;
+  let $jAsymmetric: number;
+  let $kAsymmetric: number;
+  let $lAsymmetric: number;
+  let $mAsymmetric: number;
+  let $nAsymmetric: number;
+  let $oAsymmetric: { $size: number; $elements: number[] };
+  let $pAsymmetric: { $size: number; $elements: Uint8Array[] };
+  let $qAsymmetric: { $size: number; $elements: LocalStructAtlas[] };
+  let $rAsymmetric: { $size: number; $elements: _Types.EmptyStructAtlas[] };
+  let $sAsymmetric: { $size: number; $elements: number[] };
+  let $tAsymmetric: { $size: number; $elements: number[] };
+  let $uAsymmetric: { $size: number; $elements: number[] };
+  let $vAsymmetric: { $size: number; $elements: number[] };
+  let $wAsymmetric: { $size: number; $elements: number[] };
+  let $xAsymmetric: { $size: number; $elements: { $size: number; $elements: number[] }[] };
+  let $yAsymmetric: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
+  let $zAsymmetric: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
+  let $aaAsymmetric: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
+  let $aOptional: number | undefined;
+  let $bOptional: number | undefined;
+  let $cOptional: number | undefined;
+  let $dOptional: number | undefined;
+  let $eOptional: number | undefined;
+  let $fOptional: number | undefined;
+  let $gOptional: Uint8Array | undefined;
+  let $hOptional: LocalStructAtlas | undefined;
+  let $iOptional: _Types.EmptyStructAtlas | undefined;
+  let $jOptional: number | undefined;
+  let $kOptional: number | undefined;
+  let $lOptional: number | undefined;
+  let $mOptional: number | undefined;
+  let $nOptional: number | undefined;
+  let $oOptional: { $size: number; $elements: number[] } | undefined;
+  let $pOptional: { $size: number; $elements: Uint8Array[] } | undefined;
+  let $qOptional: { $size: number; $elements: LocalStructAtlas[] } | undefined;
+  let $rOptional: { $size: number; $elements: _Types.EmptyStructAtlas[] } | undefined;
+  let $sOptional: { $size: number; $elements: number[] } | undefined;
+  let $tOptional: { $size: number; $elements: number[] } | undefined;
+  let $uOptional: { $size: number; $elements: number[] } | undefined;
+  let $vOptional: { $size: number; $elements: number[] } | undefined;
+  let $wOptional: { $size: number; $elements: number[] } | undefined;
+  let $xOptional: { $size: number; $elements: { $size: number; $elements: number[] }[] } | undefined;
+  let $yOptional: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] } | undefined;
+  let $zOptional: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] } | undefined;
+  let $aaOptional: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] } | undefined;
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.aRequired;
     payloadAtlas = 0;
     $aRequired = payloadAtlas;
@@ -382,7 +456,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.bRequired;
     if (Object.is(payload, 0)) {
       payloadAtlas = 0;
@@ -395,7 +469,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.cRequired;
     if (payload === 0n) {
       payloadAtlas = 0;
@@ -410,7 +484,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.dRequired;
     {
       const zigzag = zigzagEncode(payload);
@@ -428,7 +502,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.eRequired;
     if (payload) {
       payloadAtlas = 1;
@@ -441,7 +515,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.fRequired;
     payloadAtlas = payload.byteLength;
     $fRequired = payloadAtlas;
@@ -450,7 +524,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.gRequired;
     payloadAtlas = textEncoder.encode(payload);
     $gRequired = payloadAtlas;
@@ -459,7 +533,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: LocalStructAtlas;
     const payload = message.hRequired;
     payloadAtlas = LocalStruct.atlas(payload);
     $hRequired = payloadAtlas;
@@ -468,7 +542,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: _Types.EmptyStructAtlas;
     const payload = message.iRequired;
     payloadAtlas = _Types.EmptyStruct.atlas(payload);
     $iRequired = payloadAtlas;
@@ -477,7 +551,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.jRequired;
     {
       const oldPayload = payload;
@@ -498,7 +572,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.kRequired;
     payloadAtlas = 8 * payload.length;
     $kRequired = payloadAtlas;
@@ -507,7 +581,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.lRequired;
     {
       let arraySize = 0;
@@ -526,7 +600,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.mRequired;
     {
       let arraySize = 0;
@@ -545,7 +619,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.nRequired;
     {
       let arraySize = 0;
@@ -564,15 +638,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.oRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = payload.byteLength;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -586,15 +660,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: Uint8Array[] };
     const payload = message.pRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: Uint8Array[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: Uint8Array;
         payloadAtlas = textEncoder.encode(payload);
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas.byteLength;
@@ -608,15 +682,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
     const payload = message.qRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: LocalStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: LocalStructAtlas;
         payloadAtlas = LocalStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -630,15 +704,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
     const payload = message.rRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: _Types.EmptyStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: _Types.EmptyStructAtlas;
         payloadAtlas = _Types.EmptyStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -652,15 +726,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.sRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           const oldPayload = payload;
           {
@@ -680,15 +754,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.tRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = 8 * payload.length;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -702,15 +776,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.uRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -734,15 +808,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.vRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -766,15 +840,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.wRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -798,22 +872,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: number[] }[] };
     const payload = message.xRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: number[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: number[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: number[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: number;
             payloadAtlas = payload.byteLength;
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas;
@@ -833,22 +907,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
     const payload = message.yRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: Uint8Array[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: Uint8Array[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: Uint8Array[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: Uint8Array;
             payloadAtlas = textEncoder.encode(payload);
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas.byteLength;
@@ -868,22 +942,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
     const payload = message.zRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: LocalStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: LocalStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: LocalStructAtlas;
             payloadAtlas = LocalStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -903,22 +977,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
     const payload = message.aaRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: _Types.EmptyStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: _Types.EmptyStructAtlas;
             payloadAtlas = _Types.EmptyStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -938,7 +1012,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.aAsymmetric;
     payloadAtlas = 0;
     $aAsymmetric = payloadAtlas;
@@ -947,7 +1021,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.bAsymmetric;
     if (Object.is(payload, 0)) {
       payloadAtlas = 0;
@@ -960,7 +1034,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.cAsymmetric;
     if (payload === 0n) {
       payloadAtlas = 0;
@@ -975,7 +1049,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.dAsymmetric;
     {
       const zigzag = zigzagEncode(payload);
@@ -993,7 +1067,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.eAsymmetric;
     if (payload) {
       payloadAtlas = 1;
@@ -1006,7 +1080,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.fAsymmetric;
     payloadAtlas = payload.byteLength;
     $fAsymmetric = payloadAtlas;
@@ -1015,7 +1089,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.gAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     $gAsymmetric = payloadAtlas;
@@ -1024,7 +1098,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: LocalStructAtlas;
     const payload = message.hAsymmetric;
     payloadAtlas = LocalStruct.atlas(payload);
     $hAsymmetric = payloadAtlas;
@@ -1033,7 +1107,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: _Types.EmptyStructAtlas;
     const payload = message.iAsymmetric;
     payloadAtlas = _Types.EmptyStruct.atlas(payload);
     $iAsymmetric = payloadAtlas;
@@ -1042,7 +1116,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.jAsymmetric;
     {
       const oldPayload = payload;
@@ -1063,7 +1137,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.kAsymmetric;
     payloadAtlas = 8 * payload.length;
     $kAsymmetric = payloadAtlas;
@@ -1072,7 +1146,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.lAsymmetric;
     {
       let arraySize = 0;
@@ -1091,7 +1165,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.mAsymmetric;
     {
       let arraySize = 0;
@@ -1110,7 +1184,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.nAsymmetric;
     {
       let arraySize = 0;
@@ -1129,15 +1203,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.oAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = payload.byteLength;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -1151,15 +1225,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: Uint8Array[] };
     const payload = message.pAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: Uint8Array[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: Uint8Array;
         payloadAtlas = textEncoder.encode(payload);
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas.byteLength;
@@ -1173,15 +1247,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
     const payload = message.qAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: LocalStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: LocalStructAtlas;
         payloadAtlas = LocalStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -1195,15 +1269,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
     const payload = message.rAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: _Types.EmptyStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: _Types.EmptyStructAtlas;
         payloadAtlas = _Types.EmptyStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -1217,15 +1291,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.sAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           const oldPayload = payload;
           {
@@ -1245,15 +1319,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.tAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = 8 * payload.length;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -1267,15 +1341,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.uAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -1299,15 +1373,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.vAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -1331,15 +1405,15 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.wAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -1363,22 +1437,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: number[] }[] };
     const payload = message.xAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: number[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: number[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: number[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: number;
             payloadAtlas = payload.byteLength;
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas;
@@ -1398,22 +1472,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
     const payload = message.yAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: Uint8Array[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: Uint8Array[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: Uint8Array[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: Uint8Array;
             payloadAtlas = textEncoder.encode(payload);
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas.byteLength;
@@ -1433,22 +1507,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
     const payload = message.zAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: LocalStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: LocalStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: LocalStructAtlas;
             payloadAtlas = LocalStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -1468,22 +1542,22 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
     const payload = message.aaAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: _Types.EmptyStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: _Types.EmptyStructAtlas;
             payloadAtlas = _Types.EmptyStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -1503,7 +1577,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.aOptional;
     if (payload !== undefined) {
       payloadAtlas = 0;
@@ -1514,7 +1588,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.bOptional;
     if (payload !== undefined) {
       if (Object.is(payload, 0)) {
@@ -1529,7 +1603,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.cOptional;
     if (payload !== undefined) {
       if (payload === 0n) {
@@ -1546,7 +1620,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.dOptional;
     if (payload !== undefined) {
       {
@@ -1566,7 +1640,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.eOptional;
     if (payload !== undefined) {
       if (payload) {
@@ -1581,7 +1655,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.fOptional;
     if (payload !== undefined) {
       payloadAtlas = payload.byteLength;
@@ -1592,7 +1666,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.gOptional;
     if (payload !== undefined) {
       payloadAtlas = textEncoder.encode(payload);
@@ -1603,7 +1677,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: LocalStructAtlas;
     const payload = message.hOptional;
     if (payload !== undefined) {
       payloadAtlas = LocalStruct.atlas(payload);
@@ -1614,7 +1688,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: _Types.EmptyStructAtlas;
     const payload = message.iOptional;
     if (payload !== undefined) {
       payloadAtlas = _Types.EmptyStruct.atlas(payload);
@@ -1625,7 +1699,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.jOptional;
     if (payload !== undefined) {
       {
@@ -1648,7 +1722,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.kOptional;
     if (payload !== undefined) {
       payloadAtlas = 8 * payload.length;
@@ -1659,7 +1733,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.lOptional;
     if (payload !== undefined) {
       {
@@ -1680,7 +1754,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.mOptional;
     if (payload !== undefined) {
       {
@@ -1701,7 +1775,7 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.nOptional;
     if (payload !== undefined) {
       {
@@ -1722,16 +1796,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.oOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: number[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: number;
           payloadAtlas = payload.byteLength;
           elements.push(payloadAtlas);
           const payloadSize = payloadAtlas;
@@ -1746,16 +1820,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: Uint8Array[] };
     const payload = message.pOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: Uint8Array[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: Uint8Array;
           payloadAtlas = textEncoder.encode(payload);
           elements.push(payloadAtlas);
           const payloadSize = payloadAtlas.byteLength;
@@ -1770,16 +1844,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
     const payload = message.qOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: LocalStructAtlas[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: LocalStructAtlas;
           payloadAtlas = LocalStruct.atlas(payload);
           elements.push(payloadAtlas);
           const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -1794,16 +1868,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
     const payload = message.rOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: _Types.EmptyStructAtlas[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: _Types.EmptyStructAtlas;
           payloadAtlas = _Types.EmptyStruct.atlas(payload);
           elements.push(payloadAtlas);
           const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -1818,16 +1892,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.sOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: number[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: number;
           {
             const oldPayload = payload;
             {
@@ -1848,16 +1922,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.tOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: number[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: number;
           payloadAtlas = 8 * payload.length;
           elements.push(payloadAtlas);
           const payloadSize = payloadAtlas;
@@ -1872,16 +1946,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.uOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: number[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: number;
           {
             let arraySize = 0;
             const oldPayload = payload;
@@ -1906,16 +1980,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.vOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: number[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: number;
           {
             let arraySize = 0;
             const oldPayload = payload;
@@ -1940,16 +2014,16 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.wOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: number[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: number;
           {
             let arraySize = 0;
             const oldPayload = payload;
@@ -1974,23 +2048,23 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: number[] }[] };
     const payload = message.xOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: { $size: number; $elements: number[] }[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: { $size: number; $elements: number[] };
           {
             let size = 0;
-            let elements = [];
+            let elements: number[] = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadAtlas;
+              let payloadAtlas: number;
               payloadAtlas = payload.byteLength;
               elements.push(payloadAtlas);
               const payloadSize = payloadAtlas;
@@ -2011,23 +2085,23 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
     const payload = message.yOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: { $size: number; $elements: Uint8Array[] }[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: { $size: number; $elements: Uint8Array[] };
           {
             let size = 0;
-            let elements = [];
+            let elements: Uint8Array[] = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadAtlas;
+              let payloadAtlas: Uint8Array;
               payloadAtlas = textEncoder.encode(payload);
               elements.push(payloadAtlas);
               const payloadSize = payloadAtlas.byteLength;
@@ -2048,23 +2122,23 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
     const payload = message.zOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: { $size: number; $elements: LocalStructAtlas[] }[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
           {
             let size = 0;
-            let elements = [];
+            let elements: LocalStructAtlas[] = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadAtlas;
+              let payloadAtlas: LocalStructAtlas;
               payloadAtlas = LocalStruct.atlas(payload);
               elements.push(payloadAtlas);
               const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -2085,23 +2159,23 @@ function fooAtlas(message: FooOut): FooAtlas {
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
     const payload = message.aaOptional;
     if (payload !== undefined) {
       {
         let size = 0;
-        let elements = [];
+        let elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] = [];
         const oldPayload = payload;
         for (let i = 0; i < oldPayload.length; i += 1) {
           const payload = oldPayload[i];
-          let payloadAtlas;
+          let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
           {
             let size = 0;
-            let elements = [];
+            let elements: _Types.EmptyStructAtlas[] = [];
             const oldPayload = payload;
             for (let i = 0; i < oldPayload.length; i += 1) {
               const payload = oldPayload[i];
-              let payloadAtlas;
+              let payloadAtlas: _Types.EmptyStructAtlas;
               payloadAtlas = _Types.EmptyStruct.atlas(payload);
               elements.push(payloadAtlas);
               const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -2291,7 +2365,7 @@ function fooSerializeWithAtlasUnsafe(
     {
       const sourceBuffer = new Uint8Array(payload);
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -2307,7 +2381,7 @@ function fooSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -2429,7 +2503,7 @@ function fooSerializeWithAtlasUnsafe(
         {
           const sourceBuffer = new Uint8Array(payload);
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -2454,7 +2528,7 @@ function fooSerializeWithAtlasUnsafe(
         offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
         {
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -2643,7 +2717,7 @@ function fooSerializeWithAtlasUnsafe(
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -2677,7 +2751,7 @@ function fooSerializeWithAtlasUnsafe(
             offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
             {
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -2816,7 +2890,7 @@ function fooSerializeWithAtlasUnsafe(
     {
       const sourceBuffer = new Uint8Array(payload);
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -2832,7 +2906,7 @@ function fooSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -2954,7 +3028,7 @@ function fooSerializeWithAtlasUnsafe(
         {
           const sourceBuffer = new Uint8Array(payload);
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -2979,7 +3053,7 @@ function fooSerializeWithAtlasUnsafe(
         offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
         {
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -3168,7 +3242,7 @@ function fooSerializeWithAtlasUnsafe(
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -3202,7 +3276,7 @@ function fooSerializeWithAtlasUnsafe(
             offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
             {
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -3352,7 +3426,7 @@ function fooSerializeWithAtlasUnsafe(
       {
         const sourceBuffer = new Uint8Array(payload);
         const targetBuffer = new Uint8Array(
-          dataView.buffer,
+          dataView.buffer as ArrayBuffer,
           dataView.byteOffset,
           dataView.byteLength,
         );
@@ -3370,7 +3444,7 @@ function fooSerializeWithAtlasUnsafe(
       offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
       {
         const targetBuffer = new Uint8Array(
-          dataView.buffer,
+          dataView.buffer as ArrayBuffer,
           dataView.byteOffset,
           dataView.byteLength,
         );
@@ -3508,7 +3582,7 @@ function fooSerializeWithAtlasUnsafe(
           {
             const sourceBuffer = new Uint8Array(payload);
             const targetBuffer = new Uint8Array(
-              dataView.buffer,
+              dataView.buffer as ArrayBuffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
@@ -3535,7 +3609,7 @@ function fooSerializeWithAtlasUnsafe(
           offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
           {
             const targetBuffer = new Uint8Array(
-              dataView.buffer,
+              dataView.buffer as ArrayBuffer,
               dataView.byteOffset,
               dataView.byteLength,
             );
@@ -3740,7 +3814,7 @@ function fooSerializeWithAtlasUnsafe(
               {
                 const sourceBuffer = new Uint8Array(payload);
                 const targetBuffer = new Uint8Array(
-                  dataView.buffer,
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset,
                   dataView.byteLength,
                 );
@@ -3776,7 +3850,7 @@ function fooSerializeWithAtlasUnsafe(
               offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
               {
                 const targetBuffer = new Uint8Array(
-                  dataView.buffer,
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset,
                   dataView.byteLength,
                 );
@@ -3854,10 +3928,91 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
 
   let offset = 0;
 
-  let $aRequired, $bRequired, $cRequired, $dRequired, $eRequired, $fRequired, $gRequired, $hRequired, $iRequired, $jRequired, $kRequired, $lRequired, $mRequired, $nRequired, $oRequired, $pRequired, $qRequired, $rRequired, $sRequired, $tRequired, $uRequired, $vRequired, $wRequired, $xRequired, $yRequired, $zRequired, $aaRequired, $aAsymmetric, $bAsymmetric, $cAsymmetric, $dAsymmetric, $eAsymmetric, $fAsymmetric, $gAsymmetric, $hAsymmetric, $iAsymmetric, $jAsymmetric, $kAsymmetric, $lAsymmetric, $mAsymmetric, $nAsymmetric, $oAsymmetric, $pAsymmetric, $qAsymmetric, $rAsymmetric, $sAsymmetric, $tAsymmetric, $uAsymmetric, $vAsymmetric, $wAsymmetric, $xAsymmetric, $yAsymmetric, $zAsymmetric, $aaAsymmetric, $aOptional, $bOptional, $cOptional, $dOptional, $eOptional, $fOptional, $gOptional, $hOptional, $iOptional, $jOptional, $kOptional, $lOptional, $mOptional, $nOptional, $oOptional, $pOptional, $qOptional, $rOptional, $sOptional, $tOptional, $uOptional, $vOptional, $wOptional, $xOptional, $yOptional, $zOptional, $aaOptional;
+  let $aRequired: null | undefined;
+  let $bRequired: number | undefined;
+  let $cRequired: bigint | undefined;
+  let $dRequired: bigint | undefined;
+  let $eRequired: boolean | undefined;
+  let $fRequired: ArrayBuffer | undefined;
+  let $gRequired: string | undefined;
+  let $hRequired: LocalStructIn | undefined;
+  let $iRequired: _Types.EmptyStructIn | undefined;
+  let $jRequired: null[] | undefined;
+  let $kRequired: number[] | undefined;
+  let $lRequired: bigint[] | undefined;
+  let $mRequired: bigint[] | undefined;
+  let $nRequired: boolean[] | undefined;
+  let $oRequired: ArrayBuffer[] | undefined;
+  let $pRequired: string[] | undefined;
+  let $qRequired: LocalStructIn[] | undefined;
+  let $rRequired: _Types.EmptyStructIn[] | undefined;
+  let $sRequired: null[][] | undefined;
+  let $tRequired: number[][] | undefined;
+  let $uRequired: bigint[][] | undefined;
+  let $vRequired: bigint[][] | undefined;
+  let $wRequired: boolean[][] | undefined;
+  let $xRequired: ArrayBuffer[][] | undefined;
+  let $yRequired: string[][] | undefined;
+  let $zRequired: LocalStructIn[][] | undefined;
+  let $aaRequired: _Types.EmptyStructIn[][] | undefined;
+  let $aAsymmetric: null | undefined;
+  let $bAsymmetric: number | undefined;
+  let $cAsymmetric: bigint | undefined;
+  let $dAsymmetric: bigint | undefined;
+  let $eAsymmetric: boolean | undefined;
+  let $fAsymmetric: ArrayBuffer | undefined;
+  let $gAsymmetric: string | undefined;
+  let $hAsymmetric: LocalStructIn | undefined;
+  let $iAsymmetric: _Types.EmptyStructIn | undefined;
+  let $jAsymmetric: null[] | undefined;
+  let $kAsymmetric: number[] | undefined;
+  let $lAsymmetric: bigint[] | undefined;
+  let $mAsymmetric: bigint[] | undefined;
+  let $nAsymmetric: boolean[] | undefined;
+  let $oAsymmetric: ArrayBuffer[] | undefined;
+  let $pAsymmetric: string[] | undefined;
+  let $qAsymmetric: LocalStructIn[] | undefined;
+  let $rAsymmetric: _Types.EmptyStructIn[] | undefined;
+  let $sAsymmetric: null[][] | undefined;
+  let $tAsymmetric: number[][] | undefined;
+  let $uAsymmetric: bigint[][] | undefined;
+  let $vAsymmetric: bigint[][] | undefined;
+  let $wAsymmetric: boolean[][] | undefined;
+  let $xAsymmetric: ArrayBuffer[][] | undefined;
+  let $yAsymmetric: string[][] | undefined;
+  let $zAsymmetric: LocalStructIn[][] | undefined;
+  let $aaAsymmetric: _Types.EmptyStructIn[][] | undefined;
+  let $aOptional: null | undefined;
+  let $bOptional: number | undefined;
+  let $cOptional: bigint | undefined;
+  let $dOptional: bigint | undefined;
+  let $eOptional: boolean | undefined;
+  let $fOptional: ArrayBuffer | undefined;
+  let $gOptional: string | undefined;
+  let $hOptional: LocalStructIn | undefined;
+  let $iOptional: _Types.EmptyStructIn | undefined;
+  let $jOptional: null[] | undefined;
+  let $kOptional: number[] | undefined;
+  let $lOptional: bigint[] | undefined;
+  let $mOptional: bigint[] | undefined;
+  let $nOptional: boolean[] | undefined;
+  let $oOptional: ArrayBuffer[] | undefined;
+  let $pOptional: string[] | undefined;
+  let $qOptional: LocalStructIn[] | undefined;
+  let $rOptional: _Types.EmptyStructIn[] | undefined;
+  let $sOptional: null[][] | undefined;
+  let $tOptional: number[][] | undefined;
+  let $uOptional: bigint[][] | undefined;
+  let $vOptional: bigint[][] | undefined;
+  let $wOptional: boolean[][] | undefined;
+  let $xOptional: ArrayBuffer[][] | undefined;
+  let $yOptional: string[][] | undefined;
+  let $zOptional: LocalStructIn[][] | undefined;
+  let $aaOptional: _Types.EmptyStructIn[][] | undefined;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -3872,7 +4027,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -3885,13 +4040,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 1n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: number;
         {
           switch (payloadSize) {
             case 0:
@@ -3909,13 +4064,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 2n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -3936,13 +4091,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 3n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -3964,17 +4119,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 4n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: boolean;
         {
-          let newPayload;
+          let newPayload: boolean;
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -3999,13 +4154,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 5n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload = dataView.buffer.slice(
+        let payload = (dataView.buffer as ArrayBuffer).slice(
           dataView.byteOffset + offset,
           dataView.byteOffset + dataView.byteLength,
         );
@@ -4016,15 +4171,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 6n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -4036,7 +4191,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 7n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4050,7 +4205,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 8n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4064,17 +4219,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 9n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: null[];
         {
-          let newPayload;
+          let newPayload: null[];
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -4099,7 +4254,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 10n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4130,7 +4285,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 11n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4142,7 +4297,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payloadAlias.push(payload);
               } catch (e) {
@@ -4161,7 +4316,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 12n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4173,7 +4328,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payload = zigzagDecode(payload);
                 payloadAlias.push(payload);
@@ -4193,7 +4348,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 13n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4205,11 +4360,11 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: boolean;
                 {
-                  let newPayload;
+                  let newPayload: boolean;
                   {
-                    let payload;
+                    let payload: bigint;
                     [offset, payload] = deserializeVarint(dataView, offset);
                     newPayload = payload !== 0n;
                   }
@@ -4232,7 +4387,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 14n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4244,7 +4399,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4255,13 +4410,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = dataView.buffer.slice(
+              let payload = (dataView.buffer as ArrayBuffer).slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + dataView.byteLength,
               );
@@ -4277,7 +4432,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 15n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4289,7 +4444,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4300,15 +4455,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
               let payload = textDecoder.decode(
-                new Uint8Array(
-                  dataView.buffer,
+                new DataView(
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset + offset,
                   dataView.byteLength - offset,
                 ),
@@ -4325,7 +4480,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 16n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4337,7 +4492,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4348,7 +4503,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4367,7 +4522,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 17n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4379,7 +4534,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4390,7 +4545,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4409,7 +4564,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 18n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4421,7 +4576,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4432,17 +4587,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
+              let payload: null[];
               {
-                let newPayload;
+                let newPayload: null[];
                 {
-                  let payload;
+                  let payload: bigint;
                   [offset, payload] = deserializeVarint(dataView, offset);
                   newPayload = Array(Number(payload)).fill(null) as null[];
                 }
@@ -4459,7 +4614,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 19n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4471,7 +4626,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4482,7 +4637,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4518,7 +4673,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 20n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4530,7 +4685,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4541,7 +4696,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4553,7 +4708,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payloadAlias.push(payload);
                     } catch (e) {
@@ -4577,7 +4732,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 21n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4589,7 +4744,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4600,7 +4755,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4612,7 +4767,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payload = zigzagDecode(payload);
                       payloadAlias.push(payload);
@@ -4637,7 +4792,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 22n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4649,7 +4804,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4660,7 +4815,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4672,11 +4827,11 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: boolean;
                       {
-                        let newPayload;
+                        let newPayload: boolean;
                         {
-                          let payload;
+                          let payload: bigint;
                           [offset, payload] = deserializeVarint(dataView, offset);
                           newPayload = payload !== 0n;
                         }
@@ -4704,7 +4859,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 23n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4716,7 +4871,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4727,7 +4882,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4739,7 +4894,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -4750,13 +4905,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = dataView.buffer.slice(
+                    let payload = (dataView.buffer as ArrayBuffer).slice(
                       dataView.byteOffset + offset,
                       dataView.byteOffset + dataView.byteLength,
                     );
@@ -4777,7 +4932,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 24n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4789,7 +4944,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4800,7 +4955,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4812,7 +4967,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -4823,15 +4978,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
                     let payload = textDecoder.decode(
-                      new Uint8Array(
-                        dataView.buffer,
+                      new DataView(
+                        dataView.buffer as ArrayBuffer,
                         dataView.byteOffset + offset,
                         dataView.byteLength - offset,
                       ),
@@ -4853,7 +5008,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 25n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4865,7 +5020,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4876,7 +5031,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4888,7 +5043,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -4899,7 +5054,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -4923,7 +5078,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 26n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -4935,7 +5090,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -4946,7 +5101,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -4958,7 +5113,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -4969,7 +5124,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -4993,7 +5148,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 28n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5006,13 +5161,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 29n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: number;
         {
           switch (payloadSize) {
             case 0:
@@ -5030,13 +5185,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 30n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -5057,13 +5212,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 31n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -5085,17 +5240,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 32n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: boolean;
         {
-          let newPayload;
+          let newPayload: boolean;
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -5120,13 +5275,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 33n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload = dataView.buffer.slice(
+        let payload = (dataView.buffer as ArrayBuffer).slice(
           dataView.byteOffset + offset,
           dataView.byteOffset + dataView.byteLength,
         );
@@ -5137,15 +5292,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 34n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -5157,7 +5312,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 35n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5171,7 +5326,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 36n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5185,17 +5340,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 37n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: null[];
         {
-          let newPayload;
+          let newPayload: null[];
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -5220,7 +5375,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 38n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5251,7 +5406,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 39n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5263,7 +5418,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payloadAlias.push(payload);
               } catch (e) {
@@ -5282,7 +5437,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 40n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5294,7 +5449,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payload = zigzagDecode(payload);
                 payloadAlias.push(payload);
@@ -5314,7 +5469,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 41n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5326,11 +5481,11 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: boolean;
                 {
-                  let newPayload;
+                  let newPayload: boolean;
                   {
-                    let payload;
+                    let payload: bigint;
                     [offset, payload] = deserializeVarint(dataView, offset);
                     newPayload = payload !== 0n;
                   }
@@ -5353,7 +5508,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 42n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5365,7 +5520,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5376,13 +5531,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = dataView.buffer.slice(
+              let payload = (dataView.buffer as ArrayBuffer).slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + dataView.byteLength,
               );
@@ -5398,7 +5553,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 43n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5410,7 +5565,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5421,15 +5576,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
               let payload = textDecoder.decode(
-                new Uint8Array(
-                  dataView.buffer,
+                new DataView(
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset + offset,
                   dataView.byteLength - offset,
                 ),
@@ -5446,7 +5601,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 44n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5458,7 +5613,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5469,7 +5624,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5488,7 +5643,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 45n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5500,7 +5655,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5511,7 +5666,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5530,7 +5685,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 46n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5542,7 +5697,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5553,17 +5708,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
+              let payload: null[];
               {
-                let newPayload;
+                let newPayload: null[];
                 {
-                  let payload;
+                  let payload: bigint;
                   [offset, payload] = deserializeVarint(dataView, offset);
                   newPayload = Array(Number(payload)).fill(null) as null[];
                 }
@@ -5580,7 +5735,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 47n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5592,7 +5747,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5603,7 +5758,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5639,7 +5794,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 48n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5651,7 +5806,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5662,7 +5817,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5674,7 +5829,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payloadAlias.push(payload);
                     } catch (e) {
@@ -5698,7 +5853,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 49n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5710,7 +5865,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5721,7 +5876,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5733,7 +5888,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payload = zigzagDecode(payload);
                       payloadAlias.push(payload);
@@ -5758,7 +5913,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 50n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5770,7 +5925,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5781,7 +5936,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5793,11 +5948,11 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: boolean;
                       {
-                        let newPayload;
+                        let newPayload: boolean;
                         {
-                          let payload;
+                          let payload: bigint;
                           [offset, payload] = deserializeVarint(dataView, offset);
                           newPayload = payload !== 0n;
                         }
@@ -5825,7 +5980,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 51n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5837,7 +5992,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5848,7 +6003,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5860,7 +6015,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -5871,13 +6026,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = dataView.buffer.slice(
+                    let payload = (dataView.buffer as ArrayBuffer).slice(
                       dataView.byteOffset + offset,
                       dataView.byteOffset + dataView.byteLength,
                     );
@@ -5898,7 +6053,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 52n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5910,7 +6065,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5921,7 +6076,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -5933,7 +6088,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -5944,15 +6099,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
                     let payload = textDecoder.decode(
-                      new Uint8Array(
-                        dataView.buffer,
+                      new DataView(
+                        dataView.buffer as ArrayBuffer,
                         dataView.byteOffset + offset,
                         dataView.byteLength - offset,
                       ),
@@ -5974,7 +6129,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 53n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -5986,7 +6141,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -5997,7 +6152,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6009,7 +6164,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -6020,7 +6175,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -6044,7 +6199,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 54n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6056,7 +6211,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6067,7 +6222,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6079,7 +6234,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -6090,7 +6245,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -6114,7 +6269,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 56n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6127,13 +6282,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 57n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: number;
         {
           switch (payloadSize) {
             case 0:
@@ -6151,13 +6306,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 58n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -6178,13 +6333,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 59n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -6206,17 +6361,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 60n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: boolean;
         {
-          let newPayload;
+          let newPayload: boolean;
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -6241,13 +6396,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 61n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload = dataView.buffer.slice(
+        let payload = (dataView.buffer as ArrayBuffer).slice(
           dataView.byteOffset + offset,
           dataView.byteOffset + dataView.byteLength,
         );
@@ -6258,15 +6413,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 62n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -6278,7 +6433,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 63n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6292,7 +6447,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 64n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6306,17 +6461,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 65n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: null[];
         {
-          let newPayload;
+          let newPayload: null[];
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -6341,7 +6496,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 66n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6372,7 +6527,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 67n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6384,7 +6539,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payloadAlias.push(payload);
               } catch (e) {
@@ -6403,7 +6558,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 68n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6415,7 +6570,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payload = zigzagDecode(payload);
                 payloadAlias.push(payload);
@@ -6435,7 +6590,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 69n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6447,11 +6602,11 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: boolean;
                 {
-                  let newPayload;
+                  let newPayload: boolean;
                   {
-                    let payload;
+                    let payload: bigint;
                     [offset, payload] = deserializeVarint(dataView, offset);
                     newPayload = payload !== 0n;
                   }
@@ -6474,7 +6629,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 70n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6486,7 +6641,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6497,13 +6652,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = dataView.buffer.slice(
+              let payload = (dataView.buffer as ArrayBuffer).slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + dataView.byteLength,
               );
@@ -6519,7 +6674,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 71n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6531,7 +6686,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6542,15 +6697,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
               let payload = textDecoder.decode(
-                new Uint8Array(
-                  dataView.buffer,
+                new DataView(
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset + offset,
                   dataView.byteLength - offset,
                 ),
@@ -6567,7 +6722,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 72n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6579,7 +6734,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6590,7 +6745,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6609,7 +6764,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 73n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6621,7 +6776,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6632,7 +6787,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6651,7 +6806,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 74n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6663,7 +6818,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6674,17 +6829,17 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
+              let payload: null[];
               {
-                let newPayload;
+                let newPayload: null[];
                 {
-                  let payload;
+                  let payload: bigint;
                   [offset, payload] = deserializeVarint(dataView, offset);
                   newPayload = Array(Number(payload)).fill(null) as null[];
                 }
@@ -6701,7 +6856,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 75n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6713,7 +6868,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6724,7 +6879,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6760,7 +6915,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 76n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6772,7 +6927,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6783,7 +6938,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6795,7 +6950,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payloadAlias.push(payload);
                     } catch (e) {
@@ -6819,7 +6974,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 77n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6831,7 +6986,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6842,7 +6997,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6854,7 +7009,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payload = zigzagDecode(payload);
                       payloadAlias.push(payload);
@@ -6879,7 +7034,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 78n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6891,7 +7046,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6902,7 +7057,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6914,11 +7069,11 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: boolean;
                       {
-                        let newPayload;
+                        let newPayload: boolean;
                         {
-                          let payload;
+                          let payload: bigint;
                           [offset, payload] = deserializeVarint(dataView, offset);
                           newPayload = payload !== 0n;
                         }
@@ -6946,7 +7101,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 79n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -6958,7 +7113,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -6969,7 +7124,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -6981,7 +7136,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -6992,13 +7147,13 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = dataView.buffer.slice(
+                    let payload = (dataView.buffer as ArrayBuffer).slice(
                       dataView.byteOffset + offset,
                       dataView.byteOffset + dataView.byteLength,
                     );
@@ -7019,7 +7174,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 80n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -7031,7 +7186,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -7042,7 +7197,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -7054,7 +7209,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -7065,15 +7220,15 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
                     let payload = textDecoder.decode(
-                      new Uint8Array(
-                        dataView.buffer,
+                      new DataView(
+                        dataView.buffer as ArrayBuffer,
                         dataView.byteOffset + offset,
                         dataView.byteLength - offset,
                       ),
@@ -7095,7 +7250,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 81n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -7107,7 +7262,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -7118,7 +7273,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -7130,7 +7285,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -7141,7 +7296,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -7165,7 +7320,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
       }
       case 82n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -7177,7 +7332,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -7188,7 +7343,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -7200,7 +7355,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -7211,7 +7366,7 @@ function fooDeserializeUnsafe(dataView: DataView): FooIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -7364,13 +7519,7 @@ function fooSerialize(message: FooOut): ArrayBuffer {
 
 function fooDeserialize(bytes: Deserializable): FooIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return fooDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return fooDeserializeUnsafe(bytes);
-    }
-    return fooDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return fooDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }
@@ -7636,7 +7785,7 @@ export type BarIn =
 
 function barAtlas(message: BarOut): BarAtlas {
   if ('aRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.aRequired;
     payloadAtlas = 0;
     const payloadSize = payloadAtlas;
@@ -7644,7 +7793,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('bRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.bRequired;
     if (Object.is(payload, 0)) {
       payloadAtlas = 0;
@@ -7656,7 +7805,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('cRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.cRequired;
     if (payload === 0n) {
       payloadAtlas = 0;
@@ -7670,7 +7819,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('dRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.dRequired;
     {
       const zigzag = zigzagEncode(payload);
@@ -7687,7 +7836,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('eRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.eRequired;
     if (payload) {
       payloadAtlas = 1;
@@ -7699,7 +7848,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('fRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.fRequired;
     payloadAtlas = payload.byteLength;
     const payloadSize = payloadAtlas;
@@ -7707,7 +7856,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('gRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.gRequired;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -7715,7 +7864,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('hRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: LocalStructAtlas;
     const payload = message.hRequired;
     payloadAtlas = LocalStruct.atlas(payload);
     const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -7723,7 +7872,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('iRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: _Types.EmptyStructAtlas;
     const payload = message.iRequired;
     payloadAtlas = _Types.EmptyStruct.atlas(payload);
     const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -7731,7 +7880,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('jRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.jRequired;
     {
       const oldPayload = payload;
@@ -7751,7 +7900,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('kRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.kRequired;
     payloadAtlas = 8 * payload.length;
     const payloadSize = payloadAtlas;
@@ -7759,7 +7908,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('lRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.lRequired;
     {
       let arraySize = 0;
@@ -7777,7 +7926,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('mRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.mRequired;
     {
       let arraySize = 0;
@@ -7795,7 +7944,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('nRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.nRequired;
     {
       let arraySize = 0;
@@ -7813,15 +7962,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('oRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.oRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = payload.byteLength;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -7834,15 +7983,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('pRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: Uint8Array[] };
     const payload = message.pRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: Uint8Array[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: Uint8Array;
         payloadAtlas = textEncoder.encode(payload);
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas.byteLength;
@@ -7855,15 +8004,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('qRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
     const payload = message.qRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: LocalStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: LocalStructAtlas;
         payloadAtlas = LocalStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -7876,15 +8025,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('rRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
     const payload = message.rRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: _Types.EmptyStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: _Types.EmptyStructAtlas;
         payloadAtlas = _Types.EmptyStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -7897,15 +8046,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('sRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.sRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           const oldPayload = payload;
           {
@@ -7924,15 +8073,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('tRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.tRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = 8 * payload.length;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -7945,15 +8094,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('uRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.uRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -7976,15 +8125,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('vRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.vRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -8007,15 +8156,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('wRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.wRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -8038,22 +8187,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('xRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: number[] }[] };
     const payload = message.xRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: number[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: number[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: number[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: number;
             payloadAtlas = payload.byteLength;
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas;
@@ -8072,22 +8221,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('yRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
     const payload = message.yRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: Uint8Array[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: Uint8Array[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: Uint8Array[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: Uint8Array;
             payloadAtlas = textEncoder.encode(payload);
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas.byteLength;
@@ -8106,22 +8255,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('zRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
     const payload = message.zRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: LocalStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: LocalStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: LocalStructAtlas;
             payloadAtlas = LocalStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8140,22 +8289,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('aaRequired' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
     const payload = message.aaRequired;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: _Types.EmptyStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: _Types.EmptyStructAtlas;
             payloadAtlas = _Types.EmptyStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8174,7 +8323,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('aAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.aAsymmetric;
     payloadAtlas = 0;
     const payloadSize = payloadAtlas;
@@ -8183,7 +8332,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('bAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.bAsymmetric;
     if (Object.is(payload, 0)) {
       payloadAtlas = 0;
@@ -8196,7 +8345,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('cAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.cAsymmetric;
     if (payload === 0n) {
       payloadAtlas = 0;
@@ -8211,7 +8360,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('dAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.dAsymmetric;
     {
       const zigzag = zigzagEncode(payload);
@@ -8229,7 +8378,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('eAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.eAsymmetric;
     if (payload) {
       payloadAtlas = 1;
@@ -8242,7 +8391,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('fAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.fAsymmetric;
     payloadAtlas = payload.byteLength;
     const payloadSize = payloadAtlas;
@@ -8251,7 +8400,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('gAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.gAsymmetric;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -8260,7 +8409,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('hAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: LocalStructAtlas;
     const payload = message.hAsymmetric;
     payloadAtlas = LocalStruct.atlas(payload);
     const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8269,7 +8418,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('iAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: _Types.EmptyStructAtlas;
     const payload = message.iAsymmetric;
     payloadAtlas = _Types.EmptyStruct.atlas(payload);
     const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8278,7 +8427,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('jAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.jAsymmetric;
     {
       const oldPayload = payload;
@@ -8299,7 +8448,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('kAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.kAsymmetric;
     payloadAtlas = 8 * payload.length;
     const payloadSize = payloadAtlas;
@@ -8308,7 +8457,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('lAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.lAsymmetric;
     {
       let arraySize = 0;
@@ -8327,7 +8476,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('mAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.mAsymmetric;
     {
       let arraySize = 0;
@@ -8346,7 +8495,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('nAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.nAsymmetric;
     {
       let arraySize = 0;
@@ -8365,15 +8514,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('oAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.oAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = payload.byteLength;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -8387,15 +8536,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('pAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: Uint8Array[] };
     const payload = message.pAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: Uint8Array[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: Uint8Array;
         payloadAtlas = textEncoder.encode(payload);
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas.byteLength;
@@ -8409,15 +8558,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('qAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
     const payload = message.qAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: LocalStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: LocalStructAtlas;
         payloadAtlas = LocalStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8431,15 +8580,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('rAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
     const payload = message.rAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: _Types.EmptyStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: _Types.EmptyStructAtlas;
         payloadAtlas = _Types.EmptyStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8453,15 +8602,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('sAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.sAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           const oldPayload = payload;
           {
@@ -8481,15 +8630,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('tAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.tAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = 8 * payload.length;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -8503,15 +8652,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('uAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.uAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -8535,15 +8684,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('vAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.vAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -8567,15 +8716,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('wAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.wAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -8599,22 +8748,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('xAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: number[] }[] };
     const payload = message.xAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: number[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: number[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: number[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: number;
             payloadAtlas = payload.byteLength;
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas;
@@ -8634,22 +8783,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('yAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
     const payload = message.yAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: Uint8Array[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: Uint8Array[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: Uint8Array[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: Uint8Array;
             payloadAtlas = textEncoder.encode(payload);
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas.byteLength;
@@ -8669,22 +8818,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('zAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
     const payload = message.zAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: LocalStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: LocalStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: LocalStructAtlas;
             payloadAtlas = LocalStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8704,22 +8853,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('aaAsymmetric' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
     const payload = message.aaAsymmetric;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: _Types.EmptyStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: _Types.EmptyStructAtlas;
             payloadAtlas = _Types.EmptyStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8739,7 +8888,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('aOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.aOptional;
     payloadAtlas = 0;
     const payloadSize = payloadAtlas;
@@ -8748,7 +8897,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('bOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.bOptional;
     if (Object.is(payload, 0)) {
       payloadAtlas = 0;
@@ -8761,7 +8910,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('cOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.cOptional;
     if (payload === 0n) {
       payloadAtlas = 0;
@@ -8776,7 +8925,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('dOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.dOptional;
     {
       const zigzag = zigzagEncode(payload);
@@ -8794,7 +8943,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('eOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.eOptional;
     if (payload) {
       payloadAtlas = 1;
@@ -8807,7 +8956,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('fOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.fOptional;
     payloadAtlas = payload.byteLength;
     const payloadSize = payloadAtlas;
@@ -8816,7 +8965,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('gOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.gOptional;
     payloadAtlas = textEncoder.encode(payload);
     const payloadSize = payloadAtlas.byteLength;
@@ -8825,7 +8974,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('hOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: LocalStructAtlas;
     const payload = message.hOptional;
     payloadAtlas = LocalStruct.atlas(payload);
     const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8834,7 +8983,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('iOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: _Types.EmptyStructAtlas;
     const payload = message.iOptional;
     payloadAtlas = _Types.EmptyStruct.atlas(payload);
     const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8843,7 +8992,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('jOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.jOptional;
     {
       const oldPayload = payload;
@@ -8864,7 +9013,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('kOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.kOptional;
     payloadAtlas = 8 * payload.length;
     const payloadSize = payloadAtlas;
@@ -8873,7 +9022,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('lOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.lOptional;
     {
       let arraySize = 0;
@@ -8892,7 +9041,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('mOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.mOptional;
     {
       let arraySize = 0;
@@ -8911,7 +9060,7 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('nOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: number;
     const payload = message.nOptional;
     {
       let arraySize = 0;
@@ -8930,15 +9079,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('oOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.oOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = payload.byteLength;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -8952,15 +9101,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('pOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: Uint8Array[] };
     const payload = message.pOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: Uint8Array[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: Uint8Array;
         payloadAtlas = textEncoder.encode(payload);
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas.byteLength;
@@ -8974,15 +9123,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('qOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
     const payload = message.qOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: LocalStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: LocalStructAtlas;
         payloadAtlas = LocalStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -8996,15 +9145,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('rOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
     const payload = message.rOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: _Types.EmptyStructAtlas[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: _Types.EmptyStructAtlas;
         payloadAtlas = _Types.EmptyStruct.atlas(payload);
         elements.push(payloadAtlas);
         const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -9018,15 +9167,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('sOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.sOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           const oldPayload = payload;
           {
@@ -9046,15 +9195,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('tOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.tOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         payloadAtlas = 8 * payload.length;
         elements.push(payloadAtlas);
         const payloadSize = payloadAtlas;
@@ -9068,15 +9217,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('uOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.uOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -9100,15 +9249,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('vOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.vOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -9132,15 +9281,15 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('wOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: number[] };
     const payload = message.wOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: number[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: number;
         {
           let arraySize = 0;
           const oldPayload = payload;
@@ -9164,22 +9313,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('xOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: number[] }[] };
     const payload = message.xOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: number[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: number[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: number[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: number;
             payloadAtlas = payload.byteLength;
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas;
@@ -9199,22 +9348,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('yOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: Uint8Array[] }[] };
     const payload = message.yOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: Uint8Array[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: Uint8Array[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: Uint8Array[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: Uint8Array;
             payloadAtlas = textEncoder.encode(payload);
             elements.push(payloadAtlas);
             const payloadSize = payloadAtlas.byteLength;
@@ -9234,22 +9383,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('zOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: LocalStructAtlas[] }[] };
     const payload = message.zOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: LocalStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: LocalStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: LocalStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: LocalStructAtlas;
             payloadAtlas = LocalStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -9269,22 +9418,22 @@ function barAtlas(message: BarOut): BarAtlas {
   }
 
   if ('aaOptional' in message) {
-    let payloadAtlas;
+    let payloadAtlas: { $size: number; $elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] };
     const payload = message.aaOptional;
     {
       let size = 0;
-      let elements = [];
+      let elements: { $size: number; $elements: _Types.EmptyStructAtlas[] }[] = [];
       const oldPayload = payload;
       for (let i = 0; i < oldPayload.length; i += 1) {
         const payload = oldPayload[i];
-        let payloadAtlas;
+        let payloadAtlas: { $size: number; $elements: _Types.EmptyStructAtlas[] };
         {
           let size = 0;
-          let elements = [];
+          let elements: _Types.EmptyStructAtlas[] = [];
           const oldPayload = payload;
           for (let i = 0; i < oldPayload.length; i += 1) {
             const payload = oldPayload[i];
-            let payloadAtlas;
+            let payloadAtlas: _Types.EmptyStructAtlas;
             payloadAtlas = _Types.EmptyStruct.atlas(payload);
             elements.push(payloadAtlas);
             const payloadSize = (payloadAtlas as { $size: number }).$size;
@@ -9395,7 +9544,7 @@ function barSerializeWithAtlasUnsafe(
     {
       const sourceBuffer = new Uint8Array(payload);
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -9412,7 +9561,7 @@ function barSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 6n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -9542,7 +9691,7 @@ function barSerializeWithAtlasUnsafe(
         {
           const sourceBuffer = new Uint8Array(payload);
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -9568,7 +9717,7 @@ function barSerializeWithAtlasUnsafe(
         offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
         {
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -9765,7 +9914,7 @@ function barSerializeWithAtlasUnsafe(
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -9800,7 +9949,7 @@ function barSerializeWithAtlasUnsafe(
             offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
             {
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -9952,7 +10101,7 @@ function barSerializeWithAtlasUnsafe(
     {
       const sourceBuffer = new Uint8Array(payload);
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -9970,7 +10119,7 @@ function barSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 34n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -10108,7 +10257,7 @@ function barSerializeWithAtlasUnsafe(
         {
           const sourceBuffer = new Uint8Array(payload);
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -10135,7 +10284,7 @@ function barSerializeWithAtlasUnsafe(
         offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
         {
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -10340,7 +10489,7 @@ function barSerializeWithAtlasUnsafe(
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -10376,7 +10525,7 @@ function barSerializeWithAtlasUnsafe(
             offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
             {
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -10531,7 +10680,7 @@ function barSerializeWithAtlasUnsafe(
     {
       const sourceBuffer = new Uint8Array(payload);
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -10549,7 +10698,7 @@ function barSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 62n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -10687,7 +10836,7 @@ function barSerializeWithAtlasUnsafe(
         {
           const sourceBuffer = new Uint8Array(payload);
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -10714,7 +10863,7 @@ function barSerializeWithAtlasUnsafe(
         offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
         {
           const targetBuffer = new Uint8Array(
-            dataView.buffer,
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset,
             dataView.byteLength,
           );
@@ -10919,7 +11068,7 @@ function barSerializeWithAtlasUnsafe(
             {
               const sourceBuffer = new Uint8Array(payload);
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -10955,7 +11104,7 @@ function barSerializeWithAtlasUnsafe(
             offset = serializeVarint(dataView, offset, BigInt(payloadAtlas.byteLength));
             {
               const targetBuffer = new Uint8Array(
-                dataView.buffer,
+                dataView.buffer as ArrayBuffer,
                 dataView.byteOffset,
                 dataView.byteLength,
               );
@@ -11041,7 +11190,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11055,13 +11204,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 1n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: number;
         {
           switch (payloadSize) {
             case 0:
@@ -11080,13 +11229,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 2n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -11108,13 +11257,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 3n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -11137,17 +11286,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 4n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: boolean;
         {
-          let newPayload;
+          let newPayload: boolean;
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -11173,13 +11322,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 5n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload = dataView.buffer.slice(
+        let payload = (dataView.buffer as ArrayBuffer).slice(
           dataView.byteOffset + offset,
           dataView.byteOffset + dataView.byteLength,
         );
@@ -11191,15 +11340,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 6n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -11212,7 +11361,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 7n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11227,7 +11376,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 8n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11242,17 +11391,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 9n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: null[];
         {
-          let newPayload;
+          let newPayload: null[];
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -11278,7 +11427,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 10n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11310,7 +11459,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 11n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11322,7 +11471,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payloadAlias.push(payload);
               } catch (e) {
@@ -11342,7 +11491,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 12n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11354,7 +11503,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payload = zigzagDecode(payload);
                 payloadAlias.push(payload);
@@ -11375,7 +11524,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 13n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11387,11 +11536,11 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: boolean;
                 {
-                  let newPayload;
+                  let newPayload: boolean;
                   {
-                    let payload;
+                    let payload: bigint;
                     [offset, payload] = deserializeVarint(dataView, offset);
                     newPayload = payload !== 0n;
                   }
@@ -11415,7 +11564,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 14n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11427,7 +11576,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11438,13 +11587,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = dataView.buffer.slice(
+              let payload = (dataView.buffer as ArrayBuffer).slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + dataView.byteLength,
               );
@@ -11461,7 +11610,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 15n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11473,7 +11622,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11484,15 +11633,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
               let payload = textDecoder.decode(
-                new Uint8Array(
-                  dataView.buffer,
+                new DataView(
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset + offset,
                   dataView.byteLength - offset,
                 ),
@@ -11510,7 +11659,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 16n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11522,7 +11671,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11533,7 +11682,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11553,7 +11702,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 17n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11565,7 +11714,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11576,7 +11725,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11596,7 +11745,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 18n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11608,7 +11757,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11619,17 +11768,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
+              let payload: null[];
               {
-                let newPayload;
+                let newPayload: null[];
                 {
-                  let payload;
+                  let payload: bigint;
                   [offset, payload] = deserializeVarint(dataView, offset);
                   newPayload = Array(Number(payload)).fill(null) as null[];
                 }
@@ -11647,7 +11796,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 19n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11659,7 +11808,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11670,7 +11819,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11707,7 +11856,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 20n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11719,7 +11868,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11730,7 +11879,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11742,7 +11891,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payloadAlias.push(payload);
                     } catch (e) {
@@ -11767,7 +11916,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 21n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11779,7 +11928,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11790,7 +11939,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11802,7 +11951,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payload = zigzagDecode(payload);
                       payloadAlias.push(payload);
@@ -11828,7 +11977,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 22n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11840,7 +11989,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11851,7 +12000,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11863,11 +12012,11 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: boolean;
                       {
-                        let newPayload;
+                        let newPayload: boolean;
                         {
-                          let payload;
+                          let payload: bigint;
                           [offset, payload] = deserializeVarint(dataView, offset);
                           newPayload = payload !== 0n;
                         }
@@ -11896,7 +12045,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 23n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11908,7 +12057,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11919,7 +12068,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -11931,7 +12080,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -11942,13 +12091,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = dataView.buffer.slice(
+                    let payload = (dataView.buffer as ArrayBuffer).slice(
                       dataView.byteOffset + offset,
                       dataView.byteOffset + dataView.byteLength,
                     );
@@ -11970,7 +12119,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 24n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -11982,7 +12131,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -11993,7 +12142,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12005,7 +12154,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -12016,15 +12165,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
                     let payload = textDecoder.decode(
-                      new Uint8Array(
-                        dataView.buffer,
+                      new DataView(
+                        dataView.buffer as ArrayBuffer,
                         dataView.byteOffset + offset,
                         dataView.byteLength - offset,
                       ),
@@ -12047,7 +12196,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 25n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12059,7 +12208,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12070,7 +12219,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12082,7 +12231,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -12093,7 +12242,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -12118,7 +12267,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 26n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12130,7 +12279,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12141,7 +12290,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12153,7 +12302,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -12164,7 +12313,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -12189,7 +12338,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 28n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12203,13 +12352,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 29n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: number;
         {
           switch (payloadSize) {
             case 0:
@@ -12228,13 +12377,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 30n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -12256,13 +12405,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 31n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -12285,17 +12434,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 32n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: boolean;
         {
-          let newPayload;
+          let newPayload: boolean;
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -12321,13 +12470,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 33n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload = dataView.buffer.slice(
+        let payload = (dataView.buffer as ArrayBuffer).slice(
           dataView.byteOffset + offset,
           dataView.byteOffset + dataView.byteLength,
         );
@@ -12339,15 +12488,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 34n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -12360,7 +12509,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 35n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12375,7 +12524,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 36n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12390,17 +12539,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 37n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: null[];
         {
-          let newPayload;
+          let newPayload: null[];
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -12426,7 +12575,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 38n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12458,7 +12607,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 39n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12470,7 +12619,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payloadAlias.push(payload);
               } catch (e) {
@@ -12490,7 +12639,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 40n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12502,7 +12651,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payload = zigzagDecode(payload);
                 payloadAlias.push(payload);
@@ -12523,7 +12672,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 41n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12535,11 +12684,11 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: boolean;
                 {
-                  let newPayload;
+                  let newPayload: boolean;
                   {
-                    let payload;
+                    let payload: bigint;
                     [offset, payload] = deserializeVarint(dataView, offset);
                     newPayload = payload !== 0n;
                   }
@@ -12563,7 +12712,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 42n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12575,7 +12724,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12586,13 +12735,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = dataView.buffer.slice(
+              let payload = (dataView.buffer as ArrayBuffer).slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + dataView.byteLength,
               );
@@ -12609,7 +12758,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 43n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12621,7 +12770,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12632,15 +12781,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
               let payload = textDecoder.decode(
-                new Uint8Array(
-                  dataView.buffer,
+                new DataView(
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset + offset,
                   dataView.byteLength - offset,
                 ),
@@ -12658,7 +12807,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 44n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12670,7 +12819,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12681,7 +12830,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12701,7 +12850,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 45n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12713,7 +12862,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12724,7 +12873,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12744,7 +12893,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 46n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12756,7 +12905,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12767,17 +12916,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
+              let payload: null[];
               {
-                let newPayload;
+                let newPayload: null[];
                 {
-                  let payload;
+                  let payload: bigint;
                   [offset, payload] = deserializeVarint(dataView, offset);
                   newPayload = Array(Number(payload)).fill(null) as null[];
                 }
@@ -12795,7 +12944,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 47n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12807,7 +12956,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12818,7 +12967,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12855,7 +13004,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 48n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12867,7 +13016,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12878,7 +13027,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12890,7 +13039,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payloadAlias.push(payload);
                     } catch (e) {
@@ -12915,7 +13064,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 49n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12927,7 +13076,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12938,7 +13087,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -12950,7 +13099,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payload = zigzagDecode(payload);
                       payloadAlias.push(payload);
@@ -12976,7 +13125,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 50n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -12988,7 +13137,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -12999,7 +13148,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -13011,11 +13160,11 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: boolean;
                       {
-                        let newPayload;
+                        let newPayload: boolean;
                         {
-                          let payload;
+                          let payload: bigint;
                           [offset, payload] = deserializeVarint(dataView, offset);
                           newPayload = payload !== 0n;
                         }
@@ -13044,7 +13193,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 51n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13056,7 +13205,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13067,7 +13216,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -13079,7 +13228,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -13090,13 +13239,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = dataView.buffer.slice(
+                    let payload = (dataView.buffer as ArrayBuffer).slice(
                       dataView.byteOffset + offset,
                       dataView.byteOffset + dataView.byteLength,
                     );
@@ -13118,7 +13267,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 52n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13130,7 +13279,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13141,7 +13290,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -13153,7 +13302,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -13164,15 +13313,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
                     let payload = textDecoder.decode(
-                      new Uint8Array(
-                        dataView.buffer,
+                      new DataView(
+                        dataView.buffer as ArrayBuffer,
                         dataView.byteOffset + offset,
                         dataView.byteLength - offset,
                       ),
@@ -13195,7 +13344,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 53n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13207,7 +13356,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13218,7 +13367,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -13230,7 +13379,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -13241,7 +13390,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -13266,7 +13415,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 54n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13278,7 +13427,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13289,7 +13438,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -13301,7 +13450,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -13312,7 +13461,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -13337,7 +13486,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 56n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13347,7 +13496,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13360,13 +13509,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 57n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: number;
         {
           switch (payloadSize) {
             case 0:
@@ -13381,7 +13530,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13394,13 +13543,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 58n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -13418,7 +13567,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13431,13 +13580,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 59n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: bigint;
         {
           switch (payloadSize) {
             case 0:
@@ -13456,7 +13605,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13469,17 +13618,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 60n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: boolean;
         {
-          let newPayload;
+          let newPayload: boolean;
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -13501,7 +13650,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13514,13 +13663,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 61n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload = dataView.buffer.slice(
+        let payload = (dataView.buffer as ArrayBuffer).slice(
           dataView.byteOffset + offset,
           dataView.byteOffset + dataView.byteLength,
         );
@@ -13528,7 +13677,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13541,15 +13690,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 62n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -13558,7 +13707,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13571,7 +13720,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 63n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13582,7 +13731,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13595,7 +13744,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 64n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13606,7 +13755,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13619,17 +13768,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 65n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
-        let payload;
+        let payload: null[];
         {
-          let newPayload;
+          let newPayload: null[];
           {
-            let payload;
+            let payload: bigint;
             {
               switch (payloadSize) {
                 case 0:
@@ -13651,7 +13800,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13664,7 +13813,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 66n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13692,7 +13841,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13705,7 +13854,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 67n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13717,7 +13866,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payloadAlias.push(payload);
               } catch (e) {
@@ -13733,7 +13882,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13746,7 +13895,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 68n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13758,7 +13907,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: bigint;
                 [offset, payload] = deserializeVarint(dataView, offset);
                 payload = zigzagDecode(payload);
                 payloadAlias.push(payload);
@@ -13775,7 +13924,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13788,7 +13937,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 69n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13800,11 +13949,11 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           {
             while (true) {
               try {
-                let payload;
+                let payload: boolean;
                 {
-                  let newPayload;
+                  let newPayload: boolean;
                   {
-                    let payload;
+                    let payload: bigint;
                     [offset, payload] = deserializeVarint(dataView, offset);
                     newPayload = payload !== 0n;
                   }
@@ -13824,7 +13973,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13837,7 +13986,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 70n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13849,7 +13998,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13860,13 +14009,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload = dataView.buffer.slice(
+              let payload = (dataView.buffer as ArrayBuffer).slice(
                 dataView.byteOffset + offset,
                 dataView.byteOffset + dataView.byteLength,
               );
@@ -13879,7 +14028,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13892,7 +14041,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 71n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13904,7 +14053,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13915,15 +14064,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
               let payload = textDecoder.decode(
-                new Uint8Array(
-                  dataView.buffer,
+                new DataView(
+                  dataView.buffer as ArrayBuffer,
                   dataView.byteOffset + offset,
                   dataView.byteLength - offset,
                 ),
@@ -13937,7 +14086,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -13950,7 +14099,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 72n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -13962,7 +14111,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -13973,7 +14122,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -13989,7 +14138,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14002,7 +14151,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 73n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14014,7 +14163,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14025,7 +14174,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14041,7 +14190,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14054,7 +14203,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 74n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14066,7 +14215,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14077,17 +14226,17 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
               const oldOffset = offset;
               offset = 0;
-              let payload;
+              let payload: null[];
               {
-                let newPayload;
+                let newPayload: null[];
                 {
-                  let payload;
+                  let payload: bigint;
                   [offset, payload] = deserializeVarint(dataView, offset);
                   newPayload = Array(Number(payload)).fill(null) as null[];
                 }
@@ -14101,7 +14250,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14114,7 +14263,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 75n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14126,7 +14275,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14137,7 +14286,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14170,7 +14319,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14183,7 +14332,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 76n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14195,7 +14344,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14206,7 +14355,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14218,7 +14367,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payloadAlias.push(payload);
                     } catch (e) {
@@ -14239,7 +14388,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14252,7 +14401,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 77n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14264,7 +14413,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14275,7 +14424,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14287,7 +14436,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: bigint;
                       [offset, payload] = deserializeVarint(dataView, offset);
                       payload = zigzagDecode(payload);
                       payloadAlias.push(payload);
@@ -14309,7 +14458,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14322,7 +14471,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 78n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14334,7 +14483,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14345,7 +14494,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14357,11 +14506,11 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 {
                   while (true) {
                     try {
-                      let payload;
+                      let payload: boolean;
                       {
-                        let newPayload;
+                        let newPayload: boolean;
                         {
-                          let payload;
+                          let payload: bigint;
                           [offset, payload] = deserializeVarint(dataView, offset);
                           newPayload = payload !== 0n;
                         }
@@ -14386,7 +14535,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14399,7 +14548,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 79n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14411,7 +14560,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14422,7 +14571,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14434,7 +14583,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -14445,13 +14594,13 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
-                    let payload = dataView.buffer.slice(
+                    let payload = (dataView.buffer as ArrayBuffer).slice(
                       dataView.byteOffset + offset,
                       dataView.byteOffset + dataView.byteLength,
                     );
@@ -14469,7 +14618,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14482,7 +14631,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 80n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14494,7 +14643,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14505,7 +14654,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14517,7 +14666,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -14528,15 +14677,15 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
                     const oldOffset = offset;
                     offset = 0;
                     let payload = textDecoder.decode(
-                      new Uint8Array(
-                        dataView.buffer,
+                      new DataView(
+                        dataView.buffer as ArrayBuffer,
                         dataView.byteOffset + offset,
                         dataView.byteLength - offset,
                       ),
@@ -14555,7 +14704,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14568,7 +14717,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 81n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14580,7 +14729,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14591,7 +14740,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14603,7 +14752,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -14614,7 +14763,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -14635,7 +14784,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14648,7 +14797,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
       }
       case 82n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
@@ -14660,7 +14809,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
           const payloadAlias = payload;
           {
             while (true) {
-              let payloadSizeBig;
+              let payloadSizeBig: bigint;
               try {
                 [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
               } catch (e) {
@@ -14671,7 +14820,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 }
               }
               const dataView = new DataView(
-                dataViewAlias.buffer,
+                dataViewAlias.buffer as ArrayBuffer,
                 dataViewAlias.byteOffset + offset,
                 Number(payloadSizeBig),
               );
@@ -14683,7 +14832,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                 const payloadAlias = payload;
                 {
                   while (true) {
-                    let payloadSizeBig;
+                    let payloadSizeBig: bigint;
                     try {
                       [offset, payloadSizeBig] = deserializeVarint(dataViewAlias, offset);
                     } catch (e) {
@@ -14694,7 +14843,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
                       }
                     }
                     const dataView = new DataView(
-                      dataViewAlias.buffer,
+                      dataViewAlias.buffer as ArrayBuffer,
                       dataViewAlias.byteOffset + offset,
                       Number(payloadSizeBig),
                     );
@@ -14715,7 +14864,7 @@ function barDeserializeUnsafe(dataView: DataView): BarIn {
         offset += oldOffset;
         const $fallback = barDeserializeUnsafe(
           new DataView(
-            dataViewAlias.buffer,
+            dataViewAlias.buffer as ArrayBuffer,
             dataViewAlias.byteOffset + offset,
             dataViewAlias.byteLength - offset,
           ),
@@ -14743,13 +14892,7 @@ function barSerialize(message: BarOut): ArrayBuffer {
 
 function barDeserialize(bytes: Deserializable): BarIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return barDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return barDeserializeUnsafe(bytes);
-    }
-    return barDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return barDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }

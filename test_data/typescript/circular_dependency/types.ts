@@ -5,7 +5,7 @@
 
 import {
   Deserializable,
-  dataView64,
+  dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
   fieldHeaderSize,
@@ -15,7 +15,6 @@ import {
   textDecoder,
   textEncoder,
   unreachable,
-  varintSizeFromFirstByte,
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
@@ -48,10 +47,13 @@ export type StructFromAboveIn = {
 function structFromAboveAtlas(message: StructFromAboveOut): StructFromAboveAtlas {
   let size = 0;
 
-  let $field, $size, $elements, $fallback;
+  let $field: Uint8Array;
+  let $size: Uint8Array;
+  let $elements: Uint8Array;
+  let $fallback: Uint8Array;
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.field;
     payloadAtlas = textEncoder.encode(payload);
     $field = payloadAtlas;
@@ -60,7 +62,7 @@ function structFromAboveAtlas(message: StructFromAboveOut): StructFromAboveAtlas
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.size;
     payloadAtlas = textEncoder.encode(payload);
     $size = payloadAtlas;
@@ -69,7 +71,7 @@ function structFromAboveAtlas(message: StructFromAboveOut): StructFromAboveAtlas
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.elements;
     payloadAtlas = textEncoder.encode(payload);
     $elements = payloadAtlas;
@@ -78,7 +80,7 @@ function structFromAboveAtlas(message: StructFromAboveOut): StructFromAboveAtlas
   }
 
   {
-    let payloadAtlas;
+    let payloadAtlas: Uint8Array;
     const payload = message.fallback;
     payloadAtlas = textEncoder.encode(payload);
     $fallback = payloadAtlas;
@@ -112,7 +114,7 @@ function structFromAboveSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 0n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -128,7 +130,7 @@ function structFromAboveSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 1n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -144,7 +146,7 @@ function structFromAboveSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 2n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -160,7 +162,7 @@ function structFromAboveSerializeWithAtlasUnsafe(
     offset = serializeFieldHeader(dataView, offset, 3n, payloadSize, false);
     {
       const targetBuffer = new Uint8Array(
-        dataView.buffer,
+        dataView.buffer as ArrayBuffer,
         dataView.byteOffset,
         dataView.byteLength,
       );
@@ -177,10 +179,14 @@ function structFromAboveDeserializeUnsafe(dataView: DataView): StructFromAboveIn
 
   let offset = 0;
 
-  let $field, $size, $elements, $fallback;
+  let $field: string | undefined;
+  let $size: string | undefined;
+  let $elements: string | undefined;
+  let $fallback: string | undefined;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -195,15 +201,15 @@ function structFromAboveDeserializeUnsafe(dataView: DataView): StructFromAboveIn
     switch (index) {
       case 0n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -215,15 +221,15 @@ function structFromAboveDeserializeUnsafe(dataView: DataView): StructFromAboveIn
       }
       case 1n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -235,15 +241,15 @@ function structFromAboveDeserializeUnsafe(dataView: DataView): StructFromAboveIn
       }
       case 2n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -255,15 +261,15 @@ function structFromAboveDeserializeUnsafe(dataView: DataView): StructFromAboveIn
       }
       case 3n: {
         const dataView = new DataView(
-          dataViewAlias.buffer,
+          dataViewAlias.buffer as ArrayBuffer,
           dataViewAlias.byteOffset + offset,
           payloadSize,
         );
         const oldOffset = offset;
         offset = 0;
         let payload = textDecoder.decode(
-          new Uint8Array(
-            dataView.buffer,
+          new DataView(
+            dataView.buffer as ArrayBuffer,
             dataView.byteOffset + offset,
             dataView.byteLength - offset,
           ),
@@ -304,13 +310,7 @@ function structFromAboveSerialize(message: StructFromAboveOut): ArrayBuffer {
 
 function structFromAboveDeserialize(bytes: Deserializable): StructFromAboveIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return structFromAboveDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return structFromAboveDeserializeUnsafe(bytes);
-    }
-    return structFromAboveDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return structFromAboveDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }

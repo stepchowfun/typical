@@ -5,7 +5,7 @@
 
 import {
   Deserializable,
-  dataView64,
+  dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
   fieldHeaderSize,
@@ -15,7 +15,6 @@ import {
   textDecoder,
   textEncoder,
   unreachable,
-  varintSizeFromFirstByte,
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
@@ -58,7 +57,8 @@ function emptyStructDeserializeUnsafe(dataView: DataView): EmptyStructIn {
   let offset = 0;
 
   while (true) {
-    let index, payloadSize;
+    let index: bigint;
+    let payloadSize: number;
 
     try {
       [offset, index, payloadSize] = deserializeFieldHeader(dataViewAlias, offset);
@@ -91,13 +91,7 @@ function emptyStructSerialize(message: EmptyStructOut): ArrayBuffer {
 
 function emptyStructDeserialize(bytes: Deserializable): EmptyStructIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return emptyStructDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return emptyStructDeserializeUnsafe(bytes);
-    }
-    return emptyStructDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return emptyStructDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }
@@ -158,13 +152,7 @@ function emptyChoiceSerialize(message: EmptyChoiceOut): ArrayBuffer {
 
 function emptyChoiceDeserialize(bytes: Deserializable): EmptyChoiceIn | Error {
   try {
-    if (bytes instanceof ArrayBuffer) {
-      return emptyChoiceDeserializeUnsafe(new DataView(bytes));
-    }
-    if (bytes instanceof DataView) {
-      return emptyChoiceDeserializeUnsafe(bytes);
-    }
-    return emptyChoiceDeserializeUnsafe(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return emptyChoiceDeserializeUnsafe(dataViewFromDeserializable(bytes));
   } catch (e) {
     return e as Error;
   }
