@@ -24,8 +24,6 @@ export function assertMatch<O, I>(
   actual: O,
   expected: unknown,
 ): void {
-  /* eslint-disable no-console -- Allow logging for this function. */
-
   console.log('Message to be serialized:', actual);
 
   const actualSize = size(actual);
@@ -43,8 +41,6 @@ export function assertMatch<O, I>(
   const replica = deserialize(arrayBuffer);
   deepStrictEqual(replica, expected);
   console.log('Message deserialized from those bytes:', replica);
-
-  /* eslint-enable no-console -- Re-enable this rule. */
 }
 
 export function assertRoundTrip<O, I, V extends O>(
@@ -59,7 +55,5 @@ export function assertRoundTrip<O, I, V extends O>(
 export function verifyOmnifile(): void {
   deepStrictEqual(omnifileOffset, omnifileBuffer.byteLength);
   deepStrictEqual(sha256(omnifileBuffer), omnifileHash);
-
-  // eslint-disable-next-line no-console -- Allow us to log this confirmation message.
   console.log('Integration tests passed.');
 }

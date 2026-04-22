@@ -557,7 +557,6 @@ fn write_common_import<T: Write>(
     writeln!(
         buffer,
         "import {{
-  Deserializable,
   dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
@@ -571,7 +570,8 @@ fn write_common_import<T: Write>(
   varintSizeFromValue,
   zigzagDecode,
   zigzagEncode,
-}} from '{specifier}';",
+}} from '{specifier}';
+import type {{ Deserializable }} from '{specifier}';",
     )
 }
 

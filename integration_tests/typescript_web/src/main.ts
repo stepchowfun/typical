@@ -4,14 +4,11 @@ import runDegenerate from './degenerate';
 import runSchemaEvolution from './schema-evolution';
 import { verifyOmnifile } from './assertions';
 
-const startingParagraph = document.createElement('p');
-startingParagraph.innerHTML = 'Running integration tests\u2026';
-document.body.appendChild(startingParagraph);
+document.querySelector<HTMLDivElement>('#app')!.innerHTML =
+  'Running integration tests\u2026';
 
 window.requestAnimationFrame(() => {
   try {
-    /* eslint-disable no-console -- Allow logging for this file. */
-
     console.log('Running circular dependency integration test\u2026\n');
     runCircularDependency();
 
@@ -26,8 +23,6 @@ window.requestAnimationFrame(() => {
 
     console.log('\nVerifying omnifile\u2026\n');
     verifyOmnifile();
-
-    /* eslint-enable no-console -- Re-enable this rule. */
   } catch (e) {
     const failureParagraph = document.createElement('p');
     failureParagraph.innerHTML =
@@ -37,7 +32,6 @@ window.requestAnimationFrame(() => {
     throw e;
   }
 
-  const successParagraph = document.createElement('p');
-  successParagraph.innerHTML = 'Integration tests passed.';
-  document.body.appendChild(successParagraph);
+  document.querySelector<HTMLDivElement>('#app')!.innerHTML =
+    'Integration tests passed.';
 });

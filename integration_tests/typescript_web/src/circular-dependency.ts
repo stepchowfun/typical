@@ -15,7 +15,6 @@ export default function run(): void {
     },
   );
 
-  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   assertRoundTrip(

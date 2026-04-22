@@ -4,7 +4,6 @@
 /* eslint-disable */
 
 import {
-  Deserializable,
   dataViewFromDeserializable,
   deserializeFieldHeader,
   deserializeVarint,
@@ -19,6 +18,7 @@ import {
   zigzagDecode,
   zigzagEncode,
 } from '../common';
+import type { Deserializable } from '../common';
 
 import * as _Types from './dependency/types';
 
