@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "strict": true,
-    "target": "es2021"
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "types": ["vite/client"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src"]
 }
