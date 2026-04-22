@@ -8,6 +8,7 @@ const omnifilePath = '/tmp/omnifile-typescript';
 
 try {
   unlinkSync(omnifilePath);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (_) {
   // Attempting to delete the file will fail if the file doesn't exist. This is harmless.
 }
@@ -19,8 +20,6 @@ export function assertMatch<O, I>(
   actual: O,
   expected: unknown,
 ): void {
-  /* eslint-disable no-console -- Allow logging for this function. */
-
   console.log('Message to be serialized:', actual);
 
   const actualSize = size(actual);
@@ -36,8 +35,6 @@ export function assertMatch<O, I>(
   const replica = deserialize(arrayBuffer);
   deepStrictEqual(replica, expected);
   console.log('Message deserialized from those bytes:', replica);
-
-  /* eslint-enable no-console -- Re-enable this rule. */
 }
 
 export function assertRoundTrip<O, I, V extends O>(

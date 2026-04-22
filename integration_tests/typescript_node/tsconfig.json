@@ -1,10 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "nodenext",
     "outDir": "dist",
-    "strict": true,
-    "target": "es2021"
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"]
 }

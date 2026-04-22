@@ -3,20 +3,17 @@
   "version": "1.0.0",
   "scripts": {
     "main": "npm run typical && rm -rf dist && tsc --project tsconfig.json && node dist/src/main.js",
-    "lint": "npm run typical && eslint --config .eslintrc.js --ignore-path .ignore --report-unused-disable-directives --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
-    "format": "prettier --config .prettierrc.js --ignore-path .ignore --write .",
+    "lint": "npm run typical && eslint --config eslint.config.mjs --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
+    "format": "prettier --config .prettierrc.js --ignore-path .ignore --write . && typical format ../types.t",
     "typical": "(cd ../.. && cargo run -- generate benchmarks/types.t --typescript-dir benchmarks/typescript/generated)"
   },
   "devDependencies": {
-    "@types/node": "^18.17.0",
-    "@typescript-eslint/eslint-plugin": "^5.10.0",
-    "@typescript-eslint/parser": "^5.10.0",
-    "eslint": "^8.7.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.25.4",
-    "prettier": "^2.5.1",
-    "typescript": "^4.5.5"
+    "@eslint/js": "10.0.1",
+    "@types/node": "25.6.0",
+    "eslint": "10.2.1",
+    "globals": "17.5.0",
+    "prettier": "3.8.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.59.0"
   }
 }

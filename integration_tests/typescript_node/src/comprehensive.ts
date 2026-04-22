@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers -- Allowed just for this file. */
-
 import { Bar, Foo } from '../generated/comprehensive/types';
 import { assertMatch, assertRoundTrip } from './assertions';
 
@@ -212,7 +210,6 @@ export default function run(): void {
     aaOptional: undefined,
   });
 
-  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   assertRoundTrip(Foo.size, Foo.serialize, Foo.deserialize, {
@@ -392,7 +389,6 @@ export default function run(): void {
     aaOptional: [[], [{}], [{}, {}], [{}, {}, {}]],
   });
 
-  // eslint-disable-next-line no-console -- Allow us to separate the test groups with a line break.
   console.log();
 
   assertRoundTrip(Bar.size, Bar.serialize, Bar.deserialize, {
@@ -3315,5 +3311,3 @@ export default function run(): void {
     $fallback,
   });
 }
-
-/* eslint-enable @typescript-eslint/no-magic-numbers -- Re-enable this rule. */

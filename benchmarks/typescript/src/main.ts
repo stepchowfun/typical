@@ -1,5 +1,3 @@
-/* eslint-disable no-console, @typescript-eslint/no-magic-numbers -- Allowed just for this file. */
-
 import { hrtime } from 'process';
 import { Message, Struct } from '../generated/types';
 
@@ -212,5 +210,3 @@ benchmark(
   },
   pathologicalIterations,
 );
-
-/* eslint-enable no-console, @typescript-eslint/no-magic-numbers -- Re-enable these rules. */
