@@ -40,8 +40,6 @@ function readFromFiles(): void {
     throw responseMessage;
   }
 
-  /* eslint-disable no-console -- Allow logging for this example. */
-
   console.log('to:', requestMessage.to);
   console.log('subject:', requestMessage.subject);
   console.log('body:', requestMessage.body);
@@ -56,10 +54,6 @@ function readFromFiles(): void {
     default:
       return unreachable(responseMessage);
   }
-
-  /* eslint-enable no-console -- Re-enable this rule. */
-
-  return undefined; // To satisfy ESLint's `consistent-return` rule
 }
 
 writeToFiles();
