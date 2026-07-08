@@ -8,10 +8,7 @@ import {
   type ExampleChoiceOut as BeforeExampleChoiceOut,
   ExampleStruct as BeforeExampleStruct,
 } from '../generated/schema_evolution/before';
-import {
-  SingletonChoice,
-  SingletonStruct,
-} from '../generated/schema_evolution/types';
+import { SingletonChoice, SingletonStruct } from '../generated/schema_evolution/types';
 import { assertMatch } from './assertions';
 
 function choiceTestCases(

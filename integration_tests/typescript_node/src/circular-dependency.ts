@@ -3,31 +3,21 @@ import { StructFromAbove } from '../generated/circular_dependency/types';
 import { assertRoundTrip } from './assertions';
 
 export default function run(): void {
-  assertRoundTrip(
-    StructFromAbove.size,
-    StructFromAbove.serialize,
-    StructFromAbove.deserialize,
-    {
+  assertRoundTrip(StructFromAbove.size, StructFromAbove.serialize, StructFromAbove.deserialize, {
+    field: 'field',
+    size: 'size',
+    elements: 'elements',
+    fallback: 'fallback',
+  });
+
+  console.log();
+
+  assertRoundTrip(StructFromBelow.size, StructFromBelow.serialize, StructFromBelow.deserialize, {
+    x: {
       field: 'field',
       size: 'size',
       elements: 'elements',
       fallback: 'fallback',
     },
-  );
-
-  console.log();
-
-  assertRoundTrip(
-    StructFromBelow.size,
-    StructFromBelow.serialize,
-    StructFromBelow.deserialize,
-    {
-      x: {
-        field: 'field',
-        size: 'size',
-        elements: 'elements',
-        fallback: 'fallback',
-      },
-    },
-  );
+  });
 }

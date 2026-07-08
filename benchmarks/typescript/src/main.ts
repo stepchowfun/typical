@@ -68,12 +68,7 @@ const s64TestValues: bigint[] = [
 
 function benchmark<T, U, V extends { $size: number }>(
   atlas: (message: T) => V,
-  serializeWithAtlasUnsafe: (
-    dataView: DataView,
-    offset: number,
-    message: T,
-    atlas: V,
-  ) => number,
+  serializeWithAtlasUnsafe: (dataView: DataView, offset: number, message: T, atlas: V) => number,
   deserialize: (dataView: DataView) => U,
   message: T,
   iterations: number,
@@ -91,28 +86,18 @@ function benchmark<T, U, V extends { $size: number }>(
   for (
     let offset = 0;
     offset < arrayBufferSize;
-    offset = serializeWithAtlasUnsafe(
-      serializationDataView,
-      offset,
-      message,
-      messageAtlas,
-    )
+    offset = serializeWithAtlasUnsafe(serializationDataView, offset, message, messageAtlas)
   ) {
     // All the work happens in the "increment" step of the `for` loop.
   }
 
   const serializationDurationParts = hrtime(serializationInstant);
   const serializationDuration =
-    serializationDurationParts[0] +
-    serializationDurationParts[1] / 1_000_000_000;
+    serializationDurationParts[0] + serializationDurationParts[1] / 1_000_000_000;
 
   console.log(`Wrote ${arrayBufferSize} bytes.`);
   console.log(`Serialization duration: ${serializationDuration}s`);
-  console.log(
-    `Serialization rate: ${
-      arrayBufferSize / serializationDuration
-    } bytes/second`,
-  );
+  console.log(`Serialization rate: ${arrayBufferSize / serializationDuration} bytes/second`);
 
   const deserializationInstant = hrtime();
 
@@ -123,14 +108,9 @@ function benchmark<T, U, V extends { $size: number }>(
 
   const deserializationDurationParts = hrtime(deserializationInstant);
   const deserializationDuration =
-    deserializationDurationParts[0] +
-    deserializationDurationParts[1] / 1_000_000_000;
+    deserializationDurationParts[0] + deserializationDurationParts[1] / 1_000_000_000;
   console.log(`Deserialization duration: ${deserializationDuration}s`);
-  console.log(
-    `Deserialization rate: ${
-      arrayBufferSize / deserializationDuration
-    } bytes/second`,
-  );
+  console.log(`Deserialization rate: ${arrayBufferSize / deserializationDuration} bytes/second`);
 }
 
 console.log('Massive message test.');
@@ -174,13 +154,7 @@ benchmark(
     q: [{ x: 'Hello, World!' }, { x: 'Hello, World!' }, { x: 'Hello, World!' }],
     r: [{ x: 'Hello, World!' }, { x: 'Hello, World!' }, { x: 'Hello, World!' }],
     s: [[], [null], [null, null], [null, null, null]],
-    t: [
-      [],
-      [0.0],
-      [0.0, Math.PI],
-      [0.0, Math.PI, Number.EPSILON],
-      f64TestValues,
-    ],
+    t: [[], [0.0], [0.0, Math.PI], [0.0, Math.PI, Number.EPSILON], f64TestValues],
     u: [[], [u64Min], [u64Min, 256n], [u64Min, 256n, u64Max], u64TestValues],
     v: [[], [s64Min], [s64Min, 0n], [s64Min, 0n, s64Max], s64TestValues],
     w: [[], [false], [false, true], [false, true, false]],

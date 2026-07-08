@@ -25,17 +25,13 @@ function writeToFiles(): void {
 
 function readFromFiles(): void {
   const requestFileContents = readFileSync(requestFilePath);
-  const requestMessage = SendEmailRequest.deserialize(
-    new Uint8Array(requestFileContents),
-  );
+  const requestMessage = SendEmailRequest.deserialize(new Uint8Array(requestFileContents));
   if (requestMessage instanceof Error) {
     throw requestMessage;
   }
 
   const responseFileContents = readFileSync(responseFilePath);
-  const responseMessage = SendEmailResponse.deserialize(
-    new Uint8Array(responseFileContents),
-  );
+  const responseMessage = SendEmailResponse.deserialize(new Uint8Array(responseFileContents));
   if (responseMessage instanceof Error) {
     throw responseMessage;
   }

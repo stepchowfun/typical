@@ -2,6 +2,7 @@
 // Visit https://github.com/stepchowfun/typical for more information.
 
 /* eslint-disable */
+/* oxlint-disable */
 
 export type Deserializable =
   | ArrayBuffer

@@ -4,8 +4,7 @@ import { sha256 } from 'js-sha256';
 // The "omnifile" records the bytes of every message serialized by the exported functions below.
 // It's used to validate that the TypeScript code generator encodes data identically to other code
 // generators.
-const omnifileHash =
-  'cfe2ae57b1bb6467c87f11d50829d0b8301566f645dabc19b38c861cd577b0a1';
+const omnifileHash = 'cfe2ae57b1bb6467c87f11d50829d0b8301566f645dabc19b38c861cd577b0a1';
 const omnifileSize = 80_395;
 const omnifileBuffer = new ArrayBuffer(omnifileSize);
 const omnifileArray = new Uint8Array(omnifileBuffer);

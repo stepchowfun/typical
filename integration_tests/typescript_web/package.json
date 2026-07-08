@@ -2,24 +2,22 @@
   "name": "integration-tests",
   "version": "1.0.0",
   "scripts": {
-    "main": "npm run typical && rm -rf dist && tsc --project tsconfig.json && vite build",
-    "lint": "npm run typical && eslint --config eslint.config.mjs --max-warnings 0 'src/**/*.ts' && prettier --config .prettierrc.js --ignore-path .ignore --check .",
-    "format": "prettier --config .prettierrc.js --ignore-path .ignore --write . && typical format ../types/types.t",
+    "main": "npm run typical && rm -rf dist && tsc --project tsconfig.json && vp build",
+    "lint": "npm run typical && vp check",
+    "format": "vp fmt && typical format ../types/types.t",
     "typical": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript-dir integration_tests/typescript_web/generated)",
-    "serve": "npm run typical && rm -rf dist && tsc --project tsconfig.json && vite"
-  },
-  "devDependencies": {
-    "@eslint/js": "10.0.1",
-    "@types/lodash": "4.17.24",
-    "eslint": "^10.6.0",
-    "globals": "^17.7.0",
-    "prettier": "^3.9.4",
-    "typescript": "6.0.3",
-    "typescript-eslint": "^8.63.0",
-    "vite": "^8.1.3"
+    "serve": "npm run typical && rm -rf dist && tsc --project tsconfig.json && vp dev"
   },
   "dependencies": {
     "js-sha256": "0.11.1",
     "lodash": "4.18.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "4.17.24",
+    "typescript": "6.0.3",
+    "vite-plus": "0.2.3"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.3"
   }
 }

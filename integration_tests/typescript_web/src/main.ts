@@ -4,8 +4,7 @@ import runDegenerate from './degenerate';
 import runSchemaEvolution from './schema-evolution';
 import { verifyOmnifile } from './assertions';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML =
-  'Running integration tests\u2026';
+document.querySelector<HTMLDivElement>('#app')!.innerHTML = 'Running integration tests\u2026';
 
 window.requestAnimationFrame(() => {
   try {
@@ -25,13 +24,11 @@ window.requestAnimationFrame(() => {
     verifyOmnifile();
   } catch (e) {
     const failureParagraph = document.createElement('p');
-    failureParagraph.innerHTML =
-      'Integration tests failed. See the console for details.';
+    failureParagraph.innerHTML = 'Integration tests failed. See the console for details.';
     document.body.appendChild(failureParagraph);
 
     throw e;
   }
 
-  document.querySelector<HTMLDivElement>('#app')!.innerHTML =
-    'Integration tests passed.';
+  document.querySelector<HTMLDivElement>('#app')!.innerHTML = 'Integration tests passed.';
 });

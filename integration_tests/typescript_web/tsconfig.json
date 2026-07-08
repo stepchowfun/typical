@@ -3,7 +3,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "types": ["vite/client"]
+    "types": ["vite-plus/client"]
   },
   "include": ["src"]
 }
