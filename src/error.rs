@@ -169,7 +169,7 @@ pub fn listing(source_contents: &str, source_range: SourceRange) -> String {
                 .blue()
                 .bold(),
                 &line[..*section_start],
-                &line[*section_start..*section_end].red(),
+                line[*section_start..*section_end].red(),
                 &line[*section_end..],
                 if colorized {
                     String::new()

@@ -235,7 +235,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         errors.push(throw::<Error>(
                             &format!(
                                 "Integer {} must be less than 2^64.",
-                                &schema_contents[i..end].code_str(),
+                                schema_contents[i..end].code_str(),
                             ),
                             Some(schema_path),
                             Some(&listing(schema_contents, SourceRange { start: i, end })),
@@ -368,7 +368,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
 
                 // Now that we've computed the grapheme cluster, construct and report the error.
                 errors.push(throw::<Error>(
-                    &format!("Unexpected symbol {}.", &schema_contents[i..end].code_str()),
+                    &format!("Unexpected symbol {}.", schema_contents[i..end].code_str()),
                     Some(schema_path),
                     Some(&listing(schema_contents, SourceRange { start: i, end: i })),
                     None,
