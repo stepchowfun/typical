@@ -11,9 +11,9 @@
   "devDependencies": {
     "@types/node": "^26.1.1",
     "typescript": "6.0.3",
-    "vite-plus": "0.2.3"
+    "vite-plus": "^0.2.4"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.3"
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.4"
   }
 }
