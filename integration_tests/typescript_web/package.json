@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@types/lodash": "4.17.24",
-    "typescript": "6.0.3",
+    "typescript": "^7.0.2",
     "vite-plus": "^0.2.4"
   },
   "overrides": {
