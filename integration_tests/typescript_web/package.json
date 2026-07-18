@@ -10,7 +10,7 @@
     "serve": "npm run typical && tsc --project tsconfig.json && vp dev"
   },
   "dependencies": {
-    "js-sha256": "0.11.1",
+    "js-sha256": "^0.12.0",
     "lodash": "4.18.1"
   },
   "devDependencies": {
