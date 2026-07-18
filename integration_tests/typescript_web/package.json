@@ -16,9 +16,9 @@
   "devDependencies": {
     "@types/lodash": "4.17.24",
     "typescript": "^7.0.2",
-    "vite-plus": "^0.2.4"
+    "vite-plus": "^0.2.5"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.4"
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.5"
   }
 }
