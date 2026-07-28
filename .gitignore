@@ -15,4 +15,5 @@
 /integration_tests/typescript_web/dist/
 /integration_tests/typescript_web/generated/
 /integration_tests/typescript_web/node_modules/
+/integration_tests/typescript_web/test-results/
 /target/

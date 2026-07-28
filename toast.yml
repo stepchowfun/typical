@@ -160,6 +160,7 @@ tasks:
       - integration_tests/typescript_web/dist
       - integration_tests/typescript_web/generated
       - integration_tests/typescript_web/node_modules
+      - integration_tests/typescript_web/test-results
       - target/
 
   build:
@@ -169,6 +170,32 @@ tasks:
     command: |
       # Build the project with Cargo.
       cargo-offline build
+
+  install_playwright_dependencies:
+    description: Install the system dependencies needed by Playwright.
+    dependencies:
+      - repository
+    user: root
+    command: |
+      # Load the Node.js installation belonging to the unprivileged build user.
+      set +x
+      export NVM_DIR=/home/user/.nvm
+      . "$NVM_DIR/nvm.sh"
+      set -x
+
+      # Read the locked Playwright version and install Chromium's system dependencies.
+      PLAYWRIGHT_VERSION="$(node --print "require('./integration_tests/typescript_web/package-lock.json').packages['node_modules/@playwright/test'].version")"
+      npx --yes "playwright@$PLAYWRIGHT_VERSION" install-deps chromium
+
+  install_playwright:
+    description: Install the browser used by the web integration tests.
+    dependencies:
+      - install_playwright_dependencies
+    command: |
+      # Install the locked JavaScript packages and Chromium browser binary.
+      cd integration_tests/typescript_web
+      npm ci
+      npx playwright install chromium
 
   test_units:
     description: Run the unit test suite.
@@ -206,6 +233,7 @@ tasks:
     description: Run integration tests for the TypeScript code generator.
     dependencies:
       - build
+      - install_playwright
     command: |
       # Add Typical to `$PATH`.
       export PATH="$PWD/target/debug:$PATH"
@@ -225,6 +253,12 @@ tasks:
           npm run lint
         )
       done
+
+      # Run the web integration test in a headless browser.
+      (
+        cd integration_tests/typescript_web
+        npm test
+      )
 
       # Validate the data from the integration test.
       cmp test_data/omnifile /tmp/omnifile-typescript
