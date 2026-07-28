@@ -6,6 +6,8 @@
     "main": "npm run typical && tsc --project tsconfig.json && vp build",
     "lint": "npm run typical && vp check",
     "format": "vp fmt && typical format ../types/types.t",
+    "preview": "vp preview",
+    "test": "playwright test",
     "typical": "(cd ../.. && cargo run -- generate integration_tests/types/types.t --typescript-dir integration_tests/typescript_web/generated)",
     "serve": "npm run typical && tsc --project tsconfig.json && vp dev"
   },
@@ -14,6 +16,7 @@
     "lodash": "4.18.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.0",
     "@types/lodash": "4.17.24",
     "typescript": "^7.0.2",
     "vite-plus": "^0.2.6"
