@@ -12,16 +12,16 @@
     "serve": "npm run typical && tsc --project tsconfig.json && vp dev"
   },
   "dependencies": {
-    "js-sha256": "^0.12.0",
-    "lodash": "4.18.1"
+    "js-sha256": "^1.0.0",
+    "lodash": "^4.18.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.0",
-    "@types/lodash": "4.17.24",
+    "@playwright/test": "^1.62.1",
+    "@types/lodash": "^4.17.25",
     "typescript": "^7.0.2",
-    "vite-plus": "^0.2.6"
+    "vite-plus": "^0.2.7"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.6"
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.7"
   }
 }

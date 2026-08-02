@@ -9,11 +9,11 @@
     "typical": "(cd ../.. && cargo run -- generate benchmarks/types.t --typescript-dir benchmarks/typescript/generated)"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.1.2",
     "typescript": "^7.0.2",
-    "vite-plus": "^0.2.6"
+    "vite-plus": "^0.2.7"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.6"
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.7"
   }
 }
