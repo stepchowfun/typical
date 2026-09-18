@@ -43,7 +43,6 @@ pub fn throw<T: error::Error + 'static>(
     listing: Option<&str>,
     reason: Option<T>,
 ) -> Error {
-    #[allow(clippy::option_map_or_none)]
     Error {
         message: if let Some(path) = source_path {
             if let Some(listing) = listing {
@@ -81,7 +80,7 @@ pub fn throw<T: error::Error + 'static>(
             format!("{} {}", "[Error]".red().bold(), message)
         },
 
-        reason: reason.map_or(None, |reason| Some(Rc::new(reason))),
+        reason: reason.map(|reason| -> Rc<dyn error::Error> { Rc::new(reason) }),
     }
 }
 
