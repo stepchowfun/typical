@@ -1,6 +1,6 @@
 use crate::{
     error::{Error, listing, throw},
-    format::CodeStr,
+    format::{CodePath, CodeStr},
     parser::parse,
     schema,
     tokenizer::tokenize,
@@ -13,24 +13,23 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
-// Convert a path to a namespace. This function will panic if the path cannot be converted into a
-// namespace (e.g., because it contains `..`).
-fn path_to_namespace(path: &Path) -> schema::Namespace {
+// Convert a UTF-8 path containing only normal components to a namespace.
+fn path_to_namespace(path: &Path) -> Option<schema::Namespace> {
     let mut path = path.to_owned();
     path.set_extension("");
 
-    schema::Namespace {
+    Some(schema::Namespace {
         components: path
             .components()
             .map(|component| {
                 if let Component::Normal(component) = component {
-                    component.to_string_lossy().to_string().as_str().into()
+                    component.to_str().map(Into::into)
                 } else {
-                    panic!()
+                    None
                 }
             })
-            .collect(),
-    }
+            .collect::<Option<_>>()?,
+    })
 }
 
 // Load a schema and its transitive dependencies. The imports in the returned schemas are guaranteed
@@ -40,6 +39,17 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
 pub fn load_schemas(
     schema_path: &Path,
 ) -> Result<BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>, Vec<Error>> {
+    // Reject paths that cannot be represented faithfully in schema namespaces and diagnostics
+    // [tag:schema_path_valid_utf8].
+    if schema_path.to_str().is_none() {
+        return Err(vec![throw::<Error>(
+            "Schema paths must be valid UTF-8.",
+            None,
+            None,
+            None,
+        )]);
+    }
+
     // The schema and all its transitive dependencies will end up here.
     let mut schemas = BTreeMap::new();
 
@@ -49,10 +59,7 @@ pub fn load_schemas(
     // The base directory for the schema's dependencies is the directory containing the schema.
     let Some(base_path) = schema_path.parent() else {
         errors.push(throw::<Error>(
-            &format!(
-                "{} is not a file.",
-                schema_path.to_string_lossy().code_str(),
-            ),
+            &format!("{} is not a file.", schema_path.code_path()),
             None,
             None,
             None,
@@ -79,10 +86,7 @@ pub fn load_schemas(
         Ok(canonical_base_path) => canonical_base_path,
         Err(error) => {
             errors.push(throw(
-                &format!(
-                    "{} is not a file.",
-                    schema_path.to_string_lossy().code_str(),
-                ),
+                &format!("{} is not a file.", schema_path.code_path()),
                 None,
                 None,
                 Some(error),
@@ -98,10 +102,7 @@ pub fn load_schemas(
         AsRef::<Path>::as_ref(based_schema_path)
     } else {
         errors.push(throw::<Error>(
-            &format!(
-                "{} is not a file.",
-                schema_path.to_string_lossy().code_str(),
-            ),
+            &format!("{} is not a file.", schema_path.code_path()),
             None,
             None,
             None,
@@ -110,9 +111,16 @@ pub fn load_schemas(
         return Err(errors);
     };
 
-    // Compute the namespace of the schema. This is safe due to
-    // [ref:based_schema_path_is_file_name].
-    let schema_namespace = path_to_namespace(based_schema_path);
+    // Compute the namespace of the schema. This succeeds due to
+    // [ref:based_schema_path_is_file_name] and [ref:schema_path_valid_utf8].
+    let Some(schema_namespace) = path_to_namespace(based_schema_path) else {
+        return Err(vec![throw::<Error>(
+            "Schema paths must be valid UTF-8 and contain only normal components.",
+            None,
+            None,
+            None,
+        )]);
+    };
 
     // Initialize the "frontier" with the given path. Paths in the frontier are relative to
     // `base_path` [tag:frontier_paths_based].
@@ -130,7 +138,7 @@ pub fn load_schemas(
         let contents = match read_to_string(base_path.join(&path)) {
             Ok(contents) => contents,
             Err(error) => {
-                let message = format!("Unable to load {}.", path.to_string_lossy().code_str());
+                let message = format!("Unable to load {}.", path.code_path());
 
                 if let Some((origin_path, origin_listing)) = origin {
                     errors.push(throw(
@@ -184,10 +192,7 @@ pub fn load_schemas(
                 Ok(canonical_import_path) => canonical_import_path,
                 Err(error) => {
                     errors.push(throw(
-                        &format!(
-                            "Unable to load {}.",
-                            non_canonical_import_path.to_string_lossy().code_str(),
-                        ),
+                        &format!("Unable to load {}.", non_canonical_import_path.code_path()),
                         Some(&path),
                         Some(&origin_listing),
                         Some(error),
@@ -208,8 +213,8 @@ pub fn load_schemas(
                 errors.push(throw::<Error>(
                     &format!(
                         "{} is not a descendant of {}, which is the base directory for this run.",
-                        canonical_import_path.to_string_lossy().code_str(),
-                        canonical_base_path.to_string_lossy().code_str(),
+                        canonical_import_path.code_path(),
+                        canonical_base_path.code_path(),
                     ),
                     Some(&path),
                     Some(&origin_listing),
@@ -219,10 +224,18 @@ pub fn load_schemas(
                 continue;
             };
 
-            // Populate the namespace of the import [tag:namespace_populated]. The
-            // path-to-namespace conversion is safe due to
-            // [ref:based_import_path_only_has_normal_components].
-            let import_namespace = path_to_namespace(&based_import_path);
+            // Populate the namespace of the import [tag:namespace_populated]. Its components are
+            // normal due to [ref:based_import_path_only_has_normal_components].
+            let Some(import_namespace) = path_to_namespace(&based_import_path) else {
+                errors.push(throw::<Error>(
+                    "Import paths must be valid UTF-8 and contain only normal components.",
+                    Some(&path),
+                    Some(&origin_listing),
+                    None,
+                ));
+
+                continue;
+            };
             import.namespace = Some(import_namespace.clone());
 
             // Visit this import if it hasn't been visited already.
@@ -243,7 +256,7 @@ pub fn load_schemas(
             errors.push(throw::<Error>(
                 &format!(
                     "This file conflicts with {}, since both correspond to the same namespace {}.",
-                    conflicting_schema_path.to_string_lossy().code_str(),
+                    conflicting_schema_path.code_path(),
                     namespace.to_string().code_str(),
                 ),
                 Some(&path),
@@ -273,7 +286,7 @@ mod tests {
     fn path_to_namespace_empty() {
         assert_eq!(
             path_to_namespace(Path::new("")),
-            Namespace { components: vec![] },
+            Some(Namespace { components: vec![] }),
         );
     }
 
@@ -281,9 +294,9 @@ mod tests {
     fn path_to_namespace_single() {
         assert_eq!(
             path_to_namespace(Path::new("foo")),
-            Namespace {
+            Some(Namespace {
                 components: vec!["foo".into()],
-            },
+            }),
         );
     }
 
@@ -291,9 +304,9 @@ mod tests {
     fn path_to_namespace_double() {
         assert_eq!(
             path_to_namespace(Path::new("foo/bar")),
-            Namespace {
+            Some(Namespace {
                 components: vec!["foo".into(), "bar".into()],
-            },
+            }),
         );
     }
 
@@ -301,9 +314,9 @@ mod tests {
     fn path_to_namespace_triple() {
         assert_eq!(
             path_to_namespace(Path::new("foo/bar/baz")),
-            Namespace {
+            Some(Namespace {
                 components: vec!["foo".into(), "bar".into(), "baz".into()],
-            },
+            }),
         );
     }
 

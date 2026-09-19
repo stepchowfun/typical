@@ -17,7 +17,7 @@ use crate::{
     count::count,
     error::{Error, throw},
     error_merger::merge_errors,
-    format::CodeStr,
+    format::{CodePath, CodeStr},
     schema_loader::load_schemas,
     validator::validate,
 };
@@ -145,7 +145,7 @@ fn generate_code(
         let directory = schema_path.parent().unwrap();
 
         for (_, source_path, _) in schemas.values() {
-            println!("{}", directory.join(source_path).to_string_lossy());
+            println!("{}", directory.join(source_path).display());
         }
     }
 
@@ -157,7 +157,7 @@ fn generate_code(
         if let Some(parent) = rust_file.parent() {
             create_dir_all(parent).map_err(|error| {
                 throw(
-                    &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
+                    &format!("Unable to create {}.", parent.code_path()),
                     None,
                     None,
                     Some(error),
@@ -166,13 +166,10 @@ fn generate_code(
         }
 
         // Generate the code and write it to the file.
-        eprintln!("Writing {}\u{2026}", rust_file.to_string_lossy().code_str());
+        eprintln!("Writing {}\u{2026}", rust_file.code_path());
         write(rust_file, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
             throw(
-                &format!(
-                    "Unable to write {}.",
-                    rust_file.to_string_lossy().code_str(),
-                ),
+                &format!("Unable to write {}.", rust_file.code_path()),
                 None,
                 None,
                 Some(error),
@@ -207,7 +204,7 @@ fn generate_code(
             if let Some(parent) = output_file_path.parent() {
                 create_dir_all(parent).map_err(|error| {
                     throw(
-                        &format!("Unable to create {}.", parent.to_string_lossy().code_str()),
+                        &format!("Unable to create {}.", parent.code_path()),
                         None,
                         None,
                         Some(error),
@@ -216,16 +213,10 @@ fn generate_code(
             }
 
             // Write the file.
-            eprintln!(
-                "Writing {}\u{2026}",
-                output_file_path.to_string_lossy().code_str(),
-            );
+            eprintln!("Writing {}\u{2026}", output_file_path.code_path());
             write(&output_file_path, contents).map_err(|error| {
                 throw(
-                    &format!(
-                        "Unable to write {}.",
-                        output_file_path.to_string_lossy().code_str(),
-                    ),
+                    &format!("Unable to write {}.", output_file_path.code_path()),
                     None,
                     None,
                     Some(error),
@@ -261,7 +252,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
         // Compute the full path and new contents of the schema.
         let full_source_path = directory.join(source_path);
         let new_source_contents = schema.to_string();
-        eprintln!("  {}", full_source_path.to_string_lossy().code_str());
+        eprintln!("  {}", full_source_path.code_path());
 
         // Check if the contents changed.
         let updated = *source_contents != new_source_contents;
@@ -288,7 +279,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
         return Err(throw::<Error>(
             &format!(
                 "Formatting mismatch. Please run {}.",
-                format!("typical format {}", schema_path.to_string_lossy()).code_str(),
+                format!("typical format {}", schema_path.display()).code_str(),
             ),
             None,
             None,
