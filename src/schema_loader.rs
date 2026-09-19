@@ -66,7 +66,7 @@ pub fn load_schemas(
     // Windows adds a `\\?\` prefix to the path, which changes the meaning of `..` and thus prevents
     // us from joining it with other paths containing `..`. Note also that we can't simply
     // compute this by canonicalizing `base_path`, since `base_path` might have zero components,
-    // which is considered invalid for canonicalization. So, instead, we canonicalize `schma_path`
+    // which is considered invalid for canonicalization. So, instead, we canonicalize `schema_path`
     // and take the parent of the result.
     let canonical_base_path = match schema_path
         .canonicalize()
