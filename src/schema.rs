@@ -166,7 +166,12 @@ impl Import {
         if self
             .path
             .file_stem()
-            .map(|file_stem| file_stem.to_string_lossy().as_ref().into())
+            .map(|file_stem| {
+                file_stem
+                    .to_str()
+                    .expect("parsed paths are valid UTF-8")
+                    .into()
+            })
             .as_ref()
             == Some(name)
         {

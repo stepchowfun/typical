@@ -1,6 +1,6 @@
 use crate::{
     error::{Error, listing, throw},
-    format::CodeStr,
+    format::{CodePath, CodeStr},
     parser::parse,
     schema,
     tokenizer::tokenize,
@@ -24,7 +24,10 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
             .components()
             .map(|component| {
                 if let Component::Normal(component) = component {
-                    component.to_string_lossy().to_string().as_str().into()
+                    component
+                        .to_str()
+                        .expect("schema paths are valid UTF-8")
+                        .into()
                 } else {
                     panic!()
                 }
@@ -40,6 +43,16 @@ fn path_to_namespace(path: &Path) -> schema::Namespace {
 pub fn load_schemas(
     schema_path: &Path,
 ) -> Result<BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>, Vec<Error>> {
+    // Reject paths that cannot be represented faithfully in schema namespaces and diagnostics.
+    if schema_path.to_str().is_none() {
+        return Err(vec![throw::<Error>(
+            "Schema paths must be valid UTF-8.",
+            None,
+            None,
+            None,
+        )]);
+    }
+
     // The schema and all its transitive dependencies will end up here.
     let mut schemas = BTreeMap::new();
 
@@ -49,10 +62,7 @@ pub fn load_schemas(
     // The base directory for the schema's dependencies is the directory containing the schema.
     let Some(base_path) = schema_path.parent() else {
         errors.push(throw::<Error>(
-            &format!(
-                "{} is not a file.",
-                schema_path.to_string_lossy().code_str(),
-            ),
+            &format!("{} is not a file.", schema_path.code_path()),
             None,
             None,
             None,
@@ -79,10 +89,7 @@ pub fn load_schemas(
         Ok(canonical_base_path) => canonical_base_path,
         Err(error) => {
             errors.push(throw(
-                &format!(
-                    "{} is not a file.",
-                    schema_path.to_string_lossy().code_str(),
-                ),
+                &format!("{} is not a file.", schema_path.code_path()),
                 None,
                 None,
                 Some(error),
@@ -98,10 +105,7 @@ pub fn load_schemas(
         AsRef::<Path>::as_ref(based_schema_path)
     } else {
         errors.push(throw::<Error>(
-            &format!(
-                "{} is not a file.",
-                schema_path.to_string_lossy().code_str(),
-            ),
+            &format!("{} is not a file.", schema_path.code_path()),
             None,
             None,
             None,
@@ -130,7 +134,7 @@ pub fn load_schemas(
         let contents = match read_to_string(base_path.join(&path)) {
             Ok(contents) => contents,
             Err(error) => {
-                let message = format!("Unable to load {}.", path.to_string_lossy().code_str());
+                let message = format!("Unable to load {}.", path.code_path());
 
                 if let Some((origin_path, origin_listing)) = origin {
                     errors.push(throw(
@@ -184,10 +188,7 @@ pub fn load_schemas(
                 Ok(canonical_import_path) => canonical_import_path,
                 Err(error) => {
                     errors.push(throw(
-                        &format!(
-                            "Unable to load {}.",
-                            non_canonical_import_path.to_string_lossy().code_str(),
-                        ),
+                        &format!("Unable to load {}.", non_canonical_import_path.code_path()),
                         Some(&path),
                         Some(&origin_listing),
                         Some(error),
@@ -208,8 +209,8 @@ pub fn load_schemas(
                 errors.push(throw::<Error>(
                     &format!(
                         "{} is not a descendant of {}, which is the base directory for this run.",
-                        canonical_import_path.to_string_lossy().code_str(),
-                        canonical_base_path.to_string_lossy().code_str(),
+                        canonical_import_path.code_path(),
+                        canonical_base_path.code_path(),
                     ),
                     Some(&path),
                     Some(&origin_listing),
@@ -243,7 +244,7 @@ pub fn load_schemas(
             errors.push(throw::<Error>(
                 &format!(
                     "This file conflicts with {}, since both correspond to the same namespace {}.",
-                    conflicting_schema_path.to_string_lossy().code_str(),
+                    conflicting_schema_path.code_path(),
                     namespace.to_string().code_str(),
                 ),
                 Some(&path),

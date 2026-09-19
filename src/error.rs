@@ -1,4 +1,4 @@
-use crate::format::CodeStr;
+use crate::format::CodePath;
 use colored::{Colorize, control::SHOULD_COLORIZE};
 use std::{
     cmp::{max, min},
@@ -50,14 +50,14 @@ pub fn throw<T: error::Error + 'static>(
                     format!(
                         "{} {} {}",
                         "[Error]".red().bold(),
-                        format!("[{}]", path.to_string_lossy().code_str()).magenta(),
+                        format!("[{}]", path.code_path()).magenta(),
                         message,
                     )
                 } else {
                     format!(
                         "{} {} {}\n\n{}",
                         "[Error]".red().bold(),
-                        format!("[{}]", path.to_string_lossy().code_str()).magenta(),
+                        format!("[{}]", path.code_path()).magenta(),
                         message,
                         listing,
                     )
@@ -66,7 +66,7 @@ pub fn throw<T: error::Error + 'static>(
                 format!(
                     "{} {} {}",
                     "[Error]".red().bold(),
-                    format!("[{}]", path.to_string_lossy().code_str()).magenta(),
+                    format!("[{}]", path.code_path()).magenta(),
                     message,
                 )
             }

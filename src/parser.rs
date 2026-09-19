@@ -537,9 +537,11 @@ fn parse_import(
             None,
         )
     } else if let Some(file_stem) = path.file_stem() {
-        // The `to_string_lossy` is semantically a no-op because the path was parsed from a
-        // file which is guaranteed to be valid UTF-8.
-        file_stem.to_string_lossy().as_ref().into()
+        // The path was parsed from a source file, so its file stem is guaranteed to be valid UTF-8.
+        file_stem
+            .to_str()
+            .expect("parsed paths are valid UTF-8")
+            .into()
     } else {
         errors.push(throw::<Error>(
             "Unable to infer a name for this import.",
