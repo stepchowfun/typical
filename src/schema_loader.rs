@@ -39,7 +39,8 @@ fn path_to_namespace(path: &Path) -> Option<schema::Namespace> {
 pub fn load_schemas(
     schema_path: &Path,
 ) -> Result<BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>, Vec<Error>> {
-    // Reject paths that cannot be represented faithfully in schema namespaces and diagnostics.
+    // Reject paths that cannot be represented faithfully in schema namespaces and diagnostics
+    // [tag:schema_path_valid_utf8].
     if schema_path.to_str().is_none() {
         return Err(vec![throw::<Error>(
             "Schema paths must be valid UTF-8.",
@@ -110,8 +111,8 @@ pub fn load_schemas(
         return Err(errors);
     };
 
-    // Compute the namespace of the schema. This succeeds because
-    // [ref:based_schema_path_is_file_name] and the path was validated as UTF-8 above.
+    // Compute the namespace of the schema. This succeeds due to
+    // [ref:based_schema_path_is_file_name] and [ref:schema_path_valid_utf8].
     let Some(schema_namespace) = path_to_namespace(based_schema_path) else {
         return Err(vec![throw::<Error>(
             "Schema paths must be valid UTF-8 and contain only normal components.",
