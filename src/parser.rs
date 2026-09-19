@@ -536,12 +536,8 @@ fn parse_import(
             "a name for the import",
             None,
         )
-    } else if let Some(file_stem) = path.file_stem() {
-        // The path was parsed from a source file, so its file stem is guaranteed to be valid UTF-8.
-        file_stem
-            .to_str()
-            .expect("parsed paths are valid UTF-8")
-            .into()
+    } else if let Some(file_stem) = path.file_stem().and_then(|file_stem| file_stem.to_str()) {
+        file_stem.into()
     } else {
         errors.push(throw::<Error>(
             "Unable to infer a name for this import.",

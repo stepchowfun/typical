@@ -13,27 +13,23 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
-// Convert a path to a namespace. This function will panic if the path cannot be converted into a
-// namespace (e.g., because it contains `..`).
-fn path_to_namespace(path: &Path) -> schema::Namespace {
+// Convert a UTF-8 path containing only normal components to a namespace.
+fn path_to_namespace(path: &Path) -> Option<schema::Namespace> {
     let mut path = path.to_owned();
     path.set_extension("");
 
-    schema::Namespace {
+    Some(schema::Namespace {
         components: path
             .components()
             .map(|component| {
                 if let Component::Normal(component) = component {
-                    component
-                        .to_str()
-                        .expect("schema paths are valid UTF-8")
-                        .into()
+                    component.to_str().map(Into::into)
                 } else {
-                    panic!()
+                    None
                 }
             })
-            .collect(),
-    }
+            .collect::<Option<_>>()?,
+    })
 }
 
 // Load a schema and its transitive dependencies. The imports in the returned schemas are guaranteed
@@ -114,9 +110,16 @@ pub fn load_schemas(
         return Err(errors);
     };
 
-    // Compute the namespace of the schema. This is safe due to
-    // [ref:based_schema_path_is_file_name].
-    let schema_namespace = path_to_namespace(based_schema_path);
+    // Compute the namespace of the schema. This succeeds because
+    // [ref:based_schema_path_is_file_name] and the path was validated as UTF-8 above.
+    let Some(schema_namespace) = path_to_namespace(based_schema_path) else {
+        return Err(vec![throw::<Error>(
+            "Schema paths must be valid UTF-8 and contain only normal components.",
+            None,
+            None,
+            None,
+        )]);
+    };
 
     // Initialize the "frontier" with the given path. Paths in the frontier are relative to
     // `base_path` [tag:frontier_paths_based].
@@ -220,10 +223,18 @@ pub fn load_schemas(
                 continue;
             };
 
-            // Populate the namespace of the import [tag:namespace_populated]. The
-            // path-to-namespace conversion is safe due to
-            // [ref:based_import_path_only_has_normal_components].
-            let import_namespace = path_to_namespace(&based_import_path);
+            // Populate the namespace of the import [tag:namespace_populated]. Its components are
+            // normal due to [ref:based_import_path_only_has_normal_components].
+            let Some(import_namespace) = path_to_namespace(&based_import_path) else {
+                errors.push(throw::<Error>(
+                    "Import paths must be valid UTF-8 and contain only normal components.",
+                    Some(&path),
+                    Some(&origin_listing),
+                    None,
+                ));
+
+                continue;
+            };
             import.namespace = Some(import_namespace.clone());
 
             // Visit this import if it hasn't been visited already.
@@ -274,7 +285,7 @@ mod tests {
     fn path_to_namespace_empty() {
         assert_eq!(
             path_to_namespace(Path::new("")),
-            Namespace { components: vec![] },
+            Some(Namespace { components: vec![] }),
         );
     }
 
@@ -282,9 +293,9 @@ mod tests {
     fn path_to_namespace_single() {
         assert_eq!(
             path_to_namespace(Path::new("foo")),
-            Namespace {
+            Some(Namespace {
                 components: vec!["foo".into()],
-            },
+            }),
         );
     }
 
@@ -292,9 +303,9 @@ mod tests {
     fn path_to_namespace_double() {
         assert_eq!(
             path_to_namespace(Path::new("foo/bar")),
-            Namespace {
+            Some(Namespace {
                 components: vec!["foo".into(), "bar".into()],
-            },
+            }),
         );
     }
 
@@ -302,9 +313,9 @@ mod tests {
     fn path_to_namespace_triple() {
         assert_eq!(
             path_to_namespace(Path::new("foo/bar/baz")),
-            Namespace {
+            Some(Namespace {
                 components: vec!["foo".into(), "bar".into(), "baz".into()],
-            },
+            }),
         );
     }
 

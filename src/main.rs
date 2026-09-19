@@ -279,11 +279,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
         return Err(throw::<Error>(
             &format!(
                 "Formatting mismatch. Please run {}.",
-                format!(
-                    "typical format {}",
-                    schema_path.to_str().expect("schema paths are valid UTF-8"),
-                )
-                .code_str(),
+                format!("typical format {}", schema_path.display()).code_str(),
             ),
             None,
             None,
