@@ -1,7 +1,6 @@
 mod assertions;
 mod count;
 mod error;
-mod error_merger;
 mod format;
 mod generate_rust;
 mod generate_typescript;
@@ -15,8 +14,7 @@ mod validator;
 
 use crate::{
     count::count,
-    error::{Error, throw},
-    error_merger::merge_errors,
+    error::{Error, merge_errors, throw},
     format::{CodePath, CodeStr},
     schema_loader::load_schemas,
     validator::validate,
