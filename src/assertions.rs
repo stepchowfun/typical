@@ -72,50 +72,21 @@ mod tests {
     #[test]
     fn assert_fails_match() {
         let success: Result<usize, Vec<Error>> = Err(vec![
-            Error {
-                message: "foo bar".to_owned(),
-                reason: None,
-            },
-            Error {
-                message: "foo search string bar".to_owned(),
-                reason: None,
-            },
-            Error {
-                message: "foo bar".to_owned(),
-                reason: None,
-            },
+            Error::new("foo bar", None, None, None),
+            Error::new("foo search string bar", None, None, None),
+            Error::new("foo bar", None, None, None),
         ]);
 
         assert_fails!(success, "search string");
     }
 
     #[test]
-    #[should_panic(
-        // This comma on the comment at the end of the line below is needed to satisfy the trailing
-        // commas check.
-        expected = "\
-            The expression failed as expected, but the expected message was not found in any of \
-            the errors: [\
-                Error { message: \"foo\", reason: None }, \
-                Error { message: \"bar\", reason: None }, \
-                Error { message: \"baz\", reason: None }\
-            ].\
-        "
-    )]
+    #[should_panic(expected = "the expected message was not found")]
     fn assert_fails_mismatch() {
         let success: Result<usize, Vec<Error>> = Err(vec![
-            Error {
-                message: "foo".to_owned(),
-                reason: None,
-            },
-            Error {
-                message: "bar".to_owned(),
-                reason: None,
-            },
-            Error {
-                message: "baz".to_owned(),
-                reason: None,
-            },
+            Error::new("foo", None, None, None),
+            Error::new("bar", None, None, None),
+            Error::new("baz", None, None, None),
         ]);
 
         assert_fails!(success, "search string");

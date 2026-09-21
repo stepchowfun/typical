@@ -1,5 +1,5 @@
 use crate::{
-    error::{Error, SourceRange, listing, throw},
+    error::{Error, SourceRange},
     format::CodeStr,
     identifier::Identifier,
     schema, token,
@@ -58,28 +58,28 @@ fn unexpected_token(
     let source_range = token_source_range(tokens, position);
 
     if tokens.is_empty() {
-        throw::<Error>(
+        Error::new(
             &format!("Expected {expectation}, but the file is empty."),
             Some(source_path),
-            Some(&listing(source_contents, source_range)),
+            Some((source_contents, source_range)),
             None,
         )
     } else if position == tokens.len() {
-        throw::<Error>(
+        Error::new(
             &format!("Expected {expectation} at the end of the file."),
             Some(source_path),
-            Some(&listing(source_contents, source_range)),
+            Some((source_contents, source_range)),
             None,
         )
     } else {
-        throw::<Error>(
+        Error::new(
             &format!(
                 "Expected {}, but encountered {}.",
                 expectation,
                 tokens[position].to_string().code_str(),
             ),
             Some(source_path),
-            Some(&listing(source_contents, source_range)),
+            Some((source_contents, source_range)),
             None,
         )
     }
@@ -209,13 +209,10 @@ pub fn parse(
     // Check if the parse was successful but we didn't consume all the tokens.
     if errors.is_empty() && position != tokens.len() {
         // Complain about the first unparsed token.
-        errors.push(throw::<Error>(
+        errors.push(Error::new(
             &format!("Unexpected {}.", tokens[position].to_string().code_str()),
             Some(source_path),
-            Some(&listing(
-                source_contents,
-                token_source_range(tokens, position),
-            )),
+            Some((source_contents, token_source_range(tokens, position))),
             None,
         ));
     }
@@ -276,13 +273,13 @@ fn parse_schema(
                     parse_import(source_path, source_contents, tokens, position, errors)
                     && imports.insert(name.clone(), import.clone()).is_some()
                 {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "An import named {} already exists in this file.",
                             name.code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, import.source_range)),
+                        Some((source_contents, import.source_range)),
                         None,
                     ));
                 }
@@ -407,16 +404,13 @@ fn parse_schema(
             while *position != tokens.len() {
                 if let index_token @ token::Variant::Integer(index) = &tokens[*position].variant {
                     if !deleted.insert(*index) {
-                        errors.push(throw::<Error>(
+                        errors.push(Error::new(
                             &format!(
                                 "Index {} is already marked as deleted.",
                                 index_token.to_string().code_str(),
                             ),
                             Some(source_path),
-                            Some(&listing(
-                                source_contents,
-                                token_source_range(tokens, *position),
-                            )),
+                            Some((source_contents, token_source_range(tokens, *position))),
                             None,
                         ));
                     }
@@ -539,13 +533,10 @@ fn parse_import(
     } else if let Some(file_stem) = path.file_stem().and_then(|file_stem| file_stem.to_str()) {
         file_stem.into()
     } else {
-        errors.push(throw::<Error>(
+        errors.push(Error::new(
             "Unable to infer a name for this import.",
             Some(source_path),
-            Some(&listing(
-                source_contents,
-                span_tokens(tokens, start, *position),
-            )),
+            Some((source_contents, span_tokens(tokens, start, *position))),
             None,
         ));
 

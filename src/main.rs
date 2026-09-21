@@ -1,5 +1,8 @@
 mod assertions;
 mod count;
+
+// Retain the complete shared error API even though Typical does not consume editor source ranges.
+#[allow(dead_code)]
 mod error;
 mod format;
 mod generate_rust;
@@ -14,7 +17,7 @@ mod validator;
 
 use crate::{
     count::count,
-    error::{Error, merge_errors, throw},
+    error::{Error, format_errors},
     format::{CodePath, CodeStr},
     schema_loader::load_schemas,
     validator::validate,
@@ -26,6 +29,7 @@ use std::{
     io::stdout,
     path::{Path, PathBuf},
     process::exit,
+    rc::Rc,
 };
 
 // The program version
@@ -125,15 +129,15 @@ fn generate_code(
     rust_file: Option<&Path>,
     typescript_directory: Option<&Path>,
     typescript_import_extension: &str,
-) -> Result<(), Error> {
+) -> Result<(), Vec<Error>> {
     // Load the schema and its transitive dependencies.
     eprintln!("Loading schemas\u{2026}");
-    let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
+    let schemas = load_schemas(schema_path)?;
     eprintln!("{} loaded.", count(schemas.len(), "schema"));
 
     // Validate the schemas.
     eprintln!("Validating schemas\u{2026}");
-    validate(&schemas).map_err(|errors| merge_errors(&errors))?;
+    validate(&schemas)?;
 
     // Print the schema paths, if applicable.
     if list_schemas {
@@ -154,24 +158,24 @@ fn generate_code(
         // Create any missing ancestor directories.
         if let Some(parent) = rust_file.parent() {
             create_dir_all(parent).map_err(|error| {
-                throw(
+                vec![Error::new(
                     &format!("Unable to create {}.", parent.code_path()),
                     None,
                     None,
-                    Some(error),
-                )
+                    Some(Rc::new(error)),
+                )]
             })?;
         }
 
         // Generate the code and write it to the file.
         eprintln!("Writing {}\u{2026}", rust_file.code_path());
         write(rust_file, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
-            throw(
+            vec![Error::new(
                 &format!("Unable to write {}.", rust_file.code_path()),
                 None,
                 None,
-                Some(error),
-            )
+                Some(Rc::new(error)),
+            )]
         })?;
     }
 
@@ -179,7 +183,7 @@ fn generate_code(
     if let Some(typescript_directory) = typescript_directory {
         if !typescript_import_extension.is_empty() && !typescript_import_extension.starts_with('.')
         {
-            return Err(throw::<Error>(
+            return Err(vec![Error::new(
                 &format!(
                     "The TypeScript import extension {} must be empty or start with a dot.",
                     typescript_import_extension.code_str(),
@@ -187,7 +191,7 @@ fn generate_code(
                 None,
                 None,
                 None,
-            ));
+            )]);
         }
 
         eprintln!("Generating TypeScript\u{2026}");
@@ -201,24 +205,24 @@ fn generate_code(
             // Create any missing ancestor directories.
             if let Some(parent) = output_file_path.parent() {
                 create_dir_all(parent).map_err(|error| {
-                    throw(
+                    vec![Error::new(
                         &format!("Unable to create {}.", parent.code_path()),
                         None,
                         None,
-                        Some(error),
-                    )
+                        Some(Rc::new(error)),
+                    )]
                 })?;
             }
 
             // Write the file.
             eprintln!("Writing {}\u{2026}", output_file_path.code_path());
             write(&output_file_path, contents).map_err(|error| {
-                throw(
+                vec![Error::new(
                     &format!("Unable to write {}.", output_file_path.code_path()),
                     None,
                     None,
-                    Some(error),
-                )
+                    Some(Rc::new(error)),
+                )]
             })?;
         }
     }
@@ -228,10 +232,10 @@ fn generate_code(
 }
 
 // Format a schema and its transitive dependencies.
-fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
+fn format_schema(schema_path: &Path, check: bool) -> Result<(), Vec<Error>> {
     // Load the schema and its transitive dependencies.
     eprintln!("Loading schemas\u{2026}");
-    let schemas = load_schemas(schema_path).map_err(|errors| merge_errors(&errors))?;
+    let schemas = load_schemas(schema_path)?;
     eprintln!("{} loaded.", count(schemas.len(), "schema"));
 
     // This flag will be set if any changes were made to any of the schemas.
@@ -261,12 +265,12 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
         // Write the updated schema contents, if applicable.
         if updated && !check {
             write(&full_source_path, new_source_contents).map_err(|error| {
-                throw(
+                vec![Error::new(
                     "Unable to write file.",
                     Some(source_path),
                     None,
-                    Some(error),
-                )
+                    Some(Rc::new(error)),
+                )]
             })?;
         }
     }
@@ -274,7 +278,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
     // If the user only wants to check the formatting, fail if any of the schemas need to be
     // formatted.
     if check && any_schema_updated {
-        return Err(throw::<Error>(
+        return Err(vec![Error::new(
             &format!(
                 "Formatting mismatch. Please run {}.",
                 format!("typical format {}", schema_path.display()).code_str(),
@@ -282,7 +286,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Error> {
             None,
             None,
             None,
-        ));
+        )]);
     }
 
     eprintln!("Done.");
@@ -297,7 +301,7 @@ fn shell_completion(shell: Shell) {
 }
 
 // Program entrypoint
-fn entry() -> Result<(), Error> {
+fn entry() -> Result<(), Vec<Error>> {
     // Parse command-line arguments.
     let cli = Cli::parse();
 
@@ -330,8 +334,8 @@ fn entry() -> Result<(), Error> {
 // Let the fun begin!
 fn main() {
     // Jump to the entrypoint and report any resulting errors.
-    if let Err(e) = entry() {
-        eprintln!("{e}");
+    if let Err(errors) = entry() {
+        eprintln!("{}", format_errors(&errors));
         exit(1);
     }
 }
