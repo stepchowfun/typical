@@ -1,5 +1,5 @@
 use crate::{
-    error::{Error, listing, throw},
+    error::{Error, SourceRange},
     format::{CodePath, CodeStr},
     parser::parse,
     schema,
@@ -11,6 +11,7 @@ use std::{
     fs::read_to_string,
     io::{self, ErrorKind},
     path::{Component, Path, PathBuf},
+    rc::Rc,
 };
 
 // Convert a UTF-8 path containing only normal components to a namespace.
@@ -42,7 +43,7 @@ pub fn load_schemas(
     // Reject paths that cannot be represented faithfully in schema namespaces and diagnostics
     // [tag:schema_path_valid_utf8].
     if schema_path.to_str().is_none() {
-        return Err(vec![throw::<Error>(
+        return Err(vec![Error::new(
             "Schema paths must be valid UTF-8.",
             None,
             None,
@@ -58,7 +59,7 @@ pub fn load_schemas(
 
     // The base directory for the schema's dependencies is the directory containing the schema.
     let Some(base_path) = schema_path.parent() else {
-        errors.push(throw::<Error>(
+        errors.push(Error::new(
             &format!("{} is not a file.", schema_path.code_path()),
             None,
             None,
@@ -85,11 +86,11 @@ pub fn load_schemas(
         }) {
         Ok(canonical_base_path) => canonical_base_path,
         Err(error) => {
-            errors.push(throw(
+            errors.push(Error::new(
                 &format!("{} is not a file.", schema_path.code_path()),
                 None,
                 None,
-                Some(error),
+                Some(Rc::new(error)),
             ));
 
             return Err(errors);
@@ -101,7 +102,7 @@ pub fn load_schemas(
     let based_schema_path = if let Some(based_schema_path) = schema_path.file_name() {
         AsRef::<Path>::as_ref(based_schema_path)
     } else {
-        errors.push(throw::<Error>(
+        errors.push(Error::new(
             &format!("{} is not a file.", schema_path.code_path()),
             None,
             None,
@@ -114,7 +115,7 @@ pub fn load_schemas(
     // Compute the namespace of the schema. This succeeds due to
     // [ref:based_schema_path_is_file_name] and [ref:schema_path_valid_utf8].
     let Some(schema_namespace) = path_to_namespace(based_schema_path) else {
-        return Err(vec![throw::<Error>(
+        return Err(vec![Error::new(
             "Schema paths must be valid UTF-8 and contain only normal components.",
             None,
             None,
@@ -127,7 +128,7 @@ pub fn load_schemas(
     let mut schemas_to_load = vec![(
         schema_namespace.clone(),
         based_schema_path.to_owned(),
-        None as Option<(PathBuf, String)>,
+        None as Option<(PathBuf, String, SourceRange)>,
     )];
     let mut visited_namespaces = HashSet::new();
     visited_namespaces.insert(schema_namespace);
@@ -140,15 +141,15 @@ pub fn load_schemas(
             Err(error) => {
                 let message = format!("Unable to load {}.", path.code_path());
 
-                if let Some((origin_path, origin_listing)) = origin {
-                    errors.push(throw(
+                if let Some((origin_path, origin_contents, origin_source_range)) = origin {
+                    errors.push(Error::new(
                         &message,
                         Some(&origin_path),
-                        Some(&origin_listing),
-                        Some(error),
+                        Some((&origin_contents, origin_source_range)),
+                        Some(Rc::new(error)),
                     ));
                 } else {
-                    errors.push(throw(&message, None, None, Some(error)));
+                    errors.push(Error::new(&message, None, None, Some(Rc::new(error))));
                 }
 
                 continue;
@@ -181,9 +182,6 @@ pub fn load_schemas(
 
         // Add the dependencies to the frontier.
         for import in schema.imports.values_mut() {
-            // Compute the source listing for this import for error reporting.
-            let origin_listing = listing(&contents, import.source_range);
-
             // Compute the import path.
             let non_canonical_import_path = base_path.join(parent_path.join(&import.path));
 
@@ -191,11 +189,11 @@ pub fn load_schemas(
             let canonical_import_path = match non_canonical_import_path.canonicalize() {
                 Ok(canonical_import_path) => canonical_import_path,
                 Err(error) => {
-                    errors.push(throw(
+                    errors.push(Error::new(
                         &format!("Unable to load {}.", non_canonical_import_path.code_path()),
                         Some(&path),
-                        Some(&origin_listing),
-                        Some(error),
+                        Some((&contents, import.source_range)),
+                        Some(Rc::new(error)),
                     ));
 
                     continue;
@@ -210,14 +208,14 @@ pub fn load_schemas(
             {
                 based_import_path.to_owned()
             } else {
-                errors.push(throw::<Error>(
+                errors.push(Error::new(
                     &format!(
                         "{} is not a descendant of {}, which is the base directory for this run.",
                         canonical_import_path.code_path(),
                         canonical_base_path.code_path(),
                     ),
                     Some(&path),
-                    Some(&origin_listing),
+                    Some((&contents, import.source_range)),
                     None,
                 ));
 
@@ -227,10 +225,10 @@ pub fn load_schemas(
             // Populate the namespace of the import [tag:namespace_populated]. Its components are
             // normal due to [ref:based_import_path_only_has_normal_components].
             let Some(import_namespace) = path_to_namespace(&based_import_path) else {
-                errors.push(throw::<Error>(
+                errors.push(Error::new(
                     "Import paths must be valid UTF-8 and contain only normal components.",
                     Some(&path),
-                    Some(&origin_listing),
+                    Some((&contents, import.source_range)),
                     None,
                 ));
 
@@ -244,7 +242,7 @@ pub fn load_schemas(
                 schemas_to_load.push((
                     import_namespace,
                     based_import_path,
-                    Some((path.clone(), origin_listing)),
+                    Some((path.clone(), contents.clone(), import.source_range)),
                 ));
             }
         }
@@ -253,7 +251,7 @@ pub fn load_schemas(
         if let Some((_, conflicting_schema_path, _)) =
             schemas.insert(namespace.clone(), (schema, path.clone(), contents))
         {
-            errors.push(throw::<Error>(
+            errors.push(Error::new(
                 &format!(
                     "This file conflicts with {}, since both correspond to the same namespace {}.",
                     conflicting_schema_path.code_path(),

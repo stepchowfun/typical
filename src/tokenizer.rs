@@ -1,5 +1,5 @@
 use crate::{
-    error::{Error, SourceRange, listing, throw},
+    error::{Error, SourceRange},
     format::CodeStr,
     token::{
         AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
@@ -185,19 +185,19 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     let start = if c == RAW_IDENTIFIER_SIGIL { i + 1 } else { i };
 
                     if start == end {
-                        errors.push(throw::<Error>(
+                        errors.push(Error::new(
                             "Identifiers cannot be empty.",
                             Some(schema_path),
-                            Some(&listing(schema_contents, SourceRange { start: i, end })),
+                            Some((schema_contents, SourceRange { start: i, end })),
                             None,
                         ));
                     }
 
                     if schema_contents[start..end].starts_with('_') {
-                        errors.push(throw::<Error>(
+                        errors.push(Error::new(
                             "Identifiers cannot begin with `_`.",
                             Some(schema_path),
-                            Some(&listing(schema_contents, SourceRange { start: i, end })),
+                            Some((schema_contents, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -232,13 +232,13 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         });
                     }
                     Err(_) => {
-                        errors.push(throw::<Error>(
+                        errors.push(Error::new(
                             &format!(
                                 "Integer {} must be less than 2^64.",
                                 schema_contents[i..end].code_str(),
                             ),
                             Some(schema_path),
-                            Some(&listing(schema_contents, SourceRange { start: i, end })),
+                            Some((schema_contents, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -258,13 +258,13 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 }
 
                 if end == i {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "Path starting here must be terminated by a {}.",
                             "'".code_str(),
                         ),
                         Some(schema_path),
-                        Some(&listing(
+                        Some((
                             schema_contents,
                             SourceRange {
                                 start: i,
@@ -367,10 +367,10 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 let end = cursor.next_boundary(schema_contents, 0).unwrap().unwrap();
 
                 // Now that we've computed the grapheme cluster, construct and report the error.
-                errors.push(throw::<Error>(
+                errors.push(Error::new(
                     &format!("Unexpected symbol {}.", schema_contents[i..end].code_str()),
                     Some(schema_path),
-                    Some(&listing(schema_contents, SourceRange { start: i, end: i })),
+                    Some((schema_contents, SourceRange { start: i, end: i })),
                     None,
                 ));
             }

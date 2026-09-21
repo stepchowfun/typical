@@ -1,8 +1,5 @@
 use crate::{
-    error::{Error, listing, throw},
-    format::CodeStr,
-    generate_typescript::COMMON_FILE_STEM,
-    identifier::Identifier,
+    error::Error, format::CodeStr, generate_typescript::COMMON_FILE_STEM, identifier::Identifier,
     schema,
 };
 use std::{
@@ -35,7 +32,7 @@ pub fn validate(
     };
     for (namespace, (_, source_path, _)) in schemas {
         if namespace == &common_namespace {
-            errors.push(throw::<Error>(
+            errors.push(Error::new(
                 TYPESCRIPT_RESERVED_MODULE_NAME_ERROR,
                 Some(source_path),
                 None,
@@ -64,13 +61,13 @@ pub fn validate(
         for declaration in &schema.declarations {
             // Check that the name of the declaration is unique within the file.
             if !declaration_names.insert(declaration.name.clone()) {
-                errors.push(throw::<Error>(
+                errors.push(Error::new(
                     &format!(
                         "A declaration named {} already exists in this file.",
                         declaration.name.code_str(),
                     ),
                     Some(source_path),
-                    Some(&listing(source_contents, declaration.source_range)),
+                    Some((source_contents, declaration.source_range)),
                     None,
                 ));
             }
@@ -82,53 +79,53 @@ pub fn validate(
             for field in &declaration.fields {
                 // Check that the name of the field is unique within the declaration.
                 if !field_names.insert(field.name.clone()) {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "A field named {} already exists in this declaration.",
                             field.name.code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, field.source_range)),
+                        Some((source_contents, field.source_range)),
                         None,
                     ));
                 }
 
                 // Check that the index of the field is unique within the declaration.
                 if !field_indices.insert(field.index) {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "A field with index {} already exists in this declaration.",
                             field.index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, field.source_range)),
+                        Some((source_contents, field.source_range)),
                         None,
                     ));
                 }
 
                 // Check that the index of the field isn't marked as deleted.
                 if declaration.deleted.contains(&field.index) {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "Field index {} is marked as deleted in this declaration.",
                             field.index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, field.source_range)),
+                        Some((source_contents, field.source_range)),
                         None,
                     ));
                 }
 
                 // Check that the index isn't too big.
                 if field.index > MAX_FIELD_INDEX {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "Field index {} is too large. The maximum field index is {}.",
                             field.index.to_string().code_str(),
                             MAX_FIELD_INDEX.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, field.source_range)),
+                        Some((source_contents, field.source_range)),
                         None,
                     ));
                 }
@@ -148,13 +145,13 @@ pub fn validate(
             // Check that all index gaps are marked as deleted.
             for index in 0..(field_indices.len() + declaration.deleted.len()) {
                 if !field_indices.contains(&index) && !declaration.deleted.contains(&index) {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "Field index gap found. Unused index {} is not marked as deleted.",
                             index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, declaration.source_range)),
+                        Some((source_contents, declaration.source_range)),
                         None,
                     ));
                 }
@@ -228,13 +225,13 @@ fn validate_type(
                     // The `unwrap` is safe due to [ref:namespace_populated].
                     import.namespace.clone().unwrap()
                 } else {
-                    errors.push(throw::<Error>(
+                    errors.push(Error::new(
                         &format!(
                             "There is no import named {} in this file.",
                             import.code_str(),
                         ),
                         Some(source_path),
-                        Some(&listing(source_contents, r#type.source_range)),
+                        Some((source_contents, r#type.source_range)),
                         None,
                     ));
 
@@ -246,7 +243,7 @@ fn validate_type(
 
             // Check that the type exists in that file.
             if !all_types.contains_key(&(type_namespace, name.clone())) {
-                errors.push(throw::<Error>(
+                errors.push(Error::new(
                     &if let Some(import) = import {
                         format!(
                             "There is no type named {} in import {}.",
@@ -257,7 +254,7 @@ fn validate_type(
                         format!("There is no type named {} in this file.", name.code_str())
                     },
                     Some(source_path),
-                    Some(&listing(source_contents, r#type.source_range)),
+                    Some((source_contents, r#type.source_range)),
                     None,
                 ));
             }
@@ -286,7 +283,7 @@ fn check_declaration_for_cycles(
     // Visit this type or report a cycle if the type has already been visited.
     types_visited_vec.push(qualified_type.clone());
     if !types_visited_set.insert(qualified_type.clone()) {
-        errors.push(throw::<Error>(
+        errors.push(Error::new(
             &format!(
                 "Cycle detected: {}.",
                 types_visited_vec
