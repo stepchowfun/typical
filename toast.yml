@@ -143,7 +143,7 @@ tasks:
     excluded_input_paths:
       - .git
 
-      # [group:excluded_input_paths] Keep this in sync with [file:.gitignore].
+      # Keep this in sync with [group:excluded_input_paths].
       - artifacts
       - examples/rust/target
       - examples/typescript/dist
