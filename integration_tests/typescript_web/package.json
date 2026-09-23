@@ -16,12 +16,12 @@
     "lodash": "^4.18.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@types/lodash": "^4.17.25",
     "typescript": "^7.0.2",
-    "vite-plus": "^0.2.9"
+    "vite-plus": "^0.3.3"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.9"
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.3.3"
   }
 }
