@@ -26,7 +26,7 @@ macro_rules! assert_fails {
 
             assert!(
                 found_error,
-                "The expression failed as expected, but the expected message was not found in \
+                "The expression failed as expected, but the expected message wasn't found in \
                     any of the errors: {:?}.",
                 errors,
             );
@@ -81,7 +81,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "the expected message was not found")]
+    #[should_panic(expected = "the expected message wasn't found")]
     fn assert_fails_mismatch() {
         let success: Result<usize, Vec<Error>> = Err(vec![
             Error::new("foo", None, None, None),
