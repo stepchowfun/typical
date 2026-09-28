@@ -112,7 +112,7 @@ pub fn format_errors(errors: &[Error]) -> String {
                 if acc
                     .split('\n')
                     .next_back()
-                    .unwrap() // Safe since `split` always results in at least one item
+                    .expect("Splitting text should yield at least one piece.")
                     .chars()
                     .all(|c| c == ' ' || c == '\u{203e}')
                 {
@@ -203,29 +203,27 @@ fn listing(source_contents: &str, source_range: SourceRange) -> String {
                 &line[*section_end..],
                 if colorized {
                     String::new()
-                } else if section_start == section_end {
-                    format!(
-                        "\n{} {}",
-                        " ".repeat(gutter_width),
-                        if i == lines.len() - 1 {
-                            " "
-                        } else {
-                            "\u{250a}"
-                        },
-                    )
                 } else {
-                    format!(
-                        "\n{} {} {}{}",
+                    // Continue the gutter below the line, except below the last one.
+                    let gutter = format!(
+                        "{} {}",
                         " ".repeat(gutter_width),
                         if i == lines.len() - 1 {
                             " "
                         } else {
                             "\u{250a}"
                         },
-                        " ".repeat(*section_start),
-                        // [tag:overline_u203e]
-                        "\u{203e}".repeat(section_end - section_start),
-                    )
+                    );
+                    if section_start == section_end {
+                        format!("\n{gutter}")
+                    } else {
+                        format!(
+                            "\n{gutter} {}{}",
+                            " ".repeat(*section_start),
+                            // [tag:overline_u203e]
+                            "\u{203e}".repeat(section_end - section_start),
+                        )
+                    }
                 },
             )
         })
