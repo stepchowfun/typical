@@ -2191,7 +2191,7 @@ fn write_deserialization_invocation<T: Write>(
                 write_indentation(buffer, indentation)?;
                 write!(
                     buffer,
-                    "fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> \
+                    "fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> \
                             ::std::io::Result<",
                 )?;
                 write_type(buffer, imports, namespace, &inner_type.variant, In)?;

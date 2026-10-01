@@ -2326,7 +2326,7 @@ pub mod comprehensive {
                             _j_required.get_or_insert(payload);
                         }
                         10 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -2348,7 +2348,7 @@ pub mod comprehensive {
                             _k_required.get_or_insert(payload);
                         }
                         11 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 Ok(payload)
                             }
@@ -2367,7 +2367,7 @@ pub mod comprehensive {
                             _l_required.get_or_insert(payload);
                         }
                         12 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
                                 Ok(payload)
@@ -2387,7 +2387,7 @@ pub mod comprehensive {
                             _m_required.get_or_insert(payload);
                         }
                         13 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = payload != 0_u64;
                                 Ok(payload)
@@ -2525,7 +2525,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                         let mut buffer = [0; 8];
                                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                         let payload = f64::from_le_bytes(buffer);
@@ -2563,7 +2563,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         Ok(payload)
                                     }
@@ -2598,7 +2598,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
                                         Ok(payload)
@@ -2634,7 +2634,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = payload != 0_u64;
                                         Ok(payload)
@@ -2890,7 +2890,7 @@ pub mod comprehensive {
                             _j_asymmetric.get_or_insert(payload);
                         }
                         38 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -2912,7 +2912,7 @@ pub mod comprehensive {
                             _k_asymmetric.get_or_insert(payload);
                         }
                         39 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 Ok(payload)
                             }
@@ -2931,7 +2931,7 @@ pub mod comprehensive {
                             _l_asymmetric.get_or_insert(payload);
                         }
                         40 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
                                 Ok(payload)
@@ -2951,7 +2951,7 @@ pub mod comprehensive {
                             _m_asymmetric.get_or_insert(payload);
                         }
                         41 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = payload != 0_u64;
                                 Ok(payload)
@@ -3089,7 +3089,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                         let mut buffer = [0; 8];
                                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                         let payload = f64::from_le_bytes(buffer);
@@ -3127,7 +3127,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         Ok(payload)
                                     }
@@ -3162,7 +3162,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
                                         Ok(payload)
@@ -3198,7 +3198,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = payload != 0_u64;
                                         Ok(payload)
@@ -3454,7 +3454,7 @@ pub mod comprehensive {
                             _j_optional.get_or_insert(payload);
                         }
                         66 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -3476,7 +3476,7 @@ pub mod comprehensive {
                             _k_optional.get_or_insert(payload);
                         }
                         67 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 Ok(payload)
                             }
@@ -3495,7 +3495,7 @@ pub mod comprehensive {
                             _l_optional.get_or_insert(payload);
                         }
                         68 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
                                 Ok(payload)
@@ -3515,7 +3515,7 @@ pub mod comprehensive {
                             _m_optional.get_or_insert(payload);
                         }
                         69 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = payload != 0_u64;
                                 Ok(payload)
@@ -3653,7 +3653,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                         let mut buffer = [0; 8];
                                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                         let payload = f64::from_le_bytes(buffer);
@@ -3691,7 +3691,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         Ok(payload)
                                     }
@@ -3726,7 +3726,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
                                         Ok(payload)
@@ -3762,7 +3762,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = payload != 0_u64;
                                         Ok(payload)
@@ -5764,7 +5764,7 @@ pub mod comprehensive {
                             return Ok(BarIn::JRequired(payload));
                         }
                         10 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -5787,7 +5787,7 @@ pub mod comprehensive {
                             return Ok(BarIn::KRequired(payload));
                         }
                         11 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 Ok(payload)
                             }
@@ -5807,7 +5807,7 @@ pub mod comprehensive {
                             return Ok(BarIn::LRequired(payload));
                         }
                         12 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
                                 Ok(payload)
@@ -5828,7 +5828,7 @@ pub mod comprehensive {
                             return Ok(BarIn::MRequired(payload));
                         }
                         13 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = payload != 0_u64;
                                 Ok(payload)
@@ -5972,7 +5972,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                         let mut buffer = [0; 8];
                                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                         let payload = f64::from_le_bytes(buffer);
@@ -6011,7 +6011,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         Ok(payload)
                                     }
@@ -6047,7 +6047,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
                                         Ok(payload)
@@ -6084,7 +6084,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = payload != 0_u64;
                                         Ok(payload)
@@ -6355,7 +6355,7 @@ pub mod comprehensive {
                             return Ok(BarIn::JAsymmetric(payload));
                         }
                         38 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -6378,7 +6378,7 @@ pub mod comprehensive {
                             return Ok(BarIn::KAsymmetric(payload));
                         }
                         39 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 Ok(payload)
                             }
@@ -6398,7 +6398,7 @@ pub mod comprehensive {
                             return Ok(BarIn::LAsymmetric(payload));
                         }
                         40 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
                                 Ok(payload)
@@ -6419,7 +6419,7 @@ pub mod comprehensive {
                             return Ok(BarIn::MAsymmetric(payload));
                         }
                         41 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = payload != 0_u64;
                                 Ok(payload)
@@ -6563,7 +6563,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                         let mut buffer = [0; 8];
                                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                         let payload = f64::from_le_bytes(buffer);
@@ -6602,7 +6602,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         Ok(payload)
                                     }
@@ -6638,7 +6638,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
                                         Ok(payload)
@@ -6675,7 +6675,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = payload != 0_u64;
                                         Ok(payload)
@@ -6946,7 +6946,7 @@ pub mod comprehensive {
                             return Ok(BarIn::JOptional(payload, fallback));
                         }
                         66 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                 let mut buffer = [0; 8];
                                 ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                 let payload = f64::from_le_bytes(buffer);
@@ -6969,7 +6969,7 @@ pub mod comprehensive {
                             return Ok(BarIn::KOptional(payload, fallback));
                         }
                         67 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 Ok(payload)
                             }
@@ -6989,7 +6989,7 @@ pub mod comprehensive {
                             return Ok(BarIn::LOptional(payload, fallback));
                         }
                         68 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = super::super::zigzag_decode(payload);
                                 Ok(payload)
@@ -7010,7 +7010,7 @@ pub mod comprehensive {
                             return Ok(BarIn::MOptional(payload, fallback));
                         }
                         69 => {
-                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                            fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                 let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                 let payload = payload != 0_u64;
                                 Ok(payload)
@@ -7154,7 +7154,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<f64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<f64> {
                                         let mut buffer = [0; 8];
                                         ::std::io::Read::read_exact(&mut sub_reader, &mut buffer)?;
                                         let payload = f64::from_le_bytes(buffer);
@@ -7193,7 +7193,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<u64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<u64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         Ok(payload)
                                     }
@@ -7229,7 +7229,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<i64> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<i64> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = super::super::zigzag_decode(payload);
                                         Ok(payload)
@@ -7266,7 +7266,7 @@ pub mod comprehensive {
                                 };
                                 let mut sub_reader = ::std::io::Read::take(&mut sub_reader, payload_size as u64);
                                 payload.push({
-                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: &mut T) -> ::std::io::Result<bool> {
+                                    fn deserialize_element<T: ::std::io::BufRead>(mut sub_reader: T) -> ::std::io::Result<bool> {
                                         let payload = super::super::deserialize_varint(&mut sub_reader)?;
                                         let payload = payload != 0_u64;
                                         Ok(payload)
