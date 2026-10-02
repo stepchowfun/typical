@@ -4,7 +4,7 @@ use std::{
     cmp::{max, min},
     error, fmt,
     path::{Path, PathBuf},
-    rc::Rc,
+    sync::Arc,
 };
 
 // For extra type safety, we introduce a dedicated type for source ranges. Tokens and syntax trees
@@ -22,7 +22,7 @@ pub struct Error {
     source_range: Option<SourceRange>,
     source_path: Option<PathBuf>,
     listing: Option<String>,
-    reason: Option<Rc<dyn error::Error>>,
+    reason: Option<Arc<dyn error::Error + Send + Sync>>,
 }
 
 impl Error {
@@ -31,7 +31,7 @@ impl Error {
         message: &str,
         source_path: Option<&Path>,
         source_context: Option<(&str, SourceRange)>,
-        reason: Option<Rc<dyn error::Error>>,
+        reason: Option<Arc<dyn error::Error + Send + Sync>>,
     ) -> Self {
         let (source_range, source_listing) =
             source_context.map_or((None, None), |(source_contents, source_range)| {
@@ -64,7 +64,9 @@ impl Error {
         self.listing.as_deref()
     }
     pub fn reason(&self) -> Option<&(dyn error::Error + 'static)> {
-        self.reason.as_deref()
+        self.reason
+            .as_deref()
+            .map(|reason| reason as &(dyn error::Error + 'static))
     }
 }
 
@@ -234,7 +236,7 @@ fn listing(source_contents: &str, source_range: SourceRange) -> String {
 #[cfg(test)]
 mod tests {
     use crate::error::{Error, SourceRange, format_errors, listing};
-    use std::{path::Path, rc::Rc};
+    use std::{path::Path, sync::Arc};
 
     // Reuse one source context across the constructor tests.
     const SOURCE_CONTENTS: &str = "abcd";
@@ -288,7 +290,7 @@ mod tests {
     #[test]
     fn new_with_reason_no_source_path_context() {
         let reason = Error::new("A deeper error occurred.", None, None, None);
-        let error = Error::new("An error occurred.", None, None, Some(Rc::new(reason)));
+        let error = Error::new("An error occurred.", None, None, Some(Arc::new(reason)));
 
         assert_eq!(error.message(), "An error occurred.");
         assert!(error.source_path().is_none());
@@ -331,7 +333,7 @@ mod tests {
             "An error occurred.",
             None,
             Some((SOURCE_CONTENTS, SOURCE_RANGE)),
-            Some(Rc::new(reason)),
+            Some(Arc::new(reason)),
         );
 
         assert_eq!(error.message(), "An error occurred.");
@@ -358,7 +360,7 @@ mod tests {
             "An error occurred.",
             Some(Path::new("foo")),
             None,
-            Some(Rc::new(reason)),
+            Some(Arc::new(reason)),
         );
 
         assert_eq!(error.message(), "An error occurred.");
@@ -382,7 +384,7 @@ mod tests {
             "An error occurred.",
             Some(Path::new("foo")),
             Some((SOURCE_CONTENTS, SOURCE_RANGE)),
-            Some(Rc::new(reason)),
+            Some(Arc::new(reason)),
         );
 
         assert_eq!(error.message(), "An error occurred.");

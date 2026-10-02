@@ -29,7 +29,7 @@ use std::{
     io::stdout,
     path::{Path, PathBuf},
     process::exit,
-    rc::Rc,
+    sync::Arc,
 };
 
 // The program version
@@ -162,7 +162,7 @@ fn generate_code(
                     &format!("Unable to create {}.", parent.code_path()),
                     None,
                     None,
-                    Some(Rc::new(error)),
+                    Some(Arc::new(error)),
                 )]
             })?;
         }
@@ -174,7 +174,7 @@ fn generate_code(
                 &format!("Unable to write {}.", rust_file.code_path()),
                 None,
                 None,
-                Some(Rc::new(error)),
+                Some(Arc::new(error)),
             )]
         })?;
     }
@@ -209,7 +209,7 @@ fn generate_code(
                         &format!("Unable to create {}.", parent.code_path()),
                         None,
                         None,
-                        Some(Rc::new(error)),
+                        Some(Arc::new(error)),
                     )]
                 })?;
             }
@@ -221,7 +221,7 @@ fn generate_code(
                     &format!("Unable to write {}.", output_file_path.code_path()),
                     None,
                     None,
-                    Some(Rc::new(error)),
+                    Some(Arc::new(error)),
                 )]
             })?;
         }
@@ -269,7 +269,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Vec<Error>> {
                     "Unable to write file.",
                     Some(source_path),
                     None,
-                    Some(Rc::new(error)),
+                    Some(Arc::new(error)),
                 )]
             })?;
         }
