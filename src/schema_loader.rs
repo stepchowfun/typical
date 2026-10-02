@@ -11,7 +11,7 @@ use std::{
     fs::read_to_string,
     io::{self, ErrorKind},
     path::{Component, Path, PathBuf},
-    rc::Rc,
+    sync::Arc,
 };
 
 // Convert a UTF-8 path containing only normal components to a namespace.
@@ -90,7 +90,7 @@ pub fn load_schemas(
                 &format!("{} is not a file.", schema_path.code_path()),
                 None,
                 None,
-                Some(Rc::new(error)),
+                Some(Arc::new(error)),
             ));
 
             return Err(errors);
@@ -146,10 +146,10 @@ pub fn load_schemas(
                         &message,
                         Some(&origin_path),
                         Some((&origin_contents, origin_source_range)),
-                        Some(Rc::new(error)),
+                        Some(Arc::new(error)),
                     ));
                 } else {
-                    errors.push(Error::new(&message, None, None, Some(Rc::new(error))));
+                    errors.push(Error::new(&message, None, None, Some(Arc::new(error))));
                 }
 
                 continue;
@@ -193,7 +193,7 @@ pub fn load_schemas(
                         &format!("Unable to load {}.", non_canonical_import_path.code_path()),
                         Some(&path),
                         Some((&contents, import.source_range)),
-                        Some(Rc::new(error)),
+                        Some(Arc::new(error)),
                     ));
 
                     continue;
