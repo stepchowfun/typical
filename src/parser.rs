@@ -2,6 +2,7 @@ use crate::{
     error::{Error, SourceRange},
     format::CodeStr,
     identifier::Identifier,
+    line_index::LineIndex,
     schema, token,
 };
 use std::{
@@ -51,6 +52,7 @@ fn span_tokens(tokens: &[token::Token], start: usize, end: usize) -> SourceRange
 fn unexpected_token(
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     tokens: &[token::Token],
     position: usize,
     expectation: &str,
@@ -61,14 +63,14 @@ fn unexpected_token(
         Error::new(
             &format!("Expected {expectation}, but the file is empty."),
             Some(source_path),
-            Some((source_contents, source_range)),
+            Some((source_contents, line_index, source_range)),
             None,
         )
     } else if position == tokens.len() {
         Error::new(
             &format!("Expected {expectation} at the end of the file."),
             Some(source_path),
-            Some((source_contents, source_range)),
+            Some((source_contents, line_index, source_range)),
             None,
         )
     } else {
@@ -79,7 +81,7 @@ fn unexpected_token(
                 tokens[position].to_string().code_str(),
             ),
             Some(source_path),
-            Some((source_contents, source_range)),
+            Some((source_contents, line_index, source_range)),
             None,
         )
     }
@@ -92,6 +94,7 @@ macro_rules! consume_token_0 {
     (
         $source_path:expr,
         $source_contents:expr,
+        $line_index:expr,
         $tokens:expr,
         $position:expr,
         $errors:ident,
@@ -102,6 +105,7 @@ macro_rules! consume_token_0 {
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
         let source_path = $source_path;
         let source_contents = $source_contents;
+        let line_index = $line_index;
         let tokens = $tokens;
         let position = $position;
 
@@ -110,6 +114,7 @@ macro_rules! consume_token_0 {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 *position,
                 &format!("{}", token::Variant::$variant.to_string().code_str()),
@@ -125,6 +130,7 @@ macro_rules! consume_token_0 {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 *position,
                 &format!("{}", token::Variant::$variant.to_string().code_str()),
@@ -142,6 +148,7 @@ macro_rules! consume_token_1 {
     (
         $source_path:expr,
         $source_contents:expr,
+        $line_index:expr,
         $tokens:expr,
         $position:expr,
         $errors:ident,
@@ -153,6 +160,7 @@ macro_rules! consume_token_1 {
         // accidentally evaluating arguments multiple times. Here we force eager evaluation.
         let source_path = $source_path;
         let source_contents = $source_contents;
+        let line_index = $line_index;
         let tokens = $tokens;
         let position = $position;
         let expectation = $expectation;
@@ -162,6 +170,7 @@ macro_rules! consume_token_1 {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 *position,
                 expectation,
@@ -179,6 +188,7 @@ macro_rules! consume_token_1 {
             $errors.push(unexpected_token(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 *position,
                 expectation,
@@ -195,12 +205,15 @@ pub fn parse(
     source_contents: &str,
     tokens: &[token::Token],
 ) -> Result<schema::Schema, Vec<Error>> {
-    // Try to parse the tokens into a schema.
+    // Try to parse the tokens into a schema, indexing the lines of the source so any errors can
+    // show them.
     let mut position = 0;
     let mut errors = vec![];
+    let line_index = LineIndex::new(source_contents);
     let schema = parse_schema(
         source_path,
         source_contents,
+        &line_index,
         tokens,
         &mut position,
         &mut errors,
@@ -212,7 +225,11 @@ pub fn parse(
         errors.push(Error::new(
             &format!("Unexpected {}.", tokens[position].to_string().code_str()),
             Some(source_path),
-            Some((source_contents, token_source_range(tokens, position))),
+            Some((
+                source_contents,
+                &line_index,
+                token_source_range(tokens, position),
+            )),
             None,
         ));
     }
@@ -230,6 +247,7 @@ pub fn parse(
 fn parse_schema(
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
@@ -269,9 +287,14 @@ fn parse_schema(
             token::Variant::Import => {
                 // This is guaranteed to advance the token position due to
                 // [ref:parse_import_keyword_chomp].
-                if let Some((name, import)) =
-                    parse_import(source_path, source_contents, tokens, position, errors)
-                    && imports.insert(name.clone(), import.clone()).is_some()
+                if let Some((name, import)) = parse_import(
+                    source_path,
+                    source_contents,
+                    line_index,
+                    tokens,
+                    position,
+                    errors,
+                ) && imports.insert(name.clone(), import.clone()).is_some()
                 {
                     errors.push(Error::new(
                         &format!(
@@ -279,7 +302,7 @@ fn parse_schema(
                             name.code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, import.source_range)),
+                        Some((source_contents, line_index, import.source_range)),
                         None,
                     ));
                 }
@@ -313,6 +336,7 @@ fn parse_schema(
                 errors.push(unexpected_token(
                     source_path,
                     source_contents,
+                    line_index,
                     tokens,
                     *position,
                     "a declaration",
@@ -330,6 +354,7 @@ fn parse_schema(
         let name = consume_token_1!(
             source_path,
             source_contents,
+            line_index,
             tokens,
             &mut *position,
             errors,
@@ -356,6 +381,7 @@ fn parse_schema(
         consume_token_0!(
             source_path,
             source_contents,
+            line_index,
             tokens,
             &mut *position,
             errors,
@@ -375,8 +401,14 @@ fn parse_schema(
                 _ => {}
             }
 
-            if let Some(field) = parse_field(source_path, source_contents, tokens, position, errors)
-            {
+            if let Some(field) = parse_field(
+                source_path,
+                source_contents,
+                line_index,
+                tokens,
+                position,
+                errors,
+            ) {
                 // In this case, [ref:parse_field_some_advance] guarantees that we will not
                 // loop forever.
                 fields.push(field.clone());
@@ -410,7 +442,11 @@ fn parse_schema(
                                 index_token.to_string().code_str(),
                             ),
                             Some(source_path),
-                            Some((source_contents, token_source_range(tokens, *position))),
+                            Some((
+                                source_contents,
+                                line_index,
+                                token_source_range(tokens, *position),
+                            )),
                             None,
                         ));
                     }
@@ -426,6 +462,7 @@ fn parse_schema(
         consume_token_0!(
             source_path,
             source_contents,
+            line_index,
             tokens,
             &mut *position,
             errors,
@@ -470,6 +507,7 @@ fn parse_schema(
 fn parse_import(
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
@@ -480,6 +518,7 @@ fn parse_import(
     consume_token_0!(
         source_path,
         source_contents,
+        line_index,
         tokens,
         &mut *position,
         errors,
@@ -491,6 +530,7 @@ fn parse_import(
     let path = consume_token_1!(
         source_path,
         source_contents,
+        line_index,
         tokens,
         &mut *position,
         errors,
@@ -512,6 +552,7 @@ fn parse_import(
         consume_token_0!(
             source_path,
             source_contents,
+            line_index,
             tokens,
             &mut *position,
             errors,
@@ -523,6 +564,7 @@ fn parse_import(
         consume_token_1!(
             source_path,
             source_contents,
+            line_index,
             tokens,
             &mut *position,
             errors,
@@ -536,7 +578,11 @@ fn parse_import(
         errors.push(Error::new(
             "Unable to infer a name for this import.",
             Some(source_path),
-            Some((source_contents, span_tokens(tokens, start, *position))),
+            Some((
+                source_contents,
+                line_index,
+                span_tokens(tokens, start, *position),
+            )),
             None,
         ));
 
@@ -560,6 +606,7 @@ fn parse_import(
 fn parse_field(
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
@@ -600,6 +647,7 @@ fn parse_field(
     let name = consume_token_1!(
         source_path,
         source_contents,
+        line_index,
         tokens,
         &mut *position,
         errors,
@@ -621,6 +669,7 @@ fn parse_field(
         consume_token_0!(
             source_path,
             source_contents,
+            line_index,
             tokens,
             &mut *position,
             errors,
@@ -633,6 +682,7 @@ fn parse_field(
             errors.push(unexpected_token(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 *position,
                 "a type",
@@ -642,7 +692,14 @@ fn parse_field(
         }
 
         // Parse the type [ref:parse_type_some_advance].
-        parse_type(source_path, source_contents, tokens, position, errors)?
+        parse_type(
+            source_path,
+            source_contents,
+            line_index,
+            tokens,
+            position,
+            errors,
+        )?
     } else {
         schema::Type {
             source_range: span_tokens(tokens, *position, *position),
@@ -654,6 +711,7 @@ fn parse_field(
     consume_token_0!(
         source_path,
         source_contents,
+        line_index,
         tokens,
         &mut *position,
         errors,
@@ -665,6 +723,7 @@ fn parse_field(
     let index = consume_token_1!(
         source_path,
         source_contents,
+        line_index,
         tokens,
         &mut *position,
         errors,
@@ -690,6 +749,7 @@ fn parse_field(
 fn parse_type(
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     tokens: &[token::Token],
     position: &mut usize,
     errors: &mut Vec<Error>,
@@ -701,6 +761,7 @@ fn parse_type(
         errors.push(unexpected_token(
             source_path,
             source_contents,
+            line_index,
             tokens,
             *position,
             "a type",
@@ -713,12 +774,19 @@ fn parse_type(
     if let token::Variant::LeftSquare = tokens[*position].variant {
         *position += 1;
 
-        if let Some(inner_type) = parse_type(source_path, source_contents, tokens, position, errors)
-        {
+        if let Some(inner_type) = parse_type(
+            source_path,
+            source_contents,
+            line_index,
+            tokens,
+            position,
+            errors,
+        ) {
             // Consume the right square bracket.
             consume_token_0!(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 &mut *position,
                 errors,
@@ -790,6 +858,7 @@ fn parse_type(
                 let import = consume_token_1!(
                     source_path,
                     source_contents,
+                    line_index,
                     tokens,
                     &mut *position,
                     errors,
@@ -803,6 +872,7 @@ fn parse_type(
                 let r#type = consume_token_1!(
                     source_path,
                     source_contents,
+                    line_index,
                     tokens,
                     &mut *position,
                     errors,
@@ -816,6 +886,7 @@ fn parse_type(
                 let r#type = consume_token_1!(
                     source_path,
                     source_contents,
+                    line_index,
                     tokens,
                     &mut *position,
                     errors,
@@ -830,6 +901,7 @@ fn parse_type(
             let r#type = consume_token_1!(
                 source_path,
                 source_contents,
+                line_index,
                 tokens,
                 &mut *position,
                 errors,

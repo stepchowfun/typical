@@ -1,6 +1,6 @@
 use crate::{
     error::Error, format::CodeStr, generate_typescript::COMMON_FILE_STEM, identifier::Identifier,
-    schema,
+    line_index::LineIndex, schema,
 };
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
@@ -55,6 +55,9 @@ pub fn validate(
 
     // Validate each file.
     for (namespace, (schema, source_path, source_contents)) in schemas {
+        // Index the lines of the file so errors can show them.
+        let line_index = LineIndex::new(source_contents);
+
         // Validate the declarations in the file.
         let mut declaration_names = HashSet::new();
 
@@ -67,7 +70,7 @@ pub fn validate(
                         declaration.name.code_str(),
                     ),
                     Some(source_path),
-                    Some((source_contents, declaration.source_range)),
+                    Some((source_contents, &line_index, declaration.source_range)),
                     None,
                 ));
             }
@@ -85,7 +88,7 @@ pub fn validate(
                             field.name.code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, field.source_range)),
+                        Some((source_contents, &line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -98,7 +101,7 @@ pub fn validate(
                             field.index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, field.source_range)),
+                        Some((source_contents, &line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -111,7 +114,7 @@ pub fn validate(
                             field.index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, field.source_range)),
+                        Some((source_contents, &line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -125,7 +128,7 @@ pub fn validate(
                             MAX_FIELD_INDEX.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, field.source_range)),
+                        Some((source_contents, &line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -138,6 +141,7 @@ pub fn validate(
                     schema,
                     source_path,
                     source_contents,
+                    &line_index,
                     &field.r#type,
                 );
             }
@@ -151,7 +155,7 @@ pub fn validate(
                             index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, declaration.source_range)),
+                        Some((source_contents, &line_index, declaration.source_range)),
                         None,
                     ));
                 }
@@ -190,6 +194,7 @@ pub fn validate(
 }
 
 // This function validates an individual type.
+#[allow(clippy::too_many_arguments)]
 fn validate_type(
     all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
     errors: &mut Vec<Error>,
@@ -197,6 +202,7 @@ fn validate_type(
     schema: &schema::Schema,
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     r#type: &schema::Type,
 ) {
     match &r#type.variant {
@@ -208,6 +214,7 @@ fn validate_type(
                 schema,
                 source_path,
                 source_contents,
+                line_index,
                 inner_type,
             );
         }
@@ -231,7 +238,7 @@ fn validate_type(
                             import.code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, r#type.source_range)),
+                        Some((source_contents, line_index, r#type.source_range)),
                         None,
                     ));
 
@@ -254,7 +261,7 @@ fn validate_type(
                         format!("There is no type named {} in this file.", name.code_str())
                     },
                     Some(source_path),
-                    Some((source_contents, r#type.source_range)),
+                    Some((source_contents, line_index, r#type.source_range)),
                     None,
                 ));
             }

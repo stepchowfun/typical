@@ -1,6 +1,7 @@
 use crate::{
     error::{Error, SourceRange},
     format::CodeStr,
+    line_index::LineIndex,
     token::{
         AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
         DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
@@ -20,8 +21,10 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
     // We'll be building up this vector of tokens.
     let mut tokens = vec![];
 
-    // Construct a vector to hold any errors that might be detected below.
+    // Construct a vector to hold any errors that might be detected below, and index the lines of
+    // the schema so the errors can show them.
     let mut errors = vec![];
+    let line_index = LineIndex::new(schema_contents);
 
     // We want to iterate one code point at a time, but we also want the byte indices so we can
     // capture slices.
@@ -188,7 +191,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         errors.push(Error::new(
                             "Identifiers cannot be empty.",
                             Some(schema_path),
-                            Some((schema_contents, SourceRange { start: i, end })),
+                            Some((schema_contents, &line_index, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -197,7 +200,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         errors.push(Error::new(
                             "Identifiers cannot begin with `_`.",
                             Some(schema_path),
-                            Some((schema_contents, SourceRange { start: i, end })),
+                            Some((schema_contents, &line_index, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -238,7 +241,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                                 schema_contents[i..end].code_str(),
                             ),
                             Some(schema_path),
-                            Some((schema_contents, SourceRange { start: i, end })),
+                            Some((schema_contents, &line_index, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -266,6 +269,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         Some(schema_path),
                         Some((
                             schema_contents,
+                            &line_index,
                             SourceRange {
                                 start: i,
                                 end: i + 1,
@@ -370,7 +374,11 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                 errors.push(Error::new(
                     &format!("Unexpected symbol {}.", schema_contents[i..end].code_str()),
                     Some(schema_path),
-                    Some((schema_contents, SourceRange { start: i, end: i })),
+                    Some((
+                        schema_contents,
+                        &line_index,
+                        SourceRange { start: i, end: i },
+                    )),
                     None,
                 ));
             }

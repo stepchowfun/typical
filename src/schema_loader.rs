@@ -1,6 +1,7 @@
 use crate::{
     error::{Error, SourceRange},
     format::{CodePath, CodeStr},
+    line_index::LineIndex,
     parser::parse,
     schema,
     tokenizer::tokenize,
@@ -145,7 +146,11 @@ pub fn load_schemas(
                     errors.push(Error::new(
                         &message,
                         Some(&origin_path),
-                        Some((&origin_contents, origin_source_range)),
+                        Some((
+                            &origin_contents,
+                            &LineIndex::new(&origin_contents),
+                            origin_source_range,
+                        )),
                         Some(Arc::new(error)),
                     ));
                 } else {
@@ -155,6 +160,9 @@ pub fn load_schemas(
                 continue;
             }
         };
+
+        // Index the lines of the contents so errors about the imports can show them.
+        let line_index = LineIndex::new(&contents);
 
         // Tokenize the contents.
         let tokens = match tokenize(&path, &contents) {
@@ -192,7 +200,7 @@ pub fn load_schemas(
                     errors.push(Error::new(
                         &format!("Unable to load {}.", non_canonical_import_path.code_path()),
                         Some(&path),
-                        Some((&contents, import.source_range)),
+                        Some((&contents, &line_index, import.source_range)),
                         Some(Arc::new(error)),
                     ));
 
@@ -215,7 +223,7 @@ pub fn load_schemas(
                         canonical_base_path.code_path(),
                     ),
                     Some(&path),
-                    Some((&contents, import.source_range)),
+                    Some((&contents, &line_index, import.source_range)),
                     None,
                 ));
 
@@ -228,7 +236,7 @@ pub fn load_schemas(
                 errors.push(Error::new(
                     "Import paths must be valid UTF-8 and contain only normal components.",
                     Some(&path),
-                    Some((&contents, import.source_range)),
+                    Some((&contents, &line_index, import.source_range)),
                     None,
                 ));
 

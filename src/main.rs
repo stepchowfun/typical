@@ -8,6 +8,7 @@ mod format;
 mod generate_rust;
 mod generate_typescript;
 mod identifier;
+mod line_index;
 mod parser;
 mod schema;
 mod schema_loader;
