@@ -49,6 +49,7 @@ const BIN_NAME: &str = "typical";
         env!("CARGO_PKG_HOMEPAGE")
     ),
     version,
+    display_name = "Typical",
     disable_version_flag = true,
 )]
 struct Cli {
