@@ -203,17 +203,16 @@ macro_rules! consume_token_1 {
 pub fn parse(
     source_path: &Path,
     source_contents: &str,
+    line_index: &LineIndex,
     tokens: &[token::Token],
 ) -> Result<schema::Schema, Vec<Error>> {
-    // Try to parse the tokens into a schema, indexing the lines of the source so any errors can
-    // show them.
+    // Try to parse the tokens into a schema.
     let mut position = 0;
     let mut errors = vec![];
-    let line_index = LineIndex::new(source_contents);
     let schema = parse_schema(
         source_path,
         source_contents,
-        &line_index,
+        line_index,
         tokens,
         &mut position,
         &mut errors,
@@ -227,7 +226,7 @@ pub fn parse(
             Some(source_path),
             Some((
                 source_contents,
-                &line_index,
+                line_index,
                 token_source_range(tokens, position),
             )),
             None,
@@ -923,7 +922,8 @@ fn parse_type(
 #[cfg(test)]
 mod tests {
     use crate::{
-        assert_fails, assert_same, error::SourceRange, parser::parse, schema, tokenizer::tokenize,
+        assert_fails, assert_same, error::SourceRange, line_index::LineIndex, parser::parse,
+        schema, tokenizer::tokenize,
     };
     use std::{
         collections::{BTreeMap, BTreeSet},
@@ -935,10 +935,11 @@ mod tests {
     fn parse_empty() {
         let source_path = Path::new("foo.t");
         let source = "";
-        let tokens = tokenize(source_path, source).unwrap();
+        let line_index = LineIndex::new(source);
+        let tokens = tokenize(source_path, source, &line_index).unwrap();
 
         assert_same!(
-            parse(source_path, source, &tokens[..]),
+            parse(source_path, source, &line_index, &tokens[..]),
             Ok(schema::Schema {
                 comment: vec![],
                 imports: BTreeMap::new(),
@@ -979,7 +980,8 @@ mod tests {
                 z = 3
             }
         ";
-        let tokens = tokenize(source_path, source).unwrap();
+        let line_index = LineIndex::new(source);
+        let tokens = tokenize(source_path, source, &line_index).unwrap();
 
         let mut imports = BTreeMap::new();
 
@@ -1183,7 +1185,7 @@ mod tests {
         ];
 
         assert_same!(
-            parse(source_path, source, &tokens[..]),
+            parse(source_path, source, &line_index, &tokens[..]),
             Ok(schema::Schema {
                 comment: vec!["This is an example schema.".to_owned()],
                 imports,
@@ -1199,10 +1201,11 @@ mod tests {
             import 'foo.t' as Qux
             import 'bar.t' as qux
         ";
-        let tokens = tokenize(source_path, source).unwrap();
+        let line_index = LineIndex::new(source);
+        let tokens = tokenize(source_path, source, &line_index).unwrap();
 
         assert_fails!(
-            parse(source_path, source, &tokens[..]),
+            parse(source_path, source, &line_index, &tokens[..]),
             "An import named `qux` already exists in this file.",
         );
     }
@@ -1215,10 +1218,11 @@ mod tests {
                 deleted 1 2 2 3
             }
         ";
-        let tokens = tokenize(source_path, source).unwrap();
+        let line_index = LineIndex::new(source);
+        let tokens = tokenize(source_path, source, &line_index).unwrap();
 
         assert_fails!(
-            parse(source_path, source, &tokens[..]),
+            parse(source_path, source, &line_index, &tokens[..]),
             "Index `2` is already marked as deleted.",
         );
     }

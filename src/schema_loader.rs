@@ -15,6 +15,14 @@ use std::{
     sync::Arc,
 };
 
+// This is a schema along with the file it was loaded from.
+pub struct LoadedSchema {
+    pub schema: schema::Schema,
+    pub path: PathBuf,
+    pub contents: String,
+    pub line_index: LineIndex,
+}
+
 // Convert a UTF-8 path containing only normal components to a namespace.
 fn path_to_namespace(path: &Path) -> Option<schema::Namespace> {
     let mut path = path.to_owned();
@@ -37,10 +45,9 @@ fn path_to_namespace(path: &Path) -> Option<schema::Namespace> {
 // Load a schema and its transitive dependencies. The imports in the returned schemas are guaranteed
 // to resolve.
 #[allow(clippy::too_many_lines)]
-#[allow(clippy::type_complexity)]
 pub fn load_schemas(
     schema_path: &Path,
-) -> Result<BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>, Vec<Error>> {
+) -> Result<BTreeMap<schema::Namespace, LoadedSchema>, Vec<Error>> {
     // Reject paths that cannot be represented faithfully in schema namespaces and diagnostics
     // [tag:schema_path_valid_utf8].
     if schema_path.to_str().is_none() {
@@ -129,7 +136,7 @@ pub fn load_schemas(
     let mut schemas_to_load = vec![(
         schema_namespace.clone(),
         based_schema_path.to_owned(),
-        None as Option<(PathBuf, String, SourceRange)>,
+        None as Option<(PathBuf, String, LineIndex, SourceRange)>,
     )];
     let mut visited_namespaces = HashSet::new();
     visited_namespaces.insert(schema_namespace);
@@ -142,15 +149,17 @@ pub fn load_schemas(
             Err(error) => {
                 let message = format!("Unable to load {}.", path.code_path());
 
-                if let Some((origin_path, origin_contents, origin_source_range)) = origin {
+                if let Some((
+                    origin_path,
+                    origin_contents,
+                    origin_line_index,
+                    origin_source_range,
+                )) = origin
+                {
                     errors.push(Error::new(
                         &message,
                         Some(&origin_path),
-                        Some((
-                            &origin_contents,
-                            &LineIndex::new(&origin_contents),
-                            origin_source_range,
-                        )),
+                        Some((&origin_contents, &origin_line_index, origin_source_range)),
                         Some(Arc::new(error)),
                     ));
                 } else {
@@ -161,11 +170,11 @@ pub fn load_schemas(
             }
         };
 
-        // Index the lines of the contents so errors about the imports can show them.
+        // Index the lines of the contents so errors can show them.
         let line_index = LineIndex::new(&contents);
 
         // Tokenize the contents.
-        let tokens = match tokenize(&path, &contents) {
+        let tokens = match tokenize(&path, &contents, &line_index) {
             Ok(tokens) => tokens,
             Err(error) => {
                 errors.extend_from_slice(&error);
@@ -175,7 +184,7 @@ pub fn load_schemas(
         };
 
         // Parse the tokens.
-        let mut schema = match parse(&path, &contents, &tokens) {
+        let mut schema = match parse(&path, &contents, &line_index, &tokens) {
             Ok(schema) => schema,
             Err(error) => {
                 errors.extend_from_slice(&error);
@@ -250,15 +259,29 @@ pub fn load_schemas(
                 schemas_to_load.push((
                     import_namespace,
                     based_import_path,
-                    Some((path.clone(), contents.clone(), import.source_range)),
+                    Some((
+                        path.clone(),
+                        contents.clone(),
+                        line_index.clone(),
+                        import.source_range,
+                    )),
                 ));
             }
         }
 
         // Store the schema.
-        if let Some((_, conflicting_schema_path, _)) =
-            schemas.insert(namespace.clone(), (schema, path.clone(), contents))
-        {
+        if let Some(LoadedSchema {
+            path: conflicting_schema_path,
+            ..
+        }) = schemas.insert(
+            namespace.clone(),
+            LoadedSchema {
+                schema,
+                path: path.clone(),
+                contents,
+                line_index,
+            },
+        ) {
             errors.push(Error::new(
                 &format!(
                     "This file conflicts with {}, since both correspond to the same namespace {}.",

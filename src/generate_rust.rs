@@ -1,11 +1,11 @@
 use crate::{
     identifier::Identifier,
     schema::{self, relativize_namespace},
+    schema_loader::LoadedSchema,
 };
 use std::{
     collections::BTreeMap,
     fmt::{self, Write},
-    path::PathBuf,
 };
 
 // The string to be used for each indentation level.
@@ -101,7 +101,7 @@ use Direction::{Atlas, In, Out};
 #[allow(clippy::too_many_lines)]
 pub fn generate(
     typical_version: &str,
-    schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
+    schemas: &BTreeMap<schema::Namespace, LoadedSchema>,
 ) -> String {
     // Construct a tree of modules and schemas. We start with an empty tree.
     let mut tree = Module {
@@ -114,7 +114,7 @@ pub fn generate(
     };
 
     // Populate the tree with all the schemas.
-    for (namespace, (schema, _, _)) in schemas {
+    for (namespace, LoadedSchema { schema, .. }) in schemas {
         insert_schema(&mut tree, namespace, schema);
     }
 
