@@ -17,14 +17,16 @@ const RAW_IDENTIFIER_SIGIL: char = '$';
 // Tokenize the contents of a schema file.
 #[allow(clippy::cognitive_complexity)]
 #[allow(clippy::too_many_lines)]
-pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>, Vec<Error>> {
+pub fn tokenize(
+    schema_path: &Path,
+    schema_contents: &str,
+    line_index: &LineIndex,
+) -> Result<Vec<Token>, Vec<Error>> {
     // We'll be building up this vector of tokens.
     let mut tokens = vec![];
 
-    // Construct a vector to hold any errors that might be detected below, and index the lines of
-    // the schema so the errors can show them.
+    // Construct a vector to hold any errors that might be detected below.
     let mut errors = vec![];
-    let line_index = LineIndex::new(schema_contents);
 
     // We want to iterate one code point at a time, but we also want the byte indices so we can
     // capture slices.
@@ -191,7 +193,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         errors.push(Error::new(
                             "Identifiers cannot be empty.",
                             Some(schema_path),
-                            Some((schema_contents, &line_index, SourceRange { start: i, end })),
+                            Some((schema_contents, line_index, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -200,7 +202,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         errors.push(Error::new(
                             "Identifiers cannot begin with `_`.",
                             Some(schema_path),
-                            Some((schema_contents, &line_index, SourceRange { start: i, end })),
+                            Some((schema_contents, line_index, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -241,7 +243,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                                 schema_contents[i..end].code_str(),
                             ),
                             Some(schema_path),
-                            Some((schema_contents, &line_index, SourceRange { start: i, end })),
+                            Some((schema_contents, line_index, SourceRange { start: i, end })),
                             None,
                         ));
                     }
@@ -269,7 +271,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                         Some(schema_path),
                         Some((
                             schema_contents,
-                            &line_index,
+                            line_index,
                             SourceRange {
                                 start: i,
                                 end: i + 1,
@@ -376,7 +378,7 @@ pub fn tokenize(schema_path: &Path, schema_contents: &str) -> Result<Vec<Token>,
                     Some(schema_path),
                     Some((
                         schema_contents,
-                        &line_index,
+                        line_index,
                         SourceRange { start: i, end: i },
                     )),
                     None,
@@ -399,6 +401,7 @@ mod tests {
     use crate::{
         assert_fails, assert_same,
         error::SourceRange,
+        line_index::LineIndex,
         token::{
             AS_KEYWORD, ASYMMETRIC_KEYWORD, BOOL_KEYWORD, BYTES_KEYWORD, CHOICE_KEYWORD,
             DELETED_KEYWORD, F64_KEYWORD, IMPORT_KEYWORD, OPTIONAL_KEYWORD, S64_KEYWORD,
@@ -421,7 +424,7 @@ mod tests {
         ";
 
         assert_same!(
-            tokenize(Path::new("foo.t"), source).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![
                 Token {
                     source_range: SourceRange { start: 13, end: 32 },
@@ -484,18 +487,30 @@ mod tests {
 
     #[test]
     fn tokenize_empty() {
-        assert_same!(tokenize(Path::new("foo.t"), "").unwrap(), vec![]);
+        let source = "";
+
+        assert_same!(
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
+            vec![],
+        );
     }
 
     #[test]
     fn tokenize_whitespace() {
-        assert_same!(tokenize(Path::new("foo.t"), " \t\n").unwrap(), vec![]);
+        let source = " \t\n";
+
+        assert_same!(
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
+            vec![],
+        );
     }
 
     #[test]
     fn tokenize_as() {
+        let source = AS_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), AS_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -508,8 +523,10 @@ mod tests {
 
     #[test]
     fn tokenize_asymmetric() {
+        let source = ASYMMETRIC_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), ASYMMETRIC_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -522,8 +539,10 @@ mod tests {
 
     #[test]
     fn tokenize_bool() {
+        let source = BOOL_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), BOOL_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -536,8 +555,10 @@ mod tests {
 
     #[test]
     fn tokenize_bytes() {
+        let source = BYTES_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), BYTES_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -550,8 +571,10 @@ mod tests {
 
     #[test]
     fn tokenize_choice() {
+        let source = CHOICE_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), CHOICE_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -564,8 +587,10 @@ mod tests {
 
     #[test]
     fn tokenize_colon() {
+        let source = ":";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), ":").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Colon,
@@ -575,8 +600,10 @@ mod tests {
 
     #[test]
     fn tokenize_comment_simple() {
+        let source = "# Hello, World!";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "# Hello, World!").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 15 },
                 variant: Variant::Comment(vec!["Hello, World!".to_owned()]),
@@ -586,12 +613,10 @@ mod tests {
 
     #[test]
     fn tokenize_comment_complex() {
+        let source = " # \n # Hello, \n # World! \n # \n # Hello, \n # Earth! \n # ";
+
         assert_same!(
-            tokenize(
-                Path::new("foo.t"),
-                " # \n # Hello, \n # World! \n # \n # Hello, \n # Earth! \n # ",
-            )
-            .unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 1, end: 55 },
                 variant: Variant::Comment(vec![
@@ -604,8 +629,10 @@ mod tests {
 
     #[test]
     fn tokenize_deleted() {
+        let source = DELETED_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), DELETED_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -618,8 +645,10 @@ mod tests {
 
     #[test]
     fn tokenize_dot() {
+        let source = ".";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), ".").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Dot,
@@ -629,8 +658,10 @@ mod tests {
 
     #[test]
     fn tokenize_equals() {
+        let source = "=";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "=").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::Equals,
@@ -640,8 +671,10 @@ mod tests {
 
     #[test]
     fn tokenize_f64() {
+        let source = F64_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), F64_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -654,8 +687,10 @@ mod tests {
 
     #[test]
     fn tokenize_bare_identifier() {
+        let source = "\u{5e78}\u{798f}";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "\u{5e78}\u{798f}").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 6 },
                 variant: Variant::Identifier("\u{5e78}\u{798f}".into()),
@@ -665,12 +700,10 @@ mod tests {
 
     #[test]
     fn tokenize_raw_identifier() {
+        let source = format!("{RAW_IDENTIFIER_SIGIL}{STRUCT_KEYWORD}");
+
         assert_same!(
-            tokenize(
-                Path::new("foo.t"),
-                &format!("{RAW_IDENTIFIER_SIGIL}{STRUCT_KEYWORD}"),
-            )
-            .unwrap(),
+            tokenize(Path::new("foo.t"), &source, &LineIndex::new(&source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 7 },
                 variant: Variant::Identifier(STRUCT_KEYWORD.into()),
@@ -680,27 +713,30 @@ mod tests {
 
     #[test]
     fn tokenize_bare_identifier_underscore_prefix() {
+        let source = "_foo";
+
         assert_fails!(
-            tokenize(Path::new("foo.t"), "_foo"),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)),
             "Identifiers cannot begin with `_`.",
         );
     }
 
     #[test]
     fn tokenize_raw_identifier_underscore_prefix() {
+        let source = format!("{}{}", RAW_IDENTIFIER_SIGIL, "_foo");
+
         assert_fails!(
-            tokenize(
-                Path::new("foo.t"),
-                &format!("{}{}", RAW_IDENTIFIER_SIGIL, "_foo"),
-            ),
+            tokenize(Path::new("foo.t"), &source, &LineIndex::new(&source)),
             "Identifiers cannot begin with `_`.",
         );
     }
 
     #[test]
     fn tokenize_import() {
+        let source = IMPORT_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), IMPORT_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -713,8 +749,10 @@ mod tests {
 
     #[test]
     fn tokenize_integer_literal_valid() {
+        let source = "42";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "42").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 2 },
                 variant: Variant::Integer(42),
@@ -724,16 +762,20 @@ mod tests {
 
     #[test]
     fn tokenize_integer_literal_out_of_range() {
+        let source = "18446744073709551616";
+
         assert_fails!(
-            tokenize(Path::new("foo.t"), "18446744073709551616"),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)),
             "Integer `18446744073709551616` must be less than 2^64.",
         );
     }
 
     #[test]
     fn tokenize_left_curly() {
+        let source = "{";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "{").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::LeftCurly,
@@ -743,8 +785,10 @@ mod tests {
 
     #[test]
     fn tokenize_left_square() {
+        let source = "[";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "[").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::LeftSquare,
@@ -754,8 +798,10 @@ mod tests {
 
     #[test]
     fn tokenize_optional() {
+        let source = OPTIONAL_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), OPTIONAL_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -768,8 +814,10 @@ mod tests {
 
     #[test]
     fn tokenize_path_non_empty() {
+        let source = "'bar.t'";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "'bar.t'").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 7 },
                 variant: Variant::Path(Path::new("bar.t").to_owned()),
@@ -779,8 +827,10 @@ mod tests {
 
     #[test]
     fn tokenize_path_empty() {
+        let source = "''";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "''").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 2 },
                 variant: Variant::Path(Path::new("").to_owned()),
@@ -790,16 +840,20 @@ mod tests {
 
     #[test]
     fn tokenize_path_non_terminated() {
+        let source = "'bar.t";
+
         assert_fails!(
-            tokenize(Path::new("foo.t"), "'bar.t"),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)),
             "Path starting here must be terminated by a `\'`.",
         );
     }
 
     #[test]
     fn tokenize_right_curly() {
+        let source = "}";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "}").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::RightCurly,
@@ -809,8 +863,10 @@ mod tests {
 
     #[test]
     fn tokenize_right_square() {
+        let source = "]";
+
         assert_same!(
-            tokenize(Path::new("foo.t"), "]").unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange { start: 0, end: 1 },
                 variant: Variant::RightSquare,
@@ -820,8 +876,10 @@ mod tests {
 
     #[test]
     fn tokenize_s64() {
+        let source = S64_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), S64_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -834,8 +892,10 @@ mod tests {
 
     #[test]
     fn tokenize_string() {
+        let source = STRING_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), STRING_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -848,8 +908,10 @@ mod tests {
 
     #[test]
     fn tokenize_struct() {
+        let source = STRUCT_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), STRUCT_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -862,8 +924,10 @@ mod tests {
 
     #[test]
     fn tokenize_u64() {
+        let source = U64_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), U64_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -876,8 +940,10 @@ mod tests {
 
     #[test]
     fn tokenize_unit() {
+        let source = UNIT_KEYWORD;
+
         assert_same!(
-            tokenize(Path::new("foo.t"), UNIT_KEYWORD).unwrap(),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)).unwrap(),
             vec![Token {
                 source_range: SourceRange {
                     start: 0,
@@ -890,8 +956,10 @@ mod tests {
 
     #[test]
     fn tokenize_unexpected_symbol() {
+        let source = "\u{1f610}\u{fe0f}";
+
         assert_fails!(
-            tokenize(Path::new("foo.t"), "\u{1f610}\u{fe0f}"),
+            tokenize(Path::new("foo.t"), source, &LineIndex::new(source)),
             "Unexpected symbol `\u{1f610}\u{fe0f}`.",
         );
     }

@@ -20,7 +20,7 @@ use crate::{
     count::count,
     error::{Error, format_errors},
     format::{CodePath, CodeStr},
-    schema_loader::load_schemas,
+    schema_loader::{LoadedSchema, load_schemas},
     validator::validate,
 };
 use clap::{ArgAction, Args, CommandFactory, Parser, Subcommand as ClapSubcommand};
@@ -147,7 +147,10 @@ fn generate_code(
         // The `unwrap` is safe since otherwise the schema would've failed to load above.
         let directory = schema_path.parent().unwrap();
 
-        for (_, source_path, _) in schemas.values() {
+        for LoadedSchema {
+            path: source_path, ..
+        } in schemas.values()
+        {
             println!("{}", directory.join(source_path).display());
         }
     }
@@ -251,7 +254,13 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Vec<Error>> {
         "{} schemas\u{2026}",
         if check { "Checking" } else { "Formatting" },
     );
-    for (schema, source_path, source_contents) in schemas.values() {
+    for LoadedSchema {
+        schema,
+        path: source_path,
+        contents: source_contents,
+        ..
+    } in schemas.values()
+    {
         // Compute the full path and new contents of the schema.
         let full_source_path = directory.join(source_path);
         let new_source_contents = schema.to_string();

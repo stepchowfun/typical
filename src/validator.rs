@@ -1,10 +1,10 @@
 use crate::{
     error::Error, format::CodeStr, generate_typescript::COMMON_FILE_STEM, identifier::Identifier,
-    line_index::LineIndex, schema,
+    line_index::LineIndex, schema, schema_loader::LoadedSchema,
 };
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 // The index will be encoded as a 64-bit integer, but two of the bits are used to help encode the
@@ -19,9 +19,7 @@ const TYPESCRIPT_RESERVED_MODULE_NAME_ERROR: &str = concat!(
 
 // This function validates a schema and its transitive dependencies.
 #[allow(clippy::too_many_lines)]
-pub fn validate(
-    schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
-) -> Result<(), Vec<Error>> {
+pub fn validate(schemas: &BTreeMap<schema::Namespace, LoadedSchema>) -> Result<(), Vec<Error>> {
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
 
@@ -30,7 +28,13 @@ pub fn validate(
     let common_namespace = schema::Namespace {
         components: vec![COMMON_FILE_STEM.into()],
     };
-    for (namespace, (_, source_path, _)) in schemas {
+    for (
+        namespace,
+        LoadedSchema {
+            path: source_path, ..
+        },
+    ) in schemas
+    {
         if namespace == &common_namespace {
             errors.push(Error::new(
                 TYPESCRIPT_RESERVED_MODULE_NAME_ERROR,
@@ -44,7 +48,7 @@ pub fn validate(
     // For the purpose of validating types, construct a map from (namespace, name) to
     // (schema, declaration).
     let mut all_types = HashMap::new();
-    for (namespace, (schema, _, _)) in schemas {
+    for (namespace, LoadedSchema { schema, .. }) in schemas {
         for declaration in &schema.declarations {
             all_types.insert(
                 (namespace.clone(), declaration.name.clone()),
@@ -54,10 +58,16 @@ pub fn validate(
     }
 
     // Validate each file.
-    for (namespace, (schema, source_path, source_contents)) in schemas {
-        // Index the lines of the file so errors can show them.
-        let line_index = LineIndex::new(source_contents);
-
+    for (
+        namespace,
+        LoadedSchema {
+            schema,
+            path: source_path,
+            contents: source_contents,
+            line_index,
+        },
+    ) in schemas
+    {
         // Validate the declarations in the file.
         let mut declaration_names = HashSet::new();
 
@@ -70,7 +80,7 @@ pub fn validate(
                         declaration.name.code_str(),
                     ),
                     Some(source_path),
-                    Some((source_contents, &line_index, declaration.source_range)),
+                    Some((source_contents, line_index, declaration.source_range)),
                     None,
                 ));
             }
@@ -88,7 +98,7 @@ pub fn validate(
                             field.name.code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, &line_index, field.source_range)),
+                        Some((source_contents, line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -101,7 +111,7 @@ pub fn validate(
                             field.index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, &line_index, field.source_range)),
+                        Some((source_contents, line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -114,7 +124,7 @@ pub fn validate(
                             field.index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, &line_index, field.source_range)),
+                        Some((source_contents, line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -128,7 +138,7 @@ pub fn validate(
                             MAX_FIELD_INDEX.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, &line_index, field.source_range)),
+                        Some((source_contents, line_index, field.source_range)),
                         None,
                     ));
                 }
@@ -141,7 +151,7 @@ pub fn validate(
                     schema,
                     source_path,
                     source_contents,
-                    &line_index,
+                    line_index,
                     &field.r#type,
                 );
             }
@@ -155,7 +165,7 @@ pub fn validate(
                             index.to_string().code_str(),
                         ),
                         Some(source_path),
-                        Some((source_contents, &line_index, declaration.source_range)),
+                        Some((source_contents, line_index, declaration.source_range)),
                         None,
                     ));
                 }
@@ -170,7 +180,7 @@ pub fn validate(
         let mut types_visited_set = HashSet::new();
         let mut types_visited_vec = vec![];
 
-        for (namespace, (schema, _, _)) in schemas {
+        for (namespace, LoadedSchema { schema, .. }) in schemas {
             for declaration in &schema.declarations {
                 check_declaration_for_cycles(
                     &all_types,
@@ -409,8 +419,8 @@ fn check_type_for_cycles(
 mod tests {
     use super::TYPESCRIPT_RESERVED_MODULE_NAME_ERROR;
     use crate::{
-        assert_fails, assert_same, parser::parse, schema::Namespace, tokenizer::tokenize,
-        validator::validate,
+        assert_fails, assert_same, line_index::LineIndex, parser::parse, schema::Namespace,
+        schema_loader::LoadedSchema, tokenizer::tokenize, validator::validate,
     };
     use std::{collections::BTreeMap, fmt::Write, path::Path};
 
@@ -422,11 +432,21 @@ mod tests {
         let path = Path::new("common.t").to_owned();
         let contents = String::new();
 
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(validate(&schemas), TYPESCRIPT_RESERVED_MODULE_NAME_ERROR);
     }
@@ -439,11 +459,21 @@ mod tests {
         let path = Path::new("Common.t").to_owned();
         let contents = String::new();
 
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(validate(&schemas), TYPESCRIPT_RESERVED_MODULE_NAME_ERROR);
     }
@@ -456,11 +486,21 @@ mod tests {
         let path = Path::new("foo.t").to_owned();
         let contents = String::new();
 
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_same!(validate(&schemas), Ok(()));
     }
@@ -495,16 +535,36 @@ mod tests {
         "
         .to_owned();
 
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        let foo_line_index = LineIndex::new(&foo_contents);
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents, &foo_line_index).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_line_index, &foo_tokens).unwrap();
         foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        let bar_line_index = LineIndex::new(&bar_contents);
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents, &bar_line_index).unwrap();
+        let bar_schema = parse(&bar_path, &bar_contents, &bar_line_index, &bar_tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
-        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+        schemas.insert(
+            foo_namespace,
+            LoadedSchema {
+                schema: foo_schema,
+                path: foo_path,
+                contents: foo_contents,
+                line_index: foo_line_index,
+            },
+        );
+        schemas.insert(
+            bar_namespace,
+            LoadedSchema {
+                schema: bar_schema,
+                path: bar_path,
+                contents: bar_contents,
+                line_index: bar_line_index,
+            },
+        );
 
         assert_same!(validate(&schemas), Ok(()));
     }
@@ -523,11 +583,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -548,11 +617,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -573,11 +651,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -599,11 +686,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -626,11 +722,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -651,11 +756,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -676,11 +790,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -702,11 +825,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -729,11 +861,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -753,11 +894,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -777,11 +927,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -801,11 +960,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -825,11 +993,20 @@ mod tests {
             }
         "
         .to_owned();
-        let tokens = tokenize(&path, &contents).unwrap();
-        let schema = parse(&path, &contents, &tokens).unwrap();
+        let line_index = LineIndex::new(&contents);
+        let tokens = tokenize(&path, &contents, &line_index).unwrap();
+        let schema = parse(&path, &contents, &line_index, &tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(namespace, (schema, path, contents));
+        schemas.insert(
+            namespace,
+            LoadedSchema {
+                schema,
+                path,
+                contents,
+                line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -862,16 +1039,36 @@ mod tests {
         "
         .to_owned();
 
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        let foo_line_index = LineIndex::new(&foo_contents);
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents, &foo_line_index).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_line_index, &foo_tokens).unwrap();
         foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        let bar_line_index = LineIndex::new(&bar_contents);
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents, &bar_line_index).unwrap();
+        let bar_schema = parse(&bar_path, &bar_contents, &bar_line_index, &bar_tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
-        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+        schemas.insert(
+            foo_namespace,
+            LoadedSchema {
+                schema: foo_schema,
+                path: foo_path,
+                contents: foo_contents,
+                line_index: foo_line_index,
+            },
+        );
+        schemas.insert(
+            bar_namespace,
+            LoadedSchema {
+                schema: bar_schema,
+                path: bar_path,
+                contents: bar_contents,
+                line_index: bar_line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -904,16 +1101,36 @@ mod tests {
         "
         .to_owned();
 
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        let foo_line_index = LineIndex::new(&foo_contents);
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents, &foo_line_index).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_line_index, &foo_tokens).unwrap();
         foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        let bar_line_index = LineIndex::new(&bar_contents);
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents, &bar_line_index).unwrap();
+        let bar_schema = parse(&bar_path, &bar_contents, &bar_line_index, &bar_tokens).unwrap();
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
-        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+        schemas.insert(
+            foo_namespace,
+            LoadedSchema {
+                schema: foo_schema,
+                path: foo_path,
+                contents: foo_contents,
+                line_index: foo_line_index,
+            },
+        );
+        schemas.insert(
+            bar_namespace,
+            LoadedSchema {
+                schema: bar_schema,
+                path: bar_path,
+                contents: bar_contents,
+                line_index: bar_line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -949,17 +1166,37 @@ mod tests {
         "
         .to_owned();
 
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        let foo_line_index = LineIndex::new(&foo_contents);
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents, &foo_line_index).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_line_index, &foo_tokens).unwrap();
         foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        let bar_line_index = LineIndex::new(&bar_contents);
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents, &bar_line_index).unwrap();
+        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_line_index, &bar_tokens).unwrap();
         bar_schema.imports.get_mut(&"foo".into()).unwrap().namespace = Some(foo_namespace.clone());
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
-        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+        schemas.insert(
+            foo_namespace,
+            LoadedSchema {
+                schema: foo_schema,
+                path: foo_path,
+                contents: foo_contents,
+                line_index: foo_line_index,
+            },
+        );
+        schemas.insert(
+            bar_namespace,
+            LoadedSchema {
+                schema: bar_schema,
+                path: bar_path,
+                contents: bar_contents,
+                line_index: bar_line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),
@@ -995,17 +1232,37 @@ mod tests {
         "
         .to_owned();
 
-        let foo_tokens = tokenize(&foo_path, &foo_contents).unwrap();
-        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_tokens).unwrap();
+        let foo_line_index = LineIndex::new(&foo_contents);
+
+        let foo_tokens = tokenize(&foo_path, &foo_contents, &foo_line_index).unwrap();
+        let mut foo_schema = parse(&foo_path, &foo_contents, &foo_line_index, &foo_tokens).unwrap();
         foo_schema.imports.get_mut(&"bar".into()).unwrap().namespace = Some(bar_namespace.clone());
 
-        let bar_tokens = tokenize(&bar_path, &bar_contents).unwrap();
-        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_tokens).unwrap();
+        let bar_line_index = LineIndex::new(&bar_contents);
+
+        let bar_tokens = tokenize(&bar_path, &bar_contents, &bar_line_index).unwrap();
+        let mut bar_schema = parse(&bar_path, &bar_contents, &bar_line_index, &bar_tokens).unwrap();
         bar_schema.imports.get_mut(&"foo".into()).unwrap().namespace = Some(foo_namespace.clone());
 
         let mut schemas = BTreeMap::new();
-        schemas.insert(foo_namespace, (foo_schema, foo_path, foo_contents));
-        schemas.insert(bar_namespace, (bar_schema, bar_path, bar_contents));
+        schemas.insert(
+            foo_namespace,
+            LoadedSchema {
+                schema: foo_schema,
+                path: foo_path,
+                contents: foo_contents,
+                line_index: foo_line_index,
+            },
+        );
+        schemas.insert(
+            bar_namespace,
+            LoadedSchema {
+                schema: bar_schema,
+                path: bar_path,
+                contents: bar_contents,
+                line_index: bar_line_index,
+            },
+        );
 
         assert_fails!(
             validate(&schemas),

@@ -1,4 +1,4 @@
-use crate::{identifier::Identifier, schema};
+use crate::{identifier::Identifier, schema, schema_loader::LoadedSchema};
 use std::{
     collections::BTreeMap,
     fmt::{self, Write},
@@ -142,7 +142,7 @@ impl DeclarationFunctionNames {
 // to the configured output directory.
 pub fn generate(
     typical_version: &str,
-    schemas: &BTreeMap<schema::Namespace, (schema::Schema, PathBuf, String)>,
+    schemas: &BTreeMap<schema::Namespace, LoadedSchema>,
     import_extension: &str,
 ) -> BTreeMap<PathBuf, String> {
     let mut files = BTreeMap::new();
@@ -155,7 +155,7 @@ pub fn generate(
         common_buffer,
     );
 
-    for (namespace, (schema, _, _)) in schemas {
+    for (namespace, LoadedSchema { schema, .. }) in schemas {
         let mut buffer = String::new();
         // The `unwrap` is safe because the `std::fmt::Write` impl for `String` is infallible.
         write_schema_file(
@@ -2625,7 +2625,9 @@ mod tests {
     use crate::{
         error::SourceRange,
         generate_typescript::{COMMON_FILE_STEM, generate},
+        line_index::LineIndex,
         schema::{self, Namespace},
+        schema_loader::LoadedSchema,
         schema_loader::load_schemas,
         validator::validate,
     };
@@ -2684,20 +2686,21 @@ mod tests {
         let mut schemas = BTreeMap::new();
         schemas.insert(
             dependency_namespace,
-            (
-                schema::Schema {
+            LoadedSchema {
+                schema: schema::Schema {
                     comment: vec![],
                     imports: BTreeMap::new(),
                     declarations: vec![],
                 },
-                PathBuf::from("Foo/FirstSchema.t"),
-                String::new(),
-            ),
+                path: PathBuf::from("Foo/FirstSchema.t"),
+                contents: String::new(),
+                line_index: LineIndex::new(""),
+            },
         );
         schemas.insert(
             types_namespace,
-            (
-                schema::Schema {
+            LoadedSchema {
+                schema: schema::Schema {
                     comment: vec![],
                     imports,
                     declarations: vec![schema::Declaration {
@@ -2709,9 +2712,10 @@ mod tests {
                         deleted: BTreeSet::new(),
                     }],
                 },
-                PathBuf::from("Bar/SecondSchema.t"),
-                String::new(),
-            ),
+                path: PathBuf::from("Bar/SecondSchema.t"),
+                contents: String::new(),
+                line_index: LineIndex::new(""),
+            },
         );
 
         let generated = generate("0.0.0", &schemas, ".ts");
