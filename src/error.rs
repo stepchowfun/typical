@@ -1,4 +1,4 @@
-use crate::{format::CodePath, line_index::LineIndex};
+use crate::{format::CodeStr, line_index::LineIndex};
 use colored::{Colorize, control::SHOULD_COLORIZE};
 use std::{
     cmp::{max, min},
@@ -88,7 +88,7 @@ impl fmt::Display for Error {
         // Render the error header from its structured fields.
         write!(f, "{}", "[Error]".red().bold())?;
         if let Some(path) = self.source_path() {
-            write!(f, " {}", format!("[{}]", path.code_path()).magenta())?;
+            write!(f, " {}", format!("[{}]", path.code_str()).magenta())?;
         }
         write!(f, " {}", self.message())?;
 
