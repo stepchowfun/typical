@@ -19,7 +19,7 @@ mod validator;
 use crate::{
     count::count,
     error::{Error, format_errors},
-    format::{CodePath, CodeStr},
+    format::CodeStr,
     schema_loader::{LoadedSchema, load_schemas},
     validator::validate,
 };
@@ -164,7 +164,7 @@ fn generate_code(
         if let Some(parent) = rust_file.parent() {
             create_dir_all(parent).map_err(|error| {
                 vec![Error::new(
-                    &format!("Unable to create {}.", parent.code_path()),
+                    &format!("Unable to create {}.", parent.code_str()),
                     None,
                     None,
                     Some(Arc::new(error)),
@@ -173,10 +173,10 @@ fn generate_code(
         }
 
         // Generate the code and write it to the file.
-        eprintln!("Writing {}\u{2026}", rust_file.code_path());
+        eprintln!("Writing {}\u{2026}", rust_file.code_str());
         write(rust_file, generate_rust::generate(VERSION, &schemas)).map_err(|error| {
             vec![Error::new(
-                &format!("Unable to write {}.", rust_file.code_path()),
+                &format!("Unable to write {}.", rust_file.code_str()),
                 None,
                 None,
                 Some(Arc::new(error)),
@@ -211,7 +211,7 @@ fn generate_code(
             if let Some(parent) = output_file_path.parent() {
                 create_dir_all(parent).map_err(|error| {
                     vec![Error::new(
-                        &format!("Unable to create {}.", parent.code_path()),
+                        &format!("Unable to create {}.", parent.code_str()),
                         None,
                         None,
                         Some(Arc::new(error)),
@@ -220,10 +220,10 @@ fn generate_code(
             }
 
             // Write the file.
-            eprintln!("Writing {}\u{2026}", output_file_path.code_path());
+            eprintln!("Writing {}\u{2026}", output_file_path.code_str());
             write(&output_file_path, contents).map_err(|error| {
                 vec![Error::new(
-                    &format!("Unable to write {}.", output_file_path.code_path()),
+                    &format!("Unable to write {}.", output_file_path.code_str()),
                     None,
                     None,
                     Some(Arc::new(error)),
@@ -265,7 +265,7 @@ fn format_schema(schema_path: &Path, check: bool) -> Result<(), Vec<Error>> {
         // Compute the full path and new contents of the schema.
         let full_source_path = directory.join(source_path);
         let new_source_contents = schema.to_string();
-        eprintln!("  {}", full_source_path.code_path());
+        eprintln!("  {}", full_source_path.code_str());
 
         // Check if the contents changed.
         let updated = *source_contents != new_source_contents;

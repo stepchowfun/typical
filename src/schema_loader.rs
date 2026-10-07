@@ -1,6 +1,6 @@
 use crate::{
     error::{Error, SourceRange},
-    format::{CodePath, CodeStr},
+    format::CodeStr,
     line_index::LineIndex,
     parser::parse,
     schema,
@@ -68,7 +68,7 @@ pub fn load_schemas(
     // The base directory for the schema's dependencies is the directory containing the schema.
     let Some(base_path) = schema_path.parent() else {
         errors.push(Error::new(
-            &format!("{} is not a file.", schema_path.code_path()),
+            &format!("{} is not a file.", schema_path.code_str()),
             None,
             None,
             None,
@@ -95,7 +95,7 @@ pub fn load_schemas(
         Ok(canonical_base_path) => canonical_base_path,
         Err(error) => {
             errors.push(Error::new(
-                &format!("{} is not a file.", schema_path.code_path()),
+                &format!("{} is not a file.", schema_path.code_str()),
                 None,
                 None,
                 Some(Arc::new(error)),
@@ -111,7 +111,7 @@ pub fn load_schemas(
         AsRef::<Path>::as_ref(based_schema_path)
     } else {
         errors.push(Error::new(
-            &format!("{} is not a file.", schema_path.code_path()),
+            &format!("{} is not a file.", schema_path.code_str()),
             None,
             None,
             None,
@@ -147,7 +147,7 @@ pub fn load_schemas(
         let contents = match read_to_string(base_path.join(&path)) {
             Ok(contents) => contents,
             Err(error) => {
-                let message = format!("Unable to load {}.", path.code_path());
+                let message = format!("Unable to load {}.", path.code_str());
 
                 if let Some((
                     origin_path,
@@ -207,7 +207,7 @@ pub fn load_schemas(
                 Ok(canonical_import_path) => canonical_import_path,
                 Err(error) => {
                     errors.push(Error::new(
-                        &format!("Unable to load {}.", non_canonical_import_path.code_path()),
+                        &format!("Unable to load {}.", non_canonical_import_path.code_str()),
                         Some(&path),
                         Some((&contents, &line_index, import.source_range)),
                         Some(Arc::new(error)),
@@ -228,8 +228,8 @@ pub fn load_schemas(
                 errors.push(Error::new(
                     &format!(
                         "{} is not a descendant of {}, which is the base directory for this run.",
-                        canonical_import_path.code_path(),
-                        canonical_base_path.code_path(),
+                        canonical_import_path.code_str(),
+                        canonical_base_path.code_str(),
                     ),
                     Some(&path),
                     Some((&contents, &line_index, import.source_range)),
@@ -285,7 +285,7 @@ pub fn load_schemas(
             errors.push(Error::new(
                 &format!(
                     "This file conflicts with {}, since both correspond to the same namespace {}.",
-                    conflicting_schema_path.code_path(),
+                    conflicting_schema_path.code_str(),
                     namespace.to_string().code_str(),
                 ),
                 Some(&path),
