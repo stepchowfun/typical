@@ -3,7 +3,7 @@ use std::path::Path;
 
 // This trait has a function for formatting "code-like" text, such as a file path. The reason it's
 // implemented as a trait and not just a function is so we can use it with method syntax, as in
-// `x.code_str()`. Rust does not allow us to implement methods on primitive types such as `str`.
+// `x.code_str()`. Rust doesn't allow us to implement methods on primitive types such as `str`.
 pub trait CodeStr {
     fn code_str(&self) -> ColoredString;
 }
