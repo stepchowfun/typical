@@ -424,6 +424,62 @@ mod tests {
     }
 
     #[test]
+    fn format_errors_empty() {
+        assert_eq!(format_errors(&[]), "");
+    }
+
+    #[test]
+    fn format_errors_single() {
+        assert_eq!(
+            format_errors(&[Error::new("Something went wrong.", None, None, None)]),
+            "[Error] Something went wrong.",
+        );
+    }
+
+    #[test]
+    fn format_errors_double() {
+        assert_eq!(
+            format_errors(&[
+                Error::new("Something went kinda wrong.", None, None, None),
+                Error::new("Something went sorta wrong.", None, None, None),
+                Error::new("Something went very wrong.", None, None, None),
+            ]),
+            "\
+[Error] Something went kinda wrong.
+
+[Error] Something went sorta wrong.
+
+[Error] Something went very wrong.\
+",
+        );
+    }
+
+    #[test]
+    fn format_errors_visually_empty_line() {
+        assert_eq!(
+            format_errors(&[
+                Error::new(
+                    "1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502} \
+                                bar\n  \u{250a} \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n  \
+                                \u{250a} \u{203e}\u{203e}\u{203e}\n4 \u{2502} qux\n    \u{203e}\
+                                \u{203e}\u{203e}",
+                    None,
+                    None,
+                    None,
+                ),
+                Error::new("Something went sorta wrong.", None, None, None),
+            ]),
+            "\
+[Error] 1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502} \
+bar\n  \u{250a} \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n  \
+\u{250a} \u{203e}\u{203e}\u{203e}\n4 \u{2502} qux\n    \u{203e}\
+\u{203e}\u{203e}
+[Error] Something went sorta wrong.\
+",
+        );
+    }
+
+    #[test]
     fn listing_empty() {
         let source = "";
 
@@ -536,62 +592,6 @@ mod tests {
                 SourceRange { start: 0, end: 6 },
             ),
             "1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502}     bar",
-        );
-    }
-
-    #[test]
-    fn format_errors_empty() {
-        assert_eq!(format_errors(&[]), "");
-    }
-
-    #[test]
-    fn format_errors_single() {
-        assert_eq!(
-            format_errors(&[Error::new("Something went wrong.", None, None, None)]),
-            "[Error] Something went wrong.",
-        );
-    }
-
-    #[test]
-    fn format_errors_double() {
-        assert_eq!(
-            format_errors(&[
-                Error::new("Something went kinda wrong.", None, None, None),
-                Error::new("Something went sorta wrong.", None, None, None),
-                Error::new("Something went very wrong.", None, None, None),
-            ]),
-            "\
-[Error] Something went kinda wrong.
-
-[Error] Something went sorta wrong.
-
-[Error] Something went very wrong.\
-",
-        );
-    }
-
-    #[test]
-    fn format_errors_visually_empty_line() {
-        assert_eq!(
-            format_errors(&[
-                Error::new(
-                    "1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502} \
-                                bar\n  \u{250a} \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n  \
-                                \u{250a} \u{203e}\u{203e}\u{203e}\n4 \u{2502} qux\n    \u{203e}\
-                                \u{203e}\u{203e}",
-                    None,
-                    None,
-                    None,
-                ),
-                Error::new("Something went sorta wrong.", None, None, None),
-            ]),
-            "\
-[Error] 1 \u{2502} foo\n  \u{250a} \u{203e}\u{203e}\u{203e}\n2 \u{2502} \
-bar\n  \u{250a} \u{203e}\u{203e}\u{203e}\n3 \u{2502} baz\n  \
-\u{250a} \u{203e}\u{203e}\u{203e}\n4 \u{2502} qux\n    \u{203e}\
-\u{203e}\u{203e}
-[Error] Something went sorta wrong.\
-",
         );
     }
 }
