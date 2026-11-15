@@ -4,12 +4,12 @@ use crate::{
 };
 use std::io;
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 fn _initial_in<T>(x: EmptyChoiceIn) -> T {
     match x {}
 }
 
-#[allow(clippy::needless_pass_by_value)]
+#[expect(clippy::needless_pass_by_value)]
 fn _initial_out<T>(x: EmptyChoiceOut) -> T {
     match x {}
 }

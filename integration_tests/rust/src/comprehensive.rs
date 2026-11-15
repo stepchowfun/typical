@@ -64,7 +64,7 @@ const S64_TEST_VALUES: &[i64] = &[
     i64::MAX,
 ];
 
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn run() -> io::Result<()> {
     assert_round_trip::<FooOut, FooIn>(&FooOut {
         a_required: (),

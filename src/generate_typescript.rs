@@ -196,7 +196,7 @@ fn write_generated_file_header<T: Write>(
 }
 
 // Write the shared library file.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_common_file<T: Write>(buffer: &mut T, typical_version: &str) -> Result<(), fmt::Error> {
     write_generated_file_header(buffer, typical_version)?;
     writeln!(buffer)?;
@@ -589,7 +589,7 @@ import type {{ Deserializable }} from '{specifier}';",
 }
 
 // Write a schema, including a trailing line break if there was anything to render.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_schema<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -822,7 +822,6 @@ fn write_schema<T: Write>(
 }
 
 // Write the function that computes a struct's encoded size atlas.
-#[allow(clippy::too_many_lines)]
 fn write_struct_atlas_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -914,7 +913,6 @@ fn write_struct_atlas_function<T: Write>(
 }
 
 // Write the function that serializes a struct into an existing data view.
-#[allow(clippy::too_many_lines)]
 fn write_struct_serialize_with_atlas_unsafe_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -992,7 +990,7 @@ fn write_struct_serialize_with_atlas_unsafe_function<T: Write>(
 }
 
 // Write the function that deserializes a struct from a data view.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_struct_deserialize_unsafe_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1134,7 +1132,6 @@ fn write_struct_deserialize_unsafe_function<T: Write>(
 }
 
 // Write the function that computes a choice's encoded size atlas.
-#[allow(clippy::too_many_lines)]
 fn write_choice_atlas_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1217,7 +1214,6 @@ fn write_choice_atlas_function<T: Write>(
 }
 
 // Write the function that serializes a choice into an existing data view.
-#[allow(clippy::too_many_lines)]
 fn write_choice_serialize_with_atlas_unsafe_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1296,7 +1292,6 @@ fn write_choice_serialize_with_atlas_unsafe_function<T: Write>(
 }
 
 // Write the function that deserializes a choice from a data view.
-#[allow(clippy::too_many_lines)]
 fn write_choice_deserialize_unsafe_function<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1732,7 +1727,7 @@ fn write_indentation<T: Write>(buffer: &mut T, indentation: usize) -> Result<(),
 // Context variables:
 // - `payloadAtlas` (out)
 // - `payload` (in)
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_atlas_calculation<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1981,7 +1976,7 @@ fn write_atlas_lookup<T: Write>(
 // Additional notes:
 // - If `is_field` is unset and `type_variant` is `Bool`, `S64`, `U64`, or `F64`, then
 //   `payloadAtlas` is never read.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -2203,7 +2198,7 @@ fn write_u64_serialization_invocation<T: Write>(
 // - If `type_variant` is `Array`, `Bytes`, `Custom`, or `String` and the encoded data is well-
 //   formed, then `dataView` is consumed to the end.
 // - If `type_variant` is `Custom`, then `offset` must be 0.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,

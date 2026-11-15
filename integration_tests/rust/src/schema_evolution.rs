@@ -85,7 +85,6 @@ fn choice_test_cases(
     ]
 }
 
-#[allow(clippy::too_many_lines)]
 pub fn run() -> io::Result<()> {
     assert_match::<before::ExampleStructOut, after::ExampleStructIn>(
         &before::ExampleStructOut {

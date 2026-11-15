@@ -15,8 +15,8 @@ use unicode_segmentation::GraphemeCursor;
 const RAW_IDENTIFIER_SIGIL: char = '$';
 
 // Tokenize the contents of a schema file.
-#[allow(clippy::cognitive_complexity)]
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::cognitive_complexity)]
+#[expect(clippy::too_many_lines)]
 pub fn tokenize(
     schema_path: &Path,
     schema_contents: &str,
