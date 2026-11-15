@@ -242,7 +242,7 @@ pub fn parse(
 }
 
 // Parse a schema.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn parse_schema(
     source_path: &Path,
     source_contents: &str,
@@ -601,7 +601,7 @@ fn parse_import(
 
 // Parse a field. If this function returns `None`, then at least one error was added to `errors`.
 // Otherwise, the `position` is guaranteed to have advanced [tag:parse_field_some_advance].
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn parse_field(
     source_path: &Path,
     source_contents: &str,
@@ -744,7 +744,7 @@ fn parse_field(
 
 // Parse a type. If this function returns `None`, then at least one error was added to `errors`.
 // Otherwise, the `position` is guaranteed to have advanced [tag:parse_type_some_advance].
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn parse_type(
     source_path: &Path,
     source_contents: &str,
@@ -948,7 +948,7 @@ mod tests {
         );
     }
 
-    #[allow(clippy::too_many_lines)]
+    #[expect(clippy::too_many_lines)]
     #[test]
     fn parse_example() {
         let source_path = Path::new("foo.t");

@@ -10,7 +10,7 @@ use std::{
     borrow::ToOwned,
     collections::{BTreeMap, HashSet},
     fs::read_to_string,
-    io::{self, ErrorKind},
+    io,
     path::{Component, Path, PathBuf},
     sync::Arc,
 };
@@ -44,7 +44,7 @@ fn path_to_namespace(path: &Path) -> Option<schema::Namespace> {
 
 // Load a schema and its transitive dependencies. The imports in the returned schemas are guaranteed
 // to resolve.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn load_schemas(
     schema_path: &Path,
 ) -> Result<BTreeMap<schema::Namespace, LoadedSchema>, Vec<Error>> {
@@ -90,7 +90,7 @@ pub fn load_schemas(
             canonical_schema_path
                 .parent()
                 .map(ToOwned::to_owned)
-                .ok_or_else(|| io::Error::from(ErrorKind::Other))
+                .ok_or_else(|| io::Error::other("The schema path has no parent."))
         }) {
         Ok(canonical_base_path) => canonical_base_path,
         Err(error) => {

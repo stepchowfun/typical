@@ -98,7 +98,7 @@ enum Direction {
 use Direction::{Atlas, In, Out};
 
 // Generate Rust code from a schema and its transitive dependencies.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn generate(
     typical_version: &str,
     schemas: &BTreeMap<schema::Namespace, LoadedSchema>,
@@ -493,7 +493,7 @@ fn write_module_contents<T: Write>(
 }
 
 // Write a schema, including a trailing line break if there was anything to render.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_schema<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -1950,7 +1950,7 @@ fn write_atlas_lookup<T: Write>(
 // Additional notes:
 // - If `is_field` is unset and `type_variant` is `Bool`, `S64`, `U64`, or `F64`, then
 //   `payload_atlas` is never read.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_serialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,
@@ -2117,7 +2117,7 @@ fn write_u64_serialization_invocation<T: Write>(
 //   formed, then `sub_reader` is consumed to the end.
 // - If `type_variant` is `Array` and the element type is `Bool`, `S64`, or `U64`, then
 //   `payload_size` is never read.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn write_deserialization_invocation<T: Write>(
     buffer: &mut T,
     indentation: usize,

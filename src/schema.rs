@@ -622,7 +622,7 @@ mod tests {
         assert_eq!(schema.to_string(), expected);
     }
 
-    #[allow(clippy::too_many_lines)]
+    #[expect(clippy::too_many_lines)]
     #[test]
     fn schema_imports_and_declarations_display() {
         let mut imports = BTreeMap::new();

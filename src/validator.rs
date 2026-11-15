@@ -18,7 +18,7 @@ const TYPESCRIPT_RESERVED_MODULE_NAME_ERROR: &str = concat!(
 );
 
 // This function validates a schema and its transitive dependencies.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn validate(schemas: &BTreeMap<schema::Namespace, LoadedSchema>) -> Result<(), Vec<Error>> {
     // We'll add any errors to this.
     let mut errors: Vec<Error> = vec![];
@@ -204,7 +204,7 @@ pub fn validate(schemas: &BTreeMap<schema::Namespace, LoadedSchema>) -> Result<(
 }
 
 // This function validates an individual type.
-#[allow(clippy::too_many_arguments)]
+#[expect(clippy::too_many_arguments)]
 fn validate_type(
     all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
     errors: &mut Vec<Error>,
@@ -355,7 +355,7 @@ fn check_declaration_for_cycles(
 }
 
 // This function checks that types have no cycles.
-#[allow(clippy::too_many_arguments)]
+#[expect(clippy::too_many_arguments)]
 fn check_type_for_cycles(
     all_types: &HashMap<(schema::Namespace, Identifier), (&schema::Schema, &schema::Declaration)>,
     types_checked: &mut HashSet<(schema::Namespace, Identifier)>,

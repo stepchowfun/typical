@@ -66,7 +66,7 @@ const S64_TEST_VALUES: &[i64] = &[
     i64::MAX,
 ];
 
-#[allow(clippy::cast_precision_loss)]
+#[expect(clippy::cast_precision_loss)]
 fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io::Result<()> {
     let message_size = message.size();
     let mut buffer = Vec::with_capacity(message_size);
@@ -110,7 +110,7 @@ fn benchmark<T: Serialize, U: Deserialize>(message: &T, iterations: usize) -> io
     Ok(())
 }
 
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn main() -> io::Result<()> {
     println!("Massive message test.");
 
