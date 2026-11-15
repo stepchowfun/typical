@@ -16,7 +16,7 @@
     "lodash": "^4.18.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.65.0",
+    "@playwright/test": "^1.65.1",
     "@types/lodash": "^4.17.27",
     "typescript": "^7.0.2",
     "vite-plus": "^1.6.0"
