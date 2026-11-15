@@ -6,7 +6,6 @@ edition = "2024"
 description = "Data interchange with algebraic data types."
 license = "MIT"
 documentation = "https://github.com/stepchowfun/typical"
-homepage = "https://github.com/stepchowfun/typical"
 repository = "https://github.com/stepchowfun/typical"
 readme = "README.md"
 
