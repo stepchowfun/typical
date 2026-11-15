@@ -112,6 +112,7 @@ tasks:
     dependencies:
       - install_tools
     input_paths:
+      - .cargo
       - Cargo.lock
       - Cargo.toml
     command: |
