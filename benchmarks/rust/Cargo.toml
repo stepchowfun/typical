@@ -1,13 +1,12 @@
 [package]
 name = "benchmark"
 version = "0.1.0"
-authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
 edition = "2024"
+
+[dependencies]
 
 [lints]
 clippy.all = { level = "deny", priority = -1 }
 clippy.default_numeric_fallback = "deny"
 clippy.pedantic = { level = "deny", priority = -1 }
 rust.warnings = "deny"
-
-[dependencies]
