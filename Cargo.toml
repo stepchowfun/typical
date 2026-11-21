@@ -1,19 +1,12 @@
 [package]
 name = "typical"
 version = "0.16.0"
-authors = ["Stephan Boyer <stephan@stephanboyer.com>"]
 edition = "2024"
 description = "Data interchange with algebraic data types."
-license = "MIT"
 documentation = "https://github.com/stepchowfun/typical"
-repository = "https://github.com/stepchowfun/typical"
 readme = "README.md"
-
-[lints]
-clippy.all = { level = "deny", priority = -1 }
-clippy.default_numeric_fallback = "deny"
-clippy.pedantic = { level = "deny", priority = -1 }
-rust.warnings = "deny"
+repository = "https://github.com/stepchowfun/typical"
+license = "MIT"
 
 [dependencies]
 clap = { version = "4.6.8", features = ["derive", "wrap_help"] }
@@ -21,3 +14,9 @@ clap_complete = "4.6.12"
 colored = "3.1.1"
 textwrap = "0.16.4"
 unicode-segmentation = "1.13.3"
+
+[lints]
+clippy.all = { level = "deny", priority = -1 }
+clippy.default_numeric_fallback = "deny"
+clippy.pedantic = { level = "deny", priority = -1 }
+rust.warnings = "deny"
